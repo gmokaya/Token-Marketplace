@@ -1,0 +1,36 @@
+4. The Market Dynamics Engine
+Once an e-WR is mapped to the user dashboard, the owner activates one of three programmatic transaction tracks.
+The platform logic manages state transitions, locking mechanics, and settlement execution paths.
+4.1 Engine A: Spot Marketplace (Fixed-Price Clearing)
+The spot engine acts as an instantaneous business-to-business electronic billboard matching immediate demand
+against fixed pricing parameters.
+Locking Protocol: The moment a buyer clicks "Execute Order," the target e-WR state transitions to
+LOCKED_PENDING_SETTLEMENT within our system database. A state change call is pushed to the WRSC
+Registry to prevent concurrent actions.
+Settlement Window: The buyer has a hard stop of T_{settle} = 60 ext{ minutes} to complete payment processing
+via mobile money or bank transfer. If checkout is incomplete at expiration, the state rolls back to AVAILABLE.
+4.2 Engine B: Live Digital Auction (Dynamic Price Discovery)
+Auctions implement a time-bound ascending price discovery mechanism suited for specialized micro-lots or macropooling clearings.
+Bidding Parameters: The seller defines the base reserve price (P_{reserve}) and the bidding interval time.
+Bidders submit electronic binding quotes. Each bid must exceed the previous high quote by a minimum delta
+(\Delta P \ge 1.5\%).
+Anti-Sniper Mechanism: If a valid bid is logged within the final 3 ext{ minutes} of the scheduled auction
+countdown, the system triggers a dynamic extension rule, adding exactly 3 ext{ minutes} to the expiration clock
+(T_{end} = T_{current} + 3) until bidding ceases.
+•
+•
+•
+•
+WRS Digital Marketplace Blueprint v1.0 6
+4.3 Engine C: Forward Contract Engine (Structured Term Deliveries)
+The Forward Contract Engine facilitates future security of supply without entering the domain of financial option
+derivatives. These are fixed-date, physical delivery obligations.
+Contract Specification: Agreements must specify Maturity Date (D_{maturity}), Delivery Price (P_{delivery}),
+and Performance Bond Requirements (B_{premium}).
+Default Risk Mitigation via Performance Bonds: To ensure trade adherence without a formal central
+clearinghouse license, the platform enforces mutual escrow bonds. Upon contract bilateral signing, both the
+Buyer and Seller must lock a liquidity percentage into the bank escrow:
+B_{premium} = P_{delivery} imes 15\%
+If the Buyer fails to settle the remaining balance at maturity, the escrow system auto-forfeits the buyer's 15%
+performance bond directly to the farmer's wallet as liquidated damages. Conversely, if the seller tampers with or
+unauthorized withdraws stock through collusion, their bond pays out to the buyer.
