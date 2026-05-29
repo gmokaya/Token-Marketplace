@@ -6,6 +6,7 @@ import {
   auctionBidsTable,
   ewrsTable,
   usersTable,
+  settlementsTable,
 } from "@workspace/db";
 import { eq, desc, and, sql, count } from "drizzle-orm";
 
@@ -353,7 +354,10 @@ export async function startAuctionExpiryWorker() {
         });
       }
 
-      // ── Phase 2: SETTLED CLOSED auctions past settlement deadline ─────────
+      // ── Phase 2: CLOSED auctions past settlement deadline without a settlement record ──
+      // The split-settlement engine is the ONLY path to SETTLED status for auctions.
+      // If the deadline passes and no settlement record was created, cancel the auction
+      // so the eWR is unlocked and the asset can be re-listed or auctioned.
       const closedAuctions = await db
         .select()
         .from(auctionsTable)
@@ -362,10 +366,20 @@ export async function startAuctionExpiryWorker() {
       for (const auction of closedAuctions) {
         if (!auction.settlementDeadlineAt || auction.settlementDeadlineAt > now) continue;
 
+        // Check if a settlement record already exists for this auction
+        const [existingSettlement] = await db
+          .select({ id: settlementsTable.id })
+          .from(settlementsTable)
+          .where(and(eq(settlementsTable.entityType, "AUCTION"), eq(settlementsTable.entityId, auction.id)))
+          .limit(1);
+
+        if (existingSettlement) continue; // Settlement initiated — split engine takes it from here
+
+        // No settlement initiated before deadline — cancel and release the eWR
         await db.transaction(async (tx) => {
           const affected = await tx
             .update(auctionsTable)
-            .set({ status: "SETTLED" })
+            .set({ status: "CANCELLED" })
             .where(
               sql`${auctionsTable.id} = ${auction.id}
                   AND ${auctionsTable.status} = 'CLOSED'
@@ -374,7 +388,12 @@ export async function startAuctionExpiryWorker() {
             .returning({ id: auctionsTable.id });
 
           if (affected.length === 0) return;
-          // eWR remains LOCK_TRADING — settlement complete
+
+          const [ewrData] = await tx.select({ isLienActive: ewrsTable.isLienActive })
+            .from(ewrsTable).where(eq(ewrsTable.id, auction.ewrId)).limit(1);
+          await tx.update(ewrsTable)
+            .set({ state: ewrData?.isLienActive ? "ENCUMBERED" : "INGESTED" })
+            .where(eq(ewrsTable.id, auction.ewrId));
         });
       }
     } catch (err) {

@@ -241,7 +241,9 @@ router.post("/settlements", async (req, res) => {
       }
 
       const fPlatformUsd = vTotalUsd * PLATFORM_FEE_RATE;
-      const pProducerUsd = Math.max(0, vTotalUsd - rBankUsd - fPlatformUsd);
+      // Strict formula — legs must reconcile exactly: V_total = R_bank + F_platform + P_producer.
+      // P_producer may be negative if rBank + fPlatform exceeds proceeds (edge case for large loans).
+      const pProducerUsd = vTotalUsd - rBankUsd - fPlatformUsd;
 
       const [created] = await tx.insert(settlementsTable).values({
         entityType,
