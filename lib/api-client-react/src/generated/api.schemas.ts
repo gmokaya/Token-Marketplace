@@ -170,6 +170,8 @@ export type EwrState = typeof EwrState[keyof typeof EwrState];
 export const EwrState = {
   INGESTED: 'INGESTED',
   MARKET_LISTED: 'MARKET_LISTED',
+  AUCTION_ACTIVE: 'AUCTION_ACTIVE',
+  FORWARD_BOUND: 'FORWARD_BOUND',
   LOCK_TRADING: 'LOCK_TRADING',
   SETTLED: 'SETTLED',
   ENCUMBERED: 'ENCUMBERED',
@@ -836,6 +838,8 @@ export type ListEwrsState = typeof ListEwrsState[keyof typeof ListEwrsState];
 export const ListEwrsState = {
   INGESTED: 'INGESTED',
   MARKET_LISTED: 'MARKET_LISTED',
+  AUCTION_ACTIVE: 'AUCTION_ACTIVE',
+  FORWARD_BOUND: 'FORWARD_BOUND',
   LOCK_TRADING: 'LOCK_TRADING',
   SETTLED: 'SETTLED',
   ENCUMBERED: 'ENCUMBERED',

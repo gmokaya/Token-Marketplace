@@ -8,18 +8,39 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ShieldCheck, Search, Hash, User, Calendar } from "lucide-react";
 
 const ACTION_STYLES: Record<string, string> = {
+  // ── Financing ────────────────────────────────────────────────────────────
   FINANCING_REQUESTED: "bg-yellow-100 text-yellow-700 border-yellow-200",
   FINANCING_APPROVED: "bg-green-100 text-green-700 border-green-200",
   FINANCING_REJECTED: "bg-red-100 text-red-700 border-red-200",
   FINANCING_DISBURSED: "bg-emerald-100 text-emerald-700 border-emerald-200",
+  // ── Settlement ───────────────────────────────────────────────────────────
   SETTLEMENT_INITIATED: "bg-blue-100 text-blue-700 border-blue-200",
   SETTLEMENT_LEG_DISBURSED_BANK: "bg-orange-100 text-orange-700 border-orange-200",
   SETTLEMENT_LEG_DISBURSED_PLATFORM: "bg-purple-100 text-purple-700 border-purple-200",
   SETTLEMENT_LEG_DISBURSED_PRODUCER: "bg-green-100 text-green-700 border-green-200",
+  // ── WRSC Registry ────────────────────────────────────────────────────────
   WRSC_LIEN_LOCK_TRANSMITTED: "bg-indigo-100 text-indigo-700 border-indigo-200",
   WRSC_BANK_INGRESS_CONFIRMED: "bg-cyan-100 text-cyan-700 border-cyan-200",
   WRSC_LIEN_RELEASE_REQUESTED: "bg-teal-100 text-teal-700 border-teal-200",
   WRSC_TITLE_TRANSFERRED: "bg-violet-100 text-violet-700 border-violet-200",
+  // ── Auction Engine (§6.1 AUCTION_ACTIVE state) ───────────────────────────
+  AUCTION_CREATED: "bg-sky-100 text-sky-700 border-sky-200",
+  BID_PLACED: "bg-blue-100 text-blue-700 border-blue-200",
+  ANTI_SNIPE_EXTENDED: "bg-amber-100 text-amber-700 border-amber-200",
+  AUCTION_CLOSED: "bg-green-100 text-green-700 border-green-200",
+  AUCTION_CANCELLED: "bg-gray-100 text-gray-600 border-gray-200",
+  // ── Forward Contract Engine (§6.1 FORWARD_BOUND state) ───────────────────
+  FORWARD_CREATED: "bg-lime-100 text-lime-700 border-lime-200",
+  FORWARD_CO_SIGNED: "bg-emerald-100 text-emerald-700 border-emerald-200",
+  FORWARD_BOND_POSTED: "bg-teal-100 text-teal-700 border-teal-200",
+  FORWARD_DEFAULTED: "bg-red-100 text-red-700 border-red-200",
+  FORWARD_MATURED: "bg-violet-100 text-violet-700 border-violet-200",
+  // ── Spot Market ──────────────────────────────────────────────────────────
+  LISTING_CREATED: "bg-cyan-100 text-cyan-700 border-cyan-200",
+  LISTING_CANCELLED: "bg-gray-100 text-gray-600 border-gray-200",
+  ORDER_PLACED: "bg-blue-100 text-blue-700 border-blue-200",
+  ORDER_CANCELLED: "bg-orange-100 text-orange-700 border-orange-200",
+  ORDER_EXPIRED: "bg-red-100 text-red-700 border-red-200",
 };
 
 function truncateHash(hash: string) {

@@ -7,8 +7,10 @@ import {
   ewrsTable,
   usersTable,
   reputationEventsTable,
+  auditLogTable,
 } from "@workspace/db";
 import { eq, and, sql } from "drizzle-orm";
+import { sha256, auditEntry } from "../lib/audit";
 
 const router = Router();
 const BOND_RATE = 0.15;
@@ -79,8 +81,8 @@ router.post("/forwards", async (req, res) => {
   const [ewr] = await db.select().from(ewrsTable).where(eq(ewrsTable.id, ewrId)).limit(1);
   if (!ewr) return res.status(404).json({ error: "eWR not found" });
   if (ewr.ownerId !== user.id) return res.status(403).json({ error: "You do not own this eWR" });
-  if (!["INGESTED", "MARKET_LISTED"].includes(ewr.state)) {
-    return res.status(400).json({ error: "eWR must be in INGESTED or MARKET_LISTED state" });
+  if (!["INGESTED", "ENCUMBERED"].includes(ewr.state)) {
+    return res.status(400).json({ error: "eWR must be in INGESTED or ENCUMBERED state to create a forward contract" });
   }
 
   const maturity = new Date(maturityDate);
@@ -106,7 +108,15 @@ router.post("/forwards", async (req, res) => {
       note: `Forward contract created. Delivery: $${deliveryPriceUsd}, Bond: $${performanceBondUsd.toFixed(2)}`,
     });
 
-    await tx.update(ewrsTable).set({ state: "MARKET_LISTED" }).where(eq(ewrsTable.id, ewrId));
+    // §6.1: INGESTED/ENCUMBERED → FORWARD_BOUND (asset reserved under pending forward)
+    await tx.update(ewrsTable).set({ state: "FORWARD_BOUND" }).where(eq(ewrsTable.id, ewrId));
+
+    await tx.insert(auditLogTable).values(
+      auditEntry("FORWARD", created.id, "FORWARD_CREATED", user.id,
+        { contractId: created.id, ewrId, sellerId: user.id, deliveryPriceUsd, maturityDate: maturity.toISOString() },
+        { deliveryPriceUsd, performanceBondUsd, maturityDate }
+      )
+    );
     return created;
   });
 
@@ -181,9 +191,23 @@ router.post("/forwards/:contractId/co-sign", async (req, res) => {
         note: `Buyer bond ACTIVE. Seller bond ACTIVE. Total secured: $${(2 * parseFloat(contract.performanceBondUsd)).toFixed(2)}`,
       });
 
+      // §6.1: FORWARD_BOUND → ENCUMBERED (buyer co-signs, lien activates)
       await tx.update(ewrsTable)
         .set({ state: "ENCUMBERED", lienHolderId: user.id, isLienActive: true })
         .where(eq(ewrsTable.id, contract.ewrId));
+
+      await tx.insert(auditLogTable).values(
+        auditEntry("FORWARD", contractId, "FORWARD_CO_SIGNED", user.id,
+          { contractId, buyerId: user.id, sellerId: contract.sellerId, ewrId: contract.ewrId },
+          { performanceBondUsd: contract.performanceBondUsd, deliveryPriceUsd: contract.deliveryPriceUsd }
+        )
+      );
+      await tx.insert(auditLogTable).values(
+        auditEntry("FORWARD", contractId, "FORWARD_BOND_POSTED", user.id,
+          { contractId, totalBondUsd: 2 * parseFloat(contract.performanceBondUsd) },
+          { sellerBond: "ACTIVE", buyerBond: "ACTIVE" }
+        )
+      );
 
       return signed;
     });
@@ -276,6 +300,13 @@ router.post("/forwards/:contractId/resolve-default", async (req, res) => {
         note,
       });
 
+      await tx.insert(auditLogTable).values(
+        auditEntry("FORWARD", contractId, "FORWARD_DEFAULTED", user.id,
+          { contractId, defaultSide: side, penaltyUserId, bondForfeitedUsd: parseFloat(contract.performanceBondUsd) },
+          { note }
+        )
+      );
+
       if (penaltyUserId) {
         await tx.insert(reputationEventsTable).values({
           userId: penaltyUserId,
@@ -356,6 +387,13 @@ router.post("/forwards/:contractId/complete", async (req, res) => {
         actorId: user.id,
         note: `Contract completed at maturity. Both performance bonds released.`,
       });
+
+      await tx.insert(auditLogTable).values(
+        auditEntry("FORWARD", contractId, "FORWARD_MATURED", user.id,
+          { contractId, ewrId: contract.ewrId, deliveryPriceUsd: contract.deliveryPriceUsd },
+          { sellerBond: "RELEASED", buyerBond: "RELEASED" }
+        )
+      );
 
       // Release eWR encumbrance — ownership transfer happens off-chain
       await tx.update(ewrsTable)

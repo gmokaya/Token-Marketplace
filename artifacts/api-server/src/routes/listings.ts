@@ -1,8 +1,9 @@
 import { Router } from "express";
 import { getAuth } from "@clerk/express";
 import { db } from "@workspace/db";
-import { spotListingsTable, ewrsTable, usersTable } from "@workspace/db";
+import { spotListingsTable, ewrsTable, usersTable, auditLogTable } from "@workspace/db";
 import { eq, and, gte, lte, SQL } from "drizzle-orm";
+import { sha256, auditEntry } from "../lib/audit";
 
 const PLATFORM_FEE_RATE = 0.02;
 const ESCROW_FEE_RATE = 0.005;
@@ -141,6 +142,13 @@ router.post("/listings", async (req, res) => {
 
   await db.update(ewrsTable).set({ state: "MARKET_LISTED" }).where(eq(ewrsTable.id, ewrId));
 
+  await db.insert(auditLogTable).values(
+    auditEntry("LISTING", listing.id, "LISTING_CREATED", user.id,
+      { listingId: listing.id, ewrId, sellerId: user.id, pricePerMt },
+      { pricePerMt, currency, ewrId }
+    )
+  );
+
   const enriched = await enrichListing(listing);
   return res.status(201).json(enriched);
 });
@@ -203,9 +211,15 @@ router.delete("/listings/:listingId", async (req, res) => {
 
   const [listingEwr] = await db.select({ isLienActive: ewrsTable.isLienActive })
     .from(ewrsTable).where(eq(ewrsTable.id, listing.ewrId)).limit(1);
-  await db.update(ewrsTable)
-    .set({ state: listingEwr?.isLienActive ? "ENCUMBERED" : "INGESTED" })
-    .where(eq(ewrsTable.id, listing.ewrId));
+  const restoreState = listingEwr?.isLienActive ? "ENCUMBERED" : "INGESTED";
+  await db.update(ewrsTable).set({ state: restoreState }).where(eq(ewrsTable.id, listing.ewrId));
+
+  await db.insert(auditLogTable).values(
+    auditEntry("LISTING", listingId, "LISTING_CANCELLED", user.id,
+      { listingId, ewrId: listing.ewrId, actorId: user.id, restoredState: restoreState },
+      { restoredEwrState: restoreState }
+    )
+  );
 
   const enriched = await enrichListing(cancelled);
   return res.json(enriched);

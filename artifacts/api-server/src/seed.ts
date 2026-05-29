@@ -339,8 +339,9 @@ async function seed() {
       },
     ]).returning();
 
+    // §6.1: OPEN auction eWRs enter AUCTION_ACTIVE state
     await db.update(ewrsTable)
-      .set({ state: "MARKET_LISTED" })
+      .set({ state: "AUCTION_ACTIVE" })
       .where(inArray(ewrsTable.id, [aEwr1.id, aEwr2.id]));
 
     // Seed bids for auction 1
@@ -392,8 +393,8 @@ async function seed() {
   }
 
   // ── Forward Contracts ─────────────────────────────────────────────────────
-  const marketEwrs = insertedEwrs.filter(e => e.state === "MARKET_LISTED");
-  const fwdEwrs = marketEwrs.slice(0, 2);
+  // §6.1: forward eWRs use INGESTED ones (offset past the 3 used for auctions)
+  const fwdEwrs = ingestedEwrs.slice(3, 5);
 
   if (fwdEwrs.length >= 2) {
     const [fEwr1, fEwr2] = fwdEwrs;
@@ -445,6 +446,16 @@ async function seed() {
         note: `Contract co-signed by buyer (East Africa Millers Ltd). Both bonds activated.`,
       },
     ]);
+
+    // §6.1: set eWR states to match contract status
+    // fc1 is PENDING_SIGNATURE → eWR is FORWARD_BOUND (reserved, not yet encumbered)
+    await db.update(ewrsTable)
+      .set({ state: "FORWARD_BOUND" })
+      .where(eq(ewrsTable.id, fEwr1.id));
+    // fc2 is ACTIVE (co-signed) → eWR is ENCUMBERED with buyer lien
+    await db.update(ewrsTable)
+      .set({ state: "ENCUMBERED", isLienActive: true, lienHolderId: offtaker.id })
+      .where(eq(ewrsTable.id, fEwr2.id));
 
     console.log("Forward contracts seeded: 2 (1 pending, 1 active)");
   }

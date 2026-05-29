@@ -115,7 +115,7 @@ paths:
           in: query
           schema:
             type: string
-            enum: [INGESTED, MARKET_LISTED, LOCK_TRADING, SETTLED, ENCUMBERED]
+            enum: [INGESTED, MARKET_LISTED, AUCTION_ACTIVE, FORWARD_BOUND, LOCK_TRADING, SETTLED, ENCUMBERED]
         - name: commodityType
           in: query
           schema:
@@ -1207,7 +1207,7 @@ components:
           type: ["integer", "null"]
         state:
           type: string
-          enum: [INGESTED, MARKET_LISTED, LOCK_TRADING, SETTLED, ENCUMBERED]
+          enum: [INGESTED, MARKET_LISTED, AUCTION_ACTIVE, FORWARD_BOUND, LOCK_TRADING, SETTLED, ENCUMBERED]
         ownerId:
           type: integer
         ownerName:

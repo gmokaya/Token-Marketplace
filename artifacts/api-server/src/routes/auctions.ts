@@ -9,8 +9,10 @@ import {
   ewrsTable,
   usersTable,
   settlementsTable,
+  auditLogTable,
 } from "@workspace/db";
 import { eq, desc, and, sql, count } from "drizzle-orm";
+import { sha256, auditEntry } from "../lib/audit";
 
 const router = Router();
 
@@ -176,7 +178,15 @@ router.post("/auctions", async (req, res) => {
       endAt,
     }).returning();
 
-    await tx.update(ewrsTable).set({ state: "MARKET_LISTED" }).where(eq(ewrsTable.id, ewrId));
+    // §6.1: INGESTED/ENCUMBERED → AUCTION_ACTIVE (asset enters live auction)
+    await tx.update(ewrsTable).set({ state: "AUCTION_ACTIVE" }).where(eq(ewrsTable.id, ewrId));
+
+    await tx.insert(auditLogTable).values(
+      auditEntry("AUCTION", created.id, "AUCTION_CREATED", user.id,
+        { auctionId: created.id, ewrId, sellerId: user.id, reservePriceUsd, endAt: endAt.toISOString() },
+        { reservePriceUsd, bidIncrementPct, durationMinutes }
+      )
+    );
     return created;
   });
 
@@ -397,11 +407,26 @@ router.post("/auctions/:auctionId/bids", async (req, res) => {
         await tx.update(auctionsTable)
           .set({ winningBidId: newBid.id, endAt: newEndAt })
           .where(eq(auctionsTable.id, auctionId));
+        // §6.2: log anti-snipe extension event
+        await tx.insert(auditLogTable).values(
+          auditEntry("AUCTION", auctionId, "ANTI_SNIPE_EXTENDED", user.id,
+            { auctionId, bidId: newBid.id, oldEndAt: auction.endAt.toISOString(), newEndAt: newEndAt.toISOString() },
+            { extensionMs: ANTI_SNIPE_EXTENSION_MS, amountUsd }
+          )
+        );
       } else {
         await tx.update(auctionsTable)
           .set({ winningBidId: newBid.id })
           .where(eq(auctionsTable.id, auctionId));
       }
+
+      // §6.2: log every bid with SHA-256 hash
+      await tx.insert(auditLogTable).values(
+        auditEntry("AUCTION", auctionId, "BID_PLACED", user.id,
+          { auctionId, bidId: newBid.id, bidderId: user.id, amountUsd, placedAt: now.toISOString() },
+          { amountUsd, antiSnipeTriggered, floor: currentHigh ? currentHigh * (1 + parseFloat(auction.bidIncrementPct) / 100) : parseFloat(auction.reservePriceUsd) }
+        )
+      );
 
       return { bid: newBid, antiSnipeTriggered, newEndAt };
     });
@@ -499,23 +524,43 @@ export async function startAuctionExpiryWorker() {
               await tx.update(auctionsTable)
                 .set({ settlementDeadlineAt })
                 .where(eq(auctionsTable.id, auction.id));
-              // Lock eWR while settlement is pending
+              // §6.1: AUCTION_ACTIVE → LOCK_TRADING (settlement window open)
               await tx.update(ewrsTable).set({ state: "LOCK_TRADING" }).where(eq(ewrsTable.id, auction.ewrId));
+              await tx.insert(auditLogTable).values(
+                auditEntry("AUCTION", auction.id, "AUCTION_CLOSED", null,
+                  { auctionId: auction.id, winningBidId: winBid.id, winnerAmountUsd: parseFloat(winBid.amountUsd), closedAt: now.toISOString() },
+                  { settlementDeadlineAt: settlementDeadlineAt.toISOString(), ewrState: "LOCK_TRADING" }
+                )
+              );
             } else {
               // No valid winner → cancel; restore eWR to ENCUMBERED if lien is still active
               const [ewrData] = await tx.select({ isLienActive: ewrsTable.isLienActive }).from(ewrsTable).where(eq(ewrsTable.id, auction.ewrId)).limit(1);
+              const restoreState = ewrData?.isLienActive ? "ENCUMBERED" : "INGESTED";
               await tx.update(auctionsTable)
                 .set({ status: "CANCELLED", winningBidId: null })
                 .where(eq(auctionsTable.id, auction.id));
-              await tx.update(ewrsTable).set({ state: ewrData?.isLienActive ? "ENCUMBERED" : "INGESTED" }).where(eq(ewrsTable.id, auction.ewrId));
+              await tx.update(ewrsTable).set({ state: restoreState }).where(eq(ewrsTable.id, auction.ewrId));
+              await tx.insert(auditLogTable).values(
+                auditEntry("AUCTION", auction.id, "AUCTION_CANCELLED", null,
+                  { auctionId: auction.id, reason: "reserve_not_met", restoredEwrState: restoreState },
+                  { reservePriceUsd: auction.reservePriceUsd, topBidUsd: winBid ? parseFloat(winBid.amountUsd) : null }
+                )
+              );
             }
           } else {
             // No bids → cancel; restore eWR to ENCUMBERED if lien is still active
             const [ewrData] = await tx.select({ isLienActive: ewrsTable.isLienActive }).from(ewrsTable).where(eq(ewrsTable.id, auction.ewrId)).limit(1);
+            const restoreState = ewrData?.isLienActive ? "ENCUMBERED" : "INGESTED";
             await tx.update(auctionsTable)
               .set({ status: "CANCELLED" })
               .where(eq(auctionsTable.id, auction.id));
-            await tx.update(ewrsTable).set({ state: ewrData?.isLienActive ? "ENCUMBERED" : "INGESTED" }).where(eq(ewrsTable.id, auction.ewrId));
+            await tx.update(ewrsTable).set({ state: restoreState }).where(eq(ewrsTable.id, auction.ewrId));
+            await tx.insert(auditLogTable).values(
+              auditEntry("AUCTION", auction.id, "AUCTION_CANCELLED", null,
+                { auctionId: auction.id, reason: "no_bids", restoredEwrState: restoreState },
+                { reservePriceUsd: auction.reservePriceUsd }
+              )
+            );
           }
         });
 

@@ -94,10 +94,13 @@ function ProducerDashboard() {
                     </div>
                     <Badge variant="secondary" className={
                       ewr.state === "MARKET_LISTED" ? "bg-blue-100 text-blue-800" :
+                      ewr.state === "AUCTION_ACTIVE" ? "bg-sky-100 text-sky-800" :
+                      ewr.state === "FORWARD_BOUND" ? "bg-lime-100 text-lime-800" :
                       ewr.state === "LOCK_TRADING" ? "bg-amber-100 text-amber-800" :
-                      ewr.state === "INGESTED" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
+                      ewr.state === "INGESTED" ? "bg-green-100 text-green-800" :
+                      ewr.state === "ENCUMBERED" ? "bg-orange-100 text-orange-800" : "bg-gray-100 text-gray-800"
                     }>
-                      {ewr.state.replace("_", " ")}
+                      {ewr.state.replace(/_/g, " ")}
                     </Badge>
                   </div>
                 ))}

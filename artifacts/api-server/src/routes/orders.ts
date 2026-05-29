@@ -1,8 +1,9 @@
 import { Router } from "express";
 import { getAuth } from "@clerk/express";
 import { db } from "@workspace/db";
-import { ordersTable, spotListingsTable, ewrsTable, usersTable, reputationEventsTable } from "@workspace/db";
+import { ordersTable, spotListingsTable, ewrsTable, usersTable, reputationEventsTable, auditLogTable } from "@workspace/db";
 import { eq, and, SQL, sql } from "drizzle-orm";
+import { sha256, auditEntry } from "../lib/audit";
 
 const PLATFORM_FEE_RATE = 0.02;
 const ESCROW_FEE_RATE = 0.005;
@@ -91,8 +92,15 @@ router.post("/orders", async (req, res) => {
       }).returning();
 
       await tx.update(spotListingsTable).set({ status: "LOCKED" }).where(eq(spotListingsTable.id, listingId));
+      // §6.1: MARKET_LISTED → LOCK_TRADING (spot order checkout lock)
       await tx.update(ewrsTable).set({ state: "LOCK_TRADING" }).where(eq(ewrsTable.id, ewr.id));
 
+      await tx.insert(auditLogTable).values(
+        auditEntry("ORDER", newOrder.id, "ORDER_PLACED", user.id,
+          { orderId: newOrder.id, listingId, buyerId: user.id, totalUsd, expiresAt: expiresAt.toISOString() },
+          { totalUsd, platformFeeUsd, escrowFeeUsd, ewrId: ewr.id }
+        )
+      );
       return newOrder;
     });
 
@@ -176,6 +184,13 @@ router.patch("/orders/:orderId", async (req, res) => {
           .set({ state: ewrForListing?.isLienActive ? "ENCUMBERED" : "MARKET_LISTED" })
           .where(eq(ewrsTable.id, listing.ewrId));
       }
+
+      await tx.insert(auditLogTable).values(
+        auditEntry("ORDER", orderId, "ORDER_CANCELLED", user.id,
+          { orderId, listingId: lockedOrder.listingId, buyerId: user.id },
+          { reason: "buyer_cancelled" }
+        )
+      );
       return result;
     });
 
@@ -227,6 +242,13 @@ export function startOrderExpiryWorker() {
 
             await tx.execute(
               sql`UPDATE users SET reputation_score = GREATEST(0, reputation_score - ${EXPIRY_REPUTATION_PENALTY}) WHERE id = ${order.buyerId}`
+            );
+
+            await tx.insert(auditLogTable).values(
+              auditEntry("ORDER", order.id, "ORDER_EXPIRED", null,
+                { orderId: order.id, buyerId: order.buyerId, expiredAt: now.toISOString() },
+                { reputationPenalty: EXPIRY_REPUTATION_PENALTY }
+              )
             );
           });
         }

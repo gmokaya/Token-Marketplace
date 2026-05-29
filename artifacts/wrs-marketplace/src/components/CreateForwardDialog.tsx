@@ -22,7 +22,7 @@ export function CreateForwardDialog() {
 
   const { mutateAsync: createForward, isPending } = useCreateForwardContract();
 
-  const eligibleEwrs = portfolio?.ewrs.filter(e => ["INGESTED", "MARKET_LISTED"].includes(e.state)) ?? [];
+  const eligibleEwrs = portfolio?.ewrs.filter(e => ["INGESTED", "ENCUMBERED"].includes(e.state)) ?? [];
 
   const bondAmount = deliveryPrice ? (parseFloat(deliveryPrice) * 0.15).toFixed(2) : null;
 

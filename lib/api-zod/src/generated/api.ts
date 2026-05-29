@@ -84,7 +84,7 @@ export const GetUserResponse = zod.object({
  */
 export const ListEwrsQueryParams = zod.object({
   "ownerId": zod.coerce.number().optional(),
-  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED']).optional(),
+  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'AUCTION_ACTIVE', 'FORWARD_BOUND', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED']).optional(),
   "commodityType": zod.enum(['MAIZE', 'RICE', 'COFFEE', 'TEA', 'AVOCADO']).optional()
 })
 
@@ -100,7 +100,7 @@ export const ListEwrsResponseItem = zod.object({
   "harvestSeason": zod.string(),
   "isLienActive": zod.boolean(),
   "lienHolderId": zod.number().nullish(),
-  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED']),
+  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'AUCTION_ACTIVE', 'FORWARD_BOUND', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED']),
   "ownerId": zod.number(),
   "ownerName": zod.string().nullish(),
   "expiryAt": zod.coerce.date().nullish(),
@@ -171,7 +171,7 @@ export const GetEwrResponse = zod.object({
   "harvestSeason": zod.string(),
   "isLienActive": zod.boolean(),
   "lienHolderId": zod.number().nullish(),
-  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED']),
+  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'AUCTION_ACTIVE', 'FORWARD_BOUND', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED']),
   "ownerId": zod.number(),
   "ownerName": zod.string().nullish(),
   "expiryAt": zod.coerce.date().nullish(),
@@ -211,7 +211,7 @@ export const GetMyPortfolioResponse = zod.object({
   "harvestSeason": zod.string(),
   "isLienActive": zod.boolean(),
   "lienHolderId": zod.number().nullish(),
-  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED']),
+  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'AUCTION_ACTIVE', 'FORWARD_BOUND', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED']),
   "ownerId": zod.number(),
   "ownerName": zod.string().nullish(),
   "expiryAt": zod.coerce.date().nullish(),
@@ -331,7 +331,7 @@ export const GetSpotListingResponse = zod.object({
   "harvestSeason": zod.string(),
   "isLienActive": zod.boolean(),
   "lienHolderId": zod.number().nullish(),
-  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED']),
+  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'AUCTION_ACTIVE', 'FORWARD_BOUND', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED']),
   "ownerId": zod.number(),
   "ownerName": zod.string().nullish(),
   "expiryAt": zod.coerce.date().nullish(),
@@ -673,7 +673,7 @@ export const GetAuctionResponse = zod.object({
   "harvestSeason": zod.string(),
   "isLienActive": zod.boolean(),
   "lienHolderId": zod.number().nullish(),
-  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED']),
+  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'AUCTION_ACTIVE', 'FORWARD_BOUND', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED']),
   "ownerId": zod.number(),
   "ownerName": zod.string().nullish(),
   "expiryAt": zod.coerce.date().nullish(),

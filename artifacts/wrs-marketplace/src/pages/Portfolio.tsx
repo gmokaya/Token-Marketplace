@@ -26,6 +26,8 @@ const getStateColor = (state: string) => {
   switch (state) {
     case "INGESTED": return "bg-green-100 text-green-800";
     case "MARKET_LISTED": return "bg-blue-100 text-blue-800";
+    case "AUCTION_ACTIVE": return "bg-sky-100 text-sky-800";
+    case "FORWARD_BOUND": return "bg-lime-100 text-lime-800";
     case "LOCK_TRADING": return "bg-amber-100 text-amber-800";
     case "SETTLED": return "bg-gray-100 text-gray-600";
     case "ENCUMBERED": return "bg-orange-100 text-orange-800";
