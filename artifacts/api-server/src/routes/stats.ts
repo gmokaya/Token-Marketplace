@@ -1,7 +1,8 @@
 import { Router } from "express";
+import { getAuth } from "@clerk/express";
 import { db } from "@workspace/db";
-import { ewrsTable, spotListingsTable, ordersTable } from "@workspace/db";
-import { eq, sql, count, avg } from "drizzle-orm";
+import { ewrsTable, spotListingsTable, ordersTable, usersTable } from "@workspace/db";
+import { eq, sql, count, avg, lt, and } from "drizzle-orm";
 
 const router = Router();
 
@@ -120,6 +121,68 @@ router.get("/stats/recent-activity", async (req, res) => {
   });
 
   return res.json(activities);
+});
+
+router.get("/stats/market-risk", async (req, res) => {
+  const { userId: clerkId } = getAuth(req);
+  if (!clerkId) return res.status(401).json({ error: "Unauthorized" });
+
+  const [caller] = await db.select().from(usersTable).where(eq(usersTable.clerkId, clerkId)).limit(1);
+  if (!caller) return res.status(404).json({ error: "User not found" });
+
+  const myEncumberedEwrs = await db
+    .select({
+      id: ewrsTable.id,
+      ewrsReceiptId: ewrsTable.ewrsReceiptId,
+      commodityType: ewrsTable.commodityType,
+      grade: ewrsTable.grade,
+      weightMt: ewrsTable.weightMt,
+      warehouseCode: ewrsTable.warehouseCode,
+      estimatedValueUsd: ewrsTable.estimatedValueUsd,
+      ownerId: ewrsTable.ownerId,
+      ownerName: usersTable.name,
+      issuedAt: ewrsTable.issuedAt,
+    })
+    .from(ewrsTable)
+    .leftJoin(usersTable, eq(ewrsTable.ownerId, usersTable.id))
+    .where(and(eq(ewrsTable.state, "ENCUMBERED"), eq(ewrsTable.lienHolderId, caller.id)));
+
+  const totalLienValueUsd = myEncumberedEwrs.reduce(
+    (sum, e) => sum + parseFloat(e.estimatedValueUsd ?? "0"),
+    0
+  );
+
+  const [pendingResult] = await db
+    .select({
+      count: count(),
+      totalUsd: sql<number>`COALESCE(SUM(CAST(${ordersTable.totalUsd} as NUMERIC)), 0)`,
+    })
+    .from(ordersTable)
+    .where(eq(ordersTable.status, "PENDING_SETTLEMENT"));
+
+  const now = new Date();
+  const in1Hour = new Date(now.getTime() + 60 * 60 * 1000);
+  const [expiringSoon] = await db
+    .select({ count: count() })
+    .from(ordersTable)
+    .where(
+      sql`${ordersTable.status} = 'PENDING_SETTLEMENT' AND ${ordersTable.expiresAt} <= ${in1Hour.toISOString()}`
+    );
+
+  const [atRiskBuyers] = await db
+    .select({ count: count() })
+    .from(usersTable)
+    .where(and(eq(usersTable.tier, "OFF_TAKER"), lt(usersTable.reputationScore, 70)));
+
+  return res.json({
+    myEncumberedEwrs,
+    totalLienValueUsd,
+    myLienCount: myEncumberedEwrs.length,
+    pendingSettlementCount: pendingResult.count,
+    pendingSettlementValueUsd: Number(pendingResult.totalUsd) || 0,
+    expiringSoonCount: expiringSoon.count,
+    atRiskBuyerCount: atRiskBuyers.count,
+  });
 });
 
 router.get("/stats/warehouse-distribution", async (_req, res) => {

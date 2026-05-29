@@ -1,4 +1,5 @@
-import { useGetMe, useGetMarketSummary, useGetRecentActivity, useGetMyPortfolio, useListOrders } from "@workspace/api-client-react";
+import { useGetMe, useGetMarketSummary, useGetRecentActivity, useGetMyPortfolio, useListOrders, customFetch } from "@workspace/api-client-react";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Layout } from "@/components/layout/Layout";
@@ -272,7 +273,197 @@ function OffTakerDashboard() {
   );
 }
 
-function EnablerFinancierDashboard({ role }: { role: string }) {
+interface MarketRisk {
+  myEncumberedEwrs: Array<{
+    id: number;
+    ewrsReceiptId: string;
+    commodityType: string;
+    grade: string;
+    weightMt: string | null;
+    warehouseCode: string;
+    estimatedValueUsd: string | null;
+    ownerName: string | null;
+  }>;
+  totalLienValueUsd: number;
+  myLienCount: number;
+  pendingSettlementCount: number;
+  pendingSettlementValueUsd: number;
+  expiringSoonCount: number;
+  atRiskBuyerCount: number;
+}
+
+function FinancierDashboard() {
+  const { data: user } = useGetMe();
+  const { data: summary, isLoading: summaryLoading } = useGetMarketSummary();
+  const { data: activity, isLoading: activityLoading } = useGetRecentActivity({ limit: 6 });
+  const { data: risk, isLoading: riskLoading } = useQuery<MarketRisk>({
+    queryKey: ["market-risk"],
+    queryFn: () => customFetch<MarketRisk>("GET", "/api/stats/market-risk"),
+    staleTime: 30_000,
+  });
+
+  const isLoading = summaryLoading || riskLoading;
+
+  return (
+    <div className="space-y-8">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Financier Dashboard</h1>
+          <p className="text-muted-foreground mt-1">Credit-risk exposure, lien portfolio & settlement risk</p>
+        </div>
+        <Badge variant="outline" className="px-3 py-1 text-sm font-medium border-primary/30 text-primary">
+          {user?.company || "Financier"}
+        </Badge>
+      </div>
+
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-28" />)}
+        </div>
+      ) : (
+        <>
+          <div>
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">My Lien Portfolio</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className="border-blue-200 bg-blue-50/40">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xs font-semibold text-blue-700 uppercase tracking-wider">Encumbered eWRs (My Liens)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-blue-700" data-testid="dashboard-lien-count">
+                    {risk?.myLienCount ?? 0}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">receipts under active lien</p>
+                </CardContent>
+              </Card>
+              <Card className="border-blue-200 bg-blue-50/40">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xs font-semibold text-blue-700 uppercase tracking-wider">Lien Exposure Value</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-blue-700" data-testid="dashboard-lien-value">
+                    ${risk?.totalLienValueUsd.toLocaleString(undefined, { maximumFractionDigits: 0 }) ?? "0"}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">estimated USD at risk</p>
+                </CardContent>
+              </Card>
+              <Card className="border-blue-200 bg-blue-50/40">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xs font-semibold text-blue-700 uppercase tracking-wider">Market Volume</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-blue-700">
+                    ${summary?.totalVolumeUsd.toLocaleString(undefined, { maximumFractionDigits: 0 }) ?? "0"}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">total traded on platform</p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          <div>
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Settlement Risk</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className={risk && risk.pendingSettlementCount > 0 ? "border-amber-200 bg-amber-50/40" : ""}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Pending Settlement</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className={`text-3xl font-bold ${risk && risk.pendingSettlementCount > 0 ? "text-amber-700" : ""}`} data-testid="dashboard-pending-settlement">
+                    {risk?.pendingSettlementCount ?? 0}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    ${risk?.pendingSettlementValueUsd.toLocaleString(undefined, { maximumFractionDigits: 0 }) ?? "0"} at stake
+                  </p>
+                </CardContent>
+              </Card>
+              <Card className={risk && risk.expiringSoonCount > 0 ? "border-red-200 bg-red-50/40" : ""}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Expiring Within 1h</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className={`text-3xl font-bold ${risk && risk.expiringSoonCount > 0 ? "text-red-700" : ""}`} data-testid="dashboard-expiring-soon">
+                    {risk?.expiringSoonCount ?? 0}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">lock windows closing soon</p>
+                </CardContent>
+              </Card>
+              <Card className={risk && risk.atRiskBuyerCount > 0 ? "border-red-200 bg-red-50/40" : ""}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">At-Risk Buyers</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className={`text-3xl font-bold ${risk && risk.atRiskBuyerCount > 0 ? "text-red-700" : ""}`} data-testid="dashboard-at-risk-buyers">
+                    {risk?.atRiskBuyerCount ?? 0}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">reputation score &lt; 70</p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>My Encumbered eWR Portfolio</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {riskLoading ? (
+              <div className="space-y-2">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-10" />)}</div>
+            ) : risk?.myEncumberedEwrs.length ? (
+              <div className="space-y-2">
+                {risk.myEncumberedEwrs.map(ewr => (
+                  <div key={ewr.id} className="flex items-center justify-between p-2 rounded border bg-blue-50/30 text-sm">
+                    <div>
+                      <span className="font-medium">{ewr.ewrsReceiptId}</span>
+                      <span className="text-muted-foreground ml-2">{ewr.commodityType} · {ewr.grade} · {ewr.weightMt} MT</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="font-semibold text-blue-700">
+                        ${parseFloat(ewr.estimatedValueUsd ?? "0").toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                      </span>
+                      <div className="text-xs text-muted-foreground">{ewr.warehouseCode}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-6">No encumbered eWRs in your lien portfolio.</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Recent Market Activity</CardTitle>
+            <Button asChild variant="outline" size="sm"><Link href="/market-stats">Full Stats</Link></Button>
+          </CardHeader>
+          <CardContent>
+            {activityLoading ? (
+              <div className="space-y-2">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-10" />)}</div>
+            ) : (
+              <div className="space-y-3">
+                {activity?.map(item => (
+                  <div key={item.id} className="flex items-start gap-3 p-2 rounded border">
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{item.description}</p>
+                      <p className="text-xs text-muted-foreground">{new Date(item.createdAt).toLocaleString()}</p>
+                    </div>
+                  </div>
+                ))}
+                {!activity?.length && <p className="text-sm text-muted-foreground text-center py-4">No recent activity.</p>}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+function EnablerDashboard() {
   const { data: user } = useGetMe();
   const { data: summary, isLoading: summaryLoading } = useGetMarketSummary();
   const { data: activity, isLoading: activityLoading } = useGetRecentActivity({ limit: 8 });
@@ -281,13 +472,11 @@ function EnablerFinancierDashboard({ role }: { role: string }) {
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">{role === "ENABLER" ? "Enabler" : "Financier"} Dashboard</h1>
-          <p className="text-muted-foreground mt-1">
-            {role === "ENABLER" ? "Monitor warehouse activity and market flow" : "Track lien portfolios and market credit exposure"}
-          </p>
+          <h1 className="text-3xl font-bold tracking-tight">Enabler Dashboard</h1>
+          <p className="text-muted-foreground mt-1">Monitor warehouse activity and market flow</p>
         </div>
         <Badge variant="outline" className="px-3 py-1 text-sm font-medium border-primary/30 text-primary">
-          {user?.company || role}
+          {user?.company || "Enabler"}
         </Badge>
       </div>
 
@@ -380,7 +569,7 @@ function EnablerFinancierDashboard({ role }: { role: string }) {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Role</p>
-                  <p className="font-medium">{role.replace("_", " ")}</p>
+                  <p className="font-medium">Enabler</p>
                 </div>
               </div>
             </div>
@@ -413,7 +602,8 @@ export default function Dashboard() {
     <Layout>
       {user?.tier === "PRODUCER" && <ProducerDashboard />}
       {user?.tier === "OFF_TAKER" && <OffTakerDashboard />}
-      {(user?.tier === "ENABLER" || user?.tier === "FINANCIER") && <EnablerFinancierDashboard role={user.tier} />}
+      {user?.tier === "ENABLER" && <EnablerDashboard />}
+      {user?.tier === "FINANCIER" && <FinancierDashboard />}
       {!user?.tier && (
         <div className="space-y-6">
           <Skeleton className="h-10 w-48" />
