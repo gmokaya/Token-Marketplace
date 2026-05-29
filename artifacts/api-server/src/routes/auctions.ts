@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { getAuth } from "@clerk/express";
-import { db } from "@workspace/db";
+import pg from "pg";
+import { db, pool } from "@workspace/db";
 import { publishAuctionEvent } from "../lib/pg-pubsub";
 import {
   auctionsTable,
@@ -425,9 +426,28 @@ router.post("/auctions/:auctionId/bids", async (req, res) => {
   }
 });
 
+// Arbitrary stable key used for pg_try_advisory_lock to elect a single leader
+// across all server instances for the auction expiry sweep.
+const EXPIRY_WORKER_LOCK_KEY = 7_369_621n;
+
 export async function startAuctionExpiryWorker() {
   setInterval(async () => {
+    // ── Leader election via PostgreSQL session-level advisory lock ─────────
+    // pg_try_advisory_lock / pg_advisory_unlock are session-scoped, so acquire
+    // and release MUST happen on the same physical connection. We pin a single
+    // PoolClient for the lock calls and release it when the tick is done.
+    // The sweep itself still uses the pool-backed `db` for its own queries.
+    let lockClient: pg.PoolClient | undefined;
+    let lockAcquired = false;
     try {
+      lockClient = await pool.connect();
+      const lockRes = await lockClient.query<{ acquired: boolean }>(
+        "SELECT pg_try_advisory_lock($1) AS acquired",
+        [EXPIRY_WORKER_LOCK_KEY.toString()]
+      );
+      lockAcquired = lockRes.rows[0]?.acquired ?? false;
+      if (!lockAcquired) return;
+
       const now = new Date();
 
       // ── Phase 1: Close OPEN auctions past end_at ──────────────────────────
@@ -533,6 +553,25 @@ export async function startAuctionExpiryWorker() {
       }
     } catch (err) {
       console.error("[AuctionExpiryWorker] Error:", err);
+    } finally {
+      // Release the advisory lock on the same physical connection that acquired
+      // it, then return that connection to the pool.
+      if (lockClient) {
+        if (lockAcquired) {
+          try {
+            const unlockRes = await lockClient.query<{ released: boolean }>(
+              "SELECT pg_advisory_unlock($1) AS released",
+              [EXPIRY_WORKER_LOCK_KEY.toString()]
+            );
+            if (!unlockRes.rows[0]?.released) {
+              console.warn("[AuctionExpiryWorker] pg_advisory_unlock returned false — possible session mismatch");
+            }
+          } catch (unlockErr) {
+            console.error("[AuctionExpiryWorker] Failed to release advisory lock:", unlockErr);
+          }
+        }
+        lockClient.release();
+      }
     }
   }, 15_000);
 }
