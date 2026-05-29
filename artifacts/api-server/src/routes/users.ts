@@ -57,11 +57,14 @@ router.get("/users/:userId", async (req, res) => {
   const [user] = await db
     .select({
       id: usersTable.id,
+      clerkId: usersTable.clerkId,
       name: usersTable.name,
+      email: usersTable.email,
       company: usersTable.company,
       tier: usersTable.tier,
       reputationScore: usersTable.reputationScore,
       kybStatus: usersTable.kybStatus,
+      createdAt: usersTable.createdAt,
     })
     .from(usersTable)
     .where(eq(usersTable.id, userId))

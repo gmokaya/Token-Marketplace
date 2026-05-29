@@ -2,7 +2,11 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
 import * as schema from "./schema";
 
-const { Pool } = pg;
+const { Pool, types } = pg;
+
+types.setTypeParser(1700, parseFloat);
+types.setTypeParser(701, parseFloat);
+types.setTypeParser(700, parseFloat);
 
 if (!process.env.DATABASE_URL) {
   throw new Error(

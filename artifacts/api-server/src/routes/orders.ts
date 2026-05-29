@@ -211,7 +211,17 @@ export function startOrderExpiryWorker() {
       for (const order of expiredOrders) {
         if (order.expiresAt <= now) {
           await db.transaction(async (tx) => {
-            await tx.update(ordersTable).set({ status: "EXPIRED" }).where(eq(ordersTable.id, order.id));
+            const affected = await tx
+              .update(ordersTable)
+              .set({ status: "EXPIRED" })
+              .where(
+                sql`${ordersTable.id} = ${order.id}
+                    AND ${ordersTable.status} = 'PENDING_SETTLEMENT'
+                    AND ${ordersTable.expiresAt} <= ${now.toISOString()}`
+              )
+              .returning({ id: ordersTable.id });
+
+            if (affected.length === 0) return;
 
             const [listing] = await tx.select().from(spotListingsTable).where(eq(spotListingsTable.id, order.listingId)).limit(1);
             if (listing) {
