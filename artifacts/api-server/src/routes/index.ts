@@ -9,9 +9,12 @@ import statsRouter from "./stats";
 
 const router: IRouter = Router();
 
-function requireAuth(req: Request, res: Response, next: NextFunction) {
+function requireAuth(req: Request, res: Response, next: NextFunction): void {
   const { userId } = getAuth(req);
-  if (!userId) return res.status(401).json({ error: "Unauthorized" });
+  if (!userId) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
   next();
 }
 

@@ -298,7 +298,7 @@ function FinancierDashboard() {
   const { data: activity, isLoading: activityLoading } = useGetRecentActivity({ limit: 6 });
   const { data: risk, isLoading: riskLoading } = useQuery<MarketRisk>({
     queryKey: ["market-risk"],
-    queryFn: () => customFetch<MarketRisk>("GET", "/api/stats/market-risk"),
+    queryFn: () => customFetch<MarketRisk>("/api/stats/market-risk"),
     staleTime: 30_000,
   });
 
