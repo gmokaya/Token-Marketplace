@@ -1,15 +1,400 @@
-import { useGetMe, useGetMarketSummary, useGetRecentActivity } from "@workspace/api-client-react";
+import { useGetMe, useGetMarketSummary, useGetRecentActivity, useGetMyPortfolio, useListOrders } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Layout } from "@/components/layout/Layout";
-import { ActivityItemType } from "@workspace/api-client-react";
+import { Badge } from "@/components/ui/badge";
+import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
 
-export default function Dashboard() {
-  const { data: user, isLoading: userLoading } = useGetMe();
+function ProducerDashboard() {
+  const { data: user } = useGetMe();
+  const { data: portfolio, isLoading: portfolioLoading } = useGetMyPortfolio();
   const { data: summary, isLoading: summaryLoading } = useGetMarketSummary();
+
+  const activeListings = portfolio?.ewrs.filter(e => e.state === "MARKET_LISTED").length ?? 0;
+  const lockedEwrs = portfolio?.ewrs.filter(e => e.state === "LOCK_TRADING").length ?? 0;
+  const ingestedEwrs = portfolio?.ewrs.filter(e => e.state === "INGESTED").length ?? 0;
+
+  return (
+    <div className="space-y-8">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Producer Dashboard</h1>
+          <p className="text-muted-foreground mt-1">Manage your eWR portfolio and active market listings</p>
+        </div>
+        <Badge variant="outline" className="px-3 py-1 text-sm font-medium border-primary/30 text-primary">
+          {user?.company || "Producer"}
+        </Badge>
+      </div>
+
+      {(portfolioLoading || summaryLoading) ? (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-28" />)}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Portfolio Value</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-primary" data-testid="dashboard-volume">
+                ${portfolio?.totalValueUsd.toLocaleString(undefined, { maximumFractionDigits: 0 }) ?? "0"}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">{portfolio?.ewrs.length ?? 0} total receipts</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Ready to List</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold" data-testid="dashboard-listings">{ingestedEwrs}</div>
+              <p className="text-xs text-muted-foreground mt-1">INGESTED eWRs</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">On Market</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-blue-600">{activeListings}</div>
+              <p className="text-xs text-muted-foreground mt-1">Active listings</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Trade Locked</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-amber-600">{lockedEwrs}</div>
+              <p className="text-xs text-muted-foreground mt-1">Pending settlement</p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>eWR Portfolio</CardTitle>
+            <Button asChild variant="outline" size="sm"><Link href="/portfolio">View All</Link></Button>
+          </CardHeader>
+          <CardContent>
+            {portfolioLoading ? (
+              <div className="space-y-2">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-12" />)}</div>
+            ) : (
+              <div className="space-y-2">
+                {portfolio?.ewrs.slice(0, 5).map(ewr => (
+                  <div key={ewr.id} className="flex items-center justify-between p-2 rounded border hover:bg-muted/50">
+                    <div>
+                      <p className="font-mono text-sm font-medium">{ewr.ewrsReceiptId}</p>
+                      <p className="text-xs text-muted-foreground">{ewr.warehouseCode} · {ewr.weightMt} MT · Grade {ewr.grade}</p>
+                    </div>
+                    <Badge variant="secondary" className={
+                      ewr.state === "MARKET_LISTED" ? "bg-blue-100 text-blue-800" :
+                      ewr.state === "LOCK_TRADING" ? "bg-amber-100 text-amber-800" :
+                      ewr.state === "INGESTED" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
+                    }>
+                      {ewr.state.replace("_", " ")}
+                    </Badge>
+                  </div>
+                ))}
+                {!portfolio?.ewrs.length && <p className="text-sm text-muted-foreground text-center py-6">No eWRs in portfolio.</p>}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Market Overview</CardTitle>
+            <Button asChild variant="outline" size="sm"><Link href="/market-stats">Full Stats</Link></Button>
+          </CardHeader>
+          <CardContent>
+            {summaryLoading ? (
+              <Skeleton className="h-24" />
+            ) : (
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Total Market Volume</span>
+                  <span className="font-semibold">${summary?.totalVolumeUsd.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Active Listings</span>
+                  <span className="font-semibold">{summary?.totalActiveListings}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Avg Price / MT</span>
+                  <span className="font-semibold">{summary?.avgPricePerMt ? `$${summary.avgPricePerMt.toFixed(2)}` : "—"}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Your Reputation Score</span>
+                  <span className="font-semibold" data-testid="profile-reputation">{user?.reputationScore ?? "—"}</span>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+function OffTakerDashboard() {
+  const { data: user } = useGetMe();
+  const { data: summary, isLoading: summaryLoading } = useGetMarketSummary();
+  const { data: orders, isLoading: ordersLoading } = useListOrders({});
   const { data: activity, isLoading: activityLoading } = useGetRecentActivity({ query: { limit: 5 } });
 
-  if (userLoading || summaryLoading || activityLoading) {
+  const pendingOrders = orders?.filter(o => o.status === "PENDING_SETTLEMENT") ?? [];
+  const settledOrders = orders?.filter(o => o.status === "SETTLED") ?? [];
+  const totalSpend = settledOrders.reduce((sum, o) => sum + parseFloat(String(o.totalUsd ?? "0")), 0);
+
+  return (
+    <div className="space-y-8">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Buyer Dashboard</h1>
+          <p className="text-muted-foreground mt-1">Browse spot listings and manage your purchase orders</p>
+        </div>
+        <Badge variant="outline" className="px-3 py-1 text-sm font-medium border-primary/30 text-primary">
+          {user?.company || "Off-Taker"}
+        </Badge>
+      </div>
+
+      {(summaryLoading || ordersLoading) ? (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-28" />)}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Available Listings</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-primary" data-testid="dashboard-listings">{summary?.totalActiveListings ?? 0}</div>
+              <p className="text-xs text-muted-foreground mt-1">Active on market</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Pending Orders</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-amber-600">{pendingOrders.length}</div>
+              <p className="text-xs text-muted-foreground mt-1">Awaiting settlement</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Settled Orders</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-green-600">{settledOrders.length}</div>
+              <p className="text-xs text-muted-foreground mt-1">Completed trades</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total Spend</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold" data-testid="dashboard-volume">${totalSpend.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+              <p className="text-xs text-muted-foreground mt-1">Settled USD</p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Recent Orders</CardTitle>
+            <Button asChild variant="outline" size="sm"><Link href="/orders">View All</Link></Button>
+          </CardHeader>
+          <CardContent>
+            {ordersLoading ? (
+              <div className="space-y-2">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-14" />)}</div>
+            ) : (
+              <div className="space-y-2">
+                {orders?.slice(0, 5).map(order => (
+                  <div key={order.id} className="flex items-center justify-between p-2 rounded border hover:bg-muted/50">
+                    <div>
+                      <p className="text-sm font-medium">{order.commodityType} · {order.weightMt} MT</p>
+                      <p className="text-xs text-muted-foreground">${parseFloat(String(order.totalUsd ?? "0")).toLocaleString()} · {order.warehouseCode}</p>
+                    </div>
+                    <Badge variant="secondary" className={
+                      order.status === "PENDING_SETTLEMENT" ? "bg-amber-100 text-amber-800" :
+                      order.status === "SETTLED" ? "bg-green-100 text-green-800" :
+                      order.status === "EXPIRED" ? "bg-red-100 text-red-800" : "bg-gray-100 text-gray-800"
+                    }>
+                      {order.status.replace("_", " ")}
+                    </Badge>
+                  </div>
+                ))}
+                {!orders?.length && (
+                  <div className="text-center py-6">
+                    <p className="text-sm text-muted-foreground">No orders yet.</p>
+                    <Button asChild variant="link" className="mt-1"><Link href="/marketplace">Browse Listings →</Link></Button>
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Market Activity</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {activityLoading ? (
+              <div className="space-y-2">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-10" />)}</div>
+            ) : (
+              <div className="space-y-3">
+                {activity?.map(item => (
+                  <div key={item.id} className="flex items-start gap-3 p-2 rounded border">
+                    <div className="flex-1">
+                      <p className="text-sm font-medium" data-testid={`activity-desc-${item.id}`}>{item.description}</p>
+                      <p className="text-xs text-muted-foreground">{new Date(item.createdAt).toLocaleString()}</p>
+                    </div>
+                  </div>
+                ))}
+                {!activity?.length && <p className="text-sm text-muted-foreground text-center py-4">No recent activity.</p>}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+function EnablerFinancierDashboard({ role }: { role: string }) {
+  const { data: user } = useGetMe();
+  const { data: summary, isLoading: summaryLoading } = useGetMarketSummary();
+  const { data: activity, isLoading: activityLoading } = useGetRecentActivity({ query: { limit: 8 } });
+
+  return (
+    <div className="space-y-8">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">{role === "ENABLER" ? "Enabler" : "Financier"} Dashboard</h1>
+          <p className="text-muted-foreground mt-1">
+            {role === "ENABLER" ? "Monitor warehouse activity and market flow" : "Track lien portfolios and market credit exposure"}
+          </p>
+        </div>
+        <Badge variant="outline" className="px-3 py-1 text-sm font-medium border-primary/30 text-primary">
+          {user?.company || role}
+        </Badge>
+      </div>
+
+      {summaryLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-28" />)}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total Market Volume</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-primary" data-testid="dashboard-volume">
+                ${summary?.totalVolumeUsd.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Active Listings</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold" data-testid="dashboard-listings">{summary?.totalActiveListings}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Avg Price / MT</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold" data-testid="dashboard-avg-price">
+                {summary?.avgPricePerMt ? `$${summary.avgPricePerMt.toFixed(2)}` : "—"}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Recent Market Activity</CardTitle>
+            <Button asChild variant="outline" size="sm"><Link href="/market-stats">Full Stats</Link></Button>
+          </CardHeader>
+          <CardContent>
+            {activityLoading ? (
+              <div className="space-y-2">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-10" />)}</div>
+            ) : (
+              <div className="space-y-3">
+                {activity?.map(item => (
+                  <div key={item.id} className="flex items-start gap-3 p-2 rounded border">
+                    <div className="flex-1">
+                      <p className="text-sm font-medium" data-testid={`activity-desc-${item.id}`}>{item.description}</p>
+                      <p className="text-xs text-muted-foreground">{new Date(item.createdAt).toLocaleString()}</p>
+                    </div>
+                  </div>
+                ))}
+                {!activity?.length && <p className="text-sm text-muted-foreground text-center py-4">No recent activity.</p>}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Your Profile</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Company</p>
+                  <p className="font-medium" data-testid="profile-company">{user?.company || "Not set"}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Reputation Score</p>
+                  <div className="flex items-center gap-2">
+                    <div className={`w-3 h-3 rounded-full ${
+                      (user?.reputationScore ?? 0) >= 80 ? "bg-green-500" :
+                      (user?.reputationScore ?? 0) >= 60 ? "bg-amber-500" : "bg-red-500"
+                    }`} />
+                    <p className="font-medium" data-testid="profile-reputation">{user?.reputationScore}</p>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">KYB Status</p>
+                  <p className="font-medium" data-testid="profile-kyb">{user?.kybStatus}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Role</p>
+                  <p className="font-medium">{role.replace("_", " ")}</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+export default function Dashboard() {
+  const { data: user, isLoading } = useGetMe();
+
+  if (isLoading) {
     return (
       <Layout>
         <div className="space-y-6">
@@ -26,107 +411,19 @@ export default function Dashboard() {
 
   return (
     <Layout>
-      <div className="space-y-8">
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <div className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium border border-primary/20">
-            {user?.tier} TIER
+      {user?.tier === "PRODUCER" && <ProducerDashboard />}
+      {user?.tier === "OFF_TAKER" && <OffTakerDashboard />}
+      {(user?.tier === "ENABLER" || user?.tier === "FINANCIER") && <EnablerFinancierDashboard role={user.tier} />}
+      {!user?.tier && (
+        <div className="space-y-6">
+          <Skeleton className="h-10 w-48" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Skeleton className="h-32" />
+            <Skeleton className="h-32" />
+            <Skeleton className="h-32" />
           </div>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Volume</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-primary" data-testid="dashboard-volume">
-                ${summary?.totalVolumeUsd.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Active Listings</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold" data-testid="dashboard-listings">
-                {summary?.totalActiveListings}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Avg Price / MT</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold" data-testid="dashboard-avg-price">
-                {summary?.avgPricePerMt ? `$${summary.avgPricePerMt.toFixed(2)}` : "—"}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <Card className="col-span-1 border-t-4 border-t-accent">
-            <CardHeader>
-              <CardTitle>Recent Market Activity</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {activity?.map((item) => (
-                  <div key={item.id} className="flex items-start gap-4 p-3 rounded-md hover:bg-muted/50 transition-colors border">
-                    <div className="flex-1 space-y-1">
-                      <p className="text-sm font-medium leading-none" data-testid={`activity-desc-${item.id}`}>
-                        {item.description}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(item.createdAt).toLocaleString()}
-                        {item.valueUsd && ` • $${item.valueUsd.toLocaleString()}`}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-                {!activity?.length && (
-                  <p className="text-sm text-muted-foreground text-center py-4">No recent activity.</p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="col-span-1">
-            <CardHeader>
-              <CardTitle>Your Profile</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Company</p>
-                    <p className="font-medium" data-testid="profile-company">{user?.company || "Not set"}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Reputation Score</p>
-                    <div className="flex items-center gap-2">
-                      <div className={`w-3 h-3 rounded-full ${
-                        (user?.reputationScore ?? 0) >= 80 ? "bg-green-500" :
-                        (user?.reputationScore ?? 0) >= 60 ? "bg-amber-500" : "bg-red-500"
-                      }`} />
-                      <p className="font-medium" data-testid="profile-reputation">{user?.reputationScore}</p>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">KYB Status</p>
-                    <p className="font-medium" data-testid="profile-kyb">{user?.kybStatus}</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      )}
     </Layout>
   );
 }

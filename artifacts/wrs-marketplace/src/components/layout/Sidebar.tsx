@@ -1,31 +1,31 @@
-import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { useUser, useClerk } from "@clerk/react";
-import { LayoutDashboard, Wallet, ShoppingBag, List, BarChart3, User, LogOut } from "lucide-react";
+import { useGetMe } from "@workspace/api-client-react";
+import { LayoutDashboard, Wallet, ShoppingBag, List, BarChart3, User, LogOut, ClipboardList, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-interface SidebarProps {
-  className?: string;
-}
-
-export function Sidebar({ className = "" }: SidebarProps) {
+export function Sidebar({ className = "" }: { className?: string }) {
   const [location] = useLocation();
-  const { user } = useUser();
+  const { user: clerkUser } = useUser();
   const { signOut } = useClerk();
+  const { data: dbUser } = useGetMe();
   const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-  // We should ideally fetch the tier from the DB user, but for now we just show everything or based on some heuristic
-  // In a real app we'd pass the tier down or use useGetMe
+  const tier = dbUser?.tier;
 
-  const navItems = [
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/portfolio", label: "Portfolio", icon: Wallet },
-    { href: "/marketplace", label: "Marketplace", icon: ShoppingBag },
-    { href: "/my-listings", label: "My Listings", icon: List },
-    { href: "/orders", label: "Orders", icon: List },
-    { href: "/market-stats", label: "Market Stats", icon: BarChart3 },
-    { href: "/profile", label: "Profile", icon: User },
+  const allNavItems = [
+    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, tiers: ["PRODUCER", "OFF_TAKER", "ENABLER", "FINANCIER"] },
+    { href: "/portfolio", label: "My Portfolio", icon: Wallet, tiers: ["PRODUCER"] },
+    { href: "/my-listings", label: "My Listings", icon: Package, tiers: ["PRODUCER"] },
+    { href: "/marketplace", label: "Marketplace", icon: ShoppingBag, tiers: ["OFF_TAKER", "ENABLER", "FINANCIER"] },
+    { href: "/orders", label: "My Orders", icon: ClipboardList, tiers: ["OFF_TAKER"] },
+    { href: "/market-stats", label: "Market Stats", icon: BarChart3, tiers: ["PRODUCER", "OFF_TAKER", "ENABLER", "FINANCIER"] },
+    { href: "/profile", label: "Profile", icon: User, tiers: ["PRODUCER", "OFF_TAKER", "ENABLER", "FINANCIER"] },
   ];
+
+  const navItems = tier
+    ? allNavItems.filter(item => item.tiers.includes(tier))
+    : allNavItems;
 
   return (
     <aside className={`w-64 bg-sidebar text-sidebar-foreground border-r border-sidebar-border flex flex-col ${className}`}>
@@ -35,6 +35,14 @@ export function Sidebar({ className = "" }: SidebarProps) {
           <span>WRS Trade</span>
         </Link>
       </div>
+
+      {tier && (
+        <div className="px-6 pb-3">
+          <span className="inline-block text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+            {tier.replace("_", " ")}
+          </span>
+        </div>
+      )}
 
       <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
@@ -60,7 +68,7 @@ export function Sidebar({ className = "" }: SidebarProps) {
 
       <div className="p-4 border-t border-sidebar-border">
         <div className="flex items-center justify-between px-3 py-2 mb-2">
-          <div className="text-sm font-medium truncate">{user?.fullName || user?.primaryEmailAddress?.emailAddress}</div>
+          <div className="text-sm font-medium truncate">{clerkUser?.fullName || clerkUser?.primaryEmailAddress?.emailAddress}</div>
         </div>
         <Button
           variant="outline"
