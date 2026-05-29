@@ -58,7 +58,6 @@ async function deriveEntityValue(
     };
   }
 
-  // entityType === "FORWARD"
   const [forward] = await db.select().from(forwardContractsTable).where(eq(forwardContractsTable.id, entityId)).limit(1);
   if (!forward) throw Object.assign(new Error("Forward contract not found"), { statusCode: 404 });
   if (!["ACTIVE", "MATURED"].includes(forward.contractStatus)) {
@@ -69,6 +68,28 @@ async function deriveEntityValue(
     sellerId: forward.sellerId,
     buyerId: forward.buyerId ?? null,
   };
+}
+
+async function resolveEntityParties(
+  entityType: string,
+  entityId: number
+): Promise<{ sellerId: number; buyerId: number | null }> {
+  if (entityType === "ORDER") {
+    const [order] = await db.select().from(ordersTable).where(eq(ordersTable.id, entityId)).limit(1);
+    if (!order) return { sellerId: 0, buyerId: null };
+    const [listing] = await db.select().from(spotListingsTable).where(eq(spotListingsTable.id, order.listingId)).limit(1);
+    return { sellerId: listing?.sellerId ?? 0, buyerId: order.buyerId };
+  }
+  if (entityType === "AUCTION") {
+    const [auction] = await db.select().from(auctionsTable).where(eq(auctionsTable.id, entityId)).limit(1);
+    if (!auction) return { sellerId: 0, buyerId: null };
+    const [bid] = auction.winningBidId
+      ? await db.select().from(auctionBidsTable).where(eq(auctionBidsTable.id, auction.winningBidId)).limit(1)
+      : [undefined];
+    return { sellerId: auction.sellerId, buyerId: bid?.bidderId ?? null };
+  }
+  const [forward] = await db.select().from(forwardContractsTable).where(eq(forwardContractsTable.id, entityId)).limit(1);
+  return { sellerId: forward?.sellerId ?? 0, buyerId: forward?.buyerId ?? null };
 }
 
 router.post("/settlements", async (req, res) => {
@@ -93,7 +114,13 @@ router.post("/settlements", async (req, res) => {
   }
 
   try {
-    const { vTotalUsd } = await deriveEntityValue(entityType, entityId);
+    const { vTotalUsd, sellerId, buyerId } = await deriveEntityValue(entityType, entityId);
+
+    const isAdmin = ["ENABLER", "FINANCIER"].includes(user.tier);
+    const isParty = user.id === sellerId || (buyerId !== null && user.id === buyerId);
+    if (!isAdmin && !isParty) {
+      return res.status(403).json({ error: "Only transaction parties or platform admins can initiate settlement" });
+    }
 
     const settlement = await db.transaction(async (tx) => {
       let loan: typeof loansTable.$inferSelect | null = null;
@@ -157,8 +184,18 @@ router.get("/settlements/:settlementId", async (req, res) => {
   const settlementId = parseInt(req.params.settlementId);
   if (isNaN(settlementId)) return res.status(400).json({ error: "Invalid settlement ID" });
 
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.clerkId, clerkId)).limit(1);
+  if (!user) return res.status(404).json({ error: "User not found" });
+
   const [settlement] = await db.select().from(settlementsTable).where(eq(settlementsTable.id, settlementId)).limit(1);
   if (!settlement) return res.status(404).json({ error: "Settlement not found" });
+
+  const isAdmin = ["ENABLER", "FINANCIER"].includes(user.tier);
+  if (!isAdmin) {
+    const { sellerId, buyerId } = await resolveEntityParties(settlement.entityType, settlement.entityId);
+    const isParty = user.id === sellerId || (buyerId !== null && user.id === buyerId);
+    if (!isParty) return res.status(403).json({ error: "Forbidden" });
+  }
 
   const loan = settlement.loanId
     ? (await db.select().from(loansTable).where(eq(loansTable.id, settlement.loanId)).limit(1))[0] ?? null

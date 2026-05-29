@@ -230,7 +230,7 @@ export default function Portfolio() {
                       </div>
                       {ewr.isLienActive && (
                         <p className="text-xs text-orange-700 bg-orange-50 border border-orange-200 rounded px-2 py-1">
-                          Lien active — cannot be listed
+                          Lien active — lien follows receipt to new owner
                         </p>
                       )}
                       {ewr.commodityType === "AVOCADO" && ewr.expiryAt && (() => {
@@ -257,7 +257,7 @@ export default function Portfolio() {
                       })()}
                     </div>
                   </CardContent>
-                  {ewr.state === "INGESTED" && !ewr.isLienActive && (
+                  {["INGESTED", "ENCUMBERED"].includes(ewr.state ?? "") && (
                     <CardFooter className="pt-0">
                       <Button
                         variant="default"
