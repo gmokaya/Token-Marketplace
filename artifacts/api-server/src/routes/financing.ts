@@ -8,7 +8,7 @@ import {
   usersTable,
   auditLogTable,
 } from "@workspace/db";
-import { eq, and } from "drizzle-orm";
+import { eq, and, inArray, ne } from "drizzle-orm";
 import { createHash } from "crypto";
 
 const router = Router();
@@ -143,6 +143,17 @@ router.post("/financing", async (req, res) => {
   if (ewr.isLienActive) return res.status(400).json({ error: "eWR already has an active lien" });
   if (!ewr.estimatedValueUsd) return res.status(400).json({ error: "eWR must have an estimated value" });
 
+  const [existingRequest] = await db.select()
+    .from(financingRequestsTable)
+    .where(and(
+      eq(financingRequestsTable.ewrId, ewrId),
+      inArray(financingRequestsTable.status, ["PENDING", "APPROVED", "DISBURSED"])
+    ))
+    .limit(1);
+  if (existingRequest) {
+    return res.status(409).json({ error: "An active or pending financing request already exists for this eWR" });
+  }
+
   const marketValueUsd = parseFloat(ewr.estimatedValueUsd);
   const lMaxUsd = marketValueUsd * L_MAX_RATE;
 
@@ -225,6 +236,22 @@ router.patch("/financing/:requestId/approve", async (req, res) => {
 
       if (!request) throw Object.assign(new Error("Financing request not found"), { statusCode: 404 });
       if (request.status !== "PENDING") throw Object.assign(new Error("Request is not in PENDING status"), { statusCode: 400 });
+
+      const [ewr] = await tx.select().from(ewrsTable)
+        .where(eq(ewrsTable.id, request.ewrId)).limit(1).for("update");
+      if (!ewr) throw Object.assign(new Error("Collateral eWR not found"), { statusCode: 404 });
+      if (ewr.isLienActive) throw Object.assign(new Error("eWR already has an active lien from another request"), { statusCode: 409 });
+      if (ewr.state !== "INGESTED") throw Object.assign(new Error("eWR is no longer eligible (state is not INGESTED)"), { statusCode: 409 });
+
+      const [conflicting] = await tx.select()
+        .from(financingRequestsTable)
+        .where(and(
+          eq(financingRequestsTable.ewrId, request.ewrId),
+          inArray(financingRequestsTable.status, ["APPROVED", "DISBURSED"]),
+          ne(financingRequestsTable.id, requestId)
+        ))
+        .limit(1);
+      if (conflicting) throw Object.assign(new Error("Another financing request for this eWR is already approved or active"), { statusCode: 409 });
 
       const now = new Date();
       const [result] = await tx.update(financingRequestsTable)

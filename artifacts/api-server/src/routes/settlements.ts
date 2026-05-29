@@ -127,6 +127,18 @@ router.post("/settlements", async (req, res) => {
       if (loanId) {
         [loan] = await tx.select().from(loansTable).where(eq(loansTable.id, loanId)).limit(1);
         if (!loan) throw Object.assign(new Error("Loan not found"), { statusCode: 404 });
+        if (loan.lienStatus !== "ACTIVE") {
+          throw Object.assign(new Error("Loan is not ACTIVE — cannot be used for repayment"), { statusCode: 400 });
+        }
+        const [fr] = await tx.select().from(financingRequestsTable)
+          .where(eq(financingRequestsTable.id, loan.financingRequestId)).limit(1);
+        if (!fr) throw Object.assign(new Error("Financing request linked to loan not found"), { statusCode: 400 });
+        const [collateralEwr] = await tx.select().from(ewrsTable)
+          .where(eq(ewrsTable.id, fr.ewrId)).limit(1);
+        if (!collateralEwr) throw Object.assign(new Error("Collateral eWR not found"), { statusCode: 400 });
+        if (collateralEwr.ownerId !== sellerId) {
+          throw Object.assign(new Error("Loan collateral does not belong to the settlement seller"), { statusCode: 400 });
+        }
       }
 
       const now = new Date();
