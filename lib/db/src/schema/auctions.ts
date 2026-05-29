@@ -16,6 +16,7 @@ export const auctionsTable = pgTable("auctions", {
   endAt: timestamp("end_at", { withTimezone: true }).notNull(),
   status: auctionStatusEnum("status").notNull().default("OPEN"),
   winningBidId: integer("winning_bid_id"),
+  settlementDeadlineAt: timestamp("settlement_deadline_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

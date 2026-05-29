@@ -681,13 +681,23 @@ paths:
     post:
       operationId: resolveDefault
       tags: [forwards]
-      summary: Trigger default resolution at maturity
+      summary: Trigger default resolution at maturity (buyer or seller breach)
       parameters:
         - name: contractId
           in: path
           required: true
           schema:
             type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                defaultSide:
+                  type: string
+                  enum: [BUYER, SELLER]
+                  default: BUYER
       responses:
         "200":
           description: Default resolved
@@ -697,6 +707,33 @@ paths:
                 $ref: "#/components/schemas/ForwardContract"
         "400":
           description: Contract not in ACTIVE state or not yet mature
+        "403":
+          description: Not authorized to trigger this default
+        "404":
+          description: Not found
+
+  /forwards/{contractId}/complete:
+    post:
+      operationId: completeForwardContract
+      tags: [forwards]
+      summary: Mark a forward contract as successfully completed at maturity
+      parameters:
+        - name: contractId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Contract matured — both bonds released
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForwardContract"
+        "400":
+          description: Contract not in ACTIVE state or not yet mature
+        "403":
+          description: Not authorized
         "404":
           description: Not found
 
@@ -1051,6 +1088,9 @@ components:
           type: ["number", "null"]
         warehouseCode:
           type: ["string", "null"]
+        settlementDeadlineAt:
+          type: ["string", "null"]
+          format: date-time
         createdAt:
           type: string
           format: date-time

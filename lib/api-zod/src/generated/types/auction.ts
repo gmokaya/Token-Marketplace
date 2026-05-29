@@ -31,5 +31,7 @@ export interface Auction {
   weightMt?: number | null;
   /** @nullable */
   warehouseCode?: string | null;
+  /** @nullable */
+  settlementDeadlineAt?: Date | null;
   createdAt: Date;
 }

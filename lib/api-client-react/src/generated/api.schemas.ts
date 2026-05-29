@@ -310,6 +310,8 @@ export interface Auction {
   weightMt?: number | null;
   /** @nullable */
   warehouseCode?: string | null;
+  /** @nullable */
+  settlementDeadlineAt?: string | null;
   createdAt: string;
 }
 
@@ -576,4 +578,16 @@ export const ListForwardContractsStatus = {
   DEFAULTED: 'DEFAULTED',
   CANCELLED: 'CANCELLED',
 } as const;
+
+export type ResolveDefaultBodyDefaultSide = typeof ResolveDefaultBodyDefaultSide[keyof typeof ResolveDefaultBodyDefaultSide];
+
+
+export const ResolveDefaultBodyDefaultSide = {
+  BUYER: 'BUYER',
+  SELLER: 'SELLER',
+} as const;
+
+export type ResolveDefaultBody = {
+  defaultSide?: ResolveDefaultBodyDefaultSide;
+};
 

@@ -12,6 +12,7 @@ import { eq, and, sql } from "drizzle-orm";
 
 const router = Router();
 const BOND_RATE = 0.15;
+const BOND_PENALTY = 10;
 
 async function enrichContract(contract: typeof forwardContractsTable.$inferSelect) {
   const [seller] = await db.select({ name: usersTable.name }).from(usersTable).where(eq(usersTable.id, contract.sellerId)).limit(1);
@@ -180,7 +181,9 @@ router.post("/forwards/:contractId/co-sign", async (req, res) => {
         note: `Buyer bond ACTIVE. Seller bond ACTIVE. Total secured: $${(2 * parseFloat(contract.performanceBondUsd)).toFixed(2)}`,
       });
 
-      await tx.update(ewrsTable).set({ state: "ENCUMBERED", lienHolderId: user.id, isLienActive: true }).where(eq(ewrsTable.id, contract.ewrId));
+      await tx.update(ewrsTable)
+        .set({ state: "ENCUMBERED", lienHolderId: user.id, isLienActive: true })
+        .where(eq(ewrsTable.id, contract.ewrId));
 
       return signed;
     });
@@ -201,11 +204,14 @@ router.post("/forwards/:contractId/resolve-default", async (req, res) => {
   const contractId = parseInt(req.params.contractId);
   if (isNaN(contractId)) return res.status(400).json({ error: "Invalid contract ID" });
 
+  const { defaultSide } = req.body as { defaultSide?: "BUYER" | "SELLER" };
+  const side = defaultSide ?? "BUYER";
+  if (!["BUYER", "SELLER"].includes(side)) {
+    return res.status(400).json({ error: "defaultSide must be BUYER or SELLER" });
+  }
+
   const [user] = await db.select().from(usersTable).where(eq(usersTable.clerkId, clerkId)).limit(1);
   if (!user) return res.status(404).json({ error: "User not found" });
-  if (!["ENABLER", "PRODUCER"].includes(user.tier)) {
-    return res.status(403).json({ error: "Only enablers or the seller can trigger default resolution" });
-  }
 
   try {
     const updated = await db.transaction(async (tx) => {
@@ -222,18 +228,44 @@ router.post("/forwards/:contractId/resolve-default", async (req, res) => {
       }
 
       const now = new Date();
-      const isMatured = contract.maturityDate <= now;
-
-      if (!isMatured) {
+      if (contract.maturityDate > now) {
         throw Object.assign(new Error("Contract has not yet reached maturity date"), { statusCode: 400 });
+      }
+
+      // Authorization: ENABLER can trigger either side; seller can trigger BUYER default; buyer can trigger SELLER default
+      const isSeller = contract.sellerId === user.id;
+      const isBuyer = contract.buyerId === user.id;
+      const isEnabler = user.tier === "ENABLER";
+
+      if (!isEnabler && side === "BUYER" && !isSeller) {
+        throw Object.assign(new Error("Only the seller or an enabler can trigger a buyer default"), { statusCode: 403 });
+      }
+      if (!isEnabler && side === "SELLER" && !isBuyer) {
+        throw Object.assign(new Error("Only the buyer or an enabler can trigger a seller default"), { statusCode: 403 });
+      }
+      if (!isEnabler && !isSeller && !isBuyer) {
+        throw Object.assign(new Error("Only a contract party or enabler can resolve a default"), { statusCode: 403 });
+      }
+
+      let updates: Partial<typeof forwardContractsTable.$inferInsert>;
+      let penaltyUserId: number | null = null;
+      let note: string;
+
+      if (side === "BUYER") {
+        // Buyer failed to perform → buyer bond forfeited to seller
+        updates = { contractStatus: "DEFAULTED", buyerBondStatus: "FORFEITED", sellerBondStatus: "RELEASED" };
+        penaltyUserId = contract.buyerId;
+        note = `Buyer defaulted at maturity. Buyer bond ($${parseFloat(contract.performanceBondUsd).toFixed(2)}) forfeited to seller.`;
+      } else {
+        // Seller breached encumbrance → seller bond forfeited to buyer
+        updates = { contractStatus: "DEFAULTED", sellerBondStatus: "FORFEITED", buyerBondStatus: "RELEASED" };
+        penaltyUserId = contract.sellerId;
+        note = `Seller breached contract at maturity. Seller bond ($${parseFloat(contract.performanceBondUsd).toFixed(2)}) forfeited to buyer.`;
       }
 
       const [result] = await tx
         .update(forwardContractsTable)
-        .set({
-          contractStatus: "DEFAULTED",
-          buyerBondStatus: "FORFEITED",
-        })
+        .set(updates)
         .where(eq(forwardContractsTable.id, contractId))
         .returning();
 
@@ -241,23 +273,93 @@ router.post("/forwards/:contractId/resolve-default", async (req, res) => {
         contractId,
         eventType: "DEFAULTED",
         actorId: user.id,
-        note: `Buyer defaulted at maturity. Buyer bond forfeited to seller.`,
+        note,
       });
 
-      if (contract.buyerId) {
-        const BOND_PENALTY = 10;
+      if (penaltyUserId) {
         await tx.insert(reputationEventsTable).values({
-          userId: contract.buyerId,
+          userId: penaltyUserId,
           delta: -BOND_PENALTY,
-          reason: `Forward contract #${contractId} default — bond forfeited`,
+          reason: `Forward contract #${contractId} default (${side} side) — bond forfeited`,
         });
         await tx.execute(
-          sql`UPDATE users SET reputation_score = GREATEST(0, reputation_score - ${BOND_PENALTY}) WHERE id = ${contract.buyerId}`
+          sql`UPDATE users SET reputation_score = GREATEST(0, reputation_score - ${BOND_PENALTY}) WHERE id = ${penaltyUserId}`
         );
       }
 
+      // Release eWR back to seller
       await tx.update(ewrsTable)
         .set({ state: "INGESTED", isLienActive: false, lienHolderId: null })
+        .where(eq(ewrsTable.id, contract.ewrId));
+
+      return result;
+    });
+
+    const enriched = await enrichContract(updated);
+    return res.json(enriched);
+  } catch (err: any) {
+    const statusCode = err.statusCode ?? 500;
+    if (statusCode < 500) return res.status(statusCode).json({ error: err.message });
+    throw err;
+  }
+});
+
+router.post("/forwards/:contractId/complete", async (req, res) => {
+  const { userId: clerkId } = getAuth(req);
+  if (!clerkId) return res.status(401).json({ error: "Unauthorized" });
+
+  const contractId = parseInt(req.params.contractId);
+  if (isNaN(contractId)) return res.status(400).json({ error: "Invalid contract ID" });
+
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.clerkId, clerkId)).limit(1);
+  if (!user) return res.status(404).json({ error: "User not found" });
+
+  try {
+    const updated = await db.transaction(async (tx) => {
+      const [contract] = await tx
+        .select()
+        .from(forwardContractsTable)
+        .where(eq(forwardContractsTable.id, contractId))
+        .limit(1)
+        .for("update");
+
+      if (!contract) throw Object.assign(new Error("Contract not found"), { statusCode: 404 });
+      if (contract.contractStatus !== "ACTIVE") {
+        throw Object.assign(new Error("Contract must be ACTIVE to complete"), { statusCode: 400 });
+      }
+
+      const now = new Date();
+      if (contract.maturityDate > now) {
+        throw Object.assign(new Error("Contract has not yet reached maturity date"), { statusCode: 400 });
+      }
+
+      const isSeller = contract.sellerId === user.id;
+      const isBuyer = contract.buyerId === user.id;
+      const isEnabler = user.tier === "ENABLER";
+      if (!isSeller && !isBuyer && !isEnabler) {
+        throw Object.assign(new Error("Only a contract party or enabler can complete a contract"), { statusCode: 403 });
+      }
+
+      const [result] = await tx
+        .update(forwardContractsTable)
+        .set({
+          contractStatus: "MATURED",
+          sellerBondStatus: "RELEASED",
+          buyerBondStatus: "RELEASED",
+        })
+        .where(eq(forwardContractsTable.id, contractId))
+        .returning();
+
+      await tx.insert(contractEventsTable).values({
+        contractId,
+        eventType: "MATURED",
+        actorId: user.id,
+        note: `Contract completed at maturity. Both performance bonds released.`,
+      });
+
+      // Release eWR encumbrance — ownership transfer happens off-chain
+      await tx.update(ewrsTable)
+        .set({ state: "SETTLED", isLienActive: false, lienHolderId: null })
         .where(eq(ewrsTable.id, contract.ewrId));
 
       return result;

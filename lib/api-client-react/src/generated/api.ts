@@ -45,6 +45,7 @@ import type {
   OrderUpdate,
   Portfolio,
   PriceTrendItem,
+  ResolveDefaultBody,
   SpotListing,
   SpotListingDetail,
   SpotListingInput,
@@ -2388,16 +2389,18 @@ export const getResolveDefaultUrl = (contractId: number,) => {
 }
 
 /**
- * @summary Trigger default resolution at maturity
+ * @summary Trigger default resolution at maturity (buyer or seller breach)
  */
-export const resolveDefault = async (contractId: number, options?: RequestInit): Promise<ForwardContract> => {
+export const resolveDefault = async (contractId: number,
+    resolveDefaultBody?: ResolveDefaultBody, options?: RequestInit): Promise<ForwardContract> => {
 
   return customFetch<ForwardContract>(getResolveDefaultUrl(contractId),
   {
     ...options,
-    method: 'POST'
-
-
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      resolveDefaultBody,)
   }
 );}
 
@@ -2405,8 +2408,8 @@ export const resolveDefault = async (contractId: number, options?: RequestInit):
 
 
 export const getResolveDefaultMutationOptions = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof resolveDefault>>, TError,{contractId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof resolveDefault>>, TError,{contractId: number}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof resolveDefault>>, TError,{contractId: number;data?: BodyType<ResolveDefaultBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof resolveDefault>>, TError,{contractId: number;data?: BodyType<ResolveDefaultBody>}, TContext> => {
 
 const mutationKey = ['resolveDefault'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -2418,10 +2421,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof resolveDefault>>, {contractId: number}> = (props) => {
-          const {contractId} = props ?? {};
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof resolveDefault>>, {contractId: number;data?: BodyType<ResolveDefaultBody>}> = (props) => {
+          const {contractId,data} = props ?? {};
 
-          return  resolveDefault(contractId,requestOptions)
+          return  resolveDefault(contractId,data,requestOptions)
         }
 
 
@@ -2432,20 +2435,90 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type ResolveDefaultMutationResult = NonNullable<Awaited<ReturnType<typeof resolveDefault>>>
-
+    export type ResolveDefaultMutationBody = BodyType<ResolveDefaultBody> | undefined
     export type ResolveDefaultMutationError = ErrorType<void>
 
     /**
- * @summary Trigger default resolution at maturity
+ * @summary Trigger default resolution at maturity (buyer or seller breach)
  */
 export const useResolveDefault = <TError = ErrorType<void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof resolveDefault>>, TError,{contractId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof resolveDefault>>, TError,{contractId: number;data?: BodyType<ResolveDefaultBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof resolveDefault>>,
+        TError,
+        {contractId: number;data?: BodyType<ResolveDefaultBody>},
+        TContext
+      > => {
+      return useMutation(getResolveDefaultMutationOptions(options));
+    }
+
+export const getCompleteForwardContractUrl = (contractId: number,) => {
+
+
+
+
+  return `/api/forwards/${contractId}/complete`
+}
+
+/**
+ * @summary Mark a forward contract as successfully completed at maturity
+ */
+export const completeForwardContract = async (contractId: number, options?: RequestInit): Promise<ForwardContract> => {
+
+  return customFetch<ForwardContract>(getCompleteForwardContractUrl(contractId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getCompleteForwardContractMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof completeForwardContract>>, TError,{contractId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof completeForwardContract>>, TError,{contractId: number}, TContext> => {
+
+const mutationKey = ['completeForwardContract'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof completeForwardContract>>, {contractId: number}> = (props) => {
+          const {contractId} = props ?? {};
+
+          return  completeForwardContract(contractId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CompleteForwardContractMutationResult = NonNullable<Awaited<ReturnType<typeof completeForwardContract>>>
+
+    export type CompleteForwardContractMutationError = ErrorType<void>
+
+    /**
+ * @summary Mark a forward contract as successfully completed at maturity
+ */
+export const useCompleteForwardContract = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof completeForwardContract>>, TError,{contractId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof completeForwardContract>>,
         TError,
         {contractId: number},
         TContext
       > => {
-      return useMutation(getResolveDefaultMutationOptions(options));
+      return useMutation(getCompleteForwardContractMutationOptions(options));
     }
 

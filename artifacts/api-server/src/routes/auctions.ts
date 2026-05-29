@@ -6,7 +6,6 @@ import {
   auctionBidsTable,
   ewrsTable,
   usersTable,
-  reputationEventsTable,
 } from "@workspace/db";
 import { eq, desc, and, sql, count } from "drizzle-orm";
 
@@ -14,6 +13,7 @@ const router = Router();
 
 const ANTI_SNIPE_WINDOW_MS = 3 * 60 * 1000;
 const ANTI_SNIPE_EXTENSION_MS = 3 * 60 * 1000;
+const SETTLEMENT_WINDOW_MS = 60 * 60 * 1000;
 const MIN_BID_INCREMENT_PCT = 1.5;
 
 async function enrichAuction(auction: typeof auctionsTable.$inferSelect) {
@@ -46,7 +46,7 @@ async function enrichAuction(auction: typeof auctionsTable.$inferSelect) {
     ...auction,
     sellerName: seller?.name ?? null,
     currentHighBidUsd: highBidRow?.maxBid ?? null,
-    bidCount: highBidRow?.bidCount ?? 0,
+    bidCount: Number(highBidRow?.bidCount ?? 0),
     commodityType: ewr?.commodityType ?? null,
     grade: ewr?.grade ?? null,
     weightMt: ewr?.weightMt ?? null,
@@ -65,13 +65,11 @@ router.get("/auctions", async (req, res) => {
   if (status) conditions.push(eq(auctionsTable.status, status as typeof auctionsTable.$inferSelect["status"]));
   if (sellerId) conditions.push(eq(auctionsTable.sellerId, parseInt(sellerId)));
 
-  let query = db
+  const auctions = await db
     .select()
     .from(auctionsTable)
     .where(conditions.length > 0 ? and(...conditions) : undefined)
     .orderBy(desc(auctionsTable.createdAt));
-
-  const auctions = await query;
 
   let filtered = auctions;
   if (commodityType) {
@@ -102,6 +100,10 @@ router.post("/auctions", async (req, res) => {
 
   if (!ewrId || !reservePriceUsd || !durationMinutes) {
     return res.status(400).json({ error: "ewrId, reservePriceUsd, and durationMinutes are required" });
+  }
+
+  if (bidIncrementPct < MIN_BID_INCREMENT_PCT) {
+    return res.status(400).json({ error: `bidIncrementPct must be at least ${MIN_BID_INCREMENT_PCT}%` });
   }
 
   const [ewr] = await db.select().from(ewrsTable).where(eq(ewrsTable.id, ewrId)).limit(1);
@@ -220,19 +222,24 @@ router.post("/auctions/:auctionId/bids", async (req, res) => {
       const now = new Date();
       if (auction.endAt <= now) throw Object.assign(new Error("Auction has ended"), { statusCode: 400 });
 
+      if (auction.sellerId === user.id) {
+        throw Object.assign(new Error("Seller cannot bid on their own auction"), { statusCode: 403 });
+      }
+
       const [highBidRow] = await tx
         .select({ maxBid: sql<number>`MAX(CAST(${auctionBidsTable.amountUsd} AS NUMERIC))` })
         .from(auctionBidsTable)
         .where(eq(auctionBidsTable.auctionId, auctionId));
 
       const currentHigh = highBidRow?.maxBid ?? null;
+      const increment = parseFloat(auction.bidIncrementPct);
       const floor = currentHigh !== null
-        ? currentHigh * (1 + parseFloat(auction.bidIncrementPct) / 100)
+        ? currentHigh * (1 + increment / 100)
         : parseFloat(auction.reservePriceUsd);
 
       if (amountUsd < floor) {
         throw Object.assign(
-          new Error(`Bid must be at least $${floor.toFixed(2)} (${currentHigh !== null ? `${MIN_BID_INCREMENT_PCT}% above current high of $${currentHigh.toFixed(2)}` : "reserve price"})`),
+          new Error(`Bid must be at least $${floor.toFixed(2)} (${currentHigh !== null ? `${increment}% above current high of $${currentHigh.toFixed(2)}` : "reserve price"})`),
           { statusCode: 400 }
         );
       }
@@ -246,13 +253,17 @@ router.post("/auctions/:auctionId/bids", async (req, res) => {
         isWinning: true,
       }).returning();
 
-      let newEndAt = auction.endAt;
       const msLeft = auction.endAt.getTime() - now.getTime();
       if (msLeft <= ANTI_SNIPE_WINDOW_MS) {
-        newEndAt = new Date(now.getTime() + ANTI_SNIPE_EXTENSION_MS);
-        await tx.update(auctionsTable).set({ winningBidId: newBid.id, endAt: newEndAt }).where(eq(auctionsTable.id, auctionId));
+        // Extend from current end_at (not from now), cascading
+        const newEndAt = new Date(auction.endAt.getTime() + ANTI_SNIPE_EXTENSION_MS);
+        await tx.update(auctionsTable)
+          .set({ winningBidId: newBid.id, endAt: newEndAt })
+          .where(eq(auctionsTable.id, auctionId));
       } else {
-        await tx.update(auctionsTable).set({ winningBidId: newBid.id }).where(eq(auctionsTable.id, auctionId));
+        await tx.update(auctionsTable)
+          .set({ winningBidId: newBid.id })
+          .where(eq(auctionsTable.id, auctionId));
       }
 
       return newBid;
@@ -285,12 +296,14 @@ export async function startAuctionExpiryWorker() {
   setInterval(async () => {
     try {
       const now = new Date();
-      const expiredAuctions = await db
+
+      // ── Phase 1: Close OPEN auctions past end_at ──────────────────────────
+      const openAuctions = await db
         .select()
         .from(auctionsTable)
         .where(eq(auctionsTable.status, "OPEN"));
 
-      for (const auction of expiredAuctions) {
+      for (const auction of openAuctions) {
         if (auction.endAt > now) continue;
 
         await db.transaction(async (tx) => {
@@ -314,16 +327,52 @@ export async function startAuctionExpiryWorker() {
               .limit(1);
 
             if (winBid && parseFloat(winBid.amountUsd) >= parseFloat(auction.reservePriceUsd)) {
-              await tx.update(auctionsTable).set({ status: "SETTLED" }).where(eq(auctionsTable.id, auction.id));
+              // Winner exists and meets reserve → CLOSED + start 60-min settlement window
+              const settlementDeadlineAt = new Date(now.getTime() + SETTLEMENT_WINDOW_MS);
+              await tx.update(auctionsTable)
+                .set({ settlementDeadlineAt })
+                .where(eq(auctionsTable.id, auction.id));
+              // Lock eWR while settlement is pending
               await tx.update(ewrsTable).set({ state: "LOCK_TRADING" }).where(eq(ewrsTable.id, auction.ewrId));
             } else {
-              await tx.update(auctionsTable).set({ status: "CANCELLED", winningBidId: null }).where(eq(auctionsTable.id, auction.id));
+              // No valid winner → cancel
+              await tx.update(auctionsTable)
+                .set({ status: "CANCELLED", winningBidId: null })
+                .where(eq(auctionsTable.id, auction.id));
               await tx.update(ewrsTable).set({ state: "INGESTED" }).where(eq(ewrsTable.id, auction.ewrId));
             }
           } else {
-            await tx.update(auctionsTable).set({ status: "CANCELLED" }).where(eq(auctionsTable.id, auction.id));
+            // No bids → cancel
+            await tx.update(auctionsTable)
+              .set({ status: "CANCELLED" })
+              .where(eq(auctionsTable.id, auction.id));
             await tx.update(ewrsTable).set({ state: "INGESTED" }).where(eq(ewrsTable.id, auction.ewrId));
           }
+        });
+      }
+
+      // ── Phase 2: SETTLED CLOSED auctions past settlement deadline ─────────
+      const closedAuctions = await db
+        .select()
+        .from(auctionsTable)
+        .where(eq(auctionsTable.status, "CLOSED"));
+
+      for (const auction of closedAuctions) {
+        if (!auction.settlementDeadlineAt || auction.settlementDeadlineAt > now) continue;
+
+        await db.transaction(async (tx) => {
+          const affected = await tx
+            .update(auctionsTable)
+            .set({ status: "SETTLED" })
+            .where(
+              sql`${auctionsTable.id} = ${auction.id}
+                  AND ${auctionsTable.status} = 'CLOSED'
+                  AND ${auctionsTable.settlementDeadlineAt} <= ${now.toISOString()}`
+            )
+            .returning({ id: auctionsTable.id });
+
+          if (affected.length === 0) return;
+          // eWR remains LOCK_TRADING — settlement complete
         });
       }
     } catch (err) {

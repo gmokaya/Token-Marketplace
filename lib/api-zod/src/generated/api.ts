@@ -513,6 +513,7 @@ export const ListAuctionsResponseItem = zod.object({
   "grade": zod.string().nullish(),
   "weightMt": zod.number().nullish(),
   "warehouseCode": zod.string().nullish(),
+  "settlementDeadlineAt": zod.coerce.date().nullish(),
   "createdAt": zod.coerce.date()
 })
 export const ListAuctionsResponse = zod.array(ListAuctionsResponseItem)
@@ -556,6 +557,7 @@ export const GetAuctionResponse = zod.object({
   "grade": zod.string().nullish(),
   "weightMt": zod.number().nullish(),
   "warehouseCode": zod.string().nullish(),
+  "settlementDeadlineAt": zod.coerce.date().nullish(),
   "createdAt": zod.coerce.date()
 }),
   "bids": zod.array(zod.object({
@@ -722,13 +724,48 @@ export const CoSignForwardContractResponse = zod.object({
 
 
 /**
- * @summary Trigger default resolution at maturity
+ * @summary Trigger default resolution at maturity (buyer or seller breach)
  */
 export const ResolveDefaultParams = zod.object({
   "contractId": zod.coerce.number()
 })
 
+export const resolveDefaultBodyDefaultSideDefault = `BUYER`;
+
+export const ResolveDefaultBody = zod.object({
+  "defaultSide": zod.enum(['BUYER', 'SELLER']).default(resolveDefaultBodyDefaultSideDefault)
+})
+
 export const ResolveDefaultResponse = zod.object({
+  "id": zod.number(),
+  "ewrId": zod.number(),
+  "sellerId": zod.number(),
+  "sellerName": zod.string().nullish(),
+  "buyerId": zod.number().nullish(),
+  "buyerName": zod.string().nullish(),
+  "maturityDate": zod.coerce.date(),
+  "deliveryPriceUsd": zod.number(),
+  "performanceBondUsd": zod.number(),
+  "sellerBondStatus": zod.enum(['PENDING_BOND', 'ACTIVE', 'FORFEITED', 'RELEASED']),
+  "buyerBondStatus": zod.enum(['PENDING_BOND', 'ACTIVE', 'FORFEITED', 'RELEASED']),
+  "contractStatus": zod.enum(['PENDING_SIGNATURE', 'ACTIVE', 'MATURED', 'DEFAULTED', 'CANCELLED']),
+  "signedAt": zod.coerce.date().nullish(),
+  "commodityType": zod.string().nullish(),
+  "grade": zod.string().nullish(),
+  "weightMt": zod.number().nullish(),
+  "warehouseCode": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Mark a forward contract as successfully completed at maturity
+ */
+export const CompleteForwardContractParams = zod.object({
+  "contractId": zod.coerce.number()
+})
+
+export const CompleteForwardContractResponse = zod.object({
   "id": zod.number(),
   "ewrId": zod.number(),
   "sellerId": zod.number(),

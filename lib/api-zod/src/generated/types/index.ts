@@ -52,6 +52,8 @@ export * from './portfolio';
 export * from './portfolioByCommodityItem';
 export * from './portfolioByStateItem';
 export * from './priceTrendItem';
+export * from './resolveDefaultBody';
+export * from './resolveDefaultBodyDefaultSide';
 export * from './spotListing';
 export * from './spotListingDetail';
 export * from './spotListingInput';
