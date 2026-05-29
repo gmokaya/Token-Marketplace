@@ -28,6 +28,7 @@ import type {
   AuditLogEntry,
   BidInput,
   CommodityStat,
+  CreateEwrRequest,
   DisburseInput,
   EligibleEwr,
   Ewr,
@@ -465,6 +466,77 @@ export function useListEwrs<TData = Awaited<ReturnType<typeof listEwrs>>, TError
 
 
 
+
+export const getCreateEwrUrl = () => {
+
+
+
+
+  return `/api/ewrs`
+}
+
+/**
+ * @summary Submit eWR intake with commodity-specific grading validation
+ */
+export const createEwr = async (createEwrRequest: CreateEwrRequest, options?: RequestInit): Promise<Ewr> => {
+
+  return customFetch<Ewr>(getCreateEwrUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      createEwrRequest,)
+  }
+);}
+
+
+
+
+export const getCreateEwrMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createEwr>>, TError,{data: BodyType<CreateEwrRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createEwr>>, TError,{data: BodyType<CreateEwrRequest>}, TContext> => {
+
+const mutationKey = ['createEwr'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createEwr>>, {data: BodyType<CreateEwrRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createEwr(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateEwrMutationResult = NonNullable<Awaited<ReturnType<typeof createEwr>>>
+    export type CreateEwrMutationBody = BodyType<CreateEwrRequest>
+    export type CreateEwrMutationError = ErrorType<void>
+
+    /**
+ * @summary Submit eWR intake with commodity-specific grading validation
+ */
+export const useCreateEwr = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createEwr>>, TError,{data: BodyType<CreateEwrRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createEwr>>,
+        TError,
+        {data: BodyType<CreateEwrRequest>},
+        TContext
+      > => {
+      return useMutation(getCreateEwrMutationOptions(options));
+    }
 
 export const getGetEwrUrl = (ewrId: number,) => {
 

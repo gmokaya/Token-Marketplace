@@ -15,7 +15,7 @@ export async function applyDbConstraints() {
       IF OLD.state = 'MARKET_LISTED' AND NEW.state IN ('INGESTED', 'LOCK_TRADING', 'ENCUMBERED') THEN
         RETURN NEW;
       END IF;
-      IF OLD.state = 'LOCK_TRADING' AND NEW.state IN ('MARKET_LISTED', 'SETTLED') THEN
+      IF OLD.state = 'LOCK_TRADING' AND NEW.state IN ('MARKET_LISTED', 'SETTLED', 'INGESTED', 'ENCUMBERED') THEN
         RETURN NEW;
       END IF;
       IF OLD.state = 'SETTLED' THEN

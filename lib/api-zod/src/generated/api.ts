@@ -90,9 +90,9 @@ export const ListEwrsResponseItem = zod.object({
   "wrscSignature": zod.string(),
   "warehouseCode": zod.string(),
   "commodityType": zod.enum(['MAIZE', 'RICE', 'COFFEE', 'TEA', 'AVOCADO']),
+  "batchType": zod.enum(['FUNGIBLE', 'SEMI_FUNGIBLE', 'NON_FUNGIBLE', 'TIME_DECAYING']),
   "grade": zod.string(),
   "weightMt": zod.number(),
-  "moisturePct": zod.number().nullable(),
   "harvestSeason": zod.string(),
   "isLienActive": zod.boolean(),
   "lienHolderId": zod.number().nullish(),
@@ -102,9 +102,50 @@ export const ListEwrsResponseItem = zod.object({
   "expiryAt": zod.coerce.date().nullish(),
   "issuedAt": zod.coerce.date(),
   "estimatedValueUsd": zod.number().nullish(),
-  "lienLoanOutstandingUsd": zod.number().nullish()
+  "lienLoanOutstandingUsd": zod.number().nullish(),
+  "moisturePct": zod.number().nullish(),
+  "foreignMatterPct": zod.number().nullish(),
+  "brokenGrainsPct": zod.number().nullish(),
+  "insectDamagedGrainsPct": zod.number().nullish(),
+  "coffeeBeanSize": zod.union([zod.literal('AA'),zod.literal('AB'),zod.literal('PB'),zod.literal('C'),zod.literal(null)]).nullish(),
+  "coffeeCuppingScore": zod.number().nullish(),
+  "teaProcessingType": zod.union([zod.literal('CTC'),zod.literal('ORTHODOX'),zod.literal(null)]).nullish(),
+  "teaLeafGrade": zod.union([zod.literal('BOP'),zod.literal('BOPF'),zod.literal('D1'),zod.literal('PF'),zod.literal(null)]).nullish(),
+  "teaInvoiceSerial": zod.string().nullish(),
+  "avocadoVariety": zod.union([zod.literal('HASS'),zod.literal('FUERTE'),zod.literal(null)]).nullish(),
+  "avocadoSizingCode": zod.number().nullish(),
+  "avocadoColdChainCompliant": zod.boolean().nullish(),
+  "avocadoDegradationCoefficient": zod.number().nullish(),
+  "poolGroupId": zod.string().nullish()
 })
 export const ListEwrsResponse = zod.array(ListEwrsResponseItem)
+
+
+/**
+ * @summary Submit eWR intake with commodity-specific grading validation
+ */
+export const CreateEwrBody = zod.object({
+  "ewrsReceiptId": zod.string(),
+  "wrscSignature": zod.string(),
+  "warehouseCode": zod.string(),
+  "commodityType": zod.enum(['MAIZE', 'RICE', 'COFFEE', 'TEA', 'AVOCADO']),
+  "grade": zod.string(),
+  "weightMt": zod.number(),
+  "harvestSeason": zod.string(),
+  "estimatedValueUsd": zod.number().optional(),
+  "moisturePct": zod.number().optional(),
+  "foreignMatterPct": zod.number().optional(),
+  "brokenGrainsPct": zod.number().optional(),
+  "insectDamagedGrainsPct": zod.number().optional(),
+  "coffeeBeanSize": zod.enum(['AA', 'AB', 'PB', 'C']).optional(),
+  "coffeeCuppingScore": zod.number().optional(),
+  "teaProcessingType": zod.enum(['CTC', 'ORTHODOX']).optional(),
+  "teaLeafGrade": zod.enum(['BOP', 'BOPF', 'D1', 'PF']).optional(),
+  "teaInvoiceSerial": zod.string().optional(),
+  "avocadoVariety": zod.enum(['HASS', 'FUERTE']).optional(),
+  "avocadoSizingCode": zod.number().optional(),
+  "avocadoColdChainCompliant": zod.boolean().optional()
+})
 
 
 /**
@@ -120,9 +161,9 @@ export const GetEwrResponse = zod.object({
   "wrscSignature": zod.string(),
   "warehouseCode": zod.string(),
   "commodityType": zod.enum(['MAIZE', 'RICE', 'COFFEE', 'TEA', 'AVOCADO']),
+  "batchType": zod.enum(['FUNGIBLE', 'SEMI_FUNGIBLE', 'NON_FUNGIBLE', 'TIME_DECAYING']),
   "grade": zod.string(),
   "weightMt": zod.number(),
-  "moisturePct": zod.number().nullable(),
   "harvestSeason": zod.string(),
   "isLienActive": zod.boolean(),
   "lienHolderId": zod.number().nullish(),
@@ -132,7 +173,21 @@ export const GetEwrResponse = zod.object({
   "expiryAt": zod.coerce.date().nullish(),
   "issuedAt": zod.coerce.date(),
   "estimatedValueUsd": zod.number().nullish(),
-  "lienLoanOutstandingUsd": zod.number().nullish()
+  "lienLoanOutstandingUsd": zod.number().nullish(),
+  "moisturePct": zod.number().nullish(),
+  "foreignMatterPct": zod.number().nullish(),
+  "brokenGrainsPct": zod.number().nullish(),
+  "insectDamagedGrainsPct": zod.number().nullish(),
+  "coffeeBeanSize": zod.union([zod.literal('AA'),zod.literal('AB'),zod.literal('PB'),zod.literal('C'),zod.literal(null)]).nullish(),
+  "coffeeCuppingScore": zod.number().nullish(),
+  "teaProcessingType": zod.union([zod.literal('CTC'),zod.literal('ORTHODOX'),zod.literal(null)]).nullish(),
+  "teaLeafGrade": zod.union([zod.literal('BOP'),zod.literal('BOPF'),zod.literal('D1'),zod.literal('PF'),zod.literal(null)]).nullish(),
+  "teaInvoiceSerial": zod.string().nullish(),
+  "avocadoVariety": zod.union([zod.literal('HASS'),zod.literal('FUERTE'),zod.literal(null)]).nullish(),
+  "avocadoSizingCode": zod.number().nullish(),
+  "avocadoColdChainCompliant": zod.boolean().nullish(),
+  "avocadoDegradationCoefficient": zod.number().nullish(),
+  "poolGroupId": zod.string().nullish()
 })
 
 
@@ -146,9 +201,9 @@ export const GetMyPortfolioResponse = zod.object({
   "wrscSignature": zod.string(),
   "warehouseCode": zod.string(),
   "commodityType": zod.enum(['MAIZE', 'RICE', 'COFFEE', 'TEA', 'AVOCADO']),
+  "batchType": zod.enum(['FUNGIBLE', 'SEMI_FUNGIBLE', 'NON_FUNGIBLE', 'TIME_DECAYING']),
   "grade": zod.string(),
   "weightMt": zod.number(),
-  "moisturePct": zod.number().nullable(),
   "harvestSeason": zod.string(),
   "isLienActive": zod.boolean(),
   "lienHolderId": zod.number().nullish(),
@@ -158,7 +213,21 @@ export const GetMyPortfolioResponse = zod.object({
   "expiryAt": zod.coerce.date().nullish(),
   "issuedAt": zod.coerce.date(),
   "estimatedValueUsd": zod.number().nullish(),
-  "lienLoanOutstandingUsd": zod.number().nullish()
+  "lienLoanOutstandingUsd": zod.number().nullish(),
+  "moisturePct": zod.number().nullish(),
+  "foreignMatterPct": zod.number().nullish(),
+  "brokenGrainsPct": zod.number().nullish(),
+  "insectDamagedGrainsPct": zod.number().nullish(),
+  "coffeeBeanSize": zod.union([zod.literal('AA'),zod.literal('AB'),zod.literal('PB'),zod.literal('C'),zod.literal(null)]).nullish(),
+  "coffeeCuppingScore": zod.number().nullish(),
+  "teaProcessingType": zod.union([zod.literal('CTC'),zod.literal('ORTHODOX'),zod.literal(null)]).nullish(),
+  "teaLeafGrade": zod.union([zod.literal('BOP'),zod.literal('BOPF'),zod.literal('D1'),zod.literal('PF'),zod.literal(null)]).nullish(),
+  "teaInvoiceSerial": zod.string().nullish(),
+  "avocadoVariety": zod.union([zod.literal('HASS'),zod.literal('FUERTE'),zod.literal(null)]).nullish(),
+  "avocadoSizingCode": zod.number().nullish(),
+  "avocadoColdChainCompliant": zod.boolean().nullish(),
+  "avocadoDegradationCoefficient": zod.number().nullish(),
+  "poolGroupId": zod.string().nullish()
 })),
   "totalValueUsd": zod.number(),
   "byState": zod.array(zod.object({
@@ -252,9 +321,9 @@ export const GetSpotListingResponse = zod.object({
   "wrscSignature": zod.string(),
   "warehouseCode": zod.string(),
   "commodityType": zod.enum(['MAIZE', 'RICE', 'COFFEE', 'TEA', 'AVOCADO']),
+  "batchType": zod.enum(['FUNGIBLE', 'SEMI_FUNGIBLE', 'NON_FUNGIBLE', 'TIME_DECAYING']),
   "grade": zod.string(),
   "weightMt": zod.number(),
-  "moisturePct": zod.number().nullable(),
   "harvestSeason": zod.string(),
   "isLienActive": zod.boolean(),
   "lienHolderId": zod.number().nullish(),
@@ -264,7 +333,21 @@ export const GetSpotListingResponse = zod.object({
   "expiryAt": zod.coerce.date().nullish(),
   "issuedAt": zod.coerce.date(),
   "estimatedValueUsd": zod.number().nullish(),
-  "lienLoanOutstandingUsd": zod.number().nullish()
+  "lienLoanOutstandingUsd": zod.number().nullish(),
+  "moisturePct": zod.number().nullish(),
+  "foreignMatterPct": zod.number().nullish(),
+  "brokenGrainsPct": zod.number().nullish(),
+  "insectDamagedGrainsPct": zod.number().nullish(),
+  "coffeeBeanSize": zod.union([zod.literal('AA'),zod.literal('AB'),zod.literal('PB'),zod.literal('C'),zod.literal(null)]).nullish(),
+  "coffeeCuppingScore": zod.number().nullish(),
+  "teaProcessingType": zod.union([zod.literal('CTC'),zod.literal('ORTHODOX'),zod.literal(null)]).nullish(),
+  "teaLeafGrade": zod.union([zod.literal('BOP'),zod.literal('BOPF'),zod.literal('D1'),zod.literal('PF'),zod.literal(null)]).nullish(),
+  "teaInvoiceSerial": zod.string().nullish(),
+  "avocadoVariety": zod.union([zod.literal('HASS'),zod.literal('FUERTE'),zod.literal(null)]).nullish(),
+  "avocadoSizingCode": zod.number().nullish(),
+  "avocadoColdChainCompliant": zod.boolean().nullish(),
+  "avocadoDegradationCoefficient": zod.number().nullish(),
+  "poolGroupId": zod.string().nullish()
 })
 })
 
@@ -580,9 +663,9 @@ export const GetAuctionResponse = zod.object({
   "wrscSignature": zod.string(),
   "warehouseCode": zod.string(),
   "commodityType": zod.enum(['MAIZE', 'RICE', 'COFFEE', 'TEA', 'AVOCADO']),
+  "batchType": zod.enum(['FUNGIBLE', 'SEMI_FUNGIBLE', 'NON_FUNGIBLE', 'TIME_DECAYING']),
   "grade": zod.string(),
   "weightMt": zod.number(),
-  "moisturePct": zod.number().nullable(),
   "harvestSeason": zod.string(),
   "isLienActive": zod.boolean(),
   "lienHolderId": zod.number().nullish(),
@@ -592,7 +675,21 @@ export const GetAuctionResponse = zod.object({
   "expiryAt": zod.coerce.date().nullish(),
   "issuedAt": zod.coerce.date(),
   "estimatedValueUsd": zod.number().nullish(),
-  "lienLoanOutstandingUsd": zod.number().nullish()
+  "lienLoanOutstandingUsd": zod.number().nullish(),
+  "moisturePct": zod.number().nullish(),
+  "foreignMatterPct": zod.number().nullish(),
+  "brokenGrainsPct": zod.number().nullish(),
+  "insectDamagedGrainsPct": zod.number().nullish(),
+  "coffeeBeanSize": zod.union([zod.literal('AA'),zod.literal('AB'),zod.literal('PB'),zod.literal('C'),zod.literal(null)]).nullish(),
+  "coffeeCuppingScore": zod.number().nullish(),
+  "teaProcessingType": zod.union([zod.literal('CTC'),zod.literal('ORTHODOX'),zod.literal(null)]).nullish(),
+  "teaLeafGrade": zod.union([zod.literal('BOP'),zod.literal('BOPF'),zod.literal('D1'),zod.literal('PF'),zod.literal(null)]).nullish(),
+  "teaInvoiceSerial": zod.string().nullish(),
+  "avocadoVariety": zod.union([zod.literal('HASS'),zod.literal('FUERTE'),zod.literal(null)]).nullish(),
+  "avocadoSizingCode": zod.number().nullish(),
+  "avocadoColdChainCompliant": zod.boolean().nullish(),
+  "avocadoDegradationCoefficient": zod.number().nullish(),
+  "poolGroupId": zod.string().nullish()
 }).optional()
 })
 

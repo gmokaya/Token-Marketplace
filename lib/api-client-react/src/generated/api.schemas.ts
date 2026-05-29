@@ -57,6 +57,76 @@ export interface UserUpdate {
   tier?: UserUpdateTier;
 }
 
+export type CreateEwrRequestCommodityType = typeof CreateEwrRequestCommodityType[keyof typeof CreateEwrRequestCommodityType];
+
+
+export const CreateEwrRequestCommodityType = {
+  MAIZE: 'MAIZE',
+  RICE: 'RICE',
+  COFFEE: 'COFFEE',
+  TEA: 'TEA',
+  AVOCADO: 'AVOCADO',
+} as const;
+
+export type CreateEwrRequestCoffeeBeanSize = typeof CreateEwrRequestCoffeeBeanSize[keyof typeof CreateEwrRequestCoffeeBeanSize];
+
+
+export const CreateEwrRequestCoffeeBeanSize = {
+  AA: 'AA',
+  AB: 'AB',
+  PB: 'PB',
+  C: 'C',
+} as const;
+
+export type CreateEwrRequestTeaProcessingType = typeof CreateEwrRequestTeaProcessingType[keyof typeof CreateEwrRequestTeaProcessingType];
+
+
+export const CreateEwrRequestTeaProcessingType = {
+  CTC: 'CTC',
+  ORTHODOX: 'ORTHODOX',
+} as const;
+
+export type CreateEwrRequestTeaLeafGrade = typeof CreateEwrRequestTeaLeafGrade[keyof typeof CreateEwrRequestTeaLeafGrade];
+
+
+export const CreateEwrRequestTeaLeafGrade = {
+  BOP: 'BOP',
+  BOPF: 'BOPF',
+  D1: 'D1',
+  PF: 'PF',
+} as const;
+
+export type CreateEwrRequestAvocadoVariety = typeof CreateEwrRequestAvocadoVariety[keyof typeof CreateEwrRequestAvocadoVariety];
+
+
+export const CreateEwrRequestAvocadoVariety = {
+  HASS: 'HASS',
+  FUERTE: 'FUERTE',
+} as const;
+
+export interface CreateEwrRequest {
+  ewrsReceiptId: string;
+  wrscSignature: string;
+  warehouseCode: string;
+  commodityType: CreateEwrRequestCommodityType;
+  grade: string;
+  weightMt: number;
+  harvestSeason: string;
+  estimatedValueUsd?: number;
+  moisturePct?: number;
+  foreignMatterPct?: number;
+  brokenGrainsPct?: number;
+  insectDamagedGrainsPct?: number;
+  coffeeBeanSize?: CreateEwrRequestCoffeeBeanSize;
+  coffeeCuppingScore?: number;
+  teaProcessingType?: CreateEwrRequestTeaProcessingType;
+  teaLeafGrade?: CreateEwrRequestTeaLeafGrade;
+  teaInvoiceSerial?: string;
+  avocadoVariety?: CreateEwrRequestAvocadoVariety;
+  avocadoSizingCode?: number;
+  avocadoColdChainCompliant?: boolean;
+}
+
 export type EwrCommodityType = typeof EwrCommodityType[keyof typeof EwrCommodityType];
 
 
@@ -66,6 +136,16 @@ export const EwrCommodityType = {
   COFFEE: 'COFFEE',
   TEA: 'TEA',
   AVOCADO: 'AVOCADO',
+} as const;
+
+export type EwrBatchType = typeof EwrBatchType[keyof typeof EwrBatchType];
+
+
+export const EwrBatchType = {
+  FUNGIBLE: 'FUNGIBLE',
+  SEMI_FUNGIBLE: 'SEMI_FUNGIBLE',
+  NON_FUNGIBLE: 'NON_FUNGIBLE',
+  TIME_DECAYING: 'TIME_DECAYING',
 } as const;
 
 export type EwrState = typeof EwrState[keyof typeof EwrState];
@@ -79,16 +159,63 @@ export const EwrState = {
   ENCUMBERED: 'ENCUMBERED',
 } as const;
 
+/**
+ * @nullable
+ */
+export type EwrCoffeeBeanSize = typeof EwrCoffeeBeanSize[keyof typeof EwrCoffeeBeanSize] | null;
+
+
+export const EwrCoffeeBeanSize = {
+  AA: 'AA',
+  AB: 'AB',
+  PB: 'PB',
+  C: 'C',
+} as const;
+
+/**
+ * @nullable
+ */
+export type EwrTeaProcessingType = typeof EwrTeaProcessingType[keyof typeof EwrTeaProcessingType] | null;
+
+
+export const EwrTeaProcessingType = {
+  CTC: 'CTC',
+  ORTHODOX: 'ORTHODOX',
+} as const;
+
+/**
+ * @nullable
+ */
+export type EwrTeaLeafGrade = typeof EwrTeaLeafGrade[keyof typeof EwrTeaLeafGrade] | null;
+
+
+export const EwrTeaLeafGrade = {
+  BOP: 'BOP',
+  BOPF: 'BOPF',
+  D1: 'D1',
+  PF: 'PF',
+} as const;
+
+/**
+ * @nullable
+ */
+export type EwrAvocadoVariety = typeof EwrAvocadoVariety[keyof typeof EwrAvocadoVariety] | null;
+
+
+export const EwrAvocadoVariety = {
+  HASS: 'HASS',
+  FUERTE: 'FUERTE',
+} as const;
+
 export interface Ewr {
   id: number;
   ewrsReceiptId: string;
   wrscSignature: string;
   warehouseCode: string;
   commodityType: EwrCommodityType;
+  batchType: EwrBatchType;
   grade: string;
   weightMt: number;
-  /** @nullable */
-  moisturePct: number | null;
   harvestSeason: string;
   isLienActive: boolean;
   /** @nullable */
@@ -104,6 +231,34 @@ export interface Ewr {
   estimatedValueUsd?: number | null;
   /** @nullable */
   lienLoanOutstandingUsd?: number | null;
+  /** @nullable */
+  moisturePct?: number | null;
+  /** @nullable */
+  foreignMatterPct?: number | null;
+  /** @nullable */
+  brokenGrainsPct?: number | null;
+  /** @nullable */
+  insectDamagedGrainsPct?: number | null;
+  /** @nullable */
+  coffeeBeanSize?: EwrCoffeeBeanSize;
+  /** @nullable */
+  coffeeCuppingScore?: number | null;
+  /** @nullable */
+  teaProcessingType?: EwrTeaProcessingType;
+  /** @nullable */
+  teaLeafGrade?: EwrTeaLeafGrade;
+  /** @nullable */
+  teaInvoiceSerial?: string | null;
+  /** @nullable */
+  avocadoVariety?: EwrAvocadoVariety;
+  /** @nullable */
+  avocadoSizingCode?: number | null;
+  /** @nullable */
+  avocadoColdChainCompliant?: boolean | null;
+  /** @nullable */
+  avocadoDegradationCoefficient?: number | null;
+  /** @nullable */
+  poolGroupId?: string | null;
 }
 
 export type PortfolioByStateItem = {

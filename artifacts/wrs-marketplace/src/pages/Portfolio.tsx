@@ -33,10 +33,31 @@ const getStateColor = (state: string) => {
   }
 };
 
+const getBatchTypeColor = (bt: string) => {
+  switch (bt) {
+    case "FUNGIBLE": return "bg-blue-50 text-blue-700 border-blue-200";
+    case "SEMI_FUNGIBLE": return "bg-purple-50 text-purple-700 border-purple-200";
+    case "NON_FUNGIBLE": return "bg-gray-50 text-gray-700 border-gray-300";
+    case "TIME_DECAYING": return "bg-red-50 text-red-700 border-red-200";
+    default: return "bg-gray-100 text-gray-600 border-gray-200";
+  }
+};
+
+const getBatchTypeLabel = (bt: string) => {
+  switch (bt) {
+    case "FUNGIBLE": return "Fungible";
+    case "SEMI_FUNGIBLE": return "Semi-Fungible";
+    case "NON_FUNGIBLE": return "Non-Fungible";
+    case "TIME_DECAYING": return "Time-Decaying";
+    default: return bt;
+  }
+};
+
 interface EwrItem {
   id: number;
   ewrsReceiptId: string;
   commodityType: string;
+  batchType?: string | null;
   grade: string;
   weightMt: string | number;
   warehouseCode: string;
@@ -44,6 +65,115 @@ interface EwrItem {
   estimatedValueUsd?: number | null;
   expiryAt?: string | null;
   isLienActive: boolean;
+  // grading
+  moisturePct?: string | number | null;
+  foreignMatterPct?: string | number | null;
+  brokenGrainsPct?: string | number | null;
+  insectDamagedGrainsPct?: string | number | null;
+  coffeeBeanSize?: string | null;
+  coffeeCuppingScore?: string | number | null;
+  teaProcessingType?: string | null;
+  teaLeafGrade?: string | null;
+  teaInvoiceSerial?: string | null;
+  avocadoVariety?: string | null;
+  avocadoSizingCode?: number | null;
+  avocadoColdChainCompliant?: boolean | null;
+  avocadoDegradationCoefficient?: string | number | null;
+  poolGroupId?: string | null;
+}
+
+function GradingPanel({ ewr }: { ewr: EwrItem }) {
+  const ct = ewr.commodityType;
+  const pct = (v: string | number | null | undefined) => v != null ? `${parseFloat(String(v)).toFixed(2)}%` : "—";
+  const num = (v: string | number | null | undefined, dp = 1) => v != null ? parseFloat(String(v)).toFixed(dp) : "—";
+
+  if (ct === "MAIZE" || ct === "RICE") {
+    const standard = ct === "MAIZE" ? "EAS 2:2013" : "EAS 128:2013";
+    const maxMoisture = ct === "MAIZE" ? 13.5 : 14.0;
+    const moistureVal = ewr.moisturePct != null ? parseFloat(String(ewr.moisturePct)) : null;
+    const moistureWarning = moistureVal != null && moistureVal >= maxMoisture * 0.95;
+    return (
+      <div className="mt-2 pt-2 border-t border-dashed border-gray-200">
+        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1">{standard}</p>
+        <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs">
+          <span className="text-muted-foreground">Moisture</span>
+          <span className={`font-medium text-right ${moistureWarning ? "text-amber-600" : ""}`}>{pct(ewr.moisturePct)} <span className="text-gray-400">/ {maxMoisture}%</span></span>
+          <span className="text-muted-foreground">Foreign Matter</span>
+          <span className="font-medium text-right">{pct(ewr.foreignMatterPct)} <span className="text-gray-400">/ 1%</span></span>
+          <span className="text-muted-foreground">Broken Grains</span>
+          <span className="font-medium text-right">{pct(ewr.brokenGrainsPct)} <span className="text-gray-400">/ 2%</span></span>
+          <span className="text-muted-foreground">Insect Damaged</span>
+          <span className="font-medium text-right">{pct(ewr.insectDamagedGrainsPct)} <span className="text-gray-400">/ 1%</span></span>
+        </div>
+        {ewr.poolGroupId && (
+          <p className="text-[10px] text-blue-600 mt-1 truncate" title={ewr.poolGroupId}>
+            Silo pool: <span className="font-mono">{ewr.poolGroupId}</span>
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  if (ct === "COFFEE") {
+    return (
+      <div className="mt-2 pt-2 border-t border-dashed border-gray-200">
+        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1">Coffee Grading</p>
+        <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs">
+          <span className="text-muted-foreground">Bean Size</span>
+          <span className="font-medium text-right">{ewr.coffeeBeanSize ?? "—"}</span>
+          <span className="text-muted-foreground">Cupping Score</span>
+          <span className="font-medium text-right">{num(ewr.coffeeCuppingScore)} <span className="text-gray-400">/ 10</span></span>
+          {ewr.moisturePct != null && <>
+            <span className="text-muted-foreground">Moisture</span>
+            <span className="font-medium text-right">{pct(ewr.moisturePct)}</span>
+          </>}
+        </div>
+      </div>
+    );
+  }
+
+  if (ct === "TEA") {
+    return (
+      <div className="mt-2 pt-2 border-t border-dashed border-gray-200">
+        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1">Tea Grading</p>
+        <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs">
+          <span className="text-muted-foreground">Processing</span>
+          <span className="font-medium text-right">{ewr.teaProcessingType ?? "—"}</span>
+          <span className="text-muted-foreground">Leaf Grade</span>
+          <span className="font-medium text-right">{ewr.teaLeafGrade ?? "—"}</span>
+          {ewr.teaInvoiceSerial && <>
+            <span className="text-muted-foreground">Invoice</span>
+            <span className="font-medium text-right font-mono text-[10px]">{ewr.teaInvoiceSerial}</span>
+          </>}
+        </div>
+      </div>
+    );
+  }
+
+  if (ct === "AVOCADO") {
+    const coeff = ewr.avocadoDegradationCoefficient != null ? parseFloat(String(ewr.avocadoDegradationCoefficient)) : null;
+    const pctIntact = coeff != null ? Math.round(coeff * 100) : null;
+    const qualityColor = pctIntact != null ? (pctIntact > 70 ? "text-green-600" : pctIntact > 40 ? "text-amber-600" : "text-red-600") : "";
+    return (
+      <div className="mt-2 pt-2 border-t border-dashed border-gray-200">
+        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1">EAS 19:2017 · CA Storage</p>
+        <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs">
+          <span className="text-muted-foreground">Variety</span>
+          <span className="font-medium text-right">{ewr.avocadoVariety ?? "—"}</span>
+          <span className="text-muted-foreground">Sizing Code</span>
+          <span className="font-medium text-right">{ewr.avocadoSizingCode ?? "—"}</span>
+          <span className="text-muted-foreground">Cold Chain</span>
+          <span className="font-medium text-right">{ewr.avocadoColdChainCompliant ? "✓ Compliant" : "✗ Non-compliant"}</span>
+          {pctIntact != null && <>
+            <span className="text-muted-foreground">Quality Index</span>
+            <span className={`font-medium text-right ${qualityColor}`}>{pctIntact}% intact</span>
+          </>}
+        </div>
+      </div>
+    );
+  }
+
+  return null;
 }
 
 function ListOnMarketDialog({ ewr, open, onClose }: { ewr: EwrItem | null; open: boolean; onClose: () => void }) {
@@ -222,7 +352,15 @@ export default function Portfolio() {
                           <span className="font-medium">${Number(ewr.estimatedValueUsd).toLocaleString()}</span>
                         </div>
                       )}
-                      <div className="flex justify-between mt-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Batch Type</span>
+                        {(ewr as EwrItem).batchType && (
+                          <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${getBatchTypeColor((ewr as EwrItem).batchType!)}`}>
+                            {getBatchTypeLabel((ewr as EwrItem).batchType!)}
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex justify-between mt-2">
                         <span className="text-muted-foreground">Status</span>
                         <Badge variant="secondary" className={getStateColor(ewr.state)}>
                           {ewr.state.replace("_", " ")}
@@ -241,6 +379,7 @@ export default function Portfolio() {
                           <p className="text-xs text-orange-700">Lien follows receipt to new owner</p>
                         </div>
                       )}
+                      <GradingPanel ewr={ewr as unknown as EwrItem} />
                       {ewr.commodityType === "AVOCADO" && ewr.expiryAt && (() => {
                         const msLeft = new Date(ewr.expiryAt).getTime() - Date.now();
                         const daysLeft = Math.floor(msLeft / (1000 * 60 * 60 * 24));

@@ -130,6 +130,29 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Ewr"
+    post:
+      operationId: createEwr
+      tags: [ewrs]
+      summary: Submit eWR intake with commodity-specific grading validation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEwrRequest"
+      responses:
+        "201":
+          description: eWR created (INGESTED)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ewr"
+        "400":
+          description: Validation error
+        "403":
+          description: Only Producers and Enablers may submit intake
+        "422":
+          description: Grading standards not met — intake rejected
 
   /ewrs/{ewrId}:
     get:
@@ -1063,12 +1086,10 @@ components:
           type: string
           enum: [PRODUCER, OFF_TAKER, ENABLER, FINANCIER]
 
-    Ewr:
+    CreateEwrRequest:
       type: object
-      required: [id, ewrsReceiptId, wrscSignature, warehouseCode, commodityType, grade, weightMt, moisturePct, harvestSeason, isLienActive, state, ownerId, issuedAt]
+      required: [ewrsReceiptId, wrscSignature, warehouseCode, commodityType, grade, weightMt, harvestSeason]
       properties:
-        id:
-          type: integer
         ewrsReceiptId:
           type: string
         wrscSignature:
@@ -1082,8 +1103,61 @@ components:
           type: string
         weightMt:
           type: number
+        harvestSeason:
+          type: string
+        estimatedValueUsd:
+          type: number
         moisturePct:
-          type: ["number", "null"]
+          type: number
+        foreignMatterPct:
+          type: number
+        brokenGrainsPct:
+          type: number
+        insectDamagedGrainsPct:
+          type: number
+        coffeeBeanSize:
+          type: string
+          enum: [AA, AB, PB, C]
+        coffeeCuppingScore:
+          type: number
+        teaProcessingType:
+          type: string
+          enum: [CTC, ORTHODOX]
+        teaLeafGrade:
+          type: string
+          enum: [BOP, BOPF, D1, PF]
+        teaInvoiceSerial:
+          type: string
+        avocadoVariety:
+          type: string
+          enum: [HASS, FUERTE]
+        avocadoSizingCode:
+          type: integer
+        avocadoColdChainCompliant:
+          type: boolean
+
+    Ewr:
+      type: object
+      required: [id, ewrsReceiptId, wrscSignature, warehouseCode, commodityType, batchType, grade, weightMt, harvestSeason, isLienActive, state, ownerId, issuedAt]
+      properties:
+        id:
+          type: integer
+        ewrsReceiptId:
+          type: string
+        wrscSignature:
+          type: string
+        warehouseCode:
+          type: string
+        commodityType:
+          type: string
+          enum: [MAIZE, RICE, COFFEE, TEA, AVOCADO]
+        batchType:
+          type: string
+          enum: [FUNGIBLE, SEMI_FUNGIBLE, NON_FUNGIBLE, TIME_DECAYING]
+        grade:
+          type: string
+        weightMt:
+          type: number
         harvestSeason:
           type: string
         isLienActive:
@@ -1107,6 +1181,38 @@ components:
           type: ["number", "null"]
         lienLoanOutstandingUsd:
           type: ["number", "null"]
+        moisturePct:
+          type: ["number", "null"]
+        foreignMatterPct:
+          type: ["number", "null"]
+        brokenGrainsPct:
+          type: ["number", "null"]
+        insectDamagedGrainsPct:
+          type: ["number", "null"]
+        coffeeBeanSize:
+          type: ["string", "null"]
+          enum: [AA, AB, PB, C, null]
+        coffeeCuppingScore:
+          type: ["number", "null"]
+        teaProcessingType:
+          type: ["string", "null"]
+          enum: [CTC, ORTHODOX, null]
+        teaLeafGrade:
+          type: ["string", "null"]
+          enum: [BOP, BOPF, D1, PF, null]
+        teaInvoiceSerial:
+          type: ["string", "null"]
+        avocadoVariety:
+          type: ["string", "null"]
+          enum: [HASS, FUERTE, null]
+        avocadoSizingCode:
+          type: ["integer", "null"]
+        avocadoColdChainCompliant:
+          type: ["boolean", "null"]
+        avocadoDegradationCoefficient:
+          type: ["number", "null"]
+        poolGroupId:
+          type: ["string", "null"]
 
     Portfolio:
       type: object

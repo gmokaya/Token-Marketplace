@@ -104,13 +104,16 @@ export default function AuctionDetail() {
           newEndAt: string | null;
         };
 
+        // Normalise SSE bid shape to match generated AuctionBid type (amountUsd is number)
+        const normBid: AuctionBid = { ...bid, amountUsd: parseFloat(bid.amountUsd) };
+
         // Prepend new bid to cached bids list (sorted by placedAt desc)
         queryClient.setQueryData<AuctionBid[]>(
           getListAuctionBidsQueryKey(auctionId),
           (old) => {
-            if (!old) return [bid];
+            if (!old) return [normBid];
             // Mark previous bids as not winning, prepend new bid
-            return [bid, ...old.map(b => ({ ...b, isWinning: false }))];
+            return [normBid, ...old.map(b => ({ ...b, isWinning: false }))];
           }
         );
 
