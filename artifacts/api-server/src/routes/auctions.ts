@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import { getAuth } from "@clerk/express";
 import pg from "pg";
-import { db, pool } from "@workspace/db";
+import { db, pool, withTxRetry } from "@workspace/db";
 import { publishAuctionEvent } from "../lib/pg-pubsub";
 import {
   auctionsTable,
@@ -350,7 +350,7 @@ router.post("/auctions/:auctionId/bids", async (req, res) => {
   if (!amountUsd || amountUsd <= 0) return res.status(400).json({ error: "amountUsd must be positive" });
 
   try {
-    const { bid, antiSnipeTriggered, newEndAt } = await db.transaction(async (tx) => {
+    const { bid, antiSnipeTriggered, newEndAt } = await withTxRetry(() => db.transaction(async (tx) => {
       await tx.execute(sql`SET TRANSACTION ISOLATION LEVEL SERIALIZABLE`);
 
       const [auction] = await tx
@@ -429,7 +429,7 @@ router.post("/auctions/:auctionId/bids", async (req, res) => {
       );
 
       return { bid: newBid, antiSnipeTriggered, newEndAt };
-    });
+    }));
 
     const [bidWithBidder] = await db
       .select({

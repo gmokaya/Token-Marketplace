@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getAuth } from "@clerk/express";
-import { db } from "@workspace/db";
+import { db, withTxRetry } from "@workspace/db";
 import {
   financingRequestsTable,
   loansTable,
@@ -158,7 +158,7 @@ router.post("/financing", async (req, res) => {
   const marketValueUsd = parseFloat(ewr.estimatedValueUsd);
   const lMaxUsd = marketValueUsd * L_MAX_RATE;
 
-  const request = await db.transaction(async (tx) => {
+  const request = await withTxRetry(() => db.transaction(async (tx) => {
     const [created] = await tx.insert(financingRequestsTable).values({
       ewrId,
       requesterId: user.id,
@@ -178,7 +178,7 @@ router.post("/financing", async (req, res) => {
     });
 
     return created;
-  });
+  }));
 
   return res.status(201).json({
     ...request,
@@ -231,7 +231,7 @@ router.patch("/financing/:requestId/approve", async (req, res) => {
   if (user.tier !== "FINANCIER") return res.status(403).json({ error: "Only Financier accounts can approve financing requests" });
 
   try {
-    const updated = await db.transaction(async (tx) => {
+    const updated = await withTxRetry(() => db.transaction(async (tx) => {
       const [request] = await tx.select().from(financingRequestsTable)
         .where(eq(financingRequestsTable.id, requestId)).limit(1).for("update");
 
@@ -301,7 +301,7 @@ router.patch("/financing/:requestId/approve", async (req, res) => {
       });
 
       return result;
-    });
+    }));
 
     return res.json(updated);
   } catch (err: any) {
@@ -323,7 +323,7 @@ router.patch("/financing/:requestId/disburse", async (req, res) => {
   if (user.tier !== "FINANCIER") return res.status(403).json({ error: "Only Financier accounts can disburse financing" });
 
   try {
-    const updated = await db.transaction(async (tx) => {
+    const updated = await withTxRetry(() => db.transaction(async (tx) => {
       const [request] = await tx.select().from(financingRequestsTable)
         .where(eq(financingRequestsTable.id, requestId)).limit(1).for("update");
 
@@ -374,7 +374,7 @@ router.patch("/financing/:requestId/disburse", async (req, res) => {
       });
 
       return result;
-    });
+    }));
 
     return res.json(updated);
   } catch (err: any) {
@@ -396,7 +396,7 @@ router.patch("/financing/:requestId/reject", async (req, res) => {
   if (user.tier !== "FINANCIER") return res.status(403).json({ error: "Only Financier accounts can reject financing requests" });
 
   try {
-    const updated = await db.transaction(async (tx) => {
+    const updated = await withTxRetry(() => db.transaction(async (tx) => {
       const [request] = await tx.select().from(financingRequestsTable)
         .where(eq(financingRequestsTable.id, requestId)).limit(1).for("update");
 
@@ -418,7 +418,7 @@ router.patch("/financing/:requestId/reject", async (req, res) => {
       });
 
       return result;
-    });
+    }));
 
     return res.json(updated);
   } catch (err: any) {

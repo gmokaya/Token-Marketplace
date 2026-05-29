@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getAuth } from "@clerk/express";
-import { db } from "@workspace/db";
+import { db, withTxRetry } from "@workspace/db";
 import {
   forwardContractsTable,
   contractEventsTable,
@@ -147,7 +147,7 @@ router.post("/forwards/:contractId/co-sign", async (req, res) => {
   if (user.tier !== "OFF_TAKER") return res.status(403).json({ error: "Only off-takers can co-sign forward contracts" });
 
   try {
-    const updated = await db.transaction(async (tx) => {
+    const updated = await withTxRetry(() => db.transaction(async (tx) => {
       await tx.execute(sql`SET TRANSACTION ISOLATION LEVEL SERIALIZABLE`);
 
       const [contract] = await tx
@@ -210,7 +210,7 @@ router.post("/forwards/:contractId/co-sign", async (req, res) => {
       );
 
       return signed;
-    });
+    }));
 
     const enriched = await enrichContract(updated);
     return res.json(enriched);

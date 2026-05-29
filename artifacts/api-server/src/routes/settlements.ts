@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getAuth } from "@clerk/express";
-import { db } from "@workspace/db";
+import { db, withTxRetry } from "@workspace/db";
 import {
   settlementsTable,
   loansTable,
@@ -150,7 +150,7 @@ router.post("/settlements", async (req, res) => {
     // Derive the eWR that backs this trade — needed for mandatory lien repayment
     const tradeEwrId = await deriveTradeEwrId(entityType, entityId);
 
-    const settlement = await db.transaction(async (tx) => {
+    const settlement = await withTxRetry(() => db.transaction(async (tx) => {
       const [dup] = await tx.select({ id: settlementsTable.id })
         .from(settlementsTable)
         .where(and(
@@ -271,7 +271,7 @@ router.post("/settlements", async (req, res) => {
       });
 
       return created;
-    });
+    }));
 
     return res.status(201).json(settlement);
   } catch (err: any) {
@@ -325,7 +325,7 @@ router.post("/settlements/:settlementId/disburse", async (req, res) => {
   }
 
   try {
-    const updated = await db.transaction(async (tx) => {
+    const updated = await withTxRetry(() => db.transaction(async (tx) => {
       const [settlement] = await tx.select().from(settlementsTable)
         .where(eq(settlementsTable.id, settlementId)).limit(1).for("update");
 
@@ -501,7 +501,7 @@ router.post("/settlements/:settlementId/disburse", async (req, res) => {
       });
 
       return result;
-    });
+    }));
 
     return res.json(updated);
   } catch (err: any) {

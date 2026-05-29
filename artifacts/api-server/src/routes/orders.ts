@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getAuth } from "@clerk/express";
-import { db } from "@workspace/db";
+import { db, withTxRetry } from "@workspace/db";
 import { ordersTable, spotListingsTable, ewrsTable, usersTable, reputationEventsTable, auditLogTable } from "@workspace/db";
 import { eq, and, SQL, sql } from "drizzle-orm";
 import { sha256, auditEntry } from "../lib/audit";
@@ -58,7 +58,7 @@ router.post("/orders", async (req, res) => {
   if (!listingId) return res.status(400).json({ error: "listingId is required" });
 
   try {
-    const order = await db.transaction(async (tx) => {
+    const order = await withTxRetry(() => db.transaction(async (tx) => {
       await tx.execute(sql`SET TRANSACTION ISOLATION LEVEL SERIALIZABLE`);
       type LockedRow = { id: number; status: string; seller_id: number; ewr_id: number; price_per_mt: string };
       const lockResult = await tx.execute<LockedRow>(
@@ -102,7 +102,7 @@ router.post("/orders", async (req, res) => {
         )
       );
       return newOrder;
-    });
+    }));
 
     const enriched = await enrichOrder(order);
     return res.status(201).json(enriched);
@@ -147,7 +147,7 @@ router.patch("/orders/:orderId", async (req, res) => {
   }
 
   try {
-    const updated = await db.transaction(async (tx) => {
+    const updated = await withTxRetry(() => db.transaction(async (tx) => {
       await tx.execute(sql`SET TRANSACTION ISOLATION LEVEL SERIALIZABLE`);
 
       const [lockedOrder] = await tx
@@ -192,7 +192,7 @@ router.patch("/orders/:orderId", async (req, res) => {
         )
       );
       return result;
-    });
+    }));
 
     const enriched = await enrichOrder(updated);
     return res.json(enriched);
