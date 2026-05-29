@@ -15,7 +15,7 @@ import {
   forwardContractsTable,
   reputationEventsTable,
 } from "@workspace/db";
-import { eq, sql, and } from "drizzle-orm";
+import { eq, sql, and, inArray } from "drizzle-orm";
 import { createHash } from "crypto";
 
 const router = Router();
@@ -170,23 +170,36 @@ router.post("/settlements", async (req, res) => {
           .from(ewrsTable).where(eq(ewrsTable.id, tradeEwrId)).limit(1);
 
         if (tradeEwr?.isLienActive) {
-          // Look up the single ACTIVE loan backed by this eWR
-          const [fr] = await tx.select().from(financingRequestsTable)
-            .where(eq(financingRequestsTable.ewrId, tradeEwrId)).limit(1);
-          if (fr) {
-            const [activeLoan] = await tx.select().from(loansTable)
-              .where(and(eq(loansTable.financingRequestId, fr.id), eq(loansTable.lienStatus, "ACTIVE")))
-              .limit(1);
-            if (activeLoan) {
-              // If caller supplied an explicit loanId it must match the collateral loan exactly
-              if (loanId !== undefined && loanId !== activeLoan.id) {
-                throw Object.assign(
-                  new Error(`Supplied loanId ${loanId} does not match the active collateral loan ${activeLoan.id} on this trade's eWR`),
-                  { statusCode: 400 }
-                );
-              }
-              resolvedLoan = activeLoan;
+          // JOIN across ALL financing requests for this eWR to find the ACTIVE loan.
+          // This avoids limit(1) on financing_requests silently picking a stale/rejected
+          // request and missing the actual active loan (handles multiple request history).
+          const [activeLoan] = await tx.select().from(loansTable)
+            .where(and(
+              eq(loansTable.lienStatus, "ACTIVE"),
+              inArray(
+                loansTable.financingRequestId,
+                tx.select({ id: financingRequestsTable.id })
+                  .from(financingRequestsTable)
+                  .where(eq(financingRequestsTable.ewrId, tradeEwrId))
+              )
+            ))
+            .limit(1);
+
+          if (activeLoan) {
+            // If caller supplied an explicit loanId it must match the collateral loan exactly
+            if (loanId !== undefined && loanId !== activeLoan.id) {
+              throw Object.assign(
+                new Error(`Supplied loanId ${loanId} does not match the active collateral loan ${activeLoan.id} on this trade's eWR`),
+                { statusCode: 400 }
+              );
             }
+            resolvedLoan = activeLoan;
+          } else {
+            // eWR is lien-active but no ACTIVE loan found — block settlement
+            throw Object.assign(
+              new Error("eWR has an active lien but no corresponding ACTIVE loan was found — settlement blocked"),
+              { statusCode: 409 }
+            );
           }
         }
       }
@@ -348,6 +361,8 @@ router.post("/settlements/:settlementId/disburse", async (req, res) => {
         .where(eq(settlementsTable.id, settlementId))
         .returning();
 
+      // Bank-leg: release the lien (loan REPAID + clear lienHolder flags) but do NOT
+      // change eWR state or ownership yet — that happens only when ALL legs complete.
       if (leg === "bank" && settlement.loanId) {
         const [loan] = await tx.select().from(loansTable).where(eq(loansTable.id, settlement.loanId)).limit(1);
         if (loan) {
@@ -358,8 +373,9 @@ router.post("/settlements/:settlementId/disburse", async (req, res) => {
           const [fr] = await tx.select().from(financingRequestsTable)
             .where(eq(financingRequestsTable.id, loan.financingRequestId)).limit(1);
           if (fr) {
+            // Only clear lien metadata — state + ownerId transition deferred to allComplete
             await tx.update(ewrsTable)
-              .set({ isLienActive: false, lienHolderId: null, state: "INGESTED" })
+              .set({ isLienActive: false, lienHolderId: null })
               .where(eq(ewrsTable.id, fr.ewrId));
             await tx.update(financingRequestsTable)
               .set({ status: "REPAID" })
@@ -369,19 +385,51 @@ router.post("/settlements/:settlementId/disburse", async (req, res) => {
       }
 
       if (allComplete) {
+        // Resolve the trade's underlying eWR and buyer for ownership transfer
+        let tradeEwrId: number | null = null;
+        let buyerIdForTransfer: number | null = null;
+
         if (settlement.entityType === "ORDER") {
-          await tx.update(ordersTable)
-            .set({ status: "SETTLED" })
-            .where(eq(ordersTable.id, settlement.entityId));
+          const [order] = await tx.select().from(ordersTable).where(eq(ordersTable.id, settlement.entityId)).limit(1);
+          if (order) {
+            const [listing] = await tx.select({ ewrId: spotListingsTable.ewrId })
+              .from(spotListingsTable).where(eq(spotListingsTable.id, order.listingId)).limit(1);
+            tradeEwrId = listing?.ewrId ?? null;
+            buyerIdForTransfer = order.buyerId;
+            await tx.update(ordersTable).set({ status: "SETTLED" }).where(eq(ordersTable.id, settlement.entityId));
+          }
         } else if (settlement.entityType === "AUCTION") {
-          await tx.update(auctionsTable)
-            .set({ status: "SETTLED" })
-            .where(eq(auctionsTable.id, settlement.entityId));
+          const [auction] = await tx.select().from(auctionsTable).where(eq(auctionsTable.id, settlement.entityId)).limit(1);
+          if (auction) {
+            tradeEwrId = auction.ewrId;
+            if (auction.winningBidId) {
+              const [bid] = await tx.select({ bidderId: auctionBidsTable.bidderId })
+                .from(auctionBidsTable).where(eq(auctionBidsTable.id, auction.winningBidId)).limit(1);
+              buyerIdForTransfer = bid?.bidderId ?? null;
+            }
+            await tx.update(auctionsTable).set({ status: "SETTLED" }).where(eq(auctionsTable.id, settlement.entityId));
+          }
         } else if (settlement.entityType === "FORWARD") {
-          await tx.update(forwardContractsTable)
-            .set({ contractStatus: "SETTLED" })
-            .where(eq(forwardContractsTable.id, settlement.entityId));
+          const [forward] = await tx.select().from(forwardContractsTable).where(eq(forwardContractsTable.id, settlement.entityId)).limit(1);
+          if (forward) {
+            tradeEwrId = forward.ewrId;
+            buyerIdForTransfer = forward.buyerId ?? null;
+            await tx.update(forwardContractsTable).set({ contractStatus: "SETTLED" }).where(eq(forwardContractsTable.id, settlement.entityId));
+          }
         }
+
+        // Transfer eWR ownership to buyer and restore to INGESTED (tradeable by new owner).
+        // Also clear any residual lien flags not yet cleared by the bank leg.
+        if (tradeEwrId !== null) {
+          const ewrUpdate: Partial<typeof ewrsTable.$inferInsert> = {
+            state: "INGESTED",
+            isLienActive: false,
+            lienHolderId: null,
+          };
+          if (buyerIdForTransfer !== null) ewrUpdate.ownerId = buyerIdForTransfer;
+          await tx.update(ewrsTable).set(ewrUpdate).where(eq(ewrsTable.id, tradeEwrId));
+        }
+
         await writeReputationEvents(tx, settlement.entityType, settlement.entityId, now);
       }
 

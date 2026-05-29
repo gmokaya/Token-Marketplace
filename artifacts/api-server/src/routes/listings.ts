@@ -201,7 +201,11 @@ router.delete("/listings/:listingId", async (req, res) => {
     .where(eq(spotListingsTable.id, listingId))
     .returning();
 
-  await db.update(ewrsTable).set({ state: "INGESTED" }).where(eq(ewrsTable.id, listing.ewrId));
+  const [listingEwr] = await db.select({ isLienActive: ewrsTable.isLienActive })
+    .from(ewrsTable).where(eq(ewrsTable.id, listing.ewrId)).limit(1);
+  await db.update(ewrsTable)
+    .set({ state: listingEwr?.isLienActive ? "ENCUMBERED" : "INGESTED" })
+    .where(eq(ewrsTable.id, listing.ewrId));
 
   const enriched = await enrichListing(cancelled);
   return res.json(enriched);
