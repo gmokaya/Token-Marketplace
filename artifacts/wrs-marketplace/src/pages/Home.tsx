@@ -119,7 +119,7 @@ export default function Home() {
             {/* WRS brand green overlay over the photo for cohesion + legibility */}
             <div style={{
               position: "absolute", inset: 0, left: "58%", zIndex: 1,
-              background: "linear-gradient(145deg, hsl(155 80% 10% / 0.74) 0%, hsl(155 100% 6% / 0.82) 60%, hsl(130 60% 8% / 0.72) 100%)",
+              background: "linear-gradient(145deg, hsl(155 80% 10% / 0.36) 0%, hsl(155 100% 6% / 0.44) 60%, hsl(130 60% 8% / 0.36) 100%)",
             }} />
             {/* subtle dot-grid pattern overlay */}
             <div style={{
