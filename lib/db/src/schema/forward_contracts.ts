@@ -4,7 +4,7 @@ import { z } from "zod/v4";
 import { usersTable } from "./users";
 import { ewrsTable } from "./ewrs";
 
-export const contractStatusEnum = pgEnum("contract_status", ["PENDING_SIGNATURE", "ACTIVE", "MATURED", "DEFAULTED", "CANCELLED"]);
+export const contractStatusEnum = pgEnum("contract_status", ["PENDING_SIGNATURE", "ACTIVE", "MATURED", "DEFAULTED", "CANCELLED", "SETTLED"]);
 export const bondStatusEnum = pgEnum("bond_status", ["PENDING_BOND", "ACTIVE", "FORFEITED", "RELEASED"]);
 
 export const forwardContractsTable = pgTable("forward_contracts", {

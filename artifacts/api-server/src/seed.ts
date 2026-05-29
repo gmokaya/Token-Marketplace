@@ -728,14 +728,10 @@ async function seed() {
       },
     ]);
 
-    // ── Completed Settlement #2: Auction with loan repayment (loan1) ──────────
-    const daysElapsed2 = 14;
-    const principal2 = lMax1;
-    const interest2 = principal2 * 0.12 * daysElapsed2 / 365;
-    const rBank2 = principal2 + interest2;
+    // ── Completed Settlement #2: Standalone auction settlement (no loan) ────────
     const vTotal2 = 80000;
     const fPlatform2 = vTotal2 * 0.02;
-    const pProducer2 = Math.max(0, vTotal2 - rBank2 - fPlatform2);
+    const pProducer2 = vTotal2 - fPlatform2;
     const settled2At = new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000);
 
     const [settlement2] = await db.insert(settlementsTable).values({
@@ -743,32 +739,20 @@ async function seed() {
       entityId: 1,
       initiatedById: enabler.id,
       vTotalUsd: String(vTotal2),
-      rBankUsd: rBank2.toFixed(2),
+      rBankUsd: "0.00",
       fPlatformUsd: fPlatform2.toFixed(2),
       pProducerUsd: pProducer2.toFixed(2),
-      loanId: loan1.id,
-      bankLegStatus: "DISBURSED",
+      loanId: null,
+      bankLegStatus: "N_A",
       platformLegStatus: "DISBURSED",
       producerLegStatus: "DISBURSED",
-      bankLegDisbursedAt: settled2At,
       platformLegDisbursedAt: settled2At,
       producerLegDisbursedAt: settled2At,
       completedAt: settled2At,
-      notes: "Auction settlement with loan repayment – Coffee Grade C",
+      notes: "Auction settlement – EWR-NKR-2025-001",
     }).returning();
 
-    // Mark loan1 as repaid (settlement2 fully disbursed)
-    await db.update(loansTable)
-      .set({ lienStatus: "REPAID", repaidAt: settled2At, outstandingBalanceUsd: "0" })
-      .where(eq(loansTable.id, loan1.id));
-    await db.update(financingRequestsTable)
-      .set({ status: "REPAID" })
-      .where(eq(financingRequestsTable.id, fr1.id));
-    await db.update(ewrsTable)
-      .set({ isLienActive: false, lienHolderId: null, state: "INGESTED" })
-      .where(eq(ewrsTable.id, encumberedEwr1.id));
-
-    const settle2Payload = { settlementId: settlement2.id, entityType: "AUCTION", entityId: 1, vTotalUsd: vTotal2, rBankUsd: rBank2, fPlatformUsd: fPlatform2, pProducerUsd: pProducer2 };
+    const settle2Payload = { settlementId: settlement2.id, entityType: "AUCTION", entityId: 1, vTotalUsd: vTotal2, rBankUsd: 0, fPlatformUsd: fPlatform2, pProducerUsd: pProducer2 };
     await db.insert(auditLogTable).values([
       {
         entityType: "SETTLEMENT",

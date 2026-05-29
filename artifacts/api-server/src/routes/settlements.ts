@@ -15,7 +15,7 @@ import {
   forwardContractsTable,
   reputationEventsTable,
 } from "@workspace/db";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, and } from "drizzle-orm";
 import { createHash } from "crypto";
 
 const router = Router();
@@ -123,6 +123,15 @@ router.post("/settlements", async (req, res) => {
     }
 
     const settlement = await db.transaction(async (tx) => {
+      const [dup] = await tx.select({ id: settlementsTable.id })
+        .from(settlementsTable)
+        .where(and(
+          eq(settlementsTable.entityType, entityType),
+          eq(settlementsTable.entityId, entityId)
+        ))
+        .limit(1).for("update");
+      if (dup) throw Object.assign(new Error("A settlement already exists for this entity"), { statusCode: 409 });
+
       let loan: typeof loansTable.$inferSelect | null = null;
       if (loanId) {
         [loan] = await tx.select().from(loansTable).where(eq(loansTable.id, loanId)).limit(1);
@@ -292,6 +301,19 @@ router.post("/settlements/:settlementId/disburse", async (req, res) => {
       }
 
       if (allComplete) {
+        if (settlement.entityType === "ORDER") {
+          await tx.update(ordersTable)
+            .set({ status: "SETTLED" })
+            .where(eq(ordersTable.id, settlement.entityId));
+        } else if (settlement.entityType === "AUCTION") {
+          await tx.update(auctionsTable)
+            .set({ status: "SETTLED" })
+            .where(eq(auctionsTable.id, settlement.entityId));
+        } else if (settlement.entityType === "FORWARD") {
+          await tx.update(forwardContractsTable)
+            .set({ contractStatus: "SETTLED" })
+            .where(eq(forwardContractsTable.id, settlement.entityId));
+        }
         await writeReputationEvents(tx, settlement.entityType, settlement.entityId, now);
       }
 
