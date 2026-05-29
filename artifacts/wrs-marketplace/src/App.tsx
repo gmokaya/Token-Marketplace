@@ -18,6 +18,10 @@ import Orders from "@/pages/Orders";
 import MyListings from "@/pages/MyListings";
 import MarketStats from "@/pages/MarketStats";
 import Profile from "@/pages/Profile";
+import Auctions from "@/pages/Auctions";
+import AuctionDetail from "@/pages/AuctionDetail";
+import Forwards from "@/pages/Forwards";
+import ForwardDetail from "@/pages/ForwardDetail";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 const clerkPubKey = publishableKeyFromHost(window.location.hostname, import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
@@ -109,6 +113,10 @@ function ClerkProviderWithRoutes() {
             <Route path="/my-listings"><ProtectedRoute><MyListings /></ProtectedRoute></Route>
             <Route path="/market-stats"><ProtectedRoute><MarketStats /></ProtectedRoute></Route>
             <Route path="/profile"><ProtectedRoute><Profile /></ProtectedRoute></Route>
+            <Route path="/auctions"><ProtectedRoute><Auctions /></ProtectedRoute></Route>
+            <Route path="/auctions/:auctionId"><ProtectedRoute><AuctionDetail /></ProtectedRoute></Route>
+            <Route path="/forwards"><ProtectedRoute><Forwards /></ProtectedRoute></Route>
+            <Route path="/forwards/:contractId"><ProtectedRoute><ForwardDetail /></ProtectedRoute></Route>
             <Route path="*">
               <div className="flex items-center justify-center h-screen">404 Not Found</div>
             </Route>

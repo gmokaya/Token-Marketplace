@@ -3,3 +3,7 @@ export * from "./ewrs";
 export * from "./spot_listings";
 export * from "./orders";
 export * from "./reputation_events";
+export * from "./auctions";
+export * from "./auction_bids";
+export * from "./forward_contracts";
+export * from "./contract_events";

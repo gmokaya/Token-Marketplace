@@ -276,6 +276,156 @@ export interface WarehouseStat {
   activeCommodities?: string[];
 }
 
+export type AuctionStatus = typeof AuctionStatus[keyof typeof AuctionStatus];
+
+
+export const AuctionStatus = {
+  OPEN: 'OPEN',
+  CLOSED: 'CLOSED',
+  SETTLED: 'SETTLED',
+  CANCELLED: 'CANCELLED',
+} as const;
+
+export interface Auction {
+  id: number;
+  ewrId: number;
+  sellerId: number;
+  /** @nullable */
+  sellerName?: string | null;
+  reservePriceUsd: number;
+  bidIncrementPct: number;
+  startAt: string;
+  endAt: string;
+  status: AuctionStatus;
+  /** @nullable */
+  winningBidId?: number | null;
+  /** @nullable */
+  currentHighBidUsd?: number | null;
+  bidCount?: number;
+  /** @nullable */
+  commodityType?: string | null;
+  /** @nullable */
+  grade?: string | null;
+  /** @nullable */
+  weightMt?: number | null;
+  /** @nullable */
+  warehouseCode?: string | null;
+  createdAt: string;
+}
+
+export interface AuctionBid {
+  id: number;
+  auctionId: number;
+  bidderId: number;
+  /** @nullable */
+  bidderName?: string | null;
+  amountUsd: number;
+  placedAt: string;
+  isWinning: boolean;
+}
+
+export interface AuctionDetail {
+  auction: Auction;
+  bids: AuctionBid[];
+  secondsRemaining: number;
+  ewr?: Ewr;
+}
+
+export interface AuctionInput {
+  ewrId: number;
+  reservePriceUsd: number;
+  bidIncrementPct?: number;
+  /** Auction duration in minutes from now */
+  durationMinutes: number;
+}
+
+export interface BidInput {
+  amountUsd: number;
+}
+
+export type ForwardContractSellerBondStatus = typeof ForwardContractSellerBondStatus[keyof typeof ForwardContractSellerBondStatus];
+
+
+export const ForwardContractSellerBondStatus = {
+  PENDING_BOND: 'PENDING_BOND',
+  ACTIVE: 'ACTIVE',
+  FORFEITED: 'FORFEITED',
+  RELEASED: 'RELEASED',
+} as const;
+
+export type ForwardContractBuyerBondStatus = typeof ForwardContractBuyerBondStatus[keyof typeof ForwardContractBuyerBondStatus];
+
+
+export const ForwardContractBuyerBondStatus = {
+  PENDING_BOND: 'PENDING_BOND',
+  ACTIVE: 'ACTIVE',
+  FORFEITED: 'FORFEITED',
+  RELEASED: 'RELEASED',
+} as const;
+
+export type ForwardContractContractStatus = typeof ForwardContractContractStatus[keyof typeof ForwardContractContractStatus];
+
+
+export const ForwardContractContractStatus = {
+  PENDING_SIGNATURE: 'PENDING_SIGNATURE',
+  ACTIVE: 'ACTIVE',
+  MATURED: 'MATURED',
+  DEFAULTED: 'DEFAULTED',
+  CANCELLED: 'CANCELLED',
+} as const;
+
+export interface ForwardContract {
+  id: number;
+  ewrId: number;
+  sellerId: number;
+  /** @nullable */
+  sellerName?: string | null;
+  /** @nullable */
+  buyerId?: number | null;
+  /** @nullable */
+  buyerName?: string | null;
+  maturityDate: string;
+  deliveryPriceUsd: number;
+  performanceBondUsd: number;
+  sellerBondStatus: ForwardContractSellerBondStatus;
+  buyerBondStatus: ForwardContractBuyerBondStatus;
+  contractStatus: ForwardContractContractStatus;
+  /** @nullable */
+  signedAt?: string | null;
+  /** @nullable */
+  commodityType?: string | null;
+  /** @nullable */
+  grade?: string | null;
+  /** @nullable */
+  weightMt?: number | null;
+  /** @nullable */
+  warehouseCode?: string | null;
+  createdAt: string;
+}
+
+export interface ForwardContractInput {
+  ewrId: number;
+  maturityDate: string;
+  deliveryPriceUsd: number;
+}
+
+export interface PriceTrendItem {
+  commodityType: string;
+  clearingPriceUsd: number;
+  settledAt: string;
+  /** @nullable */
+  weightMt?: number | null;
+}
+
+export interface TopBidder {
+  bidderId: number;
+  /** @nullable */
+  bidderName: string | null;
+  totalBids: number;
+  highestBidUsd: number;
+  commodityType: string;
+}
+
 export type ListEwrsParams = {
 ownerId?: number;
 state?: ListEwrsState;
@@ -351,4 +501,79 @@ export const ListOrdersStatus = {
 export type GetRecentActivityParams = {
 limit?: number;
 };
+
+export type GetPriceTrendsParams = {
+commodityType?: GetPriceTrendsCommodityType;
+};
+
+export type GetPriceTrendsCommodityType = typeof GetPriceTrendsCommodityType[keyof typeof GetPriceTrendsCommodityType];
+
+
+export const GetPriceTrendsCommodityType = {
+  MAIZE: 'MAIZE',
+  RICE: 'RICE',
+  COFFEE: 'COFFEE',
+  TEA: 'TEA',
+  AVOCADO: 'AVOCADO',
+} as const;
+
+export type GetTopBiddersParams = {
+commodityType?: GetTopBiddersCommodityType;
+limit?: number;
+};
+
+export type GetTopBiddersCommodityType = typeof GetTopBiddersCommodityType[keyof typeof GetTopBiddersCommodityType];
+
+
+export const GetTopBiddersCommodityType = {
+  MAIZE: 'MAIZE',
+  RICE: 'RICE',
+  COFFEE: 'COFFEE',
+  TEA: 'TEA',
+  AVOCADO: 'AVOCADO',
+} as const;
+
+export type ListAuctionsParams = {
+status?: ListAuctionsStatus;
+commodityType?: ListAuctionsCommodityType;
+sellerId?: number;
+};
+
+export type ListAuctionsStatus = typeof ListAuctionsStatus[keyof typeof ListAuctionsStatus];
+
+
+export const ListAuctionsStatus = {
+  OPEN: 'OPEN',
+  CLOSED: 'CLOSED',
+  SETTLED: 'SETTLED',
+  CANCELLED: 'CANCELLED',
+} as const;
+
+export type ListAuctionsCommodityType = typeof ListAuctionsCommodityType[keyof typeof ListAuctionsCommodityType];
+
+
+export const ListAuctionsCommodityType = {
+  MAIZE: 'MAIZE',
+  RICE: 'RICE',
+  COFFEE: 'COFFEE',
+  TEA: 'TEA',
+  AVOCADO: 'AVOCADO',
+} as const;
+
+export type ListForwardContractsParams = {
+status?: ListForwardContractsStatus;
+sellerId?: number;
+buyerId?: number;
+};
+
+export type ListForwardContractsStatus = typeof ListForwardContractsStatus[keyof typeof ListForwardContractsStatus];
+
+
+export const ListForwardContractsStatus = {
+  PENDING_SIGNATURE: 'PENDING_SIGNATURE',
+  ACTIVE: 'ACTIVE',
+  MATURED: 'MATURED',
+  DEFAULTED: 'DEFAULTED',
+  CANCELLED: 'CANCELLED',
+} as const;
 

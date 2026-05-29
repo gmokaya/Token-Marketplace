@@ -1,6 +1,7 @@
 import app from "./app";
 import { logger } from "./lib/logger";
 import { startOrderExpiryWorker } from "./routes/orders";
+import { startAuctionExpiryWorker } from "./routes/auctions";
 import { applyDbConstraints } from "@workspace/db/migrate";
 
 const rawPort = process.env["PORT"];
@@ -33,4 +34,5 @@ app.listen(port, async (err) => {
   }
 
   startOrderExpiryWorker();
+  startAuctionExpiryWorker();
 });

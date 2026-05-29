@@ -21,11 +21,22 @@ import type {
 
 import type {
   ActivityItem,
+  Auction,
+  AuctionBid,
+  AuctionDetail,
+  AuctionInput,
+  BidInput,
   CommodityStat,
   Ewr,
+  ForwardContract,
+  ForwardContractInput,
+  GetPriceTrendsParams,
   GetRecentActivityParams,
+  GetTopBiddersParams,
   HealthStatus,
+  ListAuctionsParams,
   ListEwrsParams,
+  ListForwardContractsParams,
   ListOrdersParams,
   ListSpotListingsParams,
   MarketSummary,
@@ -33,9 +44,11 @@ import type {
   OrderInput,
   OrderUpdate,
   Portfolio,
+  PriceTrendItem,
   SpotListing,
   SpotListingDetail,
   SpotListingInput,
+  TopBidder,
   User,
   UserUpdate,
   WarehouseStat
@@ -1514,4 +1527,925 @@ export function useGetWarehouseDistribution<TData = Awaited<ReturnType<typeof ge
 
 
 
+
+export const getGetPriceTrendsUrl = (params?: GetPriceTrendsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/stats/price-trends?${stringifiedParams}` : `/api/stats/price-trends`
+}
+
+/**
+ * @summary Commodity price trends from auction clearing prices
+ */
+export const getPriceTrends = async (params?: GetPriceTrendsParams, options?: RequestInit): Promise<PriceTrendItem[]> => {
+
+  return customFetch<PriceTrendItem[]>(getGetPriceTrendsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetPriceTrendsQueryKey = (params?: GetPriceTrendsParams,) => {
+    return [
+    `/api/stats/price-trends`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetPriceTrendsQueryOptions = <TData = Awaited<ReturnType<typeof getPriceTrends>>, TError = ErrorType<unknown>>(params?: GetPriceTrendsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPriceTrends>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPriceTrendsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPriceTrends>>> = ({ signal }) => getPriceTrends(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPriceTrends>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetPriceTrendsQueryResult = NonNullable<Awaited<ReturnType<typeof getPriceTrends>>>
+export type GetPriceTrendsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Commodity price trends from auction clearing prices
+ */
+
+export function useGetPriceTrends<TData = Awaited<ReturnType<typeof getPriceTrends>>, TError = ErrorType<unknown>>(
+ params?: GetPriceTrendsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPriceTrends>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetPriceTrendsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetTopBiddersUrl = (params?: GetTopBiddersParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/stats/top-bidders?${stringifiedParams}` : `/api/stats/top-bidders`
+}
+
+/**
+ * @summary Top bidders leaderboard
+ */
+export const getTopBidders = async (params?: GetTopBiddersParams, options?: RequestInit): Promise<TopBidder[]> => {
+
+  return customFetch<TopBidder[]>(getGetTopBiddersUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetTopBiddersQueryKey = (params?: GetTopBiddersParams,) => {
+    return [
+    `/api/stats/top-bidders`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetTopBiddersQueryOptions = <TData = Awaited<ReturnType<typeof getTopBidders>>, TError = ErrorType<unknown>>(params?: GetTopBiddersParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTopBidders>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetTopBiddersQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getTopBidders>>> = ({ signal }) => getTopBidders(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getTopBidders>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetTopBiddersQueryResult = NonNullable<Awaited<ReturnType<typeof getTopBidders>>>
+export type GetTopBiddersQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Top bidders leaderboard
+ */
+
+export function useGetTopBidders<TData = Awaited<ReturnType<typeof getTopBidders>>, TError = ErrorType<unknown>>(
+ params?: GetTopBiddersParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTopBidders>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetTopBiddersQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getListAuctionsUrl = (params?: ListAuctionsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/auctions?${stringifiedParams}` : `/api/auctions`
+}
+
+/**
+ * @summary List auctions
+ */
+export const listAuctions = async (params?: ListAuctionsParams, options?: RequestInit): Promise<Auction[]> => {
+
+  return customFetch<Auction[]>(getListAuctionsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAuctionsQueryKey = (params?: ListAuctionsParams,) => {
+    return [
+    `/api/auctions`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListAuctionsQueryOptions = <TData = Awaited<ReturnType<typeof listAuctions>>, TError = ErrorType<unknown>>(params?: ListAuctionsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAuctions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAuctionsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAuctions>>> = ({ signal }) => listAuctions(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAuctions>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListAuctionsQueryResult = NonNullable<Awaited<ReturnType<typeof listAuctions>>>
+export type ListAuctionsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List auctions
+ */
+
+export function useListAuctions<TData = Awaited<ReturnType<typeof listAuctions>>, TError = ErrorType<unknown>>(
+ params?: ListAuctionsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAuctions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListAuctionsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCreateAuctionUrl = () => {
+
+
+
+
+  return `/api/auctions`
+}
+
+/**
+ * @summary Create an auction (Producer only)
+ */
+export const createAuction = async (auctionInput: AuctionInput, options?: RequestInit): Promise<Auction> => {
+
+  return customFetch<Auction>(getCreateAuctionUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      auctionInput,)
+  }
+);}
+
+
+
+
+export const getCreateAuctionMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAuction>>, TError,{data: BodyType<AuctionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createAuction>>, TError,{data: BodyType<AuctionInput>}, TContext> => {
+
+const mutationKey = ['createAuction'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createAuction>>, {data: BodyType<AuctionInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createAuction(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateAuctionMutationResult = NonNullable<Awaited<ReturnType<typeof createAuction>>>
+    export type CreateAuctionMutationBody = BodyType<AuctionInput>
+    export type CreateAuctionMutationError = ErrorType<void>
+
+    /**
+ * @summary Create an auction (Producer only)
+ */
+export const useCreateAuction = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAuction>>, TError,{data: BodyType<AuctionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createAuction>>,
+        TError,
+        {data: BodyType<AuctionInput>},
+        TContext
+      > => {
+      return useMutation(getCreateAuctionMutationOptions(options));
+    }
+
+export const getGetAuctionUrl = (auctionId: number,) => {
+
+
+
+
+  return `/api/auctions/${auctionId}`
+}
+
+/**
+ * @summary Get auction detail with current high bid and countdown
+ */
+export const getAuction = async (auctionId: number, options?: RequestInit): Promise<AuctionDetail> => {
+
+  return customFetch<AuctionDetail>(getGetAuctionUrl(auctionId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAuctionQueryKey = (auctionId: number,) => {
+    return [
+    `/api/auctions/${auctionId}`
+    ] as const;
+    }
+
+
+export const getGetAuctionQueryOptions = <TData = Awaited<ReturnType<typeof getAuction>>, TError = ErrorType<void>>(auctionId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAuction>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAuctionQueryKey(auctionId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAuction>>> = ({ signal }) => getAuction(auctionId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(auctionId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAuction>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAuctionQueryResult = NonNullable<Awaited<ReturnType<typeof getAuction>>>
+export type GetAuctionQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get auction detail with current high bid and countdown
+ */
+
+export function useGetAuction<TData = Awaited<ReturnType<typeof getAuction>>, TError = ErrorType<void>>(
+ auctionId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAuction>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAuctionQueryOptions(auctionId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getListAuctionBidsUrl = (auctionId: number,) => {
+
+
+
+
+  return `/api/auctions/${auctionId}/bids`
+}
+
+/**
+ * @summary Get bid history for an auction
+ */
+export const listAuctionBids = async (auctionId: number, options?: RequestInit): Promise<AuctionBid[]> => {
+
+  return customFetch<AuctionBid[]>(getListAuctionBidsUrl(auctionId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAuctionBidsQueryKey = (auctionId: number,) => {
+    return [
+    `/api/auctions/${auctionId}/bids`
+    ] as const;
+    }
+
+
+export const getListAuctionBidsQueryOptions = <TData = Awaited<ReturnType<typeof listAuctionBids>>, TError = ErrorType<unknown>>(auctionId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAuctionBids>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAuctionBidsQueryKey(auctionId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAuctionBids>>> = ({ signal }) => listAuctionBids(auctionId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(auctionId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAuctionBids>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListAuctionBidsQueryResult = NonNullable<Awaited<ReturnType<typeof listAuctionBids>>>
+export type ListAuctionBidsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get bid history for an auction
+ */
+
+export function useListAuctionBids<TData = Awaited<ReturnType<typeof listAuctionBids>>, TError = ErrorType<unknown>>(
+ auctionId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAuctionBids>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListAuctionBidsQueryOptions(auctionId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getPlaceBidUrl = (auctionId: number,) => {
+
+
+
+
+  return `/api/auctions/${auctionId}/bids`
+}
+
+/**
+ * @summary Place a bid (Off-Taker only)
+ */
+export const placeBid = async (auctionId: number,
+    bidInput: BidInput, options?: RequestInit): Promise<AuctionBid> => {
+
+  return customFetch<AuctionBid>(getPlaceBidUrl(auctionId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      bidInput,)
+  }
+);}
+
+
+
+
+export const getPlaceBidMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof placeBid>>, TError,{auctionId: number;data: BodyType<BidInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof placeBid>>, TError,{auctionId: number;data: BodyType<BidInput>}, TContext> => {
+
+const mutationKey = ['placeBid'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof placeBid>>, {auctionId: number;data: BodyType<BidInput>}> = (props) => {
+          const {auctionId,data} = props ?? {};
+
+          return  placeBid(auctionId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PlaceBidMutationResult = NonNullable<Awaited<ReturnType<typeof placeBid>>>
+    export type PlaceBidMutationBody = BodyType<BidInput>
+    export type PlaceBidMutationError = ErrorType<void>
+
+    /**
+ * @summary Place a bid (Off-Taker only)
+ */
+export const usePlaceBid = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof placeBid>>, TError,{auctionId: number;data: BodyType<BidInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof placeBid>>,
+        TError,
+        {auctionId: number;data: BodyType<BidInput>},
+        TContext
+      > => {
+      return useMutation(getPlaceBidMutationOptions(options));
+    }
+
+export const getListForwardContractsUrl = (params?: ListForwardContractsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/forwards?${stringifiedParams}` : `/api/forwards`
+}
+
+/**
+ * @summary List forward contracts
+ */
+export const listForwardContracts = async (params?: ListForwardContractsParams, options?: RequestInit): Promise<ForwardContract[]> => {
+
+  return customFetch<ForwardContract[]>(getListForwardContractsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListForwardContractsQueryKey = (params?: ListForwardContractsParams,) => {
+    return [
+    `/api/forwards`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListForwardContractsQueryOptions = <TData = Awaited<ReturnType<typeof listForwardContracts>>, TError = ErrorType<unknown>>(params?: ListForwardContractsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listForwardContracts>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListForwardContractsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listForwardContracts>>> = ({ signal }) => listForwardContracts(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listForwardContracts>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListForwardContractsQueryResult = NonNullable<Awaited<ReturnType<typeof listForwardContracts>>>
+export type ListForwardContractsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List forward contracts
+ */
+
+export function useListForwardContracts<TData = Awaited<ReturnType<typeof listForwardContracts>>, TError = ErrorType<unknown>>(
+ params?: ListForwardContractsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listForwardContracts>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListForwardContractsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCreateForwardContractUrl = () => {
+
+
+
+
+  return `/api/forwards`
+}
+
+/**
+ * @summary Create a forward contract (Producer only)
+ */
+export const createForwardContract = async (forwardContractInput: ForwardContractInput, options?: RequestInit): Promise<ForwardContract> => {
+
+  return customFetch<ForwardContract>(getCreateForwardContractUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      forwardContractInput,)
+  }
+);}
+
+
+
+
+export const getCreateForwardContractMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createForwardContract>>, TError,{data: BodyType<ForwardContractInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createForwardContract>>, TError,{data: BodyType<ForwardContractInput>}, TContext> => {
+
+const mutationKey = ['createForwardContract'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createForwardContract>>, {data: BodyType<ForwardContractInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createForwardContract(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateForwardContractMutationResult = NonNullable<Awaited<ReturnType<typeof createForwardContract>>>
+    export type CreateForwardContractMutationBody = BodyType<ForwardContractInput>
+    export type CreateForwardContractMutationError = ErrorType<void>
+
+    /**
+ * @summary Create a forward contract (Producer only)
+ */
+export const useCreateForwardContract = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createForwardContract>>, TError,{data: BodyType<ForwardContractInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createForwardContract>>,
+        TError,
+        {data: BodyType<ForwardContractInput>},
+        TContext
+      > => {
+      return useMutation(getCreateForwardContractMutationOptions(options));
+    }
+
+export const getGetForwardContractUrl = (contractId: number,) => {
+
+
+
+
+  return `/api/forwards/${contractId}`
+}
+
+/**
+ * @summary Get forward contract detail with bond status
+ */
+export const getForwardContract = async (contractId: number, options?: RequestInit): Promise<ForwardContract> => {
+
+  return customFetch<ForwardContract>(getGetForwardContractUrl(contractId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetForwardContractQueryKey = (contractId: number,) => {
+    return [
+    `/api/forwards/${contractId}`
+    ] as const;
+    }
+
+
+export const getGetForwardContractQueryOptions = <TData = Awaited<ReturnType<typeof getForwardContract>>, TError = ErrorType<void>>(contractId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getForwardContract>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetForwardContractQueryKey(contractId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getForwardContract>>> = ({ signal }) => getForwardContract(contractId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(contractId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getForwardContract>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetForwardContractQueryResult = NonNullable<Awaited<ReturnType<typeof getForwardContract>>>
+export type GetForwardContractQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get forward contract detail with bond status
+ */
+
+export function useGetForwardContract<TData = Awaited<ReturnType<typeof getForwardContract>>, TError = ErrorType<void>>(
+ contractId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getForwardContract>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetForwardContractQueryOptions(contractId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCoSignForwardContractUrl = (contractId: number,) => {
+
+
+
+
+  return `/api/forwards/${contractId}/co-sign`
+}
+
+/**
+ * @summary Co-sign a forward contract (Off-Taker only)
+ */
+export const coSignForwardContract = async (contractId: number, options?: RequestInit): Promise<ForwardContract> => {
+
+  return customFetch<ForwardContract>(getCoSignForwardContractUrl(contractId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getCoSignForwardContractMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof coSignForwardContract>>, TError,{contractId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof coSignForwardContract>>, TError,{contractId: number}, TContext> => {
+
+const mutationKey = ['coSignForwardContract'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof coSignForwardContract>>, {contractId: number}> = (props) => {
+          const {contractId} = props ?? {};
+
+          return  coSignForwardContract(contractId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CoSignForwardContractMutationResult = NonNullable<Awaited<ReturnType<typeof coSignForwardContract>>>
+
+    export type CoSignForwardContractMutationError = ErrorType<void>
+
+    /**
+ * @summary Co-sign a forward contract (Off-Taker only)
+ */
+export const useCoSignForwardContract = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof coSignForwardContract>>, TError,{contractId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof coSignForwardContract>>,
+        TError,
+        {contractId: number},
+        TContext
+      > => {
+      return useMutation(getCoSignForwardContractMutationOptions(options));
+    }
+
+export const getResolveDefaultUrl = (contractId: number,) => {
+
+
+
+
+  return `/api/forwards/${contractId}/resolve-default`
+}
+
+/**
+ * @summary Trigger default resolution at maturity
+ */
+export const resolveDefault = async (contractId: number, options?: RequestInit): Promise<ForwardContract> => {
+
+  return customFetch<ForwardContract>(getResolveDefaultUrl(contractId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getResolveDefaultMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof resolveDefault>>, TError,{contractId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof resolveDefault>>, TError,{contractId: number}, TContext> => {
+
+const mutationKey = ['resolveDefault'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof resolveDefault>>, {contractId: number}> = (props) => {
+          const {contractId} = props ?? {};
+
+          return  resolveDefault(contractId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ResolveDefaultMutationResult = NonNullable<Awaited<ReturnType<typeof resolveDefault>>>
+
+    export type ResolveDefaultMutationError = ErrorType<void>
+
+    /**
+ * @summary Trigger default resolution at maturity
+ */
+export const useResolveDefault = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof resolveDefault>>, TError,{contractId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof resolveDefault>>,
+        TError,
+        {contractId: number},
+        TContext
+      > => {
+      return useMutation(getResolveDefaultMutationOptions(options));
+    }
 

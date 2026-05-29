@@ -3,11 +3,20 @@ import {
   usersTable,
   ewrsTable,
   spotListingsTable,
+  auctionsTable,
+  auctionBidsTable,
+  forwardContractsTable,
+  contractEventsTable,
 } from "@workspace/db";
+import { eq, inArray } from "drizzle-orm";
 
 async function seed() {
   console.log("Seeding database...");
 
+  await db.delete(contractEventsTable);
+  await db.delete(forwardContractsTable);
+  await db.delete(auctionBidsTable);
+  await db.delete(auctionsTable);
   await db.delete(spotListingsTable);
   await db.delete(ewrsTable);
   await db.delete(usersTable);
@@ -382,6 +391,157 @@ async function seed() {
 
   const insertedListings = await db.insert(spotListingsTable).values(listingValues).returning();
   console.log(`Seeded ${insertedListings.length} spot listings`);
+
+  // ── Auctions ──────────────────────────────────────────────────────────────
+  // Pick 3 INGESTED eWRs to auction (indices vary by producer)
+  const ingestedEwrs = insertedEwrs.filter(e => e.state === "INGESTED");
+  const auctionEwrs = ingestedEwrs.slice(0, 3);
+
+  if (auctionEwrs.length >= 3) {
+    const [aEwr1, aEwr2, aEwr3] = auctionEwrs;
+
+    const [auction1, auction2, auction3] = await db.insert(auctionsTable).values([
+      {
+        // Auction 1 – closes in 2 hours, already has bids
+        ewrId: aEwr1.id,
+        sellerId: aEwr1.ownerId,
+        reservePriceUsd: "45000.00",
+        bidIncrementPct: "1.5",
+        startAt: new Date(now.getTime() - 30 * 60 * 1000),
+        endAt: new Date(now.getTime() + 2 * 60 * 60 * 1000),
+        status: "OPEN" as const,
+      },
+      {
+        // Auction 2 – closes in ~4 minutes → anti-snipe demo
+        ewrId: aEwr2.id,
+        sellerId: aEwr2.ownerId,
+        reservePriceUsd: "120000.00",
+        bidIncrementPct: "2.0",
+        startAt: new Date(now.getTime() - 56 * 60 * 1000),
+        endAt: new Date(now.getTime() + 4 * 60 * 1000),
+        status: "OPEN" as const,
+      },
+      {
+        // Auction 3 – already settled
+        ewrId: aEwr3.id,
+        sellerId: aEwr3.ownerId,
+        reservePriceUsd: "55000.00",
+        bidIncrementPct: "1.5",
+        startAt: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000),
+        endAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000),
+        status: "SETTLED" as const,
+      },
+    ]).returning();
+
+    await db.update(ewrsTable)
+      .set({ state: "MARKET_LISTED" })
+      .where(inArray(ewrsTable.id, [aEwr1.id, aEwr2.id]));
+
+    // Seed bids for auction 1
+    const [, bid2] = await db.insert(auctionBidsTable).values([
+      {
+        auctionId: auction1.id,
+        bidderId: offtaker.id,
+        amountUsd: "46500.00",
+        isWinning: false,
+      },
+      {
+        auctionId: auction1.id,
+        bidderId: offtaker.id,
+        amountUsd: "47225.00",
+        isWinning: true,
+      },
+    ]).returning();
+
+    await db.update(auctionsTable)
+      .set({ winningBidId: bid2.id })
+      .where(eq(auctionsTable.id, auction1.id));
+
+    // Seed bids for auction 2 (near expiry)
+    const [bid3] = await db.insert(auctionBidsTable).values([
+      {
+        auctionId: auction2.id,
+        bidderId: offtaker.id,
+        amountUsd: "124000.00",
+        isWinning: true,
+      },
+    ]).returning();
+
+    await db.update(auctionsTable)
+      .set({ winningBidId: bid3.id })
+      .where(eq(auctionsTable.id, auction2.id));
+
+    // Seed bids for settled auction 3
+    const [, , bidS3] = await db.insert(auctionBidsTable).values([
+      { auctionId: auction3.id, bidderId: offtaker.id, amountUsd: "56000.00", isWinning: false },
+      { auctionId: auction3.id, bidderId: offtaker.id, amountUsd: "56840.00", isWinning: false },
+      { auctionId: auction3.id, bidderId: offtaker.id, amountUsd: "57692.60", isWinning: true },
+    ]).returning();
+
+    await db.update(auctionsTable)
+      .set({ winningBidId: bidS3.id })
+      .where(eq(auctionsTable.id, auction3.id));
+
+    console.log("Auctions seeded: 3 (1 long, 1 near-expiry anti-snipe, 1 settled)");
+  }
+
+  // ── Forward Contracts ─────────────────────────────────────────────────────
+  const marketEwrs = insertedEwrs.filter(e => e.state === "MARKET_LISTED");
+  const fwdEwrs = marketEwrs.slice(0, 2);
+
+  if (fwdEwrs.length >= 2) {
+    const [fEwr1, fEwr2] = fwdEwrs;
+    const deliveryPrice1 = 52000;
+    const deliveryPrice2 = 95000;
+
+    const [fc1, fc2] = await db.insert(forwardContractsTable).values([
+      {
+        // Contract 1 – PENDING_SIGNATURE (off-taker can co-sign)
+        ewrId: fEwr1.id,
+        sellerId: fEwr1.ownerId,
+        maturityDate: new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000),
+        deliveryPriceUsd: String(deliveryPrice1),
+        performanceBondUsd: String(deliveryPrice1 * 0.15),
+        contractStatus: "PENDING_SIGNATURE" as const,
+      },
+      {
+        // Contract 2 – ACTIVE (already co-signed, bonds live)
+        ewrId: fEwr2.id,
+        sellerId: fEwr2.ownerId,
+        buyerId: offtaker.id,
+        maturityDate: new Date(now.getTime() + 180 * 24 * 60 * 60 * 1000),
+        deliveryPriceUsd: String(deliveryPrice2),
+        performanceBondUsd: String(deliveryPrice2 * 0.15),
+        contractStatus: "ACTIVE" as const,
+        sellerBondStatus: "ACTIVE" as const,
+        buyerBondStatus: "ACTIVE" as const,
+        signedAt: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000),
+      },
+    ]).returning();
+
+    await db.insert(contractEventsTable).values([
+      {
+        contractId: fc1.id,
+        eventType: "CREATED",
+        actorId: fEwr1.ownerId,
+        note: `Forward contract created. Delivery: $${deliveryPrice1}, Bond: $${(deliveryPrice1 * 0.15).toFixed(2)}`,
+      },
+      {
+        contractId: fc2.id,
+        eventType: "CREATED",
+        actorId: fEwr2.ownerId,
+        note: `Forward contract created. Delivery: $${deliveryPrice2}, Bond: $${(deliveryPrice2 * 0.15).toFixed(2)}`,
+      },
+      {
+        contractId: fc2.id,
+        eventType: "CO_SIGNED",
+        actorId: offtaker.id,
+        note: `Contract co-signed by buyer (East Africa Millers Ltd). Both bonds activated.`,
+      },
+    ]);
+
+    console.log("Forward contracts seeded: 2 (1 pending, 1 active)");
+  }
 
   console.log("Seed complete.");
   process.exit(0);

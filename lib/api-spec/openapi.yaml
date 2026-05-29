@@ -20,6 +20,10 @@ tags:
     description: Spot market orders
   - name: stats
     description: Market statistics and analytics
+  - name: auctions
+    description: Live digital auctions
+  - name: forwards
+    description: Forward contract engine
 
 paths:
   /healthz:
@@ -412,6 +416,290 @@ paths:
                 items:
                   $ref: "#/components/schemas/WarehouseStat"
 
+  /stats/price-trends:
+    get:
+      operationId: getPriceTrends
+      tags: [stats]
+      summary: Commodity price trends from auction clearing prices
+      parameters:
+        - name: commodityType
+          in: query
+          schema:
+            type: string
+            enum: [MAIZE, RICE, COFFEE, TEA, AVOCADO]
+      responses:
+        "200":
+          description: Price trend data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PriceTrendItem"
+
+  /stats/top-bidders:
+    get:
+      operationId: getTopBidders
+      tags: [stats]
+      summary: Top bidders leaderboard
+      parameters:
+        - name: commodityType
+          in: query
+          schema:
+            type: string
+            enum: [MAIZE, RICE, COFFEE, TEA, AVOCADO]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: Top bidders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TopBidder"
+
+  /auctions:
+    get:
+      operationId: listAuctions
+      tags: [auctions]
+      summary: List auctions
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [OPEN, CLOSED, SETTLED, CANCELLED]
+        - name: commodityType
+          in: query
+          schema:
+            type: string
+            enum: [MAIZE, RICE, COFFEE, TEA, AVOCADO]
+        - name: sellerId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of auctions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Auction"
+    post:
+      operationId: createAuction
+      tags: [auctions]
+      summary: Create an auction (Producer only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuctionInput"
+      responses:
+        "201":
+          description: Created auction
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Auction"
+        "400":
+          description: Bad request
+        "403":
+          description: Forbidden
+
+  /auctions/{auctionId}:
+    get:
+      operationId: getAuction
+      tags: [auctions]
+      summary: Get auction detail with current high bid and countdown
+      parameters:
+        - name: auctionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Auction detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuctionDetail"
+        "404":
+          description: Not found
+
+  /auctions/{auctionId}/bids:
+    get:
+      operationId: listAuctionBids
+      tags: [auctions]
+      summary: Get bid history for an auction
+      parameters:
+        - name: auctionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Bid history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AuctionBid"
+    post:
+      operationId: placeBid
+      tags: [auctions]
+      summary: Place a bid (Off-Taker only)
+      parameters:
+        - name: auctionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BidInput"
+      responses:
+        "201":
+          description: Bid placed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuctionBid"
+        "400":
+          description: Bid too low or auction not open
+        "403":
+          description: Forbidden
+
+  /forwards:
+    get:
+      operationId: listForwardContracts
+      tags: [forwards]
+      summary: List forward contracts
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [PENDING_SIGNATURE, ACTIVE, MATURED, DEFAULTED, CANCELLED]
+        - name: sellerId
+          in: query
+          schema:
+            type: integer
+        - name: buyerId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of forward contracts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ForwardContract"
+    post:
+      operationId: createForwardContract
+      tags: [forwards]
+      summary: Create a forward contract (Producer only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ForwardContractInput"
+      responses:
+        "201":
+          description: Created forward contract
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForwardContract"
+        "400":
+          description: Bad request
+        "403":
+          description: Forbidden
+
+  /forwards/{contractId}:
+    get:
+      operationId: getForwardContract
+      tags: [forwards]
+      summary: Get forward contract detail with bond status
+      parameters:
+        - name: contractId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Forward contract detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForwardContract"
+        "404":
+          description: Not found
+
+  /forwards/{contractId}/co-sign:
+    post:
+      operationId: coSignForwardContract
+      tags: [forwards]
+      summary: Co-sign a forward contract (Off-Taker only)
+      parameters:
+        - name: contractId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Contract now bilaterally active
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForwardContract"
+        "400":
+          description: Already signed or not in PENDING_SIGNATURE state
+        "403":
+          description: Forbidden
+
+  /forwards/{contractId}/resolve-default:
+    post:
+      operationId: resolveDefault
+      tags: [forwards]
+      summary: Trigger default resolution at maturity
+      parameters:
+        - name: contractId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Default resolved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForwardContract"
+        "400":
+          description: Contract not in ACTIVE state or not yet mature
+        "404":
+          description: Not found
+
 components:
   schemas:
     HealthStatus:
@@ -723,3 +1011,191 @@ components:
           type: array
           items:
             type: string
+
+    Auction:
+      type: object
+      required: [id, ewrId, sellerId, reservePriceUsd, bidIncrementPct, startAt, endAt, status, createdAt]
+      properties:
+        id:
+          type: integer
+        ewrId:
+          type: integer
+        sellerId:
+          type: integer
+        sellerName:
+          type: ["string", "null"]
+        reservePriceUsd:
+          type: number
+        bidIncrementPct:
+          type: number
+        startAt:
+          type: string
+          format: date-time
+        endAt:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [OPEN, CLOSED, SETTLED, CANCELLED]
+        winningBidId:
+          type: ["integer", "null"]
+        currentHighBidUsd:
+          type: ["number", "null"]
+        bidCount:
+          type: integer
+        commodityType:
+          type: ["string", "null"]
+        grade:
+          type: ["string", "null"]
+        weightMt:
+          type: ["number", "null"]
+        warehouseCode:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    AuctionDetail:
+      type: object
+      required: [auction, bids, secondsRemaining]
+      properties:
+        auction:
+          $ref: "#/components/schemas/Auction"
+        bids:
+          type: array
+          items:
+            $ref: "#/components/schemas/AuctionBid"
+        secondsRemaining:
+          type: number
+        ewr:
+          $ref: "#/components/schemas/Ewr"
+
+    AuctionBid:
+      type: object
+      required: [id, auctionId, bidderId, amountUsd, placedAt, isWinning]
+      properties:
+        id:
+          type: integer
+        auctionId:
+          type: integer
+        bidderId:
+          type: integer
+        bidderName:
+          type: ["string", "null"]
+        amountUsd:
+          type: number
+        placedAt:
+          type: string
+          format: date-time
+        isWinning:
+          type: boolean
+
+    AuctionInput:
+      type: object
+      required: [ewrId, reservePriceUsd, durationMinutes]
+      properties:
+        ewrId:
+          type: integer
+        reservePriceUsd:
+          type: number
+        bidIncrementPct:
+          type: number
+          default: 1.5
+        durationMinutes:
+          type: integer
+          description: Auction duration in minutes from now
+
+    BidInput:
+      type: object
+      required: [amountUsd]
+      properties:
+        amountUsd:
+          type: number
+
+    ForwardContract:
+      type: object
+      required: [id, ewrId, sellerId, maturityDate, deliveryPriceUsd, performanceBondUsd, sellerBondStatus, buyerBondStatus, contractStatus, createdAt]
+      properties:
+        id:
+          type: integer
+        ewrId:
+          type: integer
+        sellerId:
+          type: integer
+        sellerName:
+          type: ["string", "null"]
+        buyerId:
+          type: ["integer", "null"]
+        buyerName:
+          type: ["string", "null"]
+        maturityDate:
+          type: string
+          format: date-time
+        deliveryPriceUsd:
+          type: number
+        performanceBondUsd:
+          type: number
+        sellerBondStatus:
+          type: string
+          enum: [PENDING_BOND, ACTIVE, FORFEITED, RELEASED]
+        buyerBondStatus:
+          type: string
+          enum: [PENDING_BOND, ACTIVE, FORFEITED, RELEASED]
+        contractStatus:
+          type: string
+          enum: [PENDING_SIGNATURE, ACTIVE, MATURED, DEFAULTED, CANCELLED]
+        signedAt:
+          type: ["string", "null"]
+          format: date-time
+        commodityType:
+          type: ["string", "null"]
+        grade:
+          type: ["string", "null"]
+        weightMt:
+          type: ["number", "null"]
+        warehouseCode:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    ForwardContractInput:
+      type: object
+      required: [ewrId, maturityDate, deliveryPriceUsd]
+      properties:
+        ewrId:
+          type: integer
+        maturityDate:
+          type: string
+          format: date-time
+        deliveryPriceUsd:
+          type: number
+
+    PriceTrendItem:
+      type: object
+      required: [commodityType, clearingPriceUsd, settledAt]
+      properties:
+        commodityType:
+          type: string
+        clearingPriceUsd:
+          type: number
+        settledAt:
+          type: string
+          format: date-time
+        weightMt:
+          type: ["number", "null"]
+
+    TopBidder:
+      type: object
+      required: [bidderId, bidderName, totalBids, highestBidUsd, commodityType]
+      properties:
+        bidderId:
+          type: integer
+        bidderName:
+          type: ["string", "null"]
+        totalBids:
+          type: integer
+        highestBidUsd:
+          type: number
+        commodityType:
+          type: string

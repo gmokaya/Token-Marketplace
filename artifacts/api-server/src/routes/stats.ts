@@ -3,6 +3,7 @@ import { getAuth } from "@clerk/express";
 import { db } from "@workspace/db";
 import { ewrsTable, spotListingsTable, ordersTable, usersTable } from "@workspace/db";
 import { eq, sql, count, avg, lt, and } from "drizzle-orm";
+import { auctionsTable, auctionBidsTable } from "@workspace/db";
 
 const router = Router();
 
@@ -204,6 +205,57 @@ router.get("/stats/warehouse-distribution", async (_req, res) => {
       activeCommodities: row.commodities ? row.commodities.split(",") : [],
     }))
   );
+});
+
+router.get("/stats/price-trends", async (req, res) => {
+  const { commodityType } = req.query as { commodityType?: string };
+
+  const rows = await db
+    .select({
+      commodityType: ewrsTable.commodityType,
+      clearingPriceUsd: sql<number>`CAST(${auctionBidsTable.amountUsd} AS NUMERIC)`,
+      settledAt: auctionsTable.endAt,
+      weightMt: ewrsTable.weightMt,
+    })
+    .from(auctionsTable)
+    .innerJoin(auctionBidsTable, sql`${auctionBidsTable.id} = ${auctionsTable.winningBidId}`)
+    .innerJoin(ewrsTable, eq(auctionsTable.ewrId, ewrsTable.id))
+    .where(
+      commodityType
+        ? and(eq(auctionsTable.status, "SETTLED"), eq(ewrsTable.commodityType, commodityType as typeof ewrsTable.$inferSelect["commodityType"]))
+        : eq(auctionsTable.status, "SETTLED")
+    )
+    .orderBy(auctionsTable.endAt);
+
+  return res.json(rows);
+});
+
+router.get("/stats/top-bidders", async (req, res) => {
+  const { commodityType, limit = "10" } = req.query as { commodityType?: string; limit?: string };
+  const limitNum = Math.min(parseInt(limit) || 10, 50);
+
+  const rows = await db
+    .select({
+      bidderId: auctionBidsTable.bidderId,
+      bidderName: usersTable.name,
+      commodityType: ewrsTable.commodityType,
+      totalBids: count(auctionBidsTable.id),
+      highestBidUsd: sql<number>`MAX(CAST(${auctionBidsTable.amountUsd} AS NUMERIC))`,
+    })
+    .from(auctionBidsTable)
+    .innerJoin(auctionsTable, eq(auctionBidsTable.auctionId, auctionsTable.id))
+    .innerJoin(ewrsTable, eq(auctionsTable.ewrId, ewrsTable.id))
+    .leftJoin(usersTable, eq(auctionBidsTable.bidderId, usersTable.id))
+    .where(
+      commodityType
+        ? eq(ewrsTable.commodityType, commodityType as typeof ewrsTable.$inferSelect["commodityType"])
+        : undefined
+    )
+    .groupBy(auctionBidsTable.bidderId, usersTable.name, ewrsTable.commodityType)
+    .orderBy(sql`MAX(CAST(${auctionBidsTable.amountUsd} AS NUMERIC)) DESC`)
+    .limit(limitNum);
+
+  return res.json(rows);
 });
 
 export default router;

@@ -6,6 +6,8 @@ import ewrsRouter from "./ewrs";
 import listingsRouter from "./listings";
 import ordersRouter from "./orders";
 import statsRouter from "./stats";
+import auctionsRouter from "./auctions";
+import forwardsRouter from "./forwards";
 
 const router: IRouter = Router();
 
@@ -27,5 +29,7 @@ router.use(ewrsRouter);
 router.use(listingsRouter);
 router.use(ordersRouter);
 router.use(statsRouter);
+router.use(auctionsRouter);
+router.use(forwardsRouter);
 
 export default router;

@@ -451,3 +451,302 @@ export const GetWarehouseDistributionResponseItem = zod.object({
 export const GetWarehouseDistributionResponse = zod.array(GetWarehouseDistributionResponseItem)
 
 
+/**
+ * @summary Commodity price trends from auction clearing prices
+ */
+export const GetPriceTrendsQueryParams = zod.object({
+  "commodityType": zod.enum(['MAIZE', 'RICE', 'COFFEE', 'TEA', 'AVOCADO']).optional()
+})
+
+export const GetPriceTrendsResponseItem = zod.object({
+  "commodityType": zod.string(),
+  "clearingPriceUsd": zod.number(),
+  "settledAt": zod.coerce.date(),
+  "weightMt": zod.number().nullish()
+})
+export const GetPriceTrendsResponse = zod.array(GetPriceTrendsResponseItem)
+
+
+/**
+ * @summary Top bidders leaderboard
+ */
+export const getTopBiddersQueryLimitDefault = 10;
+
+export const GetTopBiddersQueryParams = zod.object({
+  "commodityType": zod.enum(['MAIZE', 'RICE', 'COFFEE', 'TEA', 'AVOCADO']).optional(),
+  "limit": zod.coerce.number().default(getTopBiddersQueryLimitDefault)
+})
+
+export const GetTopBiddersResponseItem = zod.object({
+  "bidderId": zod.number(),
+  "bidderName": zod.string().nullable(),
+  "totalBids": zod.number(),
+  "highestBidUsd": zod.number(),
+  "commodityType": zod.string()
+})
+export const GetTopBiddersResponse = zod.array(GetTopBiddersResponseItem)
+
+
+/**
+ * @summary List auctions
+ */
+export const ListAuctionsQueryParams = zod.object({
+  "status": zod.enum(['OPEN', 'CLOSED', 'SETTLED', 'CANCELLED']).optional(),
+  "commodityType": zod.enum(['MAIZE', 'RICE', 'COFFEE', 'TEA', 'AVOCADO']).optional(),
+  "sellerId": zod.coerce.number().optional()
+})
+
+export const ListAuctionsResponseItem = zod.object({
+  "id": zod.number(),
+  "ewrId": zod.number(),
+  "sellerId": zod.number(),
+  "sellerName": zod.string().nullish(),
+  "reservePriceUsd": zod.number(),
+  "bidIncrementPct": zod.number(),
+  "startAt": zod.coerce.date(),
+  "endAt": zod.coerce.date(),
+  "status": zod.enum(['OPEN', 'CLOSED', 'SETTLED', 'CANCELLED']),
+  "winningBidId": zod.number().nullish(),
+  "currentHighBidUsd": zod.number().nullish(),
+  "bidCount": zod.number().optional(),
+  "commodityType": zod.string().nullish(),
+  "grade": zod.string().nullish(),
+  "weightMt": zod.number().nullish(),
+  "warehouseCode": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})
+export const ListAuctionsResponse = zod.array(ListAuctionsResponseItem)
+
+
+/**
+ * @summary Create an auction (Producer only)
+ */
+export const createAuctionBodyBidIncrementPctDefault = 1.5;
+
+export const CreateAuctionBody = zod.object({
+  "ewrId": zod.number(),
+  "reservePriceUsd": zod.number(),
+  "bidIncrementPct": zod.number().default(createAuctionBodyBidIncrementPctDefault),
+  "durationMinutes": zod.number().describe('Auction duration in minutes from now')
+})
+
+
+/**
+ * @summary Get auction detail with current high bid and countdown
+ */
+export const GetAuctionParams = zod.object({
+  "auctionId": zod.coerce.number()
+})
+
+export const GetAuctionResponse = zod.object({
+  "auction": zod.object({
+  "id": zod.number(),
+  "ewrId": zod.number(),
+  "sellerId": zod.number(),
+  "sellerName": zod.string().nullish(),
+  "reservePriceUsd": zod.number(),
+  "bidIncrementPct": zod.number(),
+  "startAt": zod.coerce.date(),
+  "endAt": zod.coerce.date(),
+  "status": zod.enum(['OPEN', 'CLOSED', 'SETTLED', 'CANCELLED']),
+  "winningBidId": zod.number().nullish(),
+  "currentHighBidUsd": zod.number().nullish(),
+  "bidCount": zod.number().optional(),
+  "commodityType": zod.string().nullish(),
+  "grade": zod.string().nullish(),
+  "weightMt": zod.number().nullish(),
+  "warehouseCode": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+}),
+  "bids": zod.array(zod.object({
+  "id": zod.number(),
+  "auctionId": zod.number(),
+  "bidderId": zod.number(),
+  "bidderName": zod.string().nullish(),
+  "amountUsd": zod.number(),
+  "placedAt": zod.coerce.date(),
+  "isWinning": zod.boolean()
+})),
+  "secondsRemaining": zod.number(),
+  "ewr": zod.object({
+  "id": zod.number(),
+  "ewrsReceiptId": zod.string(),
+  "wrscSignature": zod.string(),
+  "warehouseCode": zod.string(),
+  "commodityType": zod.enum(['MAIZE', 'RICE', 'COFFEE', 'TEA', 'AVOCADO']),
+  "grade": zod.string(),
+  "weightMt": zod.number(),
+  "moisturePct": zod.number().nullable(),
+  "harvestSeason": zod.string(),
+  "isLienActive": zod.boolean(),
+  "lienHolderId": zod.number().nullish(),
+  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED']),
+  "ownerId": zod.number(),
+  "ownerName": zod.string().nullish(),
+  "expiryAt": zod.coerce.date().nullish(),
+  "issuedAt": zod.coerce.date(),
+  "estimatedValueUsd": zod.number().nullish()
+}).optional()
+})
+
+
+/**
+ * @summary Get bid history for an auction
+ */
+export const ListAuctionBidsParams = zod.object({
+  "auctionId": zod.coerce.number()
+})
+
+export const ListAuctionBidsResponseItem = zod.object({
+  "id": zod.number(),
+  "auctionId": zod.number(),
+  "bidderId": zod.number(),
+  "bidderName": zod.string().nullish(),
+  "amountUsd": zod.number(),
+  "placedAt": zod.coerce.date(),
+  "isWinning": zod.boolean()
+})
+export const ListAuctionBidsResponse = zod.array(ListAuctionBidsResponseItem)
+
+
+/**
+ * @summary Place a bid (Off-Taker only)
+ */
+export const PlaceBidParams = zod.object({
+  "auctionId": zod.coerce.number()
+})
+
+export const PlaceBidBody = zod.object({
+  "amountUsd": zod.number()
+})
+
+
+/**
+ * @summary List forward contracts
+ */
+export const ListForwardContractsQueryParams = zod.object({
+  "status": zod.enum(['PENDING_SIGNATURE', 'ACTIVE', 'MATURED', 'DEFAULTED', 'CANCELLED']).optional(),
+  "sellerId": zod.coerce.number().optional(),
+  "buyerId": zod.coerce.number().optional()
+})
+
+export const ListForwardContractsResponseItem = zod.object({
+  "id": zod.number(),
+  "ewrId": zod.number(),
+  "sellerId": zod.number(),
+  "sellerName": zod.string().nullish(),
+  "buyerId": zod.number().nullish(),
+  "buyerName": zod.string().nullish(),
+  "maturityDate": zod.coerce.date(),
+  "deliveryPriceUsd": zod.number(),
+  "performanceBondUsd": zod.number(),
+  "sellerBondStatus": zod.enum(['PENDING_BOND', 'ACTIVE', 'FORFEITED', 'RELEASED']),
+  "buyerBondStatus": zod.enum(['PENDING_BOND', 'ACTIVE', 'FORFEITED', 'RELEASED']),
+  "contractStatus": zod.enum(['PENDING_SIGNATURE', 'ACTIVE', 'MATURED', 'DEFAULTED', 'CANCELLED']),
+  "signedAt": zod.coerce.date().nullish(),
+  "commodityType": zod.string().nullish(),
+  "grade": zod.string().nullish(),
+  "weightMt": zod.number().nullish(),
+  "warehouseCode": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})
+export const ListForwardContractsResponse = zod.array(ListForwardContractsResponseItem)
+
+
+/**
+ * @summary Create a forward contract (Producer only)
+ */
+export const CreateForwardContractBody = zod.object({
+  "ewrId": zod.number(),
+  "maturityDate": zod.coerce.date(),
+  "deliveryPriceUsd": zod.number()
+})
+
+
+/**
+ * @summary Get forward contract detail with bond status
+ */
+export const GetForwardContractParams = zod.object({
+  "contractId": zod.coerce.number()
+})
+
+export const GetForwardContractResponse = zod.object({
+  "id": zod.number(),
+  "ewrId": zod.number(),
+  "sellerId": zod.number(),
+  "sellerName": zod.string().nullish(),
+  "buyerId": zod.number().nullish(),
+  "buyerName": zod.string().nullish(),
+  "maturityDate": zod.coerce.date(),
+  "deliveryPriceUsd": zod.number(),
+  "performanceBondUsd": zod.number(),
+  "sellerBondStatus": zod.enum(['PENDING_BOND', 'ACTIVE', 'FORFEITED', 'RELEASED']),
+  "buyerBondStatus": zod.enum(['PENDING_BOND', 'ACTIVE', 'FORFEITED', 'RELEASED']),
+  "contractStatus": zod.enum(['PENDING_SIGNATURE', 'ACTIVE', 'MATURED', 'DEFAULTED', 'CANCELLED']),
+  "signedAt": zod.coerce.date().nullish(),
+  "commodityType": zod.string().nullish(),
+  "grade": zod.string().nullish(),
+  "weightMt": zod.number().nullish(),
+  "warehouseCode": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Co-sign a forward contract (Off-Taker only)
+ */
+export const CoSignForwardContractParams = zod.object({
+  "contractId": zod.coerce.number()
+})
+
+export const CoSignForwardContractResponse = zod.object({
+  "id": zod.number(),
+  "ewrId": zod.number(),
+  "sellerId": zod.number(),
+  "sellerName": zod.string().nullish(),
+  "buyerId": zod.number().nullish(),
+  "buyerName": zod.string().nullish(),
+  "maturityDate": zod.coerce.date(),
+  "deliveryPriceUsd": zod.number(),
+  "performanceBondUsd": zod.number(),
+  "sellerBondStatus": zod.enum(['PENDING_BOND', 'ACTIVE', 'FORFEITED', 'RELEASED']),
+  "buyerBondStatus": zod.enum(['PENDING_BOND', 'ACTIVE', 'FORFEITED', 'RELEASED']),
+  "contractStatus": zod.enum(['PENDING_SIGNATURE', 'ACTIVE', 'MATURED', 'DEFAULTED', 'CANCELLED']),
+  "signedAt": zod.coerce.date().nullish(),
+  "commodityType": zod.string().nullish(),
+  "grade": zod.string().nullish(),
+  "weightMt": zod.number().nullish(),
+  "warehouseCode": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Trigger default resolution at maturity
+ */
+export const ResolveDefaultParams = zod.object({
+  "contractId": zod.coerce.number()
+})
+
+export const ResolveDefaultResponse = zod.object({
+  "id": zod.number(),
+  "ewrId": zod.number(),
+  "sellerId": zod.number(),
+  "sellerName": zod.string().nullish(),
+  "buyerId": zod.number().nullish(),
+  "buyerName": zod.string().nullish(),
+  "maturityDate": zod.coerce.date(),
+  "deliveryPriceUsd": zod.number(),
+  "performanceBondUsd": zod.number(),
+  "sellerBondStatus": zod.enum(['PENDING_BOND', 'ACTIVE', 'FORFEITED', 'RELEASED']),
+  "buyerBondStatus": zod.enum(['PENDING_BOND', 'ACTIVE', 'FORFEITED', 'RELEASED']),
+  "contractStatus": zod.enum(['PENDING_SIGNATURE', 'ACTIVE', 'MATURED', 'DEFAULTED', 'CANCELLED']),
+  "signedAt": zod.coerce.date().nullish(),
+  "commodityType": zod.string().nullish(),
+  "grade": zod.string().nullish(),
+  "weightMt": zod.number().nullish(),
+  "warehouseCode": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})
+
+

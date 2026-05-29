@@ -1,7 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { useUser, useClerk } from "@clerk/react";
 import { useGetMe } from "@workspace/api-client-react";
-import { LayoutDashboard, Wallet, ShoppingBag, List, BarChart3, User, LogOut, ClipboardList, Package } from "lucide-react";
+import { LayoutDashboard, Wallet, ShoppingBag, List, BarChart3, User, LogOut, ClipboardList, Package, Gavel, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function Sidebar({ className = "" }: { className?: string }) {
@@ -17,6 +17,8 @@ export function Sidebar({ className = "" }: { className?: string }) {
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, tiers: ["PRODUCER", "OFF_TAKER", "ENABLER", "FINANCIER"] },
     { href: "/portfolio", label: "My Portfolio", icon: Wallet, tiers: ["PRODUCER"] },
     { href: "/my-listings", label: "My Listings", icon: Package, tiers: ["PRODUCER"] },
+    { href: "/auctions", label: "Auctions", icon: Gavel, tiers: ["PRODUCER", "OFF_TAKER", "ENABLER", "FINANCIER"] },
+    { href: "/forwards", label: "Forward Contracts", icon: FileText, tiers: ["PRODUCER", "OFF_TAKER", "ENABLER"] },
     { href: "/marketplace", label: "Marketplace", icon: ShoppingBag, tiers: ["OFF_TAKER", "ENABLER", "FINANCIER"] },
     { href: "/orders", label: "My Orders", icon: ClipboardList, tiers: ["OFF_TAKER"] },
     { href: "/market-stats", label: "Market Stats", icon: BarChart3, tiers: ["PRODUCER", "OFF_TAKER", "ENABLER", "FINANCIER"] },
