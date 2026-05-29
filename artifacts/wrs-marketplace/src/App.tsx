@@ -27,6 +27,7 @@ import FinancingDetail from "@/pages/FinancingDetail";
 import SettlementDetail from "@/pages/SettlementDetail";
 import AdminEarnings from "@/pages/AdminEarnings";
 import AuditLog from "@/pages/AuditLog";
+import Intake from "@/pages/Intake";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 const clerkPubKey = publishableKeyFromHost(window.location.hostname, import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
@@ -127,6 +128,7 @@ function ClerkProviderWithRoutes() {
             <Route path="/settlements/:settlementId"><ProtectedRoute><SettlementDetail /></ProtectedRoute></Route>
             <Route path="/admin/earnings"><ProtectedRoute><AdminEarnings /></ProtectedRoute></Route>
             <Route path="/admin/audit"><ProtectedRoute><AuditLog /></ProtectedRoute></Route>
+            <Route path="/intake"><ProtectedRoute><Intake /></ProtectedRoute></Route>
             <Route path="*">
               <div className="flex items-center justify-center h-screen">404 Not Found</div>
             </Route>

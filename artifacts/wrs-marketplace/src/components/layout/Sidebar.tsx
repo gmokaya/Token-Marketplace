@@ -1,7 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { useUser, useClerk } from "@clerk/react";
 import { useGetMe } from "@workspace/api-client-react";
-import { LayoutDashboard, Wallet, ShoppingBag, List, BarChart3, User, LogOut, ClipboardList, Package, Gavel, FileText, Landmark, TrendingUp, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, Wallet, ShoppingBag, List, BarChart3, User, LogOut, ClipboardList, Package, Gavel, FileText, Landmark, TrendingUp, ShieldCheck, PackagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function Sidebar({ className = "" }: { className?: string }) {
@@ -15,6 +15,7 @@ export function Sidebar({ className = "" }: { className?: string }) {
 
   const allNavItems = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, tiers: ["PRODUCER", "OFF_TAKER", "ENABLER", "FINANCIER"] },
+    { href: "/intake", label: "WMS Intake", icon: PackagePlus, tiers: ["PRODUCER", "ENABLER"] },
     { href: "/portfolio", label: "My Portfolio", icon: Wallet, tiers: ["PRODUCER"] },
     { href: "/my-listings", label: "My Listings", icon: Package, tiers: ["PRODUCER"] },
     { href: "/auctions", label: "Auctions", icon: Gavel, tiers: ["PRODUCER", "OFF_TAKER", "ENABLER", "FINANCIER"] },

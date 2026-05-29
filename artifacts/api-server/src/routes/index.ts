@@ -11,6 +11,7 @@ import forwardsRouter from "./forwards";
 import financingRouter from "./financing";
 import settlementsRouter from "./settlements";
 import adminRouter from "./admin";
+import wrscRouter from "./wrsc";
 
 const router: IRouter = Router();
 
@@ -37,5 +38,6 @@ router.use(forwardsRouter);
 router.use(financingRouter);
 router.use(settlementsRouter);
 router.use(adminRouter);
+router.use(wrscRouter);
 
 export default router;
