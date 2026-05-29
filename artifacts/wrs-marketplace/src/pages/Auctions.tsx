@@ -1,13 +1,20 @@
-import { useState } from "react";
-import { useListAuctions, useGetMe, type ListAuctionsStatus, type ListAuctionsCommodityType } from "@workspace/api-client-react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  useListAuctions,
+  useGetMe,
+  getListAuctionsQueryKey,
+  type ListAuctionsStatus,
+  type ListAuctionsCommodityType,
+} from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Input } from "@/components/ui/input";
 import { Layout } from "@/components/layout/Layout";
 import { Link } from "wouter";
 import { CreateAuctionDialog } from "@/components/CreateAuctionDialog";
+import { Radio } from "lucide-react";
 
 function AuctionCountdown({ endAt }: { endAt: string }) {
   const msLeft = new Date(endAt).getTime() - Date.now();
@@ -31,28 +38,144 @@ const STATUS_COLORS: Record<string, string> = {
   CANCELLED: "bg-red-100 text-red-700 border-red-200",
 };
 
+function getGlobalStreamUrl(): string {
+  const base = import.meta.env.BASE_URL?.replace(/\/$/, "") ?? "";
+  return `${base}/api/auctions/stream`;
+}
+
+type EnrichedAuction = {
+  id: number;
+  status: string;
+  endAt: string;
+  commodityType: string | null;
+  grade: string | null;
+  warehouseCode: string | null;
+  weightMt: string | null;
+  reservePriceUsd: string | number;
+  currentHighBidUsd: number | null;
+  bidCount: number;
+  [key: string]: unknown;
+};
+
 export default function Auctions() {
   const { data: me } = useGetMe();
   const [statusFilter, setStatusFilter] = useState<string>("OPEN");
   const [commodityFilter, setCommodityFilter] = useState<string>("");
+  const [liveConnected, setLiveConnected] = useState(false);
+  const queryClient = useQueryClient();
+  const esRef = useRef<EventSource | null>(null);
 
-  const { data: auctions, isLoading } = useListAuctions(
-    {
-      status: (statusFilter || undefined) as ListAuctionsStatus | undefined,
-      commodityType: (commodityFilter || undefined) as ListAuctionsCommodityType | undefined,
-    },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    { query: { refetchInterval: 3000 } as any }
-  );
+  const queryParams = {
+    status: (statusFilter || undefined) as ListAuctionsStatus | undefined,
+    commodityType: (commodityFilter || undefined) as ListAuctionsCommodityType | undefined,
+  };
+
+  const { data: auctions, isLoading, refetch } = useListAuctions(queryParams);
 
   const isProducer = me?.tier === "PRODUCER";
+
+  // Patch all cached auction query variants when a bid event arrives
+  const patchBidInCache = useCallback((auctionId: number, amountUsd: string) => {
+    const amount = parseFloat(amountUsd);
+
+    // Update every cached variant of the auctions list (different filter combos)
+    queryClient.setQueriesData<EnrichedAuction[]>(
+      { queryKey: getListAuctionsQueryKey() },
+      (old) => {
+        if (!old) return old;
+        return old.map((a) => {
+          if (a.id !== auctionId) return a;
+          const prevHigh = a.currentHighBidUsd ?? 0;
+          return {
+            ...a,
+            currentHighBidUsd: Math.max(prevHigh, amount),
+            bidCount: (a.bidCount ?? 0) + 1,
+          };
+        });
+      }
+    );
+  }, [queryClient]);
+
+  // Patch status when an auction closes
+  const patchClosedInCache = useCallback((auctionId: number) => {
+    queryClient.setQueriesData<EnrichedAuction[]>(
+      { queryKey: getListAuctionsQueryKey() },
+      (old) => {
+        if (!old) return old;
+        return old.map((a) =>
+          a.id === auctionId ? { ...a, status: "CLOSED" } : a
+        );
+      }
+    );
+    // Also do a background refetch so closed auctions get filtered out of the
+    // "OPEN" view on next render without needing the user to refresh
+    refetch();
+  }, [queryClient, refetch]);
+
+  // Connect to global SSE stream
+  useEffect(() => {
+    const es = new EventSource(getGlobalStreamUrl());
+    esRef.current = es;
+
+    es.addEventListener("connected", () => {
+      setLiveConnected(true);
+    });
+
+    es.addEventListener("bid", (e: MessageEvent) => {
+      try {
+        const payload = JSON.parse(e.data) as {
+          auctionId: number;
+          bid: { amountUsd: string };
+          newEndAt?: string | null;
+        };
+        patchBidInCache(payload.auctionId, payload.bid.amountUsd);
+      } catch {
+        // malformed event — ignore
+      }
+    });
+
+    es.addEventListener("closed", (e: MessageEvent) => {
+      try {
+        const payload = JSON.parse(e.data) as { auctionId: number };
+        patchClosedInCache(payload.auctionId);
+      } catch {
+        // malformed event — ignore
+      }
+    });
+
+    es.addEventListener("ping", () => {
+      // keepalive — no action
+    });
+
+    es.onerror = () => {
+      setLiveConnected(false);
+    };
+
+    return () => {
+      es.close();
+      esRef.current = null;
+      setLiveConnected(false);
+    };
+  }, [patchBidInCache, patchClosedInCache]);
 
   return (
     <Layout>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Live Auctions</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-bold tracking-tight">Live Auctions</h1>
+              <span
+                className={`flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border transition-colors ${
+                  liveConnected
+                    ? "bg-green-50 text-green-700 border-green-200"
+                    : "bg-yellow-50 text-yellow-700 border-yellow-200"
+                }`}
+              >
+                <Radio className="w-3 h-3" />
+                {liveConnected ? "Live" : "Connecting…"}
+              </span>
+            </div>
             <p className="text-muted-foreground mt-1">Timed ascending-price auctions for premium micro-lots</p>
           </div>
           {isProducer && <CreateAuctionDialog />}
@@ -112,7 +235,7 @@ export default function Auctions() {
                     <div className="grid grid-cols-2 gap-3">
                       <div className="bg-muted/50 rounded p-2">
                         <p className="text-xs text-muted-foreground">Reserve</p>
-                        <p className="font-semibold text-sm">${auction.reservePriceUsd.toLocaleString()}</p>
+                        <p className="font-semibold text-sm">${Number(auction.reservePriceUsd).toLocaleString()}</p>
                       </div>
                       <div className="bg-primary/5 rounded p-2">
                         <p className="text-xs text-muted-foreground">Current Bid</p>
@@ -125,7 +248,7 @@ export default function Auctions() {
                     </div>
                     <div className="flex justify-between items-center text-xs">
                       <span className="text-muted-foreground">{auction.bidCount} bid{auction.bidCount !== 1 ? "s" : ""}</span>
-                      {auction.status === "OPEN" && <AuctionCountdown endAt={auction.endAt} />}
+                      {auction.status === "OPEN" && <AuctionCountdown endAt={String(auction.endAt)} />}
                     </div>
                   </CardContent>
                 </Card>

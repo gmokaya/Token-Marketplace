@@ -19,8 +19,11 @@ const SETTLEMENT_WINDOW_MS = 60 * 60 * 1000;
 const MIN_BID_INCREMENT_PCT = 1.5;
 
 // ── SSE fan-out registry ──────────────────────────────────────────────────────
-// Maps auctionId -> Set of active SSE response objects
+// Maps auctionId -> Set of active SSE response objects (per-auction detail pages)
 const sseClients = new Map<number, Set<Response>>();
+
+// Global SSE clients — receive events for ALL auctions (used by the list page)
+const globalSseClients = new Set<Response>();
 
 function registerSseClient(auctionId: number, res: Response) {
   if (!sseClients.has(auctionId)) sseClients.set(auctionId, new Set());
@@ -33,15 +36,20 @@ function unregisterSseClient(auctionId: number, res: Response) {
 }
 
 export function broadcastSseEvent(auctionId: number, event: string, data: unknown) {
-  const clients = sseClients.get(auctionId);
-  if (!clients || clients.size === 0) return;
   const payload = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
-  for (const client of clients) {
-    try {
-      client.write(payload);
-    } catch {
-      // client already gone — will be cleaned up on close
+
+  // Fan-out to per-auction detail subscribers
+  const perAuctionClients = sseClients.get(auctionId);
+  if (perAuctionClients) {
+    for (const client of perAuctionClients) {
+      try { client.write(payload); } catch { /* client gone */ }
     }
+  }
+
+  // Fan-out to global list subscribers — include auctionId in the envelope
+  const globalPayload = `event: ${event}\ndata: ${JSON.stringify({ auctionId, ...((typeof data === "object" && data !== null) ? data : { data }) })}\n\n`;
+  for (const client of globalSseClients) {
+    try { client.write(globalPayload); } catch { /* client gone */ }
   }
 }
 
@@ -163,6 +171,40 @@ router.post("/auctions", async (req, res) => {
   return res.status(201).json(enriched);
 });
 
+// ── Global SSE stream endpoint ────────────────────────────────────────────────
+// MUST be registered before /auctions/:auctionId so Express doesn't match
+// "stream" as an auctionId and return 400.
+// Clients connect here and receive pushed events for ALL open auctions at once.
+// Events emitted:
+//   - "bid"       → { auctionId, bid, antiSnipeTriggered, newEndAt }
+//   - "closed"    → { auctionId }
+//   - "ping"      → {}  — keepalive every 25s
+//   - "connected" → {}
+router.get("/auctions/stream", (req: Request, res: Response) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  res.setHeader("X-Accel-Buffering", "no");
+  res.flushHeaders();
+
+  res.write(`event: connected\ndata: {}\n\n`);
+
+  globalSseClients.add(res);
+
+  const pingInterval = setInterval(() => {
+    try {
+      res.write(`event: ping\ndata: {}\n\n`);
+    } catch {
+      clearInterval(pingInterval);
+    }
+  }, 25_000);
+
+  req.on("close", () => {
+    clearInterval(pingInterval);
+    globalSseClients.delete(res);
+  });
+});
+
 router.get("/auctions/:auctionId", async (req, res) => {
   const auctionId = parseInt(req.params.auctionId);
   if (isNaN(auctionId)) return res.status(400).json({ error: "Invalid auction ID" });
@@ -222,7 +264,7 @@ router.get("/auctions/:auctionId/bids", async (req, res) => {
   return res.json(bids);
 });
 
-// ── SSE stream endpoint ───────────────────────────────────────────────────────
+// ── Per-auction SSE stream endpoint ──────────────────────────────────────────
 // Clients connect here and receive pushed events whenever a bid is placed.
 // Events emitted:
 //   - "bid"     → { bid, auction } — new bid placed + updated auction state
