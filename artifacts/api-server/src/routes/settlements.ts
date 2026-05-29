@@ -8,8 +8,14 @@ import {
   ewrsTable,
   usersTable,
   auditLogTable,
+  ordersTable,
+  spotListingsTable,
+  auctionsTable,
+  auctionBidsTable,
+  forwardContractsTable,
+  reputationEventsTable,
 } from "@workspace/db";
-import { eq, and } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { createHash } from "crypto";
 
 const router = Router();
@@ -19,6 +25,52 @@ function sha256(payload: object): string {
   return createHash("sha256").update(JSON.stringify(payload)).digest("hex");
 }
 
+async function deriveEntityValue(
+  entityType: "ORDER" | "AUCTION" | "FORWARD",
+  entityId: number
+): Promise<{ vTotalUsd: number; sellerId: number; buyerId: number | null }> {
+  if (entityType === "ORDER") {
+    const [order] = await db.select().from(ordersTable).where(eq(ordersTable.id, entityId)).limit(1);
+    if (!order) throw Object.assign(new Error("Order not found"), { statusCode: 404 });
+    if (order.status !== "PENDING_SETTLEMENT") {
+      throw Object.assign(new Error("Order is not in PENDING_SETTLEMENT state"), { statusCode: 400 });
+    }
+    const [listing] = await db.select().from(spotListingsTable).where(eq(spotListingsTable.id, order.listingId)).limit(1);
+    return {
+      vTotalUsd: parseFloat(order.totalUsd),
+      sellerId: listing?.sellerId ?? 0,
+      buyerId: order.buyerId,
+    };
+  }
+
+  if (entityType === "AUCTION") {
+    const [auction] = await db.select().from(auctionsTable).where(eq(auctionsTable.id, entityId)).limit(1);
+    if (!auction) throw Object.assign(new Error("Auction not found"), { statusCode: 404 });
+    if (!auction.winningBidId) {
+      throw Object.assign(new Error("Auction has no winning bid"), { statusCode: 400 });
+    }
+    const [bid] = await db.select().from(auctionBidsTable).where(eq(auctionBidsTable.id, auction.winningBidId)).limit(1);
+    if (!bid) throw Object.assign(new Error("Winning bid record not found"), { statusCode: 400 });
+    return {
+      vTotalUsd: parseFloat(bid.amountUsd),
+      sellerId: auction.sellerId,
+      buyerId: bid.bidderId,
+    };
+  }
+
+  // entityType === "FORWARD"
+  const [forward] = await db.select().from(forwardContractsTable).where(eq(forwardContractsTable.id, entityId)).limit(1);
+  if (!forward) throw Object.assign(new Error("Forward contract not found"), { statusCode: 404 });
+  if (!["ACTIVE", "MATURED"].includes(forward.contractStatus)) {
+    throw Object.assign(new Error("Forward contract must be ACTIVE or MATURED to settle"), { statusCode: 400 });
+  }
+  return {
+    vTotalUsd: parseFloat(forward.deliveryPriceUsd),
+    sellerId: forward.sellerId,
+    buyerId: forward.buyerId ?? null,
+  };
+}
+
 router.post("/settlements", async (req, res) => {
   const { userId: clerkId } = getAuth(req);
   if (!clerkId) return res.status(401).json({ error: "Unauthorized" });
@@ -26,22 +78,23 @@ router.post("/settlements", async (req, res) => {
   const [user] = await db.select().from(usersTable).where(eq(usersTable.clerkId, clerkId)).limit(1);
   if (!user) return res.status(404).json({ error: "User not found" });
 
-  const { entityType, entityId, vTotalUsd, loanId, notes } = req.body as {
+  const { entityType, entityId, loanId, notes } = req.body as {
     entityType: "ORDER" | "AUCTION" | "FORWARD";
     entityId: number;
-    vTotalUsd: number;
     loanId?: number;
     notes?: string;
   };
 
-  if (!entityType || !entityId || !vTotalUsd) {
-    return res.status(400).json({ error: "entityType, entityId, and vTotalUsd are required" });
+  if (!entityType || !entityId) {
+    return res.status(400).json({ error: "entityType and entityId are required" });
   }
   if (!["ORDER", "AUCTION", "FORWARD"].includes(entityType)) {
     return res.status(400).json({ error: "entityType must be ORDER, AUCTION, or FORWARD" });
   }
 
   try {
+    const { vTotalUsd } = await deriveEntityValue(entityType, entityId);
+
     const settlement = await db.transaction(async (tx) => {
       let loan: typeof loansTable.$inferSelect | null = null;
       if (loanId) {
@@ -189,6 +242,10 @@ router.post("/settlements/:settlementId/disburse", async (req, res) => {
         }
       }
 
+      if (allComplete) {
+        await writeReputationEvents(tx, settlement.entityType, settlement.entityId, now);
+      }
+
       await tx.insert(auditLogTable).values({
         entityType: "SETTLEMENT",
         entityId: settlementId,
@@ -208,5 +265,45 @@ router.post("/settlements/:settlementId/disburse", async (req, res) => {
     throw err;
   }
 });
+
+async function writeReputationEvents(
+  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  entityType: string,
+  entityId: number,
+  now: Date
+) {
+  const parties: Array<{ userId: number; delta: number; reason: string }> = [];
+
+  if (entityType === "ORDER") {
+    const [order] = await tx.select().from(ordersTable).where(eq(ordersTable.id, entityId)).limit(1);
+    if (order) {
+      const [listing] = await tx.select().from(spotListingsTable).where(eq(spotListingsTable.id, order.listingId)).limit(1);
+      if (listing) parties.push({ userId: listing.sellerId, delta: 2, reason: "Spot order settled successfully" });
+      parties.push({ userId: order.buyerId, delta: 1, reason: "Spot order settled successfully" });
+    }
+  } else if (entityType === "AUCTION") {
+    const [auction] = await tx.select().from(auctionsTable).where(eq(auctionsTable.id, entityId)).limit(1);
+    if (auction) {
+      parties.push({ userId: auction.sellerId, delta: 2, reason: "Auction settled successfully" });
+      if (auction.winningBidId) {
+        const [bid] = await tx.select().from(auctionBidsTable).where(eq(auctionBidsTable.id, auction.winningBidId)).limit(1);
+        if (bid) parties.push({ userId: bid.bidderId, delta: 1, reason: "Auction settled successfully" });
+      }
+    }
+  } else if (entityType === "FORWARD") {
+    const [forward] = await tx.select().from(forwardContractsTable).where(eq(forwardContractsTable.id, entityId)).limit(1);
+    if (forward) {
+      parties.push({ userId: forward.sellerId, delta: 2, reason: "Forward contract settled successfully" });
+      if (forward.buyerId) parties.push({ userId: forward.buyerId, delta: 1, reason: "Forward contract settled successfully" });
+    }
+  }
+
+  for (const { userId, delta, reason } of parties) {
+    await tx.insert(reputationEventsTable).values({ userId, delta, reason });
+    await tx.update(usersTable)
+      .set({ reputationScore: sql`${usersTable.reputationScore} + ${delta}` })
+      .where(eq(usersTable.id, userId));
+  }
+}
 
 export default router;

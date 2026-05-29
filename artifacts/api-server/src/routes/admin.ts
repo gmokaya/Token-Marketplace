@@ -3,6 +3,7 @@ import { getAuth } from "@clerk/express";
 import { db } from "@workspace/db";
 import {
   settlementsTable,
+  loansTable,
   ordersTable,
   auditLogTable,
   usersTable,
@@ -27,12 +28,15 @@ router.get("/admin/earnings", async (req, res) => {
   else if (period === "30d") since = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
   else if (period === "90d") since = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
 
+  // Join settlements with loans to compute interest earned (rBankUsd - principalUsd)
+  // Facilitation fee = 0.5% of interest earned (not total repayment)
   const sQuery = db.select({
     totalPlatformFees: sql<number>`COALESCE(SUM(CAST(${settlementsTable.fPlatformUsd} AS NUMERIC)), 0)`,
     totalBankRepayments: sql<number>`COALESCE(SUM(CASE WHEN ${settlementsTable.bankLegStatus} = 'DISBURSED' THEN CAST(${settlementsTable.rBankUsd} AS NUMERIC) ELSE 0 END), 0)`,
+    interestEarned: sql<number>`COALESCE(SUM(CASE WHEN ${settlementsTable.bankLegStatus} = 'DISBURSED' AND ${settlementsTable.loanId} IS NOT NULL THEN GREATEST(CAST(${settlementsTable.rBankUsd} AS NUMERIC) - CAST(${loansTable.principalUsd} AS NUMERIC), 0) ELSE 0 END), 0)`,
     settlementCount: sql<number>`COUNT(*)`,
     completedCount: sql<number>`COUNT(CASE WHEN ${settlementsTable.completedAt} IS NOT NULL THEN 1 END)`,
-  }).from(settlementsTable);
+  }).from(settlementsTable).leftJoin(loansTable, eq(settlementsTable.loanId, loansTable.id));
 
   const oQuery = db.select({
     totalPlatformFees: sql<number>`COALESCE(SUM(CAST(${ordersTable.platformFeeUsd} AS NUMERIC)), 0)`,
@@ -49,13 +53,16 @@ router.get("/admin/earnings", async (req, res) => {
     : await oQuery;
 
   const totalBankRepayments = Number(sStats?.totalBankRepayments ?? 0);
-  const financingFacilitationFees = totalBankRepayments * 0.005;
+  const interestEarned = Number(sStats?.interestEarned ?? 0);
+  // Facilitation fee = 0.5% of interest earned (not of total repayment principal+interest)
+  const financingFacilitationFees = interestEarned * 0.005;
 
   return res.json({
     period,
     totalPlatformFeesUsd: Number(sStats?.totalPlatformFees ?? 0) + Number(oStats?.totalPlatformFees ?? 0),
     totalEscrowFeesUsd: Number(oStats?.totalEscrowFees ?? 0),
     financingFacilitationFeesUsd: parseFloat(financingFacilitationFees.toFixed(2)),
+    interestEarnedUsd: parseFloat(interestEarned.toFixed(2)),
     totalBankRepaymentsUsd: totalBankRepayments,
     settlementCount: Number(sStats?.settlementCount ?? 0),
     completedSettlementCount: Number(sStats?.completedCount ?? 0),

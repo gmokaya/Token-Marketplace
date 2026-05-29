@@ -105,6 +105,7 @@ router.get("/financing", async (req, res) => {
 
   const [user] = await db.select().from(usersTable).where(eq(usersTable.clerkId, clerkId)).limit(1);
   if (!user) return res.status(404).json({ error: "User not found" });
+  if (!["PRODUCER", "FINANCIER", "ENABLER"].includes(user.tier)) return res.status(403).json({ error: "Forbidden" });
 
   const { status, requesterId } = req.query as { status?: string; requesterId?: string };
 
@@ -191,6 +192,7 @@ router.get("/financing/:requestId", async (req, res) => {
 
   const [user] = await db.select().from(usersTable).where(eq(usersTable.clerkId, clerkId)).limit(1);
   if (!user) return res.status(404).json({ error: "User not found" });
+  if (!["PRODUCER", "FINANCIER", "ENABLER"].includes(user.tier)) return res.status(403).json({ error: "Forbidden" });
 
   if (user.tier === "PRODUCER" && request.requesterId !== user.id) {
     return res.status(403).json({ error: "Forbidden" });
