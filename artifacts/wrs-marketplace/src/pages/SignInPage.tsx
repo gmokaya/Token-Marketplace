@@ -4,53 +4,44 @@ export default function SignInPage() {
   const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
   return (
-    <div className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden">
-      <div className="absolute inset-0 bg-auth-gradient" />
-      <div className="absolute inset-0 auth-pattern opacity-10" />
-      <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-white/5 blur-3xl" />
-      <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-white/5 blur-3xl" />
-      <div className="absolute top-1/4 right-1/4 w-64 h-64 rounded-full bg-white/5 blur-2xl" />
-
-      <div className="relative z-10 w-full max-w-[460px] mx-4">
-        <div className="rounded-2xl overflow-hidden auth-glass-card shadow-2xl">
-          <div className="flex items-center gap-3 pt-8 pb-4 px-8">
-            <img src={`${basePath}/logo.svg`} alt="WRS" className="w-9 h-9 drop-shadow" />
-            <div>
-              <p className="font-bold text-lg leading-tight text-white tracking-tight">WRS Marketplace</p>
-              <p className="text-white/60 text-xs leading-tight">Electronic Warehouse Receipt Trading</p>
-            </div>
-          </div>
-
-          <div className="px-4 pb-4">
-            <SignIn
-              routing="path"
-              path={`${basePath}/sign-in`}
-              signUpUrl={`${basePath}/sign-up`}
-              appearance={{
-                elements: {
-                  rootBox: "w-full",
-                  cardBox: "w-full !shadow-none !border-0 !bg-transparent",
-                  card: "!shadow-none !border-0 !bg-transparent !rounded-none",
-                  footer: "!shadow-none !border-0 !bg-white/5",
-                  headerTitle: "!text-white",
-                  headerSubtitle: "!text-white/70",
-                  formButtonPrimary: "!bg-primary hover:!bg-primary/90",
-                  formFieldInput: "!bg-white/10 !border-white/20 !text-white placeholder:!text-white/40",
-                  formFieldLabel: "!text-white/80",
-                  dividerLine: "!bg-white/20",
-                  dividerText: "!text-white/50",
-                  socialButtonsBlockButton: "!border-white/20 !bg-white/5 hover:!bg-white/15",
-                  socialButtonsBlockButtonText: "!text-white",
-                  footerActionLink: "!text-white/80",
-                  footerActionText: "!text-white/60",
-                  identityPreviewText: "!text-white",
-                  alternativeMethodsBlockButton: "!border-white/20 !text-white hover:!bg-white/10",
-                },
-              }}
-            />
-          </div>
+    <div style={{
+      minHeight: "100dvh",
+      background: "#fff",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "24px",
+      fontFamily: "'Jost', sans-serif",
+    }}>
+      {/* Logo row */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 32 }}>
+        <img src={`${basePath}/logo.svg`} alt="WRS" style={{ width: 36, height: 36 }} />
+        <div>
+          <div style={{ fontWeight: 700, fontSize: 17, color: "#111", lineHeight: 1.2 }}>WRS Marketplace</div>
+          <div style={{ fontSize: 12, color: "#888", lineHeight: 1.2 }}>Electronic Warehouse Receipt Trading</div>
         </div>
       </div>
+
+      {/* Clerk card */}
+      <SignIn
+        routing="path"
+        path={`${basePath}/sign-in`}
+        signUpUrl={`${basePath}/sign-up`}
+        appearance={{
+          elements: {
+            rootBox: "w-full max-w-[420px]",
+            cardBox: "!shadow-[0_2px_24px_rgba(0,0,0,0.08)] !border !border-gray-200 !rounded-2xl !w-full !bg-white",
+            card: "!shadow-none !border-0 !bg-white !rounded-2xl",
+            footer: "!bg-gray-50 !border-t !border-gray-100 !rounded-b-2xl",
+          },
+        }}
+      />
+
+      {/* Back to home */}
+      <a href={basePath || "/"} style={{ marginTop: 24, fontSize: 13, color: "#888", textDecoration: "none" }}>
+        ← Back to home
+      </a>
     </div>
   );
 }
