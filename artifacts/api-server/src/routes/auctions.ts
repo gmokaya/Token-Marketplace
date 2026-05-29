@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { getAuth } from "@clerk/express";
 import { db } from "@workspace/db";
+import { publishAuctionEvent } from "../lib/pg-pubsub";
 import {
   auctionsTable,
   auctionBidsTable,
@@ -31,7 +32,7 @@ function unregisterSseClient(auctionId: number, res: Response) {
   if (sseClients.get(auctionId)?.size === 0) sseClients.delete(auctionId);
 }
 
-function broadcastSseEvent(auctionId: number, event: string, data: unknown) {
+export function broadcastSseEvent(auctionId: number, event: string, data: unknown) {
   const clients = sseClients.get(auctionId);
   if (!clients || clients.size === 0) return;
   const payload = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
@@ -228,7 +229,7 @@ router.get("/auctions/:auctionId/bids", async (req, res) => {
 //   - "closed"  → { auctionId }    — auction status changed to non-OPEN
 //   - "ping"    → {}               — keepalive every 25s
 router.get("/auctions/:auctionId/stream", async (req: Request, res: Response) => {
-  const auctionId = parseInt(req.params.auctionId);
+  const auctionId = parseInt(req.params["auctionId"] as string);
   if (isNaN(auctionId)) {
     res.status(400).json({ error: "Invalid auction ID" });
     return;
@@ -363,11 +364,15 @@ router.post("/auctions/:auctionId/bids", async (req, res) => {
       .where(eq(auctionBidsTable.id, bid.id))
       .limit(1);
 
-    // Push SSE event to all connected clients watching this auction
-    broadcastSseEvent(auctionId, "bid", {
-      bid: bidWithBidder,
-      antiSnipeTriggered,
-      newEndAt: newEndAt?.toISOString() ?? null,
+    // Publish bid event via pg NOTIFY so all server instances fan-out to their local SSE clients
+    await publishAuctionEvent({
+      type: "bid",
+      auctionId,
+      data: {
+        bid: bidWithBidder,
+        antiSnipeTriggered,
+        newEndAt: newEndAt?.toISOString() ?? null,
+      },
     });
 
     return res.status(201).json(bidWithBidder);
@@ -438,8 +443,8 @@ export async function startAuctionExpiryWorker() {
           }
         });
 
-        // Notify SSE clients that the auction closed
-        broadcastSseEvent(auction.id, "closed", { auctionId: auction.id });
+        // Publish closed event via pg NOTIFY so all server instances fan-out to their local SSE clients
+        await publishAuctionEvent({ type: "closed", auctionId: auction.id, data: { auctionId: auction.id } });
       }
 
       // ── Phase 2: CLOSED auctions past settlement deadline without a settlement record ──
