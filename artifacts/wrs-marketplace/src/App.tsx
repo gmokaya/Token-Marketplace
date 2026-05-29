@@ -26,6 +26,7 @@ import Financing from "@/pages/Financing";
 import FinancingDetail from "@/pages/FinancingDetail";
 import SettlementDetail from "@/pages/SettlementDetail";
 import AdminEarnings from "@/pages/AdminEarnings";
+import AdminUsers from "@/pages/AdminUsers";
 import AuditLog from "@/pages/AuditLog";
 import Intake from "@/pages/Intake";
 import EwrApi from "@/pages/EwrApi";
@@ -127,6 +128,7 @@ function ClerkProviderWithRoutes() {
             <Route path="/financing"><ProtectedRoute><Financing /></ProtectedRoute></Route>
             <Route path="/financing/:requestId"><ProtectedRoute><FinancingDetail /></ProtectedRoute></Route>
             <Route path="/settlements/:settlementId"><ProtectedRoute><SettlementDetail /></ProtectedRoute></Route>
+            <Route path="/admin/users"><ProtectedRoute><AdminUsers /></ProtectedRoute></Route>
             <Route path="/admin/earnings"><ProtectedRoute><AdminEarnings /></ProtectedRoute></Route>
             <Route path="/admin/audit"><ProtectedRoute><AuditLog /></ProtectedRoute></Route>
             <Route path="/intake"><ProtectedRoute><Intake /></ProtectedRoute></Route>

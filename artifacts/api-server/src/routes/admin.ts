@@ -8,7 +8,7 @@ import {
   auditLogTable,
   usersTable,
 } from "@workspace/db";
-import { eq, and, gte, sql } from "drizzle-orm";
+import { eq, and, gte, sql, ilike, or } from "drizzle-orm";
 
 const router = Router();
 
@@ -95,6 +95,87 @@ router.get("/audit", async (req, res) => {
     .limit(Math.min(parseInt(limit) || 50, 200));
 
   return res.json(entries.map(e => ({ ...e.log, actorName: e.actorName ?? null })));
+});
+
+/* ── GET /admin/users — list all users (ENABLER/FINANCIER only) ── */
+router.get("/admin/users", async (req, res) => {
+  const { userId: clerkId } = getAuth(req);
+  if (!clerkId) return res.status(401).json({ error: "Unauthorized" });
+
+  const [me] = await db.select().from(usersTable).where(eq(usersTable.clerkId, clerkId)).limit(1);
+  if (!me || !["ENABLER", "FINANCIER"].includes(me.tier))
+    return res.status(403).json({ error: "Admin access required" });
+
+  const { tier, search } = req.query as { tier?: string; search?: string };
+
+  const conditions = [];
+  if (tier) conditions.push(eq(usersTable.tier, tier as any));
+  if (search) {
+    conditions.push(
+      or(
+        ilike(usersTable.name, `%${search}%`),
+        ilike(usersTable.email, `%${search}%`),
+        ilike(usersTable.company ?? "", `%${search}%`)
+      )
+    );
+  }
+
+  const users = await db
+    .select({
+      id: usersTable.id,
+      name: usersTable.name,
+      email: usersTable.email,
+      company: usersTable.company,
+      tier: usersTable.tier,
+      kybStatus: usersTable.kybStatus,
+      reputationScore: usersTable.reputationScore,
+      createdAt: usersTable.createdAt,
+    })
+    .from(usersTable)
+    .where(conditions.length > 0 ? and(...conditions) : undefined)
+    .orderBy(sql`${usersTable.createdAt} DESC`);
+
+  return res.json(users);
+});
+
+/* ── PATCH /admin/users/:id — update tier / kybStatus ── */
+router.patch("/admin/users/:id", async (req, res) => {
+  const { userId: clerkId } = getAuth(req);
+  if (!clerkId) return res.status(401).json({ error: "Unauthorized" });
+
+  const [me] = await db.select().from(usersTable).where(eq(usersTable.clerkId, clerkId)).limit(1);
+  if (!me || !["ENABLER", "FINANCIER"].includes(me.tier))
+    return res.status(403).json({ error: "Admin access required" });
+
+  const targetId = parseInt(req.params.id);
+  if (isNaN(targetId)) return res.status(400).json({ error: "Invalid user ID" });
+
+  const { tier, kybStatus } = req.body as { tier?: string; kybStatus?: string };
+
+  const VALID_TIERS = ["PRODUCER", "OFF_TAKER", "ENABLER", "FINANCIER"];
+  const VALID_KYB   = ["PENDING", "APPROVED", "REJECTED"];
+
+  const updateData: Partial<typeof usersTable.$inferInsert> = {};
+  if (tier !== undefined) {
+    if (!VALID_TIERS.includes(tier)) return res.status(400).json({ error: "Invalid tier" });
+    updateData.tier = tier as any;
+  }
+  if (kybStatus !== undefined) {
+    if (!VALID_KYB.includes(kybStatus)) return res.status(400).json({ error: "Invalid kybStatus" });
+    updateData.kybStatus = kybStatus as any;
+  }
+
+  if (Object.keys(updateData).length === 0)
+    return res.status(400).json({ error: "Nothing to update" });
+
+  const [updated] = await db
+    .update(usersTable)
+    .set(updateData)
+    .where(eq(usersTable.id, targetId))
+    .returning();
+
+  if (!updated) return res.status(404).json({ error: "User not found" });
+  return res.json(updated);
 });
 
 export default router;
