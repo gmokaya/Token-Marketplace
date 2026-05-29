@@ -58,9 +58,11 @@ export default function ListingDetail() {
   }
 
   const { listing, ewr } = detail;
-  const platformFee = (listing.totalValueUsd || 0) * 0.02;
-  const escrowFee = (listing.totalValueUsd || 0) * 0.005;
-  const totalCost = (listing.totalValueUsd || 0) + platformFee + escrowFee;
+  const pricePerMt = Number(listing.pricePerMt) || 0;
+  const totalValueUsd = Number(listing.totalValueUsd) || 0;
+  const platformFee = totalValueUsd * 0.02;
+  const escrowFee = totalValueUsd * 0.005;
+  const totalCost = totalValueUsd + platformFee + escrowFee;
 
   return (
     <Layout>
@@ -110,12 +112,12 @@ export default function ListingDetail() {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between text-base">
                   <span className="text-muted-foreground">Price per MT</span>
-                  <span className="font-bold">${listing.pricePerMt.toFixed(2)}</span>
+                  <span className="font-bold">${pricePerMt.toFixed(2)}</span>
                 </div>
                 <Separator />
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Subtotal ({listing.weightMt} MT)</span>
-                  <span>${listing.totalValueUsd?.toLocaleString()}</span>
+                  <span>${totalValueUsd.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Platform Fee (2%)</span>
