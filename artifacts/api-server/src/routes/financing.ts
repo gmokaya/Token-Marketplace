@@ -43,6 +43,7 @@ router.get("/financing/eligible-ewrs", async (req, res) => {
 
   const [user] = await db.select().from(usersTable).where(eq(usersTable.clerkId, clerkId)).limit(1);
   if (!user) return res.status(404).json({ error: "User not found" });
+  if (!["PRODUCER", "FINANCIER", "ENABLER"].includes(user.tier)) return res.status(403).json({ error: "Forbidden" });
 
   const conditions = [eq(ewrsTable.state, "INGESTED"), eq(ewrsTable.isLienActive, false)];
   if (user.tier === "PRODUCER") conditions.push(eq(ewrsTable.ownerId, user.id));

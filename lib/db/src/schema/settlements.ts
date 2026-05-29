@@ -1,4 +1,4 @@
-import { pgTable, serial, integer, timestamp, numeric, pgEnum, text } from "drizzle-orm/pg-core";
+import { pgTable, serial, integer, timestamp, numeric, pgEnum, text, uniqueIndex } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./users";
@@ -26,7 +26,9 @@ export const settlementsTable = pgTable("settlements", {
   completedAt: timestamp("completed_at", { withTimezone: true }),
   notes: text("notes"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (t) => [
+  uniqueIndex("settlements_entity_type_entity_id_idx").on(t.entityType, t.entityId),
+]);
 
 export const insertSettlementSchema = createInsertSchema(settlementsTable).omit({ id: true, createdAt: true });
 export type InsertSettlement = z.infer<typeof insertSettlementSchema>;
