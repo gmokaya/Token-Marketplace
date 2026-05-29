@@ -109,27 +109,27 @@ export default function Home() {
           {/* ══ HERO ════════════════════════════════════════════════ */}
           <section style={{ position: "relative", height: "100vh", minHeight: 600, display: "flex", alignItems: "center" }}>
             {/* left charcoal panel */}
-            <div style={{ position: "absolute", inset: 0, right: "42%", background: "#161616", zIndex: 1 }} />
+            <div style={{ position: "absolute", inset: 0, right: "45%", background: "#161616", zIndex: 1 }} />
             {/* right panel — East African farmer photo */}
             <div style={{
-              position: "absolute", inset: 0, left: "58%", zIndex: 1,
+              position: "absolute", inset: 0, left: "55%", zIndex: 1,
               backgroundImage: `url(${photo("hero-soybean-farmer.jpg")})`,
               backgroundSize: "cover", backgroundPosition: "center",
             }} />
             {/* WRS brand green overlay over the photo for cohesion + legibility */}
             <div style={{
-              position: "absolute", inset: 0, left: "58%", zIndex: 1,
+              position: "absolute", inset: 0, left: "55%", zIndex: 1,
               background: "linear-gradient(145deg, hsl(155 80% 10% / 0.36) 0%, hsl(155 100% 6% / 0.44) 60%, hsl(130 60% 8% / 0.36) 100%)",
             }} />
             {/* subtle dot-grid pattern overlay */}
             <div style={{
-              position: "absolute", inset: 0, left: "58%", zIndex: 2,
+              position: "absolute", inset: 0, left: "55%", zIndex: 2,
               backgroundImage: "radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)",
               backgroundSize: "28px 28px",
             }} />
             {/* stat card floating in right panel */}
             <div style={{
-              position: "absolute", top: "50%", left: "calc(58% + 48px)", transform: "translateY(-50%)",
+              position: "absolute", top: "50%", left: "calc(55% + 48px)", transform: "translateY(-50%)",
               zIndex: 3, display: "flex", flexDirection: "column", gap: 16,
             }}>
               {([
@@ -147,7 +147,7 @@ export default function Home() {
               ))}
             </div>
             {/* diagonal fade from left panel into right */}
-            <div style={{ position: "absolute", top: 0, bottom: 0, left: "calc(58% - 120px)", width: 180, zIndex: 4, background: "linear-gradient(to right, #161616 40%, transparent 100%)" }} />
+            <div style={{ position: "absolute", top: 0, bottom: 0, left: "calc(55% - 120px)", width: 180, zIndex: 4, background: "linear-gradient(to right, #161616 40%, transparent 100%)" }} />
 
             {/* hero content (left side) */}
             <div style={{ position: "relative", zIndex: 3, maxWidth: 1200, margin: "0 auto", padding: "0 32px", width: "100%" }}>
@@ -229,7 +229,7 @@ export default function Home() {
                   <span style={{ color: ACCENT, fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase" }}>The Platform</span>
                 </div>
                 <h2 style={{ fontSize: "clamp(1.8rem, 3vw, 40px)", fontWeight: 500, color: "#090909", lineHeight: 1.18, margin: "0 0 20px" }}>
-                  East Africa's Leading<br />eWR Exchange
+                  East Africa's Leading<br />eWR Marketplace
                 </h2>
                 <p style={{ fontSize: 17, color: "#555", lineHeight: 1.8, marginBottom: 28 }}>
                   WRS Marketplace connects producers, off-takers, and financiers in a single, fully auditable trading environment — backed by licensed warehouses and an immutable transaction ledger.
