@@ -1,7 +1,7 @@
 import { Show } from "@clerk/react";
 import { Redirect } from "wouter";
 import { ReactNode } from "react";
-import { useGetMe } from "@workspace/api-client-react";
+import { useGetMe, getGetMeQueryKey } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Onboarding } from "./Onboarding";
 
@@ -21,7 +21,8 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
 function EnsureProfile({ children }: { children: ReactNode }) {
   const { data: user, error, isLoading } = useGetMe({
     query: {
-      retry: false, // Don't retry on 404
+      queryKey: getGetMeQueryKey(),
+      retry: false,
     }
   });
 

@@ -58,6 +58,7 @@ router.post("/orders", async (req, res) => {
 
   try {
     const order = await db.transaction(async (tx) => {
+      await tx.execute(sql`SET TRANSACTION ISOLATION LEVEL SERIALIZABLE`);
       type LockedRow = { id: number; status: string; seller_id: number; ewr_id: number; price_per_mt: string };
       const lockResult = await tx.execute<LockedRow>(
         sql`SELECT id, status, seller_id, ewr_id, price_per_mt FROM spot_listings WHERE id = ${listingId} FOR UPDATE`

@@ -29,7 +29,7 @@ export default function ListingDetail() {
   const executeOrder = useExecuteOrder();
 
   const handleExecute = () => {
-    executeOrder.mutate({ listingId }, {
+    executeOrder.mutate({ data: { listingId } }, {
       onSuccess: () => {
         toast({ title: "Order Executed", description: "Your buy order has been placed successfully." });
         queryClient.invalidateQueries({ queryKey: ["/api/listings"] });

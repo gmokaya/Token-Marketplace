@@ -145,7 +145,7 @@ function OffTakerDashboard() {
   const { data: user } = useGetMe();
   const { data: summary, isLoading: summaryLoading } = useGetMarketSummary();
   const { data: orders, isLoading: ordersLoading } = useListOrders({});
-  const { data: activity, isLoading: activityLoading } = useGetRecentActivity({ query: { limit: 5 } });
+  const { data: activity, isLoading: activityLoading } = useGetRecentActivity({ limit: 5 });
 
   const pendingOrders = orders?.filter(o => o.status === "PENDING_SETTLEMENT") ?? [];
   const settledOrders = orders?.filter(o => o.status === "SETTLED") ?? [];
@@ -275,7 +275,7 @@ function OffTakerDashboard() {
 function EnablerFinancierDashboard({ role }: { role: string }) {
   const { data: user } = useGetMe();
   const { data: summary, isLoading: summaryLoading } = useGetMarketSummary();
-  const { data: activity, isLoading: activityLoading } = useGetRecentActivity({ query: { limit: 8 } });
+  const { data: activity, isLoading: activityLoading } = useGetRecentActivity({ limit: 8 });
 
   return (
     <div className="space-y-8">

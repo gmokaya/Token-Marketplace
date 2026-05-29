@@ -1,6 +1,7 @@
 import app from "./app";
 import { logger } from "./lib/logger";
 import { startOrderExpiryWorker } from "./routes/orders";
+import { applyDbConstraints } from "@workspace/db/migrate";
 
 const rawPort = process.env["PORT"];
 
@@ -16,12 +17,20 @@ if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
 
-app.listen(port, (err) => {
+app.listen(port, async (err) => {
   if (err) {
     logger.error({ err }, "Error listening on port");
     process.exit(1);
   }
 
   logger.info({ port }, "Server listening");
+
+  try {
+    await applyDbConstraints();
+    logger.info("DB constraints applied");
+  } catch (constraintErr) {
+    logger.warn({ err: constraintErr }, "Could not apply DB constraints — continuing");
+  }
+
   startOrderExpiryWorker();
 });

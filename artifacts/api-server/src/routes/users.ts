@@ -46,10 +46,24 @@ router.patch("/users/me", async (req, res) => {
 });
 
 router.get("/users/:userId", async (req, res) => {
+  const { userId: clerkId } = getAuth(req);
+  if (!clerkId) return res.status(401).json({ error: "Unauthorized" });
+
   const userId = parseInt(req.params.userId);
   if (isNaN(userId)) return res.status(400).json({ error: "Invalid user ID" });
 
-  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId)).limit(1);
+  const [user] = await db
+    .select({
+      id: usersTable.id,
+      name: usersTable.name,
+      company: usersTable.company,
+      tier: usersTable.tier,
+      reputationScore: usersTable.reputationScore,
+      kybStatus: usersTable.kybStatus,
+    })
+    .from(usersTable)
+    .where(eq(usersTable.id, userId))
+    .limit(1);
   if (!user) return res.status(404).json({ error: "User not found" });
 
   return res.json(user);

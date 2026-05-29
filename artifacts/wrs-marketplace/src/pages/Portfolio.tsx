@@ -38,7 +38,7 @@ interface EwrItem {
   ewrsReceiptId: string;
   commodityType: string;
   grade: string;
-  weightMt: string;
+  weightMt: string | number;
   warehouseCode: string;
   state: string;
   estimatedValueUsd?: number | null;
@@ -113,7 +113,7 @@ function ListOnMarketDialog({ ewr, open, onClose }: { ewr: EwrItem | null; open:
             </div>
             {pricePerMt && !isNaN(parseFloat(pricePerMt)) && (
               <p className="text-xs text-muted-foreground">
-                Estimated total: ${(parseFloat(pricePerMt) * parseFloat(ewr.weightMt)).toLocaleString(undefined, { maximumFractionDigits: 2 })} USD
+                Estimated total: ${(parseFloat(pricePerMt) * parseFloat(String(ewr.weightMt))).toLocaleString(undefined, { maximumFractionDigits: 2 })} USD
               </p>
             )}
           </div>
@@ -249,7 +249,7 @@ export default function Portfolio() {
                         variant="default"
                         size="sm"
                         className="w-full"
-                        onClick={() => setListingEwr(ewr as EwrItem)}
+                        onClick={() => setListingEwr(ewr as unknown as EwrItem)}
                         data-testid={`button-list-ewr-${ewr.id}`}
                       >
                         List on Market
