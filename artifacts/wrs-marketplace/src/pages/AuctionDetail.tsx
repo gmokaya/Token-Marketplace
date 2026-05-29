@@ -4,6 +4,7 @@ import {
   useGetAuction,
   useListAuctionBids,
   usePlaceBid,
+  useInitiateSettlement,
   useGetMe,
   getGetAuctionQueryKey,
   getListAuctionBidsQueryKey,
@@ -17,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Layout } from "@/components/layout/Layout";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Gavel, Clock, TrendingUp, Users, Radio } from "lucide-react";
+import { ArrowLeft, Gavel, Clock, TrendingUp, Users, Radio, Banknote } from "lucide-react";
 import { Link } from "wouter";
 
 const STATUS_COLORS: Record<string, string> = {
@@ -72,6 +73,7 @@ export default function AuctionDetail() {
   const { data: bids, refetch: refetchBids } = useListAuctionBids(auctionId);
 
   const { mutateAsync: placeBid, isPending: isBidding } = usePlaceBid();
+  const { mutateAsync: initiateSettlement, isPending: isSettling } = useInitiateSettlement();
 
   const isOffTaker = me?.tier === "OFF_TAKER";
   const auction = detail?.auction;
@@ -180,6 +182,17 @@ export default function AuctionDetail() {
     const high = auction.currentHighBidUsd ?? null;
     if (high === null) return parseFloat(String(auction.reservePriceUsd));
     return high * (1 + parseFloat(String(auction.bidIncrementPct)) / 100);
+  };
+
+  const handleSettleAuction = async () => {
+    try {
+      const settlement = await initiateSettlement({ data: { entityType: "AUCTION", entityId: auctionId } });
+      toast({ title: "Settlement initiated", description: "Proceed to disburse each payment leg." });
+      navigate(`/settlements/${settlement.id}`);
+    } catch (err: any) {
+      const message = err?.response?.data?.error ?? err?.message ?? "Failed to initiate settlement";
+      toast({ title: "Settlement failed", description: message, variant: "destructive" });
+    }
   };
 
   const handleBid = async () => {
@@ -378,7 +391,57 @@ export default function AuctionDetail() {
               </Card>
             )}
 
-            {auction.status !== "OPEN" && (
+            {auction.status === "CLOSED" && (() => {
+              const winningBid = bids?.find(b => b.isWinning);
+              const isWinner = !!winningBid && winningBid.bidderId === me?.id;
+              return isWinner ? (
+                <Card className="border-blue-300">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-blue-700 text-sm">
+                      <Banknote className="w-4 h-4" />You Won — Settle Now
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="text-center p-3 rounded-lg bg-blue-50 border border-blue-200">
+                      <p className="text-xs text-blue-600 mb-1">Winning Bid</p>
+                      <p className="text-2xl font-bold text-blue-800">
+                        ${parseFloat(String(winningBid.amountUsd)).toLocaleString()}
+                      </p>
+                    </div>
+                    {auction.settlementDeadlineAt && (
+                      <p className="text-xs text-center text-muted-foreground">
+                        Settlement deadline:{" "}
+                        <strong>{new Date(String(auction.settlementDeadlineAt)).toLocaleTimeString()}</strong>
+                      </p>
+                    )}
+                    <Button
+                      className="w-full bg-blue-700 hover:bg-blue-800 text-white"
+                      onClick={handleSettleAuction}
+                      disabled={isSettling}
+                    >
+                      {isSettling ? "Initiating…" : "Initiate Settlement"}
+                    </Button>
+                    <p className="text-xs text-muted-foreground">
+                      You have a 60-minute window to complete settlement. Missing it will cancel the auction.
+                    </p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card>
+                  <CardContent className="pt-6 text-center">
+                    <p className="font-medium text-sm">Auction closed</p>
+                    {auction.currentHighBidUsd && (
+                      <p className="text-2xl font-bold text-primary mt-2">
+                        ${auction.currentHighBidUsd.toLocaleString()}
+                      </p>
+                    )}
+                    <p className="text-xs text-muted-foreground mt-1">Awaiting winner settlement</p>
+                  </CardContent>
+                </Card>
+              );
+            })()}
+
+            {auction.status !== "OPEN" && auction.status !== "CLOSED" && (
               <Card>
                 <CardContent className="pt-6 text-center">
                   <p className="font-medium text-sm">Auction {auction.status.toLowerCase()}</p>

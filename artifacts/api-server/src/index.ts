@@ -3,6 +3,7 @@ import { logger } from "./lib/logger";
 import { startOrderExpiryWorker } from "./routes/orders";
 import { startAuctionExpiryWorker, broadcastSseEvent, broadcastReconnectHint } from "./routes/auctions";
 import { startAvocadoDegradationWorker } from "./routes/ewrs";
+import { startForwardMaturityWorker } from "./routes/forwards";
 import { startAuctionPubSubSubscriber, setAuctionEventHandler, setReconnectHandler } from "./lib/pg-pubsub";
 import { applyDbConstraints } from "@workspace/db/migrate";
 
@@ -38,6 +39,7 @@ app.listen(port, async (err) => {
   startOrderExpiryWorker();
   startAuctionExpiryWorker();
   startAvocadoDegradationWorker();
+  startForwardMaturityWorker();
 
   // Wire pg LISTEN/NOTIFY so every instance fans out SSE events received from any instance
   setAuctionEventHandler((payload) => {

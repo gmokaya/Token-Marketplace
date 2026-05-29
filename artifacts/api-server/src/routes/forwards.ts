@@ -374,4 +374,53 @@ router.post("/forwards/:contractId/complete", async (req, res) => {
   }
 });
 
+export function startForwardMaturityWorker() {
+  setInterval(async () => {
+    try {
+      const now = new Date();
+      const activeContracts = await db
+        .select()
+        .from(forwardContractsTable)
+        .where(eq(forwardContractsTable.contractStatus, "ACTIVE"));
+
+      for (const contract of activeContracts) {
+        if (contract.maturityDate > now) continue;
+
+        await db.transaction(async (tx) => {
+          const affected = await tx
+            .update(forwardContractsTable)
+            .set({
+              contractStatus: "MATURED",
+              sellerBondStatus: "RELEASED",
+              buyerBondStatus: "RELEASED",
+            })
+            .where(
+              sql`${forwardContractsTable.id} = ${contract.id}
+                  AND ${forwardContractsTable.contractStatus} = 'ACTIVE'
+                  AND ${forwardContractsTable.maturityDate} <= ${now.toISOString()}`
+            )
+            .returning({ id: forwardContractsTable.id });
+
+          if (affected.length === 0) return;
+
+          await tx.insert(contractEventsTable).values({
+            contractId: contract.id,
+            eventType: "MATURED",
+            actorId: null,
+            note: `Contract auto-matured by system at maturity date. Both bonds released. Settlement can now proceed.`,
+          });
+
+          await tx.update(ewrsTable)
+            .set({ state: "SETTLED", isLienActive: false, lienHolderId: null })
+            .where(eq(ewrsTable.id, contract.ewrId));
+        });
+
+        console.log(`[ForwardMaturityWorker] Auto-matured contract #${contract.id}`);
+      }
+    } catch (err) {
+      console.error("[ForwardMaturityWorker] Error:", err);
+    }
+  }, 60_000);
+}
+
 export default router;
