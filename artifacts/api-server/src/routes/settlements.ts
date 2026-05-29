@@ -98,6 +98,9 @@ router.post("/settlements", async (req, res) => {
 });
 
 router.get("/settlements/:settlementId", async (req, res) => {
+  const { userId: clerkId } = getAuth(req);
+  if (!clerkId) return res.status(401).json({ error: "Unauthorized" });
+
   const settlementId = parseInt(req.params.settlementId);
   if (isNaN(settlementId)) return res.status(400).json({ error: "Invalid settlement ID" });
 
@@ -177,7 +180,7 @@ router.post("/settlements/:settlementId/disburse", async (req, res) => {
             .where(eq(financingRequestsTable.id, loan.financingRequestId)).limit(1);
           if (fr) {
             await tx.update(ewrsTable)
-              .set({ isLienActive: false, lienHolderId: null })
+              .set({ isLienActive: false, lienHolderId: null, state: "INGESTED" })
               .where(eq(ewrsTable.id, fr.ewrId));
             await tx.update(financingRequestsTable)
               .set({ status: "REPAID" })

@@ -110,10 +110,11 @@ router.get("/financing", async (req, res) => {
 
   const conditions = [];
   if (status) conditions.push(eq(financingRequestsTable.status, status as typeof financingRequestsTable.$inferSelect["status"]));
-  if (requesterId) {
-    conditions.push(eq(financingRequestsTable.requesterId, parseInt(requesterId)));
-  } else if (user.tier === "PRODUCER") {
+  if (user.tier === "PRODUCER") {
+    // Producers are always scoped to their own requests regardless of query params
     conditions.push(eq(financingRequestsTable.requesterId, user.id));
+  } else if (requesterId) {
+    conditions.push(eq(financingRequestsTable.requesterId, parseInt(requesterId)));
   }
 
   const requests = await db.select().from(financingRequestsTable)

@@ -126,8 +126,10 @@ router.post("/listings", async (req, res) => {
   const [ewr] = await db.select().from(ewrsTable).where(eq(ewrsTable.id, ewrId)).limit(1);
   if (!ewr) return res.status(404).json({ error: "eWR not found" });
   if (ewr.ownerId !== user.id) return res.status(403).json({ error: "You do not own this eWR" });
-  if (ewr.state !== "INGESTED") return res.status(400).json({ error: "eWR is not in INGESTED state" });
-  if (ewr.isLienActive) return res.status(400).json({ error: "eWR has an active lien" });
+  // INGESTED and ENCUMBERED receipts are both tradeable; only physical exit is blocked by the lien
+  if (!["INGESTED", "ENCUMBERED"].includes(ewr.state)) {
+    return res.status(400).json({ error: "eWR must be in INGESTED or ENCUMBERED state to create a listing" });
+  }
 
   const [listing] = await db.insert(spotListingsTable).values({
     ewrId,

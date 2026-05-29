@@ -329,8 +329,9 @@ async function seed() {
       weightMt: "60.000",
       moisturePct: null,
       harvestSeason: "2025-Q2",
-      isLienActive: false,
-      state: "INGESTED" as const,
+      isLienActive: true,
+      lienHolderId: financier.id,
+      state: "ENCUMBERED" as const,
       ownerId: producer2.id,
       estimatedValueUsd: "90000.00",
     },
@@ -557,27 +558,28 @@ async function seed() {
   }
 
   // ── Financing Requests, Loans & Settlements ───────────────────────────────
-  const encumberedEwr = insertedEwrs.find(e => e.ewrsReceiptId === "EWR-KSM-2025-013");
+  const encumberedEwr1 = insertedEwrs.find(e => e.ewrsReceiptId === "EWR-KSM-2025-013"); // Coffee Grade C – producer1
+  const encumberedEwr2 = insertedEwrs.find(e => e.ewrsReceiptId === "EWR-NKR-2025-014"); // Tea BOPI – producer2
 
-  if (encumberedEwr) {
-    // Financing request #1 — APPROVED + DISBURSED (already a loan on this ENCUMBERED eWR)
-    const marketValue1 = parseFloat(encumberedEwr.estimatedValueUsd!);
+  if (encumberedEwr1 && encumberedEwr2) {
+    // ── Active Loan #1: Coffee Grade C (producer1, 14 days old) ──────────────
+    const marketValue1 = parseFloat(encumberedEwr1.estimatedValueUsd!);
     const lMax1 = marketValue1 * 0.60;
+    const loan1StartDate = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
 
     const [fr1] = await db.insert(financingRequestsTable).values({
-      ewrId: encumberedEwr.id,
+      ewrId: encumberedEwr1.id,
       requesterId: producer1.id,
       marketValueUsd: String(marketValue1),
       lMaxUsd: String(lMax1),
       interestRate: "0.1200",
       status: "DISBURSED",
       lenderId: financier.id,
-      approvedAt: new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000),
-      disbursedAt: new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000),
+      approvedAt: loan1StartDate,
+      disbursedAt: loan1StartDate,
       notes: "Disbursed for 25 MT Coffee Grade C (KSM-WH-03)",
     }).returning();
 
-    const loan1StartDate = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
     const [loan1] = await db.insert(loansTable).values({
       financingRequestId: fr1.id,
       principalUsd: String(lMax1),
@@ -593,30 +595,76 @@ async function seed() {
         entityId: fr1.id,
         action: "FINANCING_REQUESTED",
         actorId: producer1.id,
-        payloadHash: sha256({ requestId: fr1.id, ewrId: encumberedEwr.id, marketValueUsd: marketValue1, lMaxUsd: lMax1 }),
-        metadata: JSON.stringify({ ewrId: encumberedEwr.id, marketValueUsd: marketValue1, lMaxUsd: lMax1, interestRate: 0.12 }),
+        payloadHash: sha256({ requestId: fr1.id, ewrId: encumberedEwr1.id, marketValueUsd: marketValue1, lMaxUsd: lMax1 }),
+        metadata: JSON.stringify({ ewrId: encumberedEwr1.id, marketValueUsd: marketValue1, lMaxUsd: lMax1, interestRate: 0.12 }),
       },
       {
         entityType: "FINANCING_REQUEST",
         entityId: fr1.id,
         action: "FINANCING_APPROVED",
         actorId: financier.id,
-        payloadHash: sha256({ requestId: fr1.id, lenderId: financier.id, ewrId: encumberedEwr.id, lMaxUsd: lMax1 }),
+        payloadHash: sha256({ requestId: fr1.id, lenderId: financier.id, ewrId: encumberedEwr1.id, lMaxUsd: lMax1 }),
         metadata: JSON.stringify({ lenderId: financier.id, principal: lMax1, interestRate: 0.12 }),
       },
     ]);
 
-    // Financing request #2 — PENDING (Rice eWR, producer2 requesting)
+    // ── Active Loan #2: Tea BOPI (producer2, 7 days old) ─────────────────────
+    const marketValue2 = parseFloat(encumberedEwr2.estimatedValueUsd!);
+    const lMax2 = marketValue2 * 0.60;
+    const loan2StartDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    const [fr2] = await db.insert(financingRequestsTable).values({
+      ewrId: encumberedEwr2.id,
+      requesterId: producer2.id,
+      marketValueUsd: String(marketValue2),
+      lMaxUsd: String(lMax2),
+      interestRate: "0.1200",
+      status: "DISBURSED",
+      lenderId: financier.id,
+      approvedAt: loan2StartDate,
+      disbursedAt: loan2StartDate,
+      notes: "Advance for 60 MT Tea BOPI crop cycle (NKR-WH-04)",
+    }).returning();
+
+    const [loan2] = await db.insert(loansTable).values({
+      financingRequestId: fr2.id,
+      principalUsd: String(lMax2),
+      interestRate: "0.1200",
+      startDate: loan2StartDate,
+      outstandingBalanceUsd: String(lMax2),
+      lienStatus: "ACTIVE",
+    }).returning();
+
+    await db.insert(auditLogTable).values([
+      {
+        entityType: "FINANCING_REQUEST",
+        entityId: fr2.id,
+        action: "FINANCING_REQUESTED",
+        actorId: producer2.id,
+        payloadHash: sha256({ requestId: fr2.id, ewrId: encumberedEwr2.id, marketValueUsd: marketValue2, lMaxUsd: lMax2 }),
+        metadata: JSON.stringify({ ewrId: encumberedEwr2.id, marketValueUsd: marketValue2, lMaxUsd: lMax2, interestRate: 0.12 }),
+      },
+      {
+        entityType: "FINANCING_REQUEST",
+        entityId: fr2.id,
+        action: "FINANCING_APPROVED",
+        actorId: financier.id,
+        payloadHash: sha256({ requestId: fr2.id, lenderId: financier.id, ewrId: encumberedEwr2.id, lMaxUsd: lMax2 }),
+        metadata: JSON.stringify({ lenderId: financier.id, principal: lMax2, interestRate: 0.12 }),
+      },
+    ]);
+
+    // ── Pending Financing Request #3: Rice Standard (producer1) ──────────────
     const riceEwr = insertedEwrs.find(e => e.ewrsReceiptId === "EWR-MOM-2025-012");
     if (riceEwr) {
-      const marketValue2 = parseFloat(riceEwr.estimatedValueUsd!);
-      const lMax2 = marketValue2 * 0.60;
+      const marketValue3 = parseFloat(riceEwr.estimatedValueUsd!);
+      const lMax3 = marketValue3 * 0.60;
 
-      const [fr2] = await db.insert(financingRequestsTable).values({
+      const [fr3] = await db.insert(financingRequestsTable).values({
         ewrId: riceEwr.id,
         requesterId: producer1.id,
-        marketValueUsd: String(marketValue2),
-        lMaxUsd: String(lMax2),
+        marketValueUsd: String(marketValue3),
+        lMaxUsd: String(lMax3),
         interestRate: "0.1200",
         status: "PENDING",
         notes: "Need advance for input purchasing (fertilizer Q3)",
@@ -624,15 +672,16 @@ async function seed() {
 
       await db.insert(auditLogTable).values({
         entityType: "FINANCING_REQUEST",
-        entityId: fr2.id,
+        entityId: fr3.id,
         action: "FINANCING_REQUESTED",
         actorId: producer1.id,
-        payloadHash: sha256({ requestId: fr2.id, ewrId: riceEwr.id, marketValueUsd: marketValue2, lMaxUsd: lMax2 }),
-        metadata: JSON.stringify({ ewrId: riceEwr.id, marketValueUsd: marketValue2, lMaxUsd: lMax2, interestRate: 0.12 }),
+        payloadHash: sha256({ requestId: fr3.id, ewrId: riceEwr.id, marketValueUsd: marketValue3, lMaxUsd: lMax3 }),
+        metadata: JSON.stringify({ ewrId: riceEwr.id, marketValueUsd: marketValue3, lMaxUsd: lMax3, interestRate: 0.12 }),
       });
     }
 
-    // Settlement #1 — fully completed (ORDER settlement, no loan)
+    // ── Completed Settlement #1: Spot order (no loan) ─────────────────────────
+    const settled1At = new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000);
     const [settlement1] = await db.insert(settlementsTable).values({
       entityType: "ORDER",
       entityId: 1,
@@ -645,9 +694,9 @@ async function seed() {
       bankLegStatus: "N_A",
       platformLegStatus: "DISBURSED",
       producerLegStatus: "DISBURSED",
-      platformLegDisbursedAt: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000),
-      producerLegDisbursedAt: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000),
-      completedAt: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000),
+      platformLegDisbursedAt: settled1At,
+      producerLegDisbursedAt: settled1At,
+      completedAt: settled1At,
       notes: "Spot order settlement – EWR-ELD-2025-015",
     }).returning();
 
@@ -666,7 +715,7 @@ async function seed() {
         entityId: settlement1.id,
         action: "SETTLEMENT_LEG_DISBURSED_PLATFORM",
         actorId: enabler.id,
-        payloadHash: sha256({ settlementId: settlement1.id, leg: "platform", disbursedAt: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000).toISOString() }),
+        payloadHash: sha256({ settlementId: settlement1.id, leg: "platform", disbursedAt: settled1At.toISOString() }),
         metadata: JSON.stringify({ leg: "platform", allComplete: false }),
       },
       {
@@ -674,12 +723,12 @@ async function seed() {
         entityId: settlement1.id,
         action: "SETTLEMENT_LEG_DISBURSED_PRODUCER",
         actorId: enabler.id,
-        payloadHash: sha256({ settlementId: settlement1.id, leg: "producer", disbursedAt: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000).toISOString() }),
+        payloadHash: sha256({ settlementId: settlement1.id, leg: "producer", disbursedAt: settled1At.toISOString() }),
         metadata: JSON.stringify({ leg: "producer", allComplete: true }),
       },
     ]);
 
-    // Settlement #2 — partially disbursed (has active loan, bank leg still pending)
+    // ── Completed Settlement #2: Auction with loan repayment (loan1) ──────────
     const daysElapsed2 = 14;
     const principal2 = lMax1;
     const interest2 = principal2 * 0.12 * daysElapsed2 / 365;
@@ -687,6 +736,7 @@ async function seed() {
     const vTotal2 = 80000;
     const fPlatform2 = vTotal2 * 0.02;
     const pProducer2 = Math.max(0, vTotal2 - rBank2 - fPlatform2);
+    const settled2At = new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000);
 
     const [settlement2] = await db.insert(settlementsTable).values({
       entityType: "AUCTION",
@@ -697,23 +747,64 @@ async function seed() {
       fPlatformUsd: fPlatform2.toFixed(2),
       pProducerUsd: pProducer2.toFixed(2),
       loanId: loan1.id,
-      bankLegStatus: "PENDING",
-      platformLegStatus: "PENDING",
-      producerLegStatus: "PENDING",
+      bankLegStatus: "DISBURSED",
+      platformLegStatus: "DISBURSED",
+      producerLegStatus: "DISBURSED",
+      bankLegDisbursedAt: settled2At,
+      platformLegDisbursedAt: settled2At,
+      producerLegDisbursedAt: settled2At,
+      completedAt: settled2At,
       notes: "Auction settlement with loan repayment – Coffee Grade C",
     }).returning();
 
-    const settle2Payload = { settlementId: settlement2.id, entityType: "AUCTION", entityId: 1, vTotalUsd: vTotal2, rBankUsd: rBank2, fPlatformUsd: fPlatform2, pProducerUsd: pProducer2 };
-    await db.insert(auditLogTable).values({
-      entityType: "SETTLEMENT",
-      entityId: settlement2.id,
-      action: "SETTLEMENT_INITIATED",
-      actorId: enabler.id,
-      payloadHash: sha256(settle2Payload),
-      metadata: JSON.stringify(settle2Payload),
-    });
+    // Mark loan1 as repaid (settlement2 fully disbursed)
+    await db.update(loansTable)
+      .set({ lienStatus: "REPAID", repaidAt: settled2At, outstandingBalanceUsd: "0" })
+      .where(eq(loansTable.id, loan1.id));
+    await db.update(financingRequestsTable)
+      .set({ status: "REPAID" })
+      .where(eq(financingRequestsTable.id, fr1.id));
+    await db.update(ewrsTable)
+      .set({ isLienActive: false, lienHolderId: null, state: "INGESTED" })
+      .where(eq(ewrsTable.id, encumberedEwr1.id));
 
-    console.log("Financing, loans, and settlements seeded.");
+    const settle2Payload = { settlementId: settlement2.id, entityType: "AUCTION", entityId: 1, vTotalUsd: vTotal2, rBankUsd: rBank2, fPlatformUsd: fPlatform2, pProducerUsd: pProducer2 };
+    await db.insert(auditLogTable).values([
+      {
+        entityType: "SETTLEMENT",
+        entityId: settlement2.id,
+        action: "SETTLEMENT_INITIATED",
+        actorId: enabler.id,
+        payloadHash: sha256(settle2Payload),
+        metadata: JSON.stringify(settle2Payload),
+      },
+      {
+        entityType: "SETTLEMENT",
+        entityId: settlement2.id,
+        action: "SETTLEMENT_LEG_DISBURSED_BANK",
+        actorId: enabler.id,
+        payloadHash: sha256({ settlementId: settlement2.id, leg: "bank", disbursedAt: settled2At.toISOString() }),
+        metadata: JSON.stringify({ leg: "bank", allComplete: false }),
+      },
+      {
+        entityType: "SETTLEMENT",
+        entityId: settlement2.id,
+        action: "SETTLEMENT_LEG_DISBURSED_PLATFORM",
+        actorId: enabler.id,
+        payloadHash: sha256({ settlementId: settlement2.id, leg: "platform", disbursedAt: settled2At.toISOString() }),
+        metadata: JSON.stringify({ leg: "platform", allComplete: false }),
+      },
+      {
+        entityType: "SETTLEMENT",
+        entityId: settlement2.id,
+        action: "SETTLEMENT_LEG_DISBURSED_PRODUCER",
+        actorId: enabler.id,
+        payloadHash: sha256({ settlementId: settlement2.id, leg: "producer", disbursedAt: settled2At.toISOString() }),
+        metadata: JSON.stringify({ leg: "producer", allComplete: true }),
+      },
+    ]);
+
+    console.log("Financing seeded: 2 active loans, 1 pending request, 2 completed settlements.");
   }
 
   console.log("Seed complete.");
