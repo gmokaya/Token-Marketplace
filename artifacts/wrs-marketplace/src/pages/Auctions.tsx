@@ -39,8 +39,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 function getGlobalStreamUrl(): string {
-  const base = import.meta.env.BASE_URL?.replace(/\/$/, "") ?? "";
-  return `${base}/api/auctions/stream`;
+  return "/api/auctions/stream";
 }
 
 type EnrichedAuction = {

@@ -1,7 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { useUser, useClerk } from "@clerk/react";
 import { useGetMe } from "@workspace/api-client-react";
-import { LayoutDashboard, Wallet, ShoppingBag, List, BarChart3, User, LogOut, ClipboardList, Package, Gavel, FileText, Landmark, TrendingUp, ShieldCheck, PackagePlus } from "lucide-react";
+import { LayoutDashboard, Wallet, ShoppingBag, List, BarChart3, User, LogOut, ClipboardList, Package, Gavel, FileText, Landmark, TrendingUp, ShieldCheck, PackagePlus, Plug } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function Sidebar({ className = "" }: { className?: string }) {
@@ -25,6 +25,7 @@ export function Sidebar({ className = "" }: { className?: string }) {
     { href: "/financing", label: "Financing", icon: Landmark, tiers: ["PRODUCER", "FINANCIER", "ENABLER"] },
     { href: "/admin/earnings", label: "Platform Earnings", icon: TrendingUp, tiers: ["ENABLER", "FINANCIER"] },
     { href: "/admin/audit", label: "Audit Log", icon: ShieldCheck, tiers: ["ENABLER", "FINANCIER"] },
+    { href: "/admin/ewr-api", label: "API Integration", icon: Plug, tiers: ["ENABLER", "FINANCIER"] },
     { href: "/market-stats", label: "Market Stats", icon: BarChart3, tiers: ["PRODUCER", "OFF_TAKER", "ENABLER", "FINANCIER"] },
     { href: "/profile", label: "Profile", icon: User, tiers: ["PRODUCER", "OFF_TAKER", "ENABLER", "FINANCIER"] },
   ];

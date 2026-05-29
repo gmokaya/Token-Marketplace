@@ -12,6 +12,7 @@ import financingRouter from "./financing";
 import settlementsRouter from "./settlements";
 import adminRouter from "./admin";
 import wrscRouter from "./wrsc";
+import ewrApiRouter from "./ewr-api";
 
 const router: IRouter = Router();
 
@@ -24,7 +25,9 @@ function requireAuth(req: Request, res: Response, next: NextFunction): void {
   next();
 }
 
+// eWR external API + registry-sync webhook — own auth, must come before Clerk requireAuth
 router.use(healthRouter);
+router.use(ewrApiRouter);
 
 router.use(requireAuth);
 

@@ -53,10 +53,8 @@ function Countdown({ endAt, status }: { endAt: string; status: string }) {
   );
 }
 
-// Build the SSE stream URL using the same base path as the API client
 function getStreamUrl(auctionId: number): string {
-  const base = import.meta.env.BASE_URL?.replace(/\/$/, "") ?? "";
-  return `${base}/api/auctions/${auctionId}/stream`;
+  return `/api/auctions/${auctionId}/stream`;
 }
 
 export default function AuctionDetail() {
