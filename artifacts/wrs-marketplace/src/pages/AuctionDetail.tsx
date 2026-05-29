@@ -1,6 +1,15 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRoute, useLocation } from "wouter";
-import { useGetAuction, useListAuctionBids, usePlaceBid, useGetMe } from "@workspace/api-client-react";
+import {
+  useGetAuction,
+  useListAuctionBids,
+  usePlaceBid,
+  useGetMe,
+  getGetAuctionQueryKey,
+  getListAuctionBidsQueryKey,
+} from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
+import type { AuctionDetail as AuctionDetailData, AuctionBid } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Layout } from "@/components/layout/Layout";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Gavel, Clock, TrendingUp, Users } from "lucide-react";
+import { ArrowLeft, Gavel, Clock, TrendingUp, Users, Radio } from "lucide-react";
 import { Link } from "wouter";
 
 const STATUS_COLORS: Record<string, string> = {
@@ -44,6 +53,12 @@ function Countdown({ endAt, status }: { endAt: string; status: string }) {
   );
 }
 
+// Build the SSE stream URL using the same base path as the API client
+function getStreamUrl(auctionId: number): string {
+  const base = import.meta.env.BASE_URL?.replace(/\/$/, "") ?? "";
+  return `${base}/api/auctions/${auctionId}/stream`;
+}
+
 export default function AuctionDetail() {
   const [, params] = useRoute("/auctions/:auctionId");
   const [, navigate] = useLocation();
@@ -52,21 +67,112 @@ export default function AuctionDetail() {
   const { data: me } = useGetMe();
   const [bidAmount, setBidAmount] = useState("");
   const bidInputRef = useRef<HTMLInputElement>(null);
+  const queryClient = useQueryClient();
+  const [liveConnected, setLiveConnected] = useState(false);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: detail, isLoading, refetch: refetchDetail } = useGetAuction(auctionId, {
-    query: { refetchInterval: 3000 } as any,
-  });
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: bids, refetch: refetchBids } = useListAuctionBids(auctionId, {
-    query: { refetchInterval: 3000 } as any,
-  });
+  const { data: detail, isLoading, refetch: refetchDetail } = useGetAuction(auctionId);
+  const { data: bids, refetch: refetchBids } = useListAuctionBids(auctionId);
 
   const { mutateAsync: placeBid, isPending: isBidding } = usePlaceBid();
 
   const isOffTaker = me?.tier === "OFF_TAKER";
   const auction = detail?.auction;
+
+  // ── SSE connection ──────────────────────────────────────────────────────────
+  const setupSse = useCallback(() => {
+    if (isNaN(auctionId)) return;
+
+    const es = new EventSource(getStreamUrl(auctionId));
+
+    es.addEventListener("connected", () => {
+      setLiveConnected(true);
+    });
+
+    es.addEventListener("bid", (e: MessageEvent) => {
+      try {
+        const { bid, antiSnipeTriggered, newEndAt } = JSON.parse(e.data) as {
+          bid: {
+            id: number;
+            auctionId: number;
+            bidderId: number;
+            bidderName: string | null;
+            amountUsd: string;
+            placedAt: string;
+            isWinning: boolean;
+          };
+          antiSnipeTriggered: boolean;
+          newEndAt: string | null;
+        };
+
+        // Prepend new bid to cached bids list (sorted by placedAt desc)
+        queryClient.setQueryData<AuctionBid[]>(
+          getListAuctionBidsQueryKey(auctionId),
+          (old) => {
+            if (!old) return [bid];
+            // Mark previous bids as not winning, prepend new bid
+            return [bid, ...old.map(b => ({ ...b, isWinning: false }))];
+          }
+        );
+
+        // Update cached auction detail to reflect new high bid, bid count, and endAt
+        queryClient.setQueryData<AuctionDetailData>(
+          getGetAuctionQueryKey(auctionId),
+          (old) => {
+            if (!old) return old;
+            const prevHigh = old.auction.currentHighBidUsd ?? 0;
+            const newHigh = Math.max(prevHigh, parseFloat(bid.amountUsd));
+            return {
+              ...old,
+              auction: {
+                ...old.auction,
+                currentHighBidUsd: newHigh,
+                bidCount: (old.auction.bidCount ?? 0) + 1,
+                winningBidId: bid.id,
+                ...(newEndAt ? { endAt: newEndAt } : {}),
+              },
+            };
+          }
+        );
+
+        if (antiSnipeTriggered) {
+          toast({
+            title: "⚡ Anti-snipe triggered",
+            description: "A bid was placed in the final 3 minutes — auction extended by 3 minutes.",
+          });
+        }
+      } catch {
+        // malformed event — ignore
+      }
+    });
+
+    es.addEventListener("closed", () => {
+      // Auction just closed — refresh from server to get the final state
+      refetchDetail();
+      refetchBids();
+      setLiveConnected(false);
+    });
+
+    es.addEventListener("ping", () => {
+      // keepalive — no action needed
+    });
+
+    es.onerror = () => {
+      setLiveConnected(false);
+      // EventSource auto-reconnects; mark disconnected until "connected" event fires again
+    };
+
+    return es;
+  }, [auctionId, queryClient, refetchDetail, refetchBids, toast]);
+
+  useEffect(() => {
+    const es = setupSse();
+    return () => {
+      es?.close();
+      setLiveConnected(false);
+    };
+  }, [setupSse]);
+
+  // ───────────────────────────────────────────────────────────────────────────
 
   const minNextBid = () => {
     if (!auction) return 0;
@@ -86,6 +192,7 @@ export default function AuctionDetail() {
       await placeBid({ auctionId, data: { amountUsd: amount } });
       setBidAmount("");
       toast({ title: "Bid placed!", description: `Your bid of $${amount.toLocaleString()} has been placed.` });
+      // SSE event from server will update the UI; do a full refetch as safety net
       refetchDetail();
       refetchBids();
     } catch (err: any) {
@@ -133,6 +240,12 @@ export default function AuctionDetail() {
           </Button>
           <span className="text-muted-foreground">/</span>
           <span className="font-medium text-sm">Auction #{auction.id}</span>
+          {auction.status === "OPEN" && (
+            <span className={`flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border ${liveConnected ? "bg-green-50 text-green-700 border-green-200" : "bg-yellow-50 text-yellow-700 border-yellow-200"}`}>
+              <Radio className="w-3 h-3" />
+              {liveConnected ? "Live" : "Connecting…"}
+            </span>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -177,7 +290,7 @@ export default function AuctionDetail() {
                   <Clock className="w-5 h-5 text-amber-600 shrink-0" />
                   <div>
                     <p className="text-xs text-amber-700 font-medium">Time Remaining</p>
-                    <Countdown endAt={auction.endAt} status={auction.status} />
+                    <Countdown endAt={String(auction.endAt)} status={auction.status} />
                   </div>
                 </div>
               </CardContent>

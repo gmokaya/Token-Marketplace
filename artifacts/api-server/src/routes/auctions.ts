@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import { getAuth } from "@clerk/express";
 import { db } from "@workspace/db";
 import {
@@ -16,6 +16,35 @@ const ANTI_SNIPE_WINDOW_MS = 3 * 60 * 1000;
 const ANTI_SNIPE_EXTENSION_MS = 3 * 60 * 1000;
 const SETTLEMENT_WINDOW_MS = 60 * 60 * 1000;
 const MIN_BID_INCREMENT_PCT = 1.5;
+
+// ── SSE fan-out registry ──────────────────────────────────────────────────────
+// Maps auctionId -> Set of active SSE response objects
+const sseClients = new Map<number, Set<Response>>();
+
+function registerSseClient(auctionId: number, res: Response) {
+  if (!sseClients.has(auctionId)) sseClients.set(auctionId, new Set());
+  sseClients.get(auctionId)!.add(res);
+}
+
+function unregisterSseClient(auctionId: number, res: Response) {
+  sseClients.get(auctionId)?.delete(res);
+  if (sseClients.get(auctionId)?.size === 0) sseClients.delete(auctionId);
+}
+
+function broadcastSseEvent(auctionId: number, event: string, data: unknown) {
+  const clients = sseClients.get(auctionId);
+  if (!clients || clients.size === 0) return;
+  const payload = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
+  for (const client of clients) {
+    try {
+      client.write(payload);
+    } catch {
+      // client already gone — will be cleaned up on close
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 async function enrichAuction(auction: typeof auctionsTable.$inferSelect) {
   const [highBidRow] = await db
@@ -192,6 +221,52 @@ router.get("/auctions/:auctionId/bids", async (req, res) => {
   return res.json(bids);
 });
 
+// ── SSE stream endpoint ───────────────────────────────────────────────────────
+// Clients connect here and receive pushed events whenever a bid is placed.
+// Events emitted:
+//   - "bid"     → { bid, auction } — new bid placed + updated auction state
+//   - "closed"  → { auctionId }    — auction status changed to non-OPEN
+//   - "ping"    → {}               — keepalive every 25s
+router.get("/auctions/:auctionId/stream", async (req: Request, res: Response) => {
+  const auctionId = parseInt(req.params.auctionId);
+  if (isNaN(auctionId)) {
+    res.status(400).json({ error: "Invalid auction ID" });
+    return;
+  }
+
+  // Verify auction exists
+  const [auction] = await db.select().from(auctionsTable).where(eq(auctionsTable.id, auctionId)).limit(1);
+  if (!auction) {
+    res.status(404).json({ error: "Auction not found" });
+    return;
+  }
+
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  res.setHeader("X-Accel-Buffering", "no");
+  res.flushHeaders();
+
+  // Send initial connected event
+  res.write(`event: connected\ndata: ${JSON.stringify({ auctionId })}\n\n`);
+
+  registerSseClient(auctionId, res);
+
+  // Keepalive ping every 25 seconds to prevent proxy/load-balancer timeouts
+  const pingInterval = setInterval(() => {
+    try {
+      res.write(`event: ping\ndata: {}\n\n`);
+    } catch {
+      clearInterval(pingInterval);
+    }
+  }, 25_000);
+
+  req.on("close", () => {
+    clearInterval(pingInterval);
+    unregisterSseClient(auctionId, res);
+  });
+});
+
 router.post("/auctions/:auctionId/bids", async (req, res) => {
   const { userId: clerkId } = getAuth(req);
   if (!clerkId) return res.status(401).json({ error: "Unauthorized" });
@@ -207,7 +282,7 @@ router.post("/auctions/:auctionId/bids", async (req, res) => {
   if (!amountUsd || amountUsd <= 0) return res.status(400).json({ error: "amountUsd must be positive" });
 
   try {
-    const bid = await db.transaction(async (tx) => {
+    const { bid, antiSnipeTriggered, newEndAt } = await db.transaction(async (tx) => {
       await tx.execute(sql`SET TRANSACTION ISOLATION LEVEL SERIALIZABLE`);
 
       const [auction] = await tx
@@ -255,9 +330,12 @@ router.post("/auctions/:auctionId/bids", async (req, res) => {
       }).returning();
 
       const msLeft = auction.endAt.getTime() - now.getTime();
+      let antiSnipeTriggered = false;
+      let newEndAt: Date | null = null;
+
       if (msLeft <= ANTI_SNIPE_WINDOW_MS) {
-        // Extend from current end_at (not from now), cascading
-        const newEndAt = new Date(auction.endAt.getTime() + ANTI_SNIPE_EXTENSION_MS);
+        antiSnipeTriggered = true;
+        newEndAt = new Date(auction.endAt.getTime() + ANTI_SNIPE_EXTENSION_MS);
         await tx.update(auctionsTable)
           .set({ winningBidId: newBid.id, endAt: newEndAt })
           .where(eq(auctionsTable.id, auctionId));
@@ -267,7 +345,7 @@ router.post("/auctions/:auctionId/bids", async (req, res) => {
           .where(eq(auctionsTable.id, auctionId));
       }
 
-      return newBid;
+      return { bid: newBid, antiSnipeTriggered, newEndAt };
     });
 
     const [bidWithBidder] = await db
@@ -284,6 +362,13 @@ router.post("/auctions/:auctionId/bids", async (req, res) => {
       .leftJoin(usersTable, eq(auctionBidsTable.bidderId, usersTable.id))
       .where(eq(auctionBidsTable.id, bid.id))
       .limit(1);
+
+    // Push SSE event to all connected clients watching this auction
+    broadcastSseEvent(auctionId, "bid", {
+      bid: bidWithBidder,
+      antiSnipeTriggered,
+      newEndAt: newEndAt?.toISOString() ?? null,
+    });
 
     return res.status(201).json(bidWithBidder);
   } catch (err: any) {
@@ -352,6 +437,9 @@ export async function startAuctionExpiryWorker() {
             await tx.update(ewrsTable).set({ state: ewrData?.isLienActive ? "ENCUMBERED" : "INGESTED" }).where(eq(ewrsTable.id, auction.ewrId));
           }
         });
+
+        // Notify SSE clients that the auction closed
+        broadcastSseEvent(auction.id, "closed", { auctionId: auction.id });
       }
 
       // ── Phase 2: CLOSED auctions past settlement deadline without a settlement record ──
