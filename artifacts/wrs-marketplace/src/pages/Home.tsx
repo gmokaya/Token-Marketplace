@@ -2,6 +2,7 @@ import { Show } from "@clerk/react";
 import { Redirect, Link } from "wouter";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, ChevronRight } from "lucide-react";
+import { PriceTicker } from "@/components/PriceTicker";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const img = (name: string) => `${BASE}/theme/${name}`;
@@ -409,12 +410,15 @@ export default function Home() {
                   </div>
                 ))}
               </div>
-              <div style={{ padding: "22px 0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ padding: "22px 0 66px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <p style={{ color: "rgba(255,255,255,0.2)", fontSize: 12, margin: 0 }}>© 2025 WRS Marketplace. All rights reserved.</p>
                 <p style={{ color: "rgba(255,255,255,0.12)", fontSize: 12, margin: 0 }}>Regulated agricultural commodity trading platform.</p>
               </div>
             </div>
           </footer>
+
+          {/* ══ LIVE COMMODITY PRICE TICKER (fixed bottom) ═════════ */}
+          <PriceTicker />
 
         </div>
       </Show>
