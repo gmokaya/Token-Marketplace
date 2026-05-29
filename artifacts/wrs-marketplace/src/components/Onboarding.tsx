@@ -97,7 +97,7 @@ export function Onboarding() {
                   <SelectContent>
                     <SelectItem value={UserUpdateTier.PRODUCER}>Producer</SelectItem>
                     <SelectItem value={UserUpdateTier.OFF_TAKER}>Off-Taker</SelectItem>
-                    <SelectItem value={UserUpdateTier.ENABLER}>Enabler</SelectItem>
+                    <SelectItem value={UserUpdateTier.ENABLER}>Exchange Administrator</SelectItem>
                     <SelectItem value={UserUpdateTier.FINANCIER}>Financier</SelectItem>
                   </SelectContent>
                 </Select>

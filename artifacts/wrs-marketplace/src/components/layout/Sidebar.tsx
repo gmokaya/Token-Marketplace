@@ -5,6 +5,7 @@ import {
   User, ClipboardList, Package, Gavel, FileText, Landmark,
   TrendingUp, ShieldCheck, PackagePlus, Plug,
 } from "lucide-react";
+import { formatTier } from "@/lib/formatTier";
 
 interface SidebarProps {
   collapsed: boolean;
@@ -48,7 +49,7 @@ export function Sidebar({ collapsed }: SidebarProps) {
       {!collapsed && tier && (
         <div className="px-4 pt-3 pb-1">
           <span className="inline-block text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 rounded-full bg-sidebar-accent/60 text-sidebar-accent-foreground border border-sidebar-border">
-            {tier.replace(/_/g, " ")}
+            {formatTier(tier)}
           </span>
         </div>
       )}

@@ -4,6 +4,7 @@ import { useGetMe } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
+import { formatTier } from "@/lib/formatTier";
 
 interface AppHeaderProps {
   collapsed: boolean;
@@ -48,7 +49,7 @@ export function AppHeader({ collapsed, onToggle }: AppHeaderProps) {
     ? user.fullName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()
     : user?.primaryEmailAddress?.emailAddress?.[0]?.toUpperCase() ?? "?";
 
-  const tierLabel = dbUser?.tier?.replace(/_/g, " ") ?? "";
+  const tierLabel = formatTier(dbUser?.tier);
 
   return (
     <header className="sticky top-0 z-50 flex items-center justify-between h-14 px-3 bg-card border-b border-border shrink-0">
