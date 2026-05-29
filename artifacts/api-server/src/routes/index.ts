@@ -8,6 +8,9 @@ import ordersRouter from "./orders";
 import statsRouter from "./stats";
 import auctionsRouter from "./auctions";
 import forwardsRouter from "./forwards";
+import financingRouter from "./financing";
+import settlementsRouter from "./settlements";
+import adminRouter from "./admin";
 
 const router: IRouter = Router();
 
@@ -31,5 +34,8 @@ router.use(ordersRouter);
 router.use(statsRouter);
 router.use(auctionsRouter);
 router.use(forwardsRouter);
+router.use(financingRouter);
+router.use(settlementsRouter);
+router.use(adminRouter);
 
 export default router;

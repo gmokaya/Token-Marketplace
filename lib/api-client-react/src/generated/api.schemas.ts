@@ -428,6 +428,230 @@ export interface TopBidder {
   commodityType: string;
 }
 
+export type FinancingRequestStatus = typeof FinancingRequestStatus[keyof typeof FinancingRequestStatus];
+
+
+export const FinancingRequestStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  DISBURSED: 'DISBURSED',
+  REPAID: 'REPAID',
+} as const;
+
+export interface FinancingRequest {
+  id: number;
+  ewrId: number;
+  requesterId: number;
+  /** @nullable */
+  requesterName?: string | null;
+  /** @nullable */
+  lenderId?: number | null;
+  /** @nullable */
+  lenderName?: string | null;
+  marketValueUsd: number;
+  lMaxUsd: number;
+  interestRate: number;
+  status: FinancingRequestStatus;
+  /** @nullable */
+  commodityType?: string | null;
+  /** @nullable */
+  grade?: string | null;
+  /** @nullable */
+  weightMt?: number | null;
+  /** @nullable */
+  warehouseCode?: string | null;
+  /** @nullable */
+  estimatedValueUsd?: number | null;
+  /** @nullable */
+  approvedAt?: string | null;
+  /** @nullable */
+  disbursedAt?: string | null;
+  /** @nullable */
+  notes?: string | null;
+  createdAt: string;
+}
+
+export interface FinancingRequestInput {
+  ewrId: number;
+  notes?: string;
+}
+
+export interface EligibleEwr {
+  id: number;
+  ewrsReceiptId: string;
+  commodityType: string;
+  grade: string;
+  weightMt: number;
+  warehouseCode?: string;
+  estimatedValueUsd: number;
+  lMaxUsd: number;
+  advanceRate: number;
+  annualInterestRate?: number;
+}
+
+export type LoanLienStatus = typeof LoanLienStatus[keyof typeof LoanLienStatus];
+
+
+export const LoanLienStatus = {
+  ACTIVE: 'ACTIVE',
+  REPAID: 'REPAID',
+  DEFAULTED: 'DEFAULTED',
+} as const;
+
+export interface Loan {
+  id: number;
+  financingRequestId: number;
+  principalUsd: number;
+  interestRate: number;
+  startDate: string;
+  outstandingBalanceUsd: number;
+  lienStatus: LoanLienStatus;
+  /** @nullable */
+  repaidAt?: string | null;
+  /** @nullable */
+  ewrId?: number | null;
+  /** @nullable */
+  requesterId?: number | null;
+  /** @nullable */
+  requesterName?: string | null;
+  /** @nullable */
+  commodityType?: string | null;
+  /** @nullable */
+  grade?: string | null;
+  /** @nullable */
+  weightMt?: number | null;
+  /** @nullable */
+  warehouseCode?: string | null;
+  /** @nullable */
+  daysElapsed?: number | null;
+  /** @nullable */
+  accruedInterestUsd?: number | null;
+  /** @nullable */
+  totalRepayableUsd?: number | null;
+  createdAt: string;
+}
+
+export type SettlementEntityType = typeof SettlementEntityType[keyof typeof SettlementEntityType];
+
+
+export const SettlementEntityType = {
+  ORDER: 'ORDER',
+  AUCTION: 'AUCTION',
+  FORWARD: 'FORWARD',
+} as const;
+
+export type SettlementBankLegStatus = typeof SettlementBankLegStatus[keyof typeof SettlementBankLegStatus];
+
+
+export const SettlementBankLegStatus = {
+  PENDING: 'PENDING',
+  DISBURSED: 'DISBURSED',
+  N_A: 'N_A',
+} as const;
+
+export type SettlementPlatformLegStatus = typeof SettlementPlatformLegStatus[keyof typeof SettlementPlatformLegStatus];
+
+
+export const SettlementPlatformLegStatus = {
+  PENDING: 'PENDING',
+  DISBURSED: 'DISBURSED',
+  N_A: 'N_A',
+} as const;
+
+export type SettlementProducerLegStatus = typeof SettlementProducerLegStatus[keyof typeof SettlementProducerLegStatus];
+
+
+export const SettlementProducerLegStatus = {
+  PENDING: 'PENDING',
+  DISBURSED: 'DISBURSED',
+  N_A: 'N_A',
+} as const;
+
+export interface Settlement {
+  id: number;
+  entityType: SettlementEntityType;
+  entityId: number;
+  /** @nullable */
+  initiatedById?: number | null;
+  vTotalUsd: number;
+  rBankUsd: number;
+  fPlatformUsd: number;
+  pProducerUsd: number;
+  /** @nullable */
+  loanId?: number | null;
+  bankLegStatus: SettlementBankLegStatus;
+  platformLegStatus: SettlementPlatformLegStatus;
+  producerLegStatus: SettlementProducerLegStatus;
+  /** @nullable */
+  bankLegDisbursedAt?: string | null;
+  /** @nullable */
+  platformLegDisbursedAt?: string | null;
+  /** @nullable */
+  producerLegDisbursedAt?: string | null;
+  /** @nullable */
+  completedAt?: string | null;
+  /** @nullable */
+  notes?: string | null;
+  createdAt: string;
+}
+
+export type SettlementInputEntityType = typeof SettlementInputEntityType[keyof typeof SettlementInputEntityType];
+
+
+export const SettlementInputEntityType = {
+  ORDER: 'ORDER',
+  AUCTION: 'AUCTION',
+  FORWARD: 'FORWARD',
+} as const;
+
+export interface SettlementInput {
+  entityType: SettlementInputEntityType;
+  entityId: number;
+  vTotalUsd: number;
+  loanId?: number;
+  notes?: string;
+}
+
+export type DisburseInputLeg = typeof DisburseInputLeg[keyof typeof DisburseInputLeg];
+
+
+export const DisburseInputLeg = {
+  bank: 'bank',
+  platform: 'platform',
+  producer: 'producer',
+} as const;
+
+export interface DisburseInput {
+  leg: DisburseInputLeg;
+}
+
+export interface PlatformEarnings {
+  period: string;
+  totalPlatformFeesUsd: number;
+  totalEscrowFeesUsd: number;
+  financingFacilitationFeesUsd: number;
+  totalBankRepaymentsUsd?: number;
+  settlementCount: number;
+  completedSettlementCount: number;
+  settledOrderCount: number;
+}
+
+export interface AuditLogEntry {
+  id: number;
+  entityType: string;
+  entityId: number;
+  action: string;
+  /** @nullable */
+  actorId?: number | null;
+  /** @nullable */
+  actorName?: string | null;
+  payloadHash: string;
+  /** @nullable */
+  metadata?: string | null;
+  createdAt: string;
+}
+
 export type ListEwrsParams = {
 ownerId?: number;
 state?: ListEwrsState;
@@ -589,5 +813,41 @@ export const ResolveDefaultBodyDefaultSide = {
 
 export type ResolveDefaultBody = {
   defaultSide?: ResolveDefaultBodyDefaultSide;
+};
+
+export type ListFinancingRequestsParams = {
+status?: ListFinancingRequestsStatus;
+requesterId?: number;
+};
+
+export type ListFinancingRequestsStatus = typeof ListFinancingRequestsStatus[keyof typeof ListFinancingRequestsStatus];
+
+
+export const ListFinancingRequestsStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  DISBURSED: 'DISBURSED',
+  REPAID: 'REPAID',
+} as const;
+
+export type GetPlatformEarningsParams = {
+period?: GetPlatformEarningsPeriod;
+};
+
+export type GetPlatformEarningsPeriod = typeof GetPlatformEarningsPeriod[keyof typeof GetPlatformEarningsPeriod];
+
+
+export const GetPlatformEarningsPeriod = {
+  '7d': '7d',
+  '30d': '30d',
+  '90d': '90d',
+  all: 'all',
+} as const;
+
+export type ListAuditLogParams = {
+entityType?: string;
+entityId?: number;
+limit?: number;
 };
 

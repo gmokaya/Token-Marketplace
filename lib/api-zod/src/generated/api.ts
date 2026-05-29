@@ -787,3 +787,299 @@ export const CompleteForwardContractResponse = zod.object({
 })
 
 
+/**
+ * @summary List financing requests (filter by status or requester)
+ */
+export const ListFinancingRequestsQueryParams = zod.object({
+  "status": zod.enum(['PENDING', 'APPROVED', 'REJECTED', 'DISBURSED', 'REPAID']).optional(),
+  "requesterId": zod.coerce.number().optional()
+})
+
+export const ListFinancingRequestsResponseItem = zod.object({
+  "id": zod.number(),
+  "ewrId": zod.number(),
+  "requesterId": zod.number(),
+  "requesterName": zod.string().nullish(),
+  "lenderId": zod.number().nullish(),
+  "lenderName": zod.string().nullish(),
+  "marketValueUsd": zod.number(),
+  "lMaxUsd": zod.number(),
+  "interestRate": zod.number(),
+  "status": zod.enum(['PENDING', 'APPROVED', 'REJECTED', 'DISBURSED', 'REPAID']),
+  "commodityType": zod.string().nullish(),
+  "grade": zod.string().nullish(),
+  "weightMt": zod.number().nullish(),
+  "warehouseCode": zod.string().nullish(),
+  "estimatedValueUsd": zod.number().nullish(),
+  "approvedAt": zod.coerce.date().nullish(),
+  "disbursedAt": zod.coerce.date().nullish(),
+  "notes": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})
+export const ListFinancingRequestsResponse = zod.array(ListFinancingRequestsResponseItem)
+
+
+/**
+ * @summary Request a cash advance against an eWR (Producer only)
+ */
+export const RequestFinancingBody = zod.object({
+  "ewrId": zod.number(),
+  "notes": zod.string().optional()
+})
+
+
+/**
+ * @summary List unencumbered eWRs eligible for discounting with L_max calculated
+ */
+export const ListEligibleEwrsResponseItem = zod.object({
+  "id": zod.number(),
+  "ewrsReceiptId": zod.string(),
+  "commodityType": zod.string(),
+  "grade": zod.string(),
+  "weightMt": zod.number(),
+  "warehouseCode": zod.string().optional(),
+  "estimatedValueUsd": zod.number(),
+  "lMaxUsd": zod.number(),
+  "advanceRate": zod.number(),
+  "annualInterestRate": zod.number().optional()
+})
+export const ListEligibleEwrsResponse = zod.array(ListEligibleEwrsResponseItem)
+
+
+/**
+ * @summary Active loan book for Financier tier — lien-encumbered receipts
+ */
+export const GetLoanBookResponseItem = zod.object({
+  "id": zod.number(),
+  "financingRequestId": zod.number(),
+  "principalUsd": zod.number(),
+  "interestRate": zod.number(),
+  "startDate": zod.coerce.date(),
+  "outstandingBalanceUsd": zod.number(),
+  "lienStatus": zod.enum(['ACTIVE', 'REPAID', 'DEFAULTED']),
+  "repaidAt": zod.coerce.date().nullish(),
+  "ewrId": zod.number().nullish(),
+  "requesterId": zod.number().nullish(),
+  "requesterName": zod.string().nullish(),
+  "commodityType": zod.string().nullish(),
+  "grade": zod.string().nullish(),
+  "weightMt": zod.number().nullish(),
+  "warehouseCode": zod.string().nullish(),
+  "daysElapsed": zod.number().nullish(),
+  "accruedInterestUsd": zod.number().nullish(),
+  "totalRepayableUsd": zod.number().nullish(),
+  "createdAt": zod.coerce.date()
+})
+export const GetLoanBookResponse = zod.array(GetLoanBookResponseItem)
+
+
+/**
+ * @summary Get financing request detail
+ */
+export const GetFinancingRequestParams = zod.object({
+  "requestId": zod.coerce.number()
+})
+
+export const GetFinancingRequestResponse = zod.object({
+  "id": zod.number(),
+  "ewrId": zod.number(),
+  "requesterId": zod.number(),
+  "requesterName": zod.string().nullish(),
+  "lenderId": zod.number().nullish(),
+  "lenderName": zod.string().nullish(),
+  "marketValueUsd": zod.number(),
+  "lMaxUsd": zod.number(),
+  "interestRate": zod.number(),
+  "status": zod.enum(['PENDING', 'APPROVED', 'REJECTED', 'DISBURSED', 'REPAID']),
+  "commodityType": zod.string().nullish(),
+  "grade": zod.string().nullish(),
+  "weightMt": zod.number().nullish(),
+  "warehouseCode": zod.string().nullish(),
+  "estimatedValueUsd": zod.number().nullish(),
+  "approvedAt": zod.coerce.date().nullish(),
+  "disbursedAt": zod.coerce.date().nullish(),
+  "notes": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Approve a financing request (Financier only)
+ */
+export const ApproveFinancingParams = zod.object({
+  "requestId": zod.coerce.number()
+})
+
+export const ApproveFinancingResponse = zod.object({
+  "id": zod.number(),
+  "ewrId": zod.number(),
+  "requesterId": zod.number(),
+  "requesterName": zod.string().nullish(),
+  "lenderId": zod.number().nullish(),
+  "lenderName": zod.string().nullish(),
+  "marketValueUsd": zod.number(),
+  "lMaxUsd": zod.number(),
+  "interestRate": zod.number(),
+  "status": zod.enum(['PENDING', 'APPROVED', 'REJECTED', 'DISBURSED', 'REPAID']),
+  "commodityType": zod.string().nullish(),
+  "grade": zod.string().nullish(),
+  "weightMt": zod.number().nullish(),
+  "warehouseCode": zod.string().nullish(),
+  "estimatedValueUsd": zod.number().nullish(),
+  "approvedAt": zod.coerce.date().nullish(),
+  "disbursedAt": zod.coerce.date().nullish(),
+  "notes": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Reject a financing request (Financier only)
+ */
+export const RejectFinancingParams = zod.object({
+  "requestId": zod.coerce.number()
+})
+
+export const RejectFinancingResponse = zod.object({
+  "id": zod.number(),
+  "ewrId": zod.number(),
+  "requesterId": zod.number(),
+  "requesterName": zod.string().nullish(),
+  "lenderId": zod.number().nullish(),
+  "lenderName": zod.string().nullish(),
+  "marketValueUsd": zod.number(),
+  "lMaxUsd": zod.number(),
+  "interestRate": zod.number(),
+  "status": zod.enum(['PENDING', 'APPROVED', 'REJECTED', 'DISBURSED', 'REPAID']),
+  "commodityType": zod.string().nullish(),
+  "grade": zod.string().nullish(),
+  "weightMt": zod.number().nullish(),
+  "warehouseCode": zod.string().nullish(),
+  "estimatedValueUsd": zod.number().nullish(),
+  "approvedAt": zod.coerce.date().nullish(),
+  "disbursedAt": zod.coerce.date().nullish(),
+  "notes": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Initiate a multi-party settlement split for an order, auction, or forward
+ */
+export const InitiateSettlementBody = zod.object({
+  "entityType": zod.enum(['ORDER', 'AUCTION', 'FORWARD']),
+  "entityId": zod.number(),
+  "vTotalUsd": zod.number(),
+  "loanId": zod.number().optional(),
+  "notes": zod.string().optional()
+})
+
+
+/**
+ * @summary Get settlement detail with all payout legs
+ */
+export const GetSettlementParams = zod.object({
+  "settlementId": zod.coerce.number()
+})
+
+export const GetSettlementResponse = zod.object({
+  "id": zod.number(),
+  "entityType": zod.enum(['ORDER', 'AUCTION', 'FORWARD']),
+  "entityId": zod.number(),
+  "initiatedById": zod.number().nullish(),
+  "vTotalUsd": zod.number(),
+  "rBankUsd": zod.number(),
+  "fPlatformUsd": zod.number(),
+  "pProducerUsd": zod.number(),
+  "loanId": zod.number().nullish(),
+  "bankLegStatus": zod.enum(['PENDING', 'DISBURSED', 'N_A']),
+  "platformLegStatus": zod.enum(['PENDING', 'DISBURSED', 'N_A']),
+  "producerLegStatus": zod.enum(['PENDING', 'DISBURSED', 'N_A']),
+  "bankLegDisbursedAt": zod.coerce.date().nullish(),
+  "platformLegDisbursedAt": zod.coerce.date().nullish(),
+  "producerLegDisbursedAt": zod.coerce.date().nullish(),
+  "completedAt": zod.coerce.date().nullish(),
+  "notes": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Confirm disbursement of a settlement payout leg
+ */
+export const DisburseLegParams = zod.object({
+  "settlementId": zod.coerce.number()
+})
+
+export const DisburseLegBody = zod.object({
+  "leg": zod.enum(['bank', 'platform', 'producer'])
+})
+
+export const DisburseLegResponse = zod.object({
+  "id": zod.number(),
+  "entityType": zod.enum(['ORDER', 'AUCTION', 'FORWARD']),
+  "entityId": zod.number(),
+  "initiatedById": zod.number().nullish(),
+  "vTotalUsd": zod.number(),
+  "rBankUsd": zod.number(),
+  "fPlatformUsd": zod.number(),
+  "pProducerUsd": zod.number(),
+  "loanId": zod.number().nullish(),
+  "bankLegStatus": zod.enum(['PENDING', 'DISBURSED', 'N_A']),
+  "platformLegStatus": zod.enum(['PENDING', 'DISBURSED', 'N_A']),
+  "producerLegStatus": zod.enum(['PENDING', 'DISBURSED', 'N_A']),
+  "bankLegDisbursedAt": zod.coerce.date().nullish(),
+  "platformLegDisbursedAt": zod.coerce.date().nullish(),
+  "producerLegDisbursedAt": zod.coerce.date().nullish(),
+  "completedAt": zod.coerce.date().nullish(),
+  "notes": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Platform earnings summary — fees, escrow income, and financing facilitation
+ */
+export const getPlatformEarningsQueryPeriodDefault = `30d`;
+
+export const GetPlatformEarningsQueryParams = zod.object({
+  "period": zod.enum(['7d', '30d', '90d', 'all']).default(getPlatformEarningsQueryPeriodDefault)
+})
+
+export const GetPlatformEarningsResponse = zod.object({
+  "period": zod.string(),
+  "totalPlatformFeesUsd": zod.number(),
+  "totalEscrowFeesUsd": zod.number(),
+  "financingFacilitationFeesUsd": zod.number(),
+  "totalBankRepaymentsUsd": zod.number().optional(),
+  "settlementCount": zod.number(),
+  "completedSettlementCount": zod.number(),
+  "settledOrderCount": zod.number()
+})
+
+
+/**
+ * @summary Compliance audit trail — every state change with SHA-256 hash
+ */
+export const listAuditLogQueryLimitDefault = 50;
+
+export const ListAuditLogQueryParams = zod.object({
+  "entityType": zod.coerce.string().optional(),
+  "entityId": zod.coerce.number().optional(),
+  "limit": zod.coerce.number().default(listAuditLogQueryLimitDefault)
+})
+
+export const ListAuditLogResponseItem = zod.object({
+  "id": zod.number(),
+  "entityType": zod.string(),
+  "entityId": zod.number(),
+  "action": zod.string(),
+  "actorId": zod.number().nullish(),
+  "actorName": zod.string().nullish(),
+  "payloadHash": zod.string(),
+  "metadata": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})
+export const ListAuditLogResponse = zod.array(ListAuditLogResponseItem)
+
+

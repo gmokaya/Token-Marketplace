@@ -22,6 +22,11 @@ import Auctions from "@/pages/Auctions";
 import AuctionDetail from "@/pages/AuctionDetail";
 import Forwards from "@/pages/Forwards";
 import ForwardDetail from "@/pages/ForwardDetail";
+import Financing from "@/pages/Financing";
+import FinancingDetail from "@/pages/FinancingDetail";
+import SettlementDetail from "@/pages/SettlementDetail";
+import AdminEarnings from "@/pages/AdminEarnings";
+import AuditLog from "@/pages/AuditLog";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 const clerkPubKey = publishableKeyFromHost(window.location.hostname, import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
@@ -117,6 +122,11 @@ function ClerkProviderWithRoutes() {
             <Route path="/auctions/:auctionId"><ProtectedRoute><AuctionDetail /></ProtectedRoute></Route>
             <Route path="/forwards"><ProtectedRoute><Forwards /></ProtectedRoute></Route>
             <Route path="/forwards/:contractId"><ProtectedRoute><ForwardDetail /></ProtectedRoute></Route>
+            <Route path="/financing"><ProtectedRoute><Financing /></ProtectedRoute></Route>
+            <Route path="/financing/:requestId"><ProtectedRoute><FinancingDetail /></ProtectedRoute></Route>
+            <Route path="/settlements/:settlementId"><ProtectedRoute><SettlementDetail /></ProtectedRoute></Route>
+            <Route path="/admin/earnings"><ProtectedRoute><AdminEarnings /></ProtectedRoute></Route>
+            <Route path="/admin/audit"><ProtectedRoute><AuditLog /></ProtectedRoute></Route>
             <Route path="*">
               <div className="flex items-center justify-center h-screen">404 Not Found</div>
             </Route>

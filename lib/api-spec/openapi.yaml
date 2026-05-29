@@ -24,6 +24,14 @@ tags:
     description: Live digital auctions
   - name: forwards
     description: Forward contract engine
+  - name: financing
+    description: Pre-sale inventory receipt discounting (IRD)
+  - name: settlement
+    description: Multi-party escrow settlement split
+  - name: admin
+    description: Platform administration and earnings
+  - name: audit
+    description: Compliance audit trail
 
 paths:
   /healthz:
@@ -737,6 +745,277 @@ paths:
         "404":
           description: Not found
 
+  /financing:
+    get:
+      operationId: listFinancingRequests
+      tags: [financing]
+      summary: List financing requests (filter by status or requester)
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [PENDING, APPROVED, REJECTED, DISBURSED, REPAID]
+        - name: requesterId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of financing requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FinancingRequest"
+    post:
+      operationId: requestFinancing
+      tags: [financing]
+      summary: Request a cash advance against an eWR (Producer only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FinancingRequestInput"
+      responses:
+        "201":
+          description: Financing request created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FinancingRequest"
+        "400":
+          description: eWR not eligible
+        "403":
+          description: Forbidden
+
+  /financing/eligible-ewrs:
+    get:
+      operationId: listEligibleEwrs
+      tags: [financing]
+      summary: List unencumbered eWRs eligible for discounting with L_max calculated
+      responses:
+        "200":
+          description: Eligible eWRs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EligibleEwr"
+
+  /financing/loan-book:
+    get:
+      operationId: getLoanBook
+      tags: [financing]
+      summary: Active loan book for Financier tier — lien-encumbered receipts
+      responses:
+        "200":
+          description: Loan book entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Loan"
+
+  /financing/{requestId}:
+    get:
+      operationId: getFinancingRequest
+      tags: [financing]
+      summary: Get financing request detail
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Financing request detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FinancingRequest"
+        "404":
+          description: Not found
+
+  /financing/{requestId}/approve:
+    patch:
+      operationId: approveFinancing
+      tags: [financing]
+      summary: Approve a financing request (Financier only)
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Financing approved — eWR encumbered and loan created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FinancingRequest"
+        "400":
+          description: Not in PENDING state
+        "403":
+          description: Financier role required
+        "404":
+          description: Not found
+
+  /financing/{requestId}/reject:
+    patch:
+      operationId: rejectFinancing
+      tags: [financing]
+      summary: Reject a financing request (Financier only)
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Financing rejected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FinancingRequest"
+        "400":
+          description: Not in PENDING state
+        "403":
+          description: Financier role required
+        "404":
+          description: Not found
+
+  /settlements:
+    post:
+      operationId: initiateSettlement
+      tags: [settlement]
+      summary: Initiate a multi-party settlement split for an order, auction, or forward
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SettlementInput"
+      responses:
+        "201":
+          description: Settlement record created with split breakdown
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settlement"
+        "400":
+          description: Bad request
+        "403":
+          description: Forbidden
+
+  /settlements/{settlementId}:
+    get:
+      operationId: getSettlement
+      tags: [settlement]
+      summary: Get settlement detail with all payout legs
+      parameters:
+        - name: settlementId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Settlement detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settlement"
+        "404":
+          description: Not found
+
+  /settlements/{settlementId}/disburse:
+    post:
+      operationId: disburseLeg
+      tags: [settlement]
+      summary: Confirm disbursement of a settlement payout leg
+      parameters:
+        - name: settlementId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DisburseInput"
+      responses:
+        "200":
+          description: Leg marked as disbursed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settlement"
+        "400":
+          description: Leg not pending or invalid
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+
+  /admin/earnings:
+    get:
+      operationId: getPlatformEarnings
+      tags: [admin]
+      summary: Platform earnings summary — fees, escrow income, and financing facilitation
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [7d, 30d, 90d, all]
+            default: 30d
+      responses:
+        "200":
+          description: Platform earnings breakdown
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlatformEarnings"
+
+  /audit:
+    get:
+      operationId: listAuditLog
+      tags: [audit]
+      summary: Compliance audit trail — every state change with SHA-256 hash
+      parameters:
+        - name: entityType
+          in: query
+          schema:
+            type: string
+        - name: entityId
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        "200":
+          description: Audit log entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AuditLogEntry"
+
 components:
   schemas:
     HealthStatus:
@@ -1239,3 +1518,250 @@ components:
           type: number
         commodityType:
           type: string
+
+    FinancingRequest:
+      type: object
+      required: [id, ewrId, requesterId, marketValueUsd, lMaxUsd, interestRate, status, createdAt]
+      properties:
+        id:
+          type: integer
+        ewrId:
+          type: integer
+        requesterId:
+          type: integer
+        requesterName:
+          type: ["string", "null"]
+        lenderId:
+          type: ["integer", "null"]
+        lenderName:
+          type: ["string", "null"]
+        marketValueUsd:
+          type: number
+        lMaxUsd:
+          type: number
+        interestRate:
+          type: number
+        status:
+          type: string
+          enum: [PENDING, APPROVED, REJECTED, DISBURSED, REPAID]
+        commodityType:
+          type: ["string", "null"]
+        grade:
+          type: ["string", "null"]
+        weightMt:
+          type: ["number", "null"]
+        warehouseCode:
+          type: ["string", "null"]
+        estimatedValueUsd:
+          type: ["number", "null"]
+        approvedAt:
+          type: ["string", "null"]
+          format: date-time
+        disbursedAt:
+          type: ["string", "null"]
+          format: date-time
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    FinancingRequestInput:
+      type: object
+      required: [ewrId]
+      properties:
+        ewrId:
+          type: integer
+        notes:
+          type: string
+
+    EligibleEwr:
+      type: object
+      required: [id, ewrsReceiptId, commodityType, grade, weightMt, estimatedValueUsd, lMaxUsd, advanceRate]
+      properties:
+        id:
+          type: integer
+        ewrsReceiptId:
+          type: string
+        commodityType:
+          type: string
+        grade:
+          type: string
+        weightMt:
+          type: number
+        warehouseCode:
+          type: string
+        estimatedValueUsd:
+          type: number
+        lMaxUsd:
+          type: number
+        advanceRate:
+          type: number
+        annualInterestRate:
+          type: number
+
+    Loan:
+      type: object
+      required: [id, financingRequestId, principalUsd, interestRate, startDate, outstandingBalanceUsd, lienStatus, createdAt]
+      properties:
+        id:
+          type: integer
+        financingRequestId:
+          type: integer
+        principalUsd:
+          type: number
+        interestRate:
+          type: number
+        startDate:
+          type: string
+          format: date-time
+        outstandingBalanceUsd:
+          type: number
+        lienStatus:
+          type: string
+          enum: [ACTIVE, REPAID, DEFAULTED]
+        repaidAt:
+          type: ["string", "null"]
+          format: date-time
+        ewrId:
+          type: ["integer", "null"]
+        requesterId:
+          type: ["integer", "null"]
+        requesterName:
+          type: ["string", "null"]
+        commodityType:
+          type: ["string", "null"]
+        grade:
+          type: ["string", "null"]
+        weightMt:
+          type: ["number", "null"]
+        warehouseCode:
+          type: ["string", "null"]
+        daysElapsed:
+          type: ["integer", "null"]
+        accruedInterestUsd:
+          type: ["number", "null"]
+        totalRepayableUsd:
+          type: ["number", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    Settlement:
+      type: object
+      required: [id, entityType, entityId, vTotalUsd, rBankUsd, fPlatformUsd, pProducerUsd, bankLegStatus, platformLegStatus, producerLegStatus, createdAt]
+      properties:
+        id:
+          type: integer
+        entityType:
+          type: string
+          enum: [ORDER, AUCTION, FORWARD]
+        entityId:
+          type: integer
+        initiatedById:
+          type: ["integer", "null"]
+        vTotalUsd:
+          type: number
+        rBankUsd:
+          type: number
+        fPlatformUsd:
+          type: number
+        pProducerUsd:
+          type: number
+        loanId:
+          type: ["integer", "null"]
+        bankLegStatus:
+          type: string
+          enum: [PENDING, DISBURSED, N_A]
+        platformLegStatus:
+          type: string
+          enum: [PENDING, DISBURSED, N_A]
+        producerLegStatus:
+          type: string
+          enum: [PENDING, DISBURSED, N_A]
+        bankLegDisbursedAt:
+          type: ["string", "null"]
+          format: date-time
+        platformLegDisbursedAt:
+          type: ["string", "null"]
+          format: date-time
+        producerLegDisbursedAt:
+          type: ["string", "null"]
+          format: date-time
+        completedAt:
+          type: ["string", "null"]
+          format: date-time
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    SettlementInput:
+      type: object
+      required: [entityType, entityId, vTotalUsd]
+      properties:
+        entityType:
+          type: string
+          enum: [ORDER, AUCTION, FORWARD]
+        entityId:
+          type: integer
+        vTotalUsd:
+          type: number
+        loanId:
+          type: integer
+        notes:
+          type: string
+
+    DisburseInput:
+      type: object
+      required: [leg]
+      properties:
+        leg:
+          type: string
+          enum: [bank, platform, producer]
+
+    PlatformEarnings:
+      type: object
+      required: [period, totalPlatformFeesUsd, totalEscrowFeesUsd, financingFacilitationFeesUsd, settlementCount, completedSettlementCount, settledOrderCount]
+      properties:
+        period:
+          type: string
+        totalPlatformFeesUsd:
+          type: number
+        totalEscrowFeesUsd:
+          type: number
+        financingFacilitationFeesUsd:
+          type: number
+        totalBankRepaymentsUsd:
+          type: number
+        settlementCount:
+          type: integer
+        completedSettlementCount:
+          type: integer
+        settledOrderCount:
+          type: integer
+
+    AuditLogEntry:
+      type: object
+      required: [id, entityType, entityId, action, payloadHash, createdAt]
+      properties:
+        id:
+          type: integer
+        entityType:
+          type: string
+        entityId:
+          type: integer
+        action:
+          type: string
+        actorId:
+          type: ["integer", "null"]
+        actorName:
+          type: ["string", "null"]
+        payloadHash:
+          type: string
+        metadata:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
