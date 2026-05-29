@@ -1699,15 +1699,13 @@ components:
 
     SettlementInput:
       type: object
-      required: [entityType, entityId, vTotalUsd]
+      required: [entityType, entityId]
       properties:
         entityType:
           type: string
           enum: [ORDER, AUCTION, FORWARD]
         entityId:
           type: integer
-        vTotalUsd:
-          type: number
         loanId:
           type: integer
         notes:

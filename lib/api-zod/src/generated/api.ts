@@ -969,7 +969,6 @@ export const RejectFinancingResponse = zod.object({
 export const InitiateSettlementBody = zod.object({
   "entityType": zod.enum(['ORDER', 'AUCTION', 'FORWARD']),
   "entityId": zod.number(),
-  "vTotalUsd": zod.number(),
   "loanId": zod.number().optional(),
   "notes": zod.string().optional()
 })

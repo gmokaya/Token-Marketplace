@@ -608,7 +608,6 @@ export const SettlementInputEntityType = {
 export interface SettlementInput {
   entityType: SettlementInputEntityType;
   entityId: number;
-  vTotalUsd: number;
   loanId?: number;
   notes?: string;
 }
