@@ -56,7 +56,8 @@ export default function ForwardDetail() {
   const isSeller = contract?.sellerId === me?.id;
   const isBuyer = contract?.buyerId === me?.id;
   const isEnabler = me?.tier === "ENABLER";
-  const isParty = isSeller || isBuyer || isEnabler;
+  const isFinancier = me?.tier === "FINANCIER";
+  const isParty = isSeller || isBuyer || isEnabler || isFinancier;
 
   const handleCoSign = async () => {
     try {

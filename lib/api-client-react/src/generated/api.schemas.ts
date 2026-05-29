@@ -5,8 +5,24 @@
  * WRS Digital Agricultural Marketplace API
  * OpenAPI spec version: 0.1.0
  */
+export type HealthStatusPubsubStatus = typeof HealthStatusPubsubStatus[keyof typeof HealthStatusPubsubStatus];
+
+
+export const HealthStatusPubsubStatus = {
+  initializing: 'initializing',
+  connected: 'connected',
+  reconnecting: 'reconnecting',
+} as const;
+
+export type HealthStatusPubsub = {
+  status: HealthStatusPubsubStatus;
+  /** Milliseconds the subscriber has been in reconnecting state (only present when status is reconnecting) */
+  reconnectingForMs?: number;
+};
+
 export interface HealthStatus {
   status: string;
+  pubsub: HealthStatusPubsub;
 }
 
 export type UserTier = typeof UserTier[keyof typeof UserTier];

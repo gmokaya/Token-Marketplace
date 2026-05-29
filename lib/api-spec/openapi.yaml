@@ -915,6 +915,35 @@ paths:
         "404":
           description: Not found
 
+  /financing/{requestId}/disburse:
+    patch:
+      operationId: disburseFinancing
+      tags: [financing]
+      summary: Disburse loan capital to farmer wallet (Financier only — APPROVED → DISBURSED)
+      description: |
+        Blueprint §5.1 Step 2 — Bank Capital Ingress. Simulates the partner bank API
+        transferring L_max directly to the farmer's mobile money / bank wallet and
+        records a WRSC-CR registry confirmation of the capital ingress event.
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Loan capital disbursed to farmer — request status set to DISBURSED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FinancingRequest"
+        "400":
+          description: Request is not in APPROVED state
+        "403":
+          description: Financier role required
+        "404":
+          description: Not found
+
   /settlements:
     post:
       operationId: initiateSettlement

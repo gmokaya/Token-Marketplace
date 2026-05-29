@@ -340,10 +340,25 @@ router.post("/settlements/:settlementId/disburse", async (req, res) => {
         updates.bankLegDisbursedAt = now;
       } else if (leg === "platform") {
         if (settlement.platformLegStatus !== "PENDING") throw Object.assign(new Error("Platform leg is not PENDING"), { statusCode: 400 });
+        // Blueprint §5.2 sequential enforcement: SETTLE-P3 (bank) must clear before SETTLE-P4 (platform)
+        const bankStatus = settlement.bankLegStatus as string;
+        if (bankStatus !== "DISBURSED" && bankStatus !== "N_A") {
+          throw Object.assign(
+            new Error("Bank repayment leg (SETTLE-P3) must be confirmed before platform fee (SETTLE-P4)"),
+            { statusCode: 400 }
+          );
+        }
         updates.platformLegStatus = "DISBURSED";
         updates.platformLegDisbursedAt = now;
       } else {
         if (settlement.producerLegStatus !== "PENDING") throw Object.assign(new Error("Producer leg is not PENDING"), { statusCode: 400 });
+        // Blueprint §5.2 sequential enforcement: SETTLE-P4 (platform) must clear before SETTLE-P5 (producer)
+        if (settlement.platformLegStatus !== "DISBURSED") {
+          throw Object.assign(
+            new Error("Platform fee leg (SETTLE-P4) must be confirmed before producer payout (SETTLE-P5)"),
+            { statusCode: 400 }
+          );
+        }
         updates.producerLegStatus = "DISBURSED";
         updates.producerLegDisbursedAt = now;
       }
@@ -382,6 +397,23 @@ router.post("/settlements/:settlementId/disburse", async (req, res) => {
             await tx.update(financingRequestsTable)
               .set({ status: "REPAID" })
               .where(eq(financingRequestsTable.id, fr.id));
+
+            // Blueprint §5.2 SETTLE-P3 — Lien Release Request to eWRS-CR registry
+            await tx.insert(auditLogTable).values({
+              entityType: "SETTLEMENT",
+              entityId: settlementId,
+              action: "WRSC_LIEN_RELEASE_REQUESTED",
+              actorId: user.id,
+              payloadHash: sha256({ settlementId, ewrId: fr.ewrId, action: "LIEN_RELEASE", loanId: loan.id }),
+              metadata: JSON.stringify({
+                registryEndpoint: "eWRS-CR /v1/lien/release",
+                ewrId: fr.ewrId,
+                loanId: loan.id,
+                rBankUsd: settlement.rBankUsd,
+                responseCode: "200-OK",
+                timestamp: now.toISOString(),
+              }),
+            });
           }
         }
       }
@@ -437,6 +469,26 @@ router.post("/settlements/:settlementId/disburse", async (req, res) => {
         }
 
         await writeReputationEvents(tx, settlement.entityType, settlement.entityId, now);
+
+        // Blueprint §5.2 SETTLE-P6 — eWRS-CR title change registered
+        // Platform transmits final payload to eWRS-CR API: lien deleted, e-WR title → Buyer ID, Status: SETTLED
+        await tx.insert(auditLogTable).values({
+          entityType: "SETTLEMENT",
+          entityId: settlementId,
+          action: "WRSC_TITLE_TRANSFERRED",
+          actorId: user.id,
+          payloadHash: sha256({ settlementId, entityType: settlement.entityType, entityId: settlement.entityId, action: "TITLE_TRANSFER" }),
+          metadata: JSON.stringify({
+            registryEndpoint: "eWRS-CR /v1/registry/transfer-title",
+            entityType: settlement.entityType,
+            entityId: settlement.entityId,
+            newOwnerId: tradeEwrId !== null ? "buyer" : null,
+            newStatus: "SETTLED",
+            lienDeleted: true,
+            responseCode: "200-OK",
+            timestamp: now.toISOString(),
+          }),
+        });
       }
 
       await tx.insert(auditLogTable).values({

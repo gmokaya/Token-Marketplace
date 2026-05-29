@@ -10,18 +10,26 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle2, Circle, XCircle, BanknoteIcon, Building2, User } from "lucide-react";
+import {
+  CheckCircle2,
+  Circle,
+  Lock,
+  BanknoteIcon,
+  Building2,
+  User,
+  ArrowDownToLine,
+  SplitSquareVertical,
+  FileCheck2,
+  Landmark,
+} from "lucide-react";
 
-const LEG_STYLES: Record<string, string> = {
-  PENDING: "text-yellow-600",
-  DISBURSED: "text-green-600",
-  N_A: "text-gray-400",
-};
+type LegStatus = "DISBURSED" | "PENDING" | "N_A";
 
-function LegIcon({ status }: { status: string }) {
-  if (status === "DISBURSED") return <CheckCircle2 className="w-5 h-5 text-green-600" />;
-  if (status === "N_A") return <XCircle className="w-5 h-5 text-gray-300" />;
-  return <Circle className="w-5 h-5 text-yellow-500" />;
+function PhaseIcon({ done, na, locked }: { done: boolean; na?: boolean; locked?: boolean }) {
+  if (done) return <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0" />;
+  if (na) return <div className="w-5 h-5 rounded-full border-2 border-gray-200 bg-gray-50 shrink-0" />;
+  if (locked) return <Lock className="w-5 h-5 text-gray-300 shrink-0" />;
+  return <Circle className="w-5 h-5 text-yellow-500 shrink-0 animate-pulse" />;
 }
 
 export default function SettlementDetail() {
@@ -40,7 +48,12 @@ export default function SettlementDetail() {
   async function handleDisburse(leg: "bank" | "platform" | "producer") {
     try {
       await disburse({ settlementId: id, data: { leg } });
-      toast({ title: `${leg.charAt(0).toUpperCase() + leg.slice(1)} leg disbursed`, description: "Payout confirmed." });
+      const labels: Record<string, string> = {
+        bank: "SETTLE-P3 complete — bank repayment confirmed",
+        platform: "SETTLE-P4 complete — platform fee routed",
+        producer: "SETTLE-P5 complete — producer payout dispatched",
+      };
+      toast({ title: labels[leg], description: "Payout leg confirmed." });
       refetch();
     } catch (err: any) {
       toast({ title: "Disbursement failed", description: err.message, variant: "destructive" });
@@ -48,7 +61,7 @@ export default function SettlementDetail() {
   }
 
   if (isLoading) {
-    return <Layout><div className="space-y-4"><Skeleton className="h-10 w-48" /><Skeleton className="h-64" /></div></Layout>;
+    return <Layout><div className="space-y-4"><Skeleton className="h-10 w-48" /><Skeleton className="h-96" /></div></Layout>;
   }
 
   if (!settlement) {
@@ -65,6 +78,91 @@ export default function SettlementDetail() {
   const pctBank = vTotal > 0 ? (rBank / vTotal) * 100 : 0;
   const pctPlatform = vTotal > 0 ? (fPlatform / vTotal) * 100 : 0;
   const pctProducer = vTotal > 0 ? (pProducer / vTotal) * 100 : 0;
+
+  const bankStatus = settlement.bankLegStatus as LegStatus;
+  const platformStatus = settlement.platformLegStatus as LegStatus;
+  const producerStatus = settlement.producerLegStatus as LegStatus;
+
+  const bankDone = bankStatus === "DISBURSED" || bankStatus === "N_A";
+  const platformDone = platformStatus === "DISBURSED";
+  const producerDone = producerStatus === "DISBURSED";
+
+  const p4Locked = !bankDone;
+  const p5Locked = !platformDone;
+
+  const phases = [
+    {
+      code: "SETTLE-P1",
+      icon: <ArrowDownToLine className="w-4 h-4 text-emerald-600" />,
+      label: "Buyer Escrow Deposit",
+      description: `Buyer transmits V_total = $${vTotal.toLocaleString()} to Bank Escrow. Escrow Status: FUNDS_LOCKED.`,
+      done: true,
+      na: false,
+      locked: false,
+      timestamp: settlement.createdAt,
+      action: null,
+    },
+    {
+      code: "SETTLE-P2",
+      icon: <SplitSquareVertical className="w-4 h-4 text-blue-600" />,
+      label: "Parallel Split Initiated",
+      description: "Platform initiates split API payload to Bank Core. Internal clearing wires debited.",
+      done: true,
+      na: false,
+      locked: false,
+      timestamp: settlement.createdAt,
+      action: null,
+    },
+    {
+      code: "SETTLE-P3",
+      icon: <Landmark className="w-4 h-4 text-orange-500" />,
+      label: `Bank Liquidation Return (R_bank)`,
+      description: rBank > 0
+        ? `Bank routes R_bank = $${rBank.toLocaleString(undefined, { maximumFractionDigits: 2 })} to internal loan ledger. Principal + yield cleared. Lien Release: TRIGGERED.`
+        : "No active loan — bank leg not applicable (N_A).",
+      done: bankDone,
+      na: bankStatus === "N_A",
+      locked: false,
+      timestamp: settlement.bankLegDisbursedAt,
+      action: canDisburse && bankStatus === "PENDING" ? () => handleDisburse("bank") : null,
+      actionLabel: "Confirm R_bank",
+    },
+    {
+      code: "SETTLE-P4",
+      icon: <BanknoteIcon className="w-4 h-4 text-blue-500" />,
+      label: `Platform Operational Fee (F_platform)`,
+      description: `Bank routes F_platform = $${fPlatform.toLocaleString(undefined, { maximumFractionDigits: 2 })} (2% of V_total) to Platform Operational Wallet.`,
+      done: platformDone,
+      na: false,
+      locked: p4Locked,
+      timestamp: settlement.platformLegDisbursedAt,
+      action: canDisburse && platformStatus === "PENDING" && !p4Locked ? () => handleDisburse("platform") : null,
+      actionLabel: "Confirm F_platform",
+    },
+    {
+      code: "SETTLE-P5",
+      icon: <User className="w-4 h-4 text-green-600" />,
+      label: `Net Producer Residual (P_producer)`,
+      description: `Bank dispatches P_producer = $${pProducer.toLocaleString(undefined, { maximumFractionDigits: 2 })} (V_total − R_bank − F_platform) to Farmer Account. Account state closed.`,
+      done: producerDone,
+      na: false,
+      locked: p5Locked,
+      timestamp: settlement.producerLegDisbursedAt,
+      action: canDisburse && producerStatus === "PENDING" && !p5Locked ? () => handleDisburse("producer") : null,
+      actionLabel: "Confirm P_producer",
+    },
+    {
+      code: "SETTLE-P6",
+      icon: <FileCheck2 className="w-4 h-4 text-purple-600" />,
+      label: "eWRS-CR Title Transfer",
+      description: "Platform transmits final payload to eWRS-CR API. Lien deleted. e-WR title changes permanently to Buyer ID. Status: SETTLED.",
+      done: isComplete,
+      na: false,
+      locked: !isComplete,
+      timestamp: settlement.completedAt,
+      action: null,
+    },
+  ];
 
   return (
     <Layout>
@@ -92,118 +190,95 @@ export default function SettlementDetail() {
               <p className="text-sm text-muted-foreground">Total Proceeds (V_total)</p>
             </div>
 
-            {/* Stacked bar */}
             <div className="w-full h-6 rounded-full overflow-hidden flex">
               {rBank > 0 && (
                 <div
                   className="bg-orange-400 h-full"
                   style={{ width: `${pctBank}%` }}
-                  title={`Bank: $${rBank.toLocaleString()}`}
+                  title={`Bank R_bank: $${rBank.toLocaleString()}`}
                 />
               )}
               <div
                 className="bg-blue-400 h-full"
                 style={{ width: `${pctPlatform}%` }}
-                title={`Platform: $${fPlatform.toLocaleString()}`}
+                title={`Platform F_platform: $${fPlatform.toLocaleString()}`}
               />
               <div
                 className="bg-green-500 h-full flex-1"
-                title={`Producer: $${pProducer.toLocaleString()}`}
+                title={`Producer P_producer: $${pProducer.toLocaleString()}`}
               />
             </div>
-            <div className="flex justify-between text-xs text-muted-foreground">
-              {rBank > 0 && <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-orange-400 inline-block" />Bank {pctBank.toFixed(1)}%</span>}
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-blue-400 inline-block" />Platform {pctPlatform.toFixed(1)}%</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-green-500 inline-block" />Producer {pctProducer.toFixed(1)}%</span>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+              {rBank > 0 && (
+                <span className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-sm bg-orange-400 inline-block" />
+                  R_bank {pctBank.toFixed(1)}% · ${rBank.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                </span>
+              )}
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-sm bg-blue-400 inline-block" />
+                F_platform {pctPlatform.toFixed(1)}% · ${fPlatform.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-sm bg-green-500 inline-block" />
+                P_producer {pctProducer.toFixed(1)}% · ${pProducer.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+              </span>
             </div>
           </CardContent>
         </Card>
 
-        {/* Payout legs */}
+        {/* 6-phase settlement sequence */}
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">Payout Legs</CardTitle>
+            <CardTitle className="text-base">Settlement Phase Sequence</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Bank leg */}
-            <div className="flex items-center gap-4">
-              <LegIcon status={settlement.bankLegStatus} />
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <Building2 className="w-4 h-4 text-orange-500" />
-                  <span className="font-medium text-sm">Bank Repayment (R_bank)</span>
-                  <span className={`text-xs ${LEG_STYLES[settlement.bankLegStatus]}`}>{settlement.bankLegStatus}</span>
+          <CardContent className="space-y-0">
+            {phases.map((phase, idx) => (
+              <div key={phase.code}>
+                <div className={`flex gap-4 py-4 ${phase.locked ? "opacity-50" : ""}`}>
+                  <div className="flex flex-col items-center gap-1 shrink-0">
+                    <PhaseIcon done={phase.done} na={phase.na} locked={phase.locked && !phase.done} />
+                    {idx < phases.length - 1 && (
+                      <div className={`w-px flex-1 min-h-[24px] ${phase.done ? "bg-green-300" : "bg-gray-200"}`} />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0 pb-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {phase.icon}
+                      <span className="font-mono text-xs font-bold text-muted-foreground">{phase.code}</span>
+                      <span className="font-semibold text-sm">{phase.label}</span>
+                      {phase.done && !phase.na && (
+                        <span className="text-xs text-green-600 font-medium">CONFIRMED</span>
+                      )}
+                      {phase.na && (
+                        <span className="text-xs text-gray-400 font-medium">N/A</span>
+                      )}
+                      {phase.locked && !phase.done && (
+                        <span className="text-xs text-gray-400 font-medium">AWAITING PRIOR PHASE</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{phase.description}</p>
+                    {phase.timestamp && (
+                      <p className="text-xs text-green-600 mt-0.5">
+                        {new Date(phase.timestamp).toLocaleString()}
+                      </p>
+                    )}
+                    {phase.action && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="mt-2 h-7 text-xs"
+                        onClick={phase.action}
+                        disabled={disbursing}
+                      >
+                        {phase.actionLabel}
+                      </Button>
+                    )}
+                  </div>
                 </div>
-                {rBank > 0 ? (
-                  <p className="text-xs text-muted-foreground">Principal + interest = ${rBank.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
-                ) : (
-                  <p className="text-xs text-muted-foreground">No active loan — not applicable</p>
-                )}
-                {settlement.bankLegDisbursedAt && (
-                  <p className="text-xs text-green-600">Disbursed {new Date(settlement.bankLegDisbursedAt).toLocaleString()}</p>
-                )}
+                {idx < phases.length - 1 && <Separator />}
               </div>
-              <div className="text-right">
-                <p className={`font-bold ${rBank > 0 ? "text-orange-600" : "text-gray-400"}`}>${rBank.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
-                {canDisburse && settlement.bankLegStatus === "PENDING" && (
-                  <Button size="sm" variant="outline" className="mt-1 text-xs h-7" onClick={() => handleDisburse("bank")} disabled={disbursing}>
-                    Confirm
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Platform leg */}
-            <div className="flex items-center gap-4">
-              <LegIcon status={settlement.platformLegStatus} />
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <BanknoteIcon className="w-4 h-4 text-blue-500" />
-                  <span className="font-medium text-sm">Platform Fee (F_platform)</span>
-                  <span className={`text-xs ${LEG_STYLES[settlement.platformLegStatus]}`}>{settlement.platformLegStatus}</span>
-                </div>
-                <p className="text-xs text-muted-foreground">2% of total proceeds</p>
-                {settlement.platformLegDisbursedAt && (
-                  <p className="text-xs text-green-600">Disbursed {new Date(settlement.platformLegDisbursedAt).toLocaleString()}</p>
-                )}
-              </div>
-              <div className="text-right">
-                <p className="font-bold text-blue-600">${fPlatform.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
-                {canDisburse && settlement.platformLegStatus === "PENDING" && (
-                  <Button size="sm" variant="outline" className="mt-1 text-xs h-7" onClick={() => handleDisburse("platform")} disabled={disbursing}>
-                    Confirm
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Producer leg */}
-            <div className="flex items-center gap-4">
-              <LegIcon status={settlement.producerLegStatus} />
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <User className="w-4 h-4 text-green-600" />
-                  <span className="font-medium text-sm">Producer Net (P_producer)</span>
-                  <span className={`text-xs ${LEG_STYLES[settlement.producerLegStatus]}`}>{settlement.producerLegStatus}</span>
-                </div>
-                <p className="text-xs text-muted-foreground">V_total − R_bank − F_platform</p>
-                {settlement.producerLegDisbursedAt && (
-                  <p className="text-xs text-green-600">Disbursed {new Date(settlement.producerLegDisbursedAt).toLocaleString()}</p>
-                )}
-              </div>
-              <div className="text-right">
-                <p className="font-bold text-green-700">${pProducer.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
-                {canDisburse && settlement.producerLegStatus === "PENDING" && (
-                  <Button size="sm" variant="outline" className="mt-1 text-xs h-7" onClick={() => handleDisburse("producer")} disabled={disbursing}>
-                    Confirm
-                  </Button>
-                )}
-              </div>
-            </div>
+            ))}
           </CardContent>
         </Card>
 
@@ -226,8 +301,11 @@ export default function SettlementDetail() {
             <CardContent className="p-4 flex items-center gap-3">
               <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0" />
               <div>
-                <p className="font-semibold text-green-800">Settlement Complete</p>
-                <p className="text-xs text-green-700">All payout legs disbursed on {new Date(settlement.completedAt!).toLocaleString()}</p>
+                <p className="font-semibold text-green-800">Settlement Complete — SETTLE-P6 Executed</p>
+                <p className="text-xs text-green-700">
+                  All payout legs disbursed and eWRS-CR title transfer confirmed on{" "}
+                  {new Date(settlement.completedAt!).toLocaleString()}
+                </p>
               </div>
             </CardContent>
           </Card>

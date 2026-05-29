@@ -4,6 +4,7 @@ import {
   useGetFinancingRequest,
   useApproveFinancing,
   useRejectFinancing,
+  useDisburseFinancing,
   useGetMe,
 } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, CheckCircle, XCircle, Landmark, BanknoteIcon, Clock } from "lucide-react";
+import { ArrowLeft, CheckCircle, XCircle, Landmark, BanknoteIcon, Clock, SendToBack } from "lucide-react";
 
 const STATUS_STYLES: Record<string, string> = {
   PENDING: "bg-yellow-100 text-yellow-800 border-yellow-200",
@@ -41,6 +42,7 @@ export default function FinancingDetail() {
 
   const { mutateAsync: approve, isPending: approving } = useApproveFinancing();
   const { mutateAsync: reject, isPending: rejecting } = useRejectFinancing();
+  const { mutateAsync: disburse, isPending: disbursing } = useDisburseFinancing();
 
   const isFinancier = me?.tier === "FINANCIER";
 
@@ -61,6 +63,19 @@ export default function FinancingDetail() {
       refetch();
     } catch (err: any) {
       toast({ title: "Rejection failed", description: err.message, variant: "destructive" });
+    }
+  }
+
+  async function handleDisburse() {
+    try {
+      await disburse({ requestId: id });
+      toast({
+        title: "Loan disbursed to farmer",
+        description: "Bank Capital Ingress complete — L_max transferred to farmer wallet. eWRS-CR notified.",
+      });
+      refetch();
+    } catch (err: any) {
+      toast({ title: "Disbursement failed", description: err.message, variant: "destructive" });
     }
   }
 
@@ -164,6 +179,62 @@ export default function FinancingDetail() {
                 <Button onClick={handleApprove} disabled={approving || rejecting}>
                   <CheckCircle className="w-4 h-4 mr-1" /> {approving ? "Approving…" : "Approve"}
                 </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {isFinancier && req.status === "APPROVED" && (
+          <Card className="border-blue-200 bg-blue-50">
+            <CardContent className="p-4">
+              <div className="flex gap-3 items-start">
+                <SendToBack className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-blue-900 text-sm">Blueprint §5.1 Step 2 — Bank Capital Ingress</p>
+                  <p className="text-xs text-blue-700 mt-1">
+                    Loan approved. Disburse{" "}
+                    <span className="font-bold">${Number(req.lMaxUsd).toLocaleString()}</span>{" "}
+                    (L_max) directly to the farmer's mobile money / bank wallet via the partner bank API.
+                    The eWRS-CR registry will be notified of the capital ingress event.
+                  </p>
+                  <div className="grid grid-cols-3 gap-3 mt-3 text-xs">
+                    <div className="bg-white rounded p-2 border border-blue-100">
+                      <p className="text-muted-foreground">Transfer Amount</p>
+                      <p className="font-bold text-blue-800">${Number(req.lMaxUsd).toLocaleString()}</p>
+                    </div>
+                    <div className="bg-white rounded p-2 border border-blue-100">
+                      <p className="text-muted-foreground">Channel</p>
+                      <p className="font-bold text-blue-800">Mobile Money</p>
+                    </div>
+                    <div className="bg-white rounded p-2 border border-blue-100">
+                      <p className="text-muted-foreground">Registry Call</p>
+                      <p className="font-bold text-blue-800">eWRS-CR</p>
+                    </div>
+                  </div>
+                </div>
+                <Button
+                  className="shrink-0 bg-blue-600 hover:bg-blue-700 text-white"
+                  onClick={handleDisburse}
+                  disabled={disbursing}
+                >
+                  <BanknoteIcon className="w-4 h-4 mr-1" />
+                  {disbursing ? "Disbursing…" : "Disburse to Farmer"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {req.status === "DISBURSED" && (
+          <Card className="border-green-200 bg-green-50">
+            <CardContent className="p-4 flex items-center gap-3">
+              <CheckCircle className="w-5 h-5 text-green-600 shrink-0" />
+              <div>
+                <p className="font-semibold text-green-800 text-sm">Capital Disbursed — eWR Encumbered</p>
+                <p className="text-xs text-green-700">
+                  L_max transferred to farmer wallet. Registry status: STATUS_ENCUMBERED. The eWR cannot be
+                  traded until loan repayment is triggered at settlement.
+                </p>
               </div>
             </CardContent>
           </Card>

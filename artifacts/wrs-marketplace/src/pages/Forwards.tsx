@@ -35,7 +35,8 @@ export default function Forwards() {
     {
       status: (statusFilter || undefined) as ListForwardContractsStatus | undefined,
       sellerId: isProducer ? myId : undefined,
-      buyerId: isOffTaker ? myId : undefined,
+      // OFF_TAKERs browse all contracts (especially PENDING_SIGNATURE ones to co-sign)
+      // — do NOT filter by buyerId here or new buyers see an empty list
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     { query: { refetchInterval: 10000 } as any }

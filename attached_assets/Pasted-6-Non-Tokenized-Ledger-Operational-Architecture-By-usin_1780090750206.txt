@@ -1,0 +1,41 @@
+6. Non-Tokenized Ledger & Operational Architecture
+By using a non-tokenized architecture, the platform avoids complex smart contracts on decentralized chains, relying
+instead on high-throughput, traditional internal ledgers synchronized with external endpoints. This configuration
+maximizes system processing performance while providing ironclad operational audit trails.
+6.1 System State Machine & Concurrency Control
+To guarantee that a single warehouse receipt cannot be concurrently sold across multiple channels or doublefinanced
+by separate banking entities, the core database implements an explicit **Transactional State Machine
+Engine**. Every database change affecting an e-WR must resolve under strict isolation parameters using row-level
+database locking.
+WRS Digital Marketplace Blueprint v1.0 9
+System State Code Context & Description Permitted State Transitions
+INGESTED Asset successfully synced from
+WRSC; unencumbered and free
+to allocate.
+MARKET_LISTED, AUCTION_ACTIVE,
+FORWARD_BOUND
+ENCUMBERED Pre-sale advanced liquidity
+financing has been applied.
+Asset blocked from physical
+exit.
+MARKET_LISTED, AUCTION_ACTIVE,
+FORWARD_BOUND
+LOCK_TRADING Asset is currently inside a spot
+checkout session, active
+auction, or forward block.
+SETTLED, INGESTED (Rollback on breach)
+SETTLED Title permanently updated
+inside WRSC to buyer ID.
+Record archived.
+None (Terminal State)
+6.2 Technical Infrastructure Requirements
+The production deployment stack requires specific components to ensure data durability and low latency:
+Database Tier: PostgreSQL deployment configured with multi-region replication. High-concurrency operations
+use explicit isolation levels (SERIALIZABLE) to entirely avoid double-booking races during live auction
+completions or concurrent spot orders.
+Message Broker Layer: Redis Enterprise cluster operating as a volatile in-memory cache and streaming queue
+processor. It handles real-time bid parsing from the Auction Engine before persisting structural transactions to
+the core PostgreSQL layer.
+Audit Logging: Every individual API request payload, response payload, state change, and financial payout
+route instruction is converted into a structured log entry, hashed using SHA-256 algorithms, and appended to an
+append-only internal database file to create a clear audit trail for compliance verification.

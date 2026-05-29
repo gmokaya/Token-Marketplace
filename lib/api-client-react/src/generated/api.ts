@@ -3132,6 +3132,80 @@ export const useRejectFinancing = <TError = ErrorType<void>,
       return useMutation(getRejectFinancingMutationOptions(options));
     }
 
+export const getDisburseFinancingUrl = (requestId: number,) => {
+
+
+
+
+  return `/api/financing/${requestId}/disburse`
+}
+
+/**
+ * Blueprint §5.1 Step 2 — Bank Capital Ingress. Simulates the partner bank API
+transferring L_max directly to the farmer's mobile money / bank wallet and
+records a WRSC-CR registry confirmation of the capital ingress event.
+
+ * @summary Disburse loan capital to farmer wallet (Financier only — APPROVED → DISBURSED)
+ */
+export const disburseFinancing = async (requestId: number, options?: RequestInit): Promise<FinancingRequest> => {
+
+  return customFetch<FinancingRequest>(getDisburseFinancingUrl(requestId),
+  {
+    ...options,
+    method: 'PATCH'
+
+
+  }
+);}
+
+
+
+
+export const getDisburseFinancingMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof disburseFinancing>>, TError,{requestId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof disburseFinancing>>, TError,{requestId: number}, TContext> => {
+
+const mutationKey = ['disburseFinancing'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof disburseFinancing>>, {requestId: number}> = (props) => {
+          const {requestId} = props ?? {};
+
+          return  disburseFinancing(requestId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DisburseFinancingMutationResult = NonNullable<Awaited<ReturnType<typeof disburseFinancing>>>
+
+    export type DisburseFinancingMutationError = ErrorType<void>
+
+    /**
+ * @summary Disburse loan capital to farmer wallet (Financier only — APPROVED → DISBURSED)
+ */
+export const useDisburseFinancing = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof disburseFinancing>>, TError,{requestId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof disburseFinancing>>,
+        TError,
+        {requestId: number},
+        TContext
+      > => {
+      return useMutation(getDisburseFinancingMutationOptions(options));
+    }
+
 export const getInitiateSettlementUrl = () => {
 
 

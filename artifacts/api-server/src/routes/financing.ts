@@ -282,6 +282,97 @@ router.patch("/financing/:requestId/approve", async (req, res) => {
         metadata: JSON.stringify({ lenderId: user.id, principal: request.lMaxUsd, interestRate: request.interestRate }),
       });
 
+      // Blueprint §5.1 Step 3 — Registry Encumbrance Locking
+      // Simulate automated call to eWRS-CR /v1/registry/encumber
+      await tx.insert(auditLogTable).values({
+        entityType: "FINANCING_REQUEST",
+        entityId: requestId,
+        action: "WRSC_LIEN_LOCK_TRANSMITTED",
+        actorId: user.id,
+        payloadHash: sha256({ requestId, ewrId: request.ewrId, action: "LIEN_LOCK", lienHolderId: user.id }),
+        metadata: JSON.stringify({
+          registryEndpoint: "eWRS-CR /v1/registry/encumber",
+          ewrId: request.ewrId,
+          newStatus: "STATUS_ENCUMBERED",
+          lienHolderId: user.id,
+          responseCode: "200-OK",
+          timestamp: now.toISOString(),
+        }),
+      });
+
+      return result;
+    });
+
+    return res.json(updated);
+  } catch (err: any) {
+    const statusCode = err.statusCode ?? 500;
+    if (statusCode < 500) return res.status(statusCode).json({ error: err.message });
+    throw err;
+  }
+});
+
+router.patch("/financing/:requestId/disburse", async (req, res) => {
+  const { userId: clerkId } = getAuth(req);
+  if (!clerkId) return res.status(401).json({ error: "Unauthorized" });
+
+  const requestId = parseInt(req.params.requestId);
+  if (isNaN(requestId)) return res.status(400).json({ error: "Invalid request ID" });
+
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.clerkId, clerkId)).limit(1);
+  if (!user) return res.status(404).json({ error: "User not found" });
+  if (user.tier !== "FINANCIER") return res.status(403).json({ error: "Only Financier accounts can disburse financing" });
+
+  try {
+    const updated = await db.transaction(async (tx) => {
+      const [request] = await tx.select().from(financingRequestsTable)
+        .where(eq(financingRequestsTable.id, requestId)).limit(1).for("update");
+
+      if (!request) throw Object.assign(new Error("Financing request not found"), { statusCode: 404 });
+      if (request.status !== "APPROVED") throw Object.assign(new Error("Request is not in APPROVED status — only APPROVED requests can be disbursed"), { statusCode: 400 });
+
+      const now = new Date();
+      const transferRef = sha256({ requestId, disbursedAt: now.toISOString(), principal: request.lMaxUsd });
+      const bankTransferRef = `TXN-${transferRef.slice(0, 12).toUpperCase()}`;
+
+      const [result] = await tx.update(financingRequestsTable)
+        .set({ status: "DISBURSED", disbursedAt: now })
+        .where(eq(financingRequestsTable.id, requestId))
+        .returning();
+
+      // Blueprint §5.1 Step 2 — Bank Capital Ingress
+      // Simulate partner bank API transferring L_max to farmer's mobile money wallet
+      await tx.insert(auditLogTable).values({
+        entityType: "FINANCING_REQUEST",
+        entityId: requestId,
+        action: "FINANCING_DISBURSED",
+        actorId: user.id,
+        payloadHash: transferRef,
+        metadata: JSON.stringify({
+          principalUsd: request.lMaxUsd,
+          bankTransferRef,
+          channel: "MOBILE_MONEY",
+          recipientId: request.requesterId,
+          disbursedAt: now.toISOString(),
+        }),
+      });
+
+      // Blueprint §5.1 Step 3 — Confirm bank capital ingress with eWRS-CR registry
+      await tx.insert(auditLogTable).values({
+        entityType: "FINANCING_REQUEST",
+        entityId: requestId,
+        action: "WRSC_BANK_INGRESS_CONFIRMED",
+        actorId: user.id,
+        payloadHash: sha256({ requestId, action: "BANK_INGRESS_CONFIRM", ewrId: request.ewrId }),
+        metadata: JSON.stringify({
+          registryEndpoint: "eWRS-CR /v1/lien/capital-ingress",
+          ewrId: request.ewrId,
+          bankTransferRef,
+          lMaxUsd: request.lMaxUsd,
+          responseCode: "200-OK",
+          timestamp: now.toISOString(),
+        }),
+      });
+
       return result;
     });
 

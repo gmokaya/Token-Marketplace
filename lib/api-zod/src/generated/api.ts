@@ -15,9 +15,9 @@ import * as zod from 'zod';
 export const HealthCheckResponse = zod.object({
   "status": zod.string(),
   "pubsub": zod.object({
-    "status": zod.enum(["initializing", "connected", "reconnecting"]),
-    "reconnectingForMs": zod.number().int().optional(),
-  }),
+  "status": zod.enum(['initializing', 'connected', 'reconnecting']),
+  "reconnectingForMs": zod.number().optional().describe('Milliseconds the subscriber has been in reconnecting state (only present when status is reconnecting)')
+})
 })
 
 
@@ -1047,6 +1047,40 @@ export const RejectFinancingParams = zod.object({
 })
 
 export const RejectFinancingResponse = zod.object({
+  "id": zod.number(),
+  "ewrId": zod.number(),
+  "requesterId": zod.number(),
+  "requesterName": zod.string().nullish(),
+  "lenderId": zod.number().nullish(),
+  "lenderName": zod.string().nullish(),
+  "marketValueUsd": zod.number(),
+  "lMaxUsd": zod.number(),
+  "interestRate": zod.number(),
+  "status": zod.enum(['PENDING', 'APPROVED', 'REJECTED', 'DISBURSED', 'REPAID']),
+  "commodityType": zod.string().nullish(),
+  "grade": zod.string().nullish(),
+  "weightMt": zod.number().nullish(),
+  "warehouseCode": zod.string().nullish(),
+  "estimatedValueUsd": zod.number().nullish(),
+  "approvedAt": zod.coerce.date().nullish(),
+  "disbursedAt": zod.coerce.date().nullish(),
+  "notes": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * Blueprint §5.1 Step 2 — Bank Capital Ingress. Simulates the partner bank API
+transferring L_max directly to the farmer's mobile money / bank wallet and
+records a WRSC-CR registry confirmation of the capital ingress event.
+
+ * @summary Disburse loan capital to farmer wallet (Financier only — APPROVED → DISBURSED)
+ */
+export const DisburseFinancingParams = zod.object({
+  "requestId": zod.coerce.number()
+})
+
+export const DisburseFinancingResponse = zod.object({
   "id": zod.number(),
   "ewrId": zod.number(),
   "requesterId": zod.number(),

@@ -1,0 +1,62 @@
+5. Capital Flow & Banking Interfacing Blueprint
+To operate within absolute compliance boundaries, the platform segregates its processing into separate transaction
+and payout sequences using automated API-driven instructions executed by a partner commercial bank.
+5.1 Pre-Sale Liquidity Financing Mechanics
+If a farmer requires liquidity immediately following WRS ingestion but prior to market matching, they execute an
+integrated Inventory Receipt Discounting sequence:
+1. Evaluation Engine
+The platform calculates the risk-adjusted Maximum Advance Liquidity (L_{max}) based on the asset's current
+market valuation (V_{market}) and a 40% haircut safety buffer:
+L_{max} = V_{market} imes (1 - 0.40) = V_{market} imes 0.60
+▼
+2. Bank Capital Ingress
+The integrated partner bank approves the payload via API, creating a loan record inside the bank core ledger
+and transferring L_{max} directly to the farmer's mobile money/bank wallet.
+▼
+3. Registry Encumbrance Locking
+The platform transmits an automated call to the eWRS-CR registry endpoint, triggering a status update to
+STATUS_ENCUMBERED and designating the partner bank as the prime lienholder. The receipt cannot be
+transferred or traded without automated loan liquidation clauses.
+5.2 Granular Multi-Party Settlement Split Sequence
+When an asset transitions to a closed trade state (such as an auction clearing or forward contract maturity), the
+escrow ledger executes an isolated split sequence. Let V_{total} represent the final gross purchase capital
+deposited by the buyer into the transaction escrow account, L_{advance} represent the outstanding principal loan
+amount, r represent the bank's annualized interest rate, and t represent the exact holding period in days.
+The complete distribution of funds is governed by the following programmatic routing equations:
+Bank Liquidation Return (R_{bank}):
+R_{bank} = L_{advance} imes \left(1 + rac{r imes t}{365} ight)
+WRS Digital Marketplace Blueprint v1.0 8
+Platform Operational Revenue Fee (F_{platform}):
+F_{platform} = V_{total} imes 2\% = V_{total} imes 0.02
+Net Producer Residual Payout (P_{producer}):
+P_{producer} = V_{total} - R_{bank} - F_{platform}
+The sequence diagram below visualizes the ledger states and API actions during the final settlement execution
+window:
+Phase Code Action / API Hook Trigger Target Ledger Payout State Effect
+SETTLE-P1 Buyer transmits V_{total} to Bank
+Escrow. Platform validates receipt
+block hash.
+Escrow Status: FUNDS_LOCKED.
+Marketplace State: TRADING_SUCCESS.
+SETTLE-P2 Platform system initiates parallel split
+API payload payload to Bank Core.
+Escrow account balances debit via internal
+clearing wires.
+SETTLE-P3 Bank core routes R_{bank} to internal
+loan ledger. Principal and yield
+cleared.
+Loan Balance: \$0.00.
+Lien Release Request: TRIGGERED.
+SETTLE-P4 Bank core dispatches F_{platform} to
+Platform Operational Wallet Account.
+Platform Corporate Balance increases by 2\
+%.
+SETTLE-P5 Bank core routes residual balance
+P_{producer} to Farmer's Account.
+Farmer's Net Cash Balance credited.
+Account state closed.
+SETTLE-P6 Platform transmits a final payload to
+the eWRS-CR API to register the clean
+title change.
+Lien deleted. e-WR title changes
+permanently to Buyer ID. Status: SETTLED.
