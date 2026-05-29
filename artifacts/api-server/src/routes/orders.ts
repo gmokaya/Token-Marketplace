@@ -210,7 +210,8 @@ export function startOrderExpiryWorker() {
           });
         }
       }
-    } catch (_err) {
+    } catch (err) {
+      console.error("[ExpiryWorker] Error processing expired orders:", err);
     }
   }, 60_000);
 }

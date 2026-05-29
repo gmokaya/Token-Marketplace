@@ -233,14 +233,28 @@ export default function Portfolio() {
                           Lien active — cannot be listed
                         </p>
                       )}
-                      {ewr.commodityType === "AVOCADO" && ewr.expiryAt && (
-                        <div className="mt-2 pt-2 border-t">
-                          <div className="text-xs font-semibold text-red-600 flex justify-between">
-                            <span>Expires:</span>
-                            <span>{new Date(ewr.expiryAt).toLocaleDateString()}</span>
+                      {ewr.commodityType === "AVOCADO" && ewr.expiryAt && (() => {
+                        const msLeft = new Date(ewr.expiryAt).getTime() - Date.now();
+                        const daysLeft = Math.floor(msLeft / (1000 * 60 * 60 * 24));
+                        const hoursLeft = Math.floor((msLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        const isUrgent = daysLeft < 7;
+                        const isExpired = msLeft <= 0;
+                        return (
+                          <div className={`mt-2 pt-2 border-t ${isUrgent ? "border-red-200" : "border-amber-200"}`}>
+                            <div className={`text-xs font-semibold flex justify-between ${isExpired ? "text-red-700" : isUrgent ? "text-red-600" : "text-amber-700"}`}>
+                              <span>Expires:</span>
+                              <span>{new Date(ewr.expiryAt).toLocaleDateString()}</span>
+                            </div>
+                            <div className={`text-xs mt-0.5 font-medium ${isExpired ? "text-red-700" : isUrgent ? "text-red-500" : "text-amber-600"}`}>
+                              {isExpired
+                                ? "⚠ EXPIRED"
+                                : daysLeft > 0
+                                  ? `⏱ ${daysLeft}d ${hoursLeft}h remaining`
+                                  : `⏱ ${hoursLeft}h remaining`}
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        );
+                      })()}
                     </div>
                   </CardContent>
                   {ewr.state === "INGESTED" && !ewr.isLienActive && (

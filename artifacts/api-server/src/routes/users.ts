@@ -39,7 +39,9 @@ router.patch("/users/me", async (req, res) => {
   const updateData: Partial<typeof usersTable.$inferInsert> = {};
   if (name !== undefined) updateData.name = name;
   if (company !== undefined) updateData.company = company;
-  if (tier !== undefined) updateData.tier = tier as "PRODUCER" | "OFF_TAKER" | "ENABLER" | "FINANCIER";
+  if (tier !== undefined) {
+    return res.status(403).json({ error: "Tier cannot be changed after initial registration" });
+  }
 
   const [updated] = await db.update(usersTable).set(updateData).where(eq(usersTable.clerkId, clerkId)).returning();
   return res.json(updated);
