@@ -1,0 +1,38 @@
+2. Core Intake, Grading & Value Chain Calibration
+The platform treats quality and grading data as immutable parameters that govern trade validity. Each value chain
+possesses discrete biological and physical constraints that dictate system behavior, storage degradation rules, and
+contract parameters.
+•
+•
+•
+WRS Digital Marketplace Blueprint v1.0 2
+2.1 Maize (Zea mays) & Rice (Oryza sativa) Value Chains
+Grading Standards: Conforms strictly to EAS 2:2013 (Maize) and EAS 128:2013 (Rice). The system enforces
+mandatory entry variables at intake:
+Moisture Content limit: Max 13.5% for Maize; 14.0% for Rice (system flags and rejects ingestion if moisture
+data exceeds thresholds).
+Foreign Matter: Max 1.0%; Broken Grains: Max 2.0%; Insect Damaged Grains: Max 1.0%.
+Batching & Lot Mechanics: Grains are treated as Fungible Commodities. Intake lots matching identical
+grade and moisture variables are dynamically aggregated into unified warehouse silos. The e-WR issued
+reflects fractional ownership of an identical pooled volume (V_{pool}).
+2.2 Coffee (Coffea arabica / canephora) Value Chain
+Grading Standards: Structured by bean size (Screen sizes: AA, AB, PB, C) and liquoring/cupping quality
+scores (Scale 1–10 based on acidity, body, and flavor profile).
+Batching & Lot Mechanics: Treated as Semi-Fungible Bundles. Coffee cannot be pooled across different
+cooperatives or single estates due to severe origin-price variances. The system enforces micro-lot isolation,
+pinning the e-WR to a specific, traceably sealed pallet batch within the certified facility.
+2.3 Tea (Camellia sinensis) Value Chain
+Grading Standards: Categorized by processing type (CTC vs. Orthodox) and primary leaf grades: Broken
+Orange Pekoe (BOP), Broken Orange Pekoe Fannings (BOPF), Dust 1 (D1), and Pekoe Fannings (PF).
+Batching & Lot Mechanics: Treated as Non-Fungible Documented Batches. Tea is batched by unique
+"Invoices" representing a specific tea factory factory run and factory mark. The digital system maintains
+absolute tracing parameters connecting the invoice serial number to the central registry ID.
+•
+•
+WRS Digital Marketplace Blueprint v1.0 3
+2.4 Avocado (Persea americana) Value Chain – Extreme Perishable Protocol
+Grading Standards: Governed by EAS 19:2017. Dictated by variety (Hass vs. Fuerte), sizing codes (10 to 30
+based on gram weight), and cold-chain compliance metrics.
+Batching & Lot Mechanics: Strict Time-Decaying Batches. Avocados cannot utilize standard long-term
+warehouse storage receipts. The platform isolates avocado intake into Controlled Atmosphere (CA) coldstorage lots with an active countdown timer attribute (t_{expiry} = 30 ext{ days}). The platform updates a
+degradation coefficient daily, affecting base valuation models.
