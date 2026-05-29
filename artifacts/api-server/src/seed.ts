@@ -1,0 +1,319 @@
+import { db } from "@workspace/db";
+import {
+  usersTable,
+  ewrsTable,
+  spotListingsTable,
+} from "@workspace/db";
+
+async function seed() {
+  console.log("Seeding database...");
+
+  await db.delete(spotListingsTable);
+  await db.delete(ewrsTable);
+  await db.delete(usersTable);
+
+  const [producer1, producer2, offtaker, enabler, financier] = await db
+    .insert(usersTable)
+    .values([
+      {
+        clerkId: "seed_producer_001",
+        name: "Kariuki Farms Ltd",
+        email: "kariuki@seedfarms.wrs",
+        tier: "PRODUCER",
+        reputationScore: 95,
+        kybStatus: "VERIFIED",
+        company: "Kariuki Farms Ltd",
+      },
+      {
+        clerkId: "seed_producer_002",
+        name: "Ngugi Cooperative Society",
+        email: "ngugi@seedcoop.wrs",
+        tier: "PRODUCER",
+        reputationScore: 82,
+        kybStatus: "VERIFIED",
+        company: "Ngugi Cooperative Society",
+      },
+      {
+        clerkId: "seed_offtaker_001",
+        name: "East Africa Millers Ltd",
+        email: "eaml@seedmill.wrs",
+        tier: "OFF_TAKER",
+        reputationScore: 88,
+        kybStatus: "VERIFIED",
+        company: "East Africa Millers Ltd",
+      },
+      {
+        clerkId: "seed_enabler_001",
+        name: "Nakuru Warehouse Services",
+        email: "nws@seedwarehouse.wrs",
+        tier: "ENABLER",
+        reputationScore: 76,
+        kybStatus: "VERIFIED",
+        company: "Nakuru Warehouse Services",
+      },
+      {
+        clerkId: "seed_financier_001",
+        name: "AgriFinance Bank Kenya",
+        email: "afb@seedbank.wrs",
+        tier: "FINANCIER",
+        reputationScore: 99,
+        kybStatus: "VERIFIED",
+        company: "AgriFinance Bank Kenya",
+      },
+    ])
+    .returning();
+
+  console.log("Users seeded:", [producer1, producer2, offtaker, enabler, financier].map(u => u.name));
+
+  const now = new Date();
+  const avocadoExpiry = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+  const ewrValues = [
+    {
+      ewrsReceiptId: "EWR-NBI-2025-001",
+      wrscSignature: "WRSC-SIG-7f8a9b2c",
+      warehouseCode: "NBI-WH-01",
+      commodityType: "MAIZE" as const,
+      grade: "Grade 1",
+      weightMt: "250.000",
+      moisturePct: "12.50",
+      harvestSeason: "2025-LR",
+      isLienActive: false,
+      state: "INGESTED" as const,
+      ownerId: producer1.id,
+      estimatedValueUsd: "50000.00",
+    },
+    {
+      ewrsReceiptId: "EWR-NBI-2025-002",
+      wrscSignature: "WRSC-SIG-3c4d5e6f",
+      warehouseCode: "NBI-WH-01",
+      commodityType: "MAIZE" as const,
+      grade: "Grade 2",
+      weightMt: "180.500",
+      moisturePct: "13.20",
+      harvestSeason: "2025-LR",
+      isLienActive: false,
+      state: "MARKET_LISTED" as const,
+      ownerId: producer1.id,
+      estimatedValueUsd: "32490.00",
+    },
+    {
+      ewrsReceiptId: "EWR-MOM-2025-003",
+      wrscSignature: "WRSC-SIG-1a2b3c4d",
+      warehouseCode: "MOM-WH-02",
+      commodityType: "RICE" as const,
+      grade: "Premium",
+      weightMt: "100.000",
+      moisturePct: "11.00",
+      harvestSeason: "2025-IR1",
+      isLienActive: false,
+      state: "MARKET_LISTED" as const,
+      ownerId: producer1.id,
+      estimatedValueUsd: "60000.00",
+    },
+    {
+      ewrsReceiptId: "EWR-KSM-2025-004",
+      wrscSignature: "WRSC-SIG-9e0f1a2b",
+      warehouseCode: "KSM-WH-03",
+      commodityType: "COFFEE" as const,
+      grade: "AA",
+      weightMt: "50.000",
+      moisturePct: "11.50",
+      harvestSeason: "2025-Main",
+      isLienActive: false,
+      state: "INGESTED" as const,
+      ownerId: producer2.id,
+      estimatedValueUsd: "200000.00",
+    },
+    {
+      ewrsReceiptId: "EWR-KSM-2025-005",
+      wrscSignature: "WRSC-SIG-5c6d7e8f",
+      warehouseCode: "KSM-WH-03",
+      commodityType: "COFFEE" as const,
+      grade: "AB",
+      weightMt: "35.000",
+      moisturePct: "11.80",
+      harvestSeason: "2025-Main",
+      isLienActive: false,
+      state: "MARKET_LISTED" as const,
+      ownerId: producer2.id,
+      estimatedValueUsd: "126000.00",
+    },
+    {
+      ewrsReceiptId: "EWR-NKR-2025-006",
+      wrscSignature: "WRSC-SIG-2g3h4i5j",
+      warehouseCode: "NKR-WH-04",
+      commodityType: "TEA" as const,
+      grade: "BOPI",
+      weightMt: "75.000",
+      moisturePct: null,
+      harvestSeason: "2025-Q1",
+      isLienActive: false,
+      state: "MARKET_LISTED" as const,
+      ownerId: producer1.id,
+      estimatedValueUsd: "112500.00",
+    },
+    {
+      ewrsReceiptId: "EWR-NKR-2025-007",
+      wrscSignature: "WRSC-SIG-6k7l8m9n",
+      warehouseCode: "NKR-WH-04",
+      commodityType: "TEA" as const,
+      grade: "PF1",
+      weightMt: "40.000",
+      moisturePct: null,
+      harvestSeason: "2025-Q1",
+      isLienActive: false,
+      state: "INGESTED" as const,
+      ownerId: producer2.id,
+      estimatedValueUsd: "56000.00",
+    },
+    {
+      ewrsReceiptId: "EWR-NAI-2025-008",
+      wrscSignature: "WRSC-SIG-0o1p2q3r",
+      warehouseCode: "NAI-WH-05",
+      commodityType: "AVOCADO" as const,
+      grade: "Export A",
+      weightMt: "20.000",
+      moisturePct: null,
+      harvestSeason: "2025-Harvest",
+      isLienActive: false,
+      state: "MARKET_LISTED" as const,
+      ownerId: producer1.id,
+      expiryAt: avocadoExpiry,
+      estimatedValueUsd: "28000.00",
+    },
+    {
+      ewrsReceiptId: "EWR-NAI-2025-009",
+      wrscSignature: "WRSC-SIG-4s5t6u7v",
+      warehouseCode: "NAI-WH-05",
+      commodityType: "AVOCADO" as const,
+      grade: "Export B",
+      weightMt: "15.000",
+      moisturePct: null,
+      harvestSeason: "2025-Harvest",
+      isLienActive: false,
+      state: "INGESTED" as const,
+      ownerId: producer2.id,
+      expiryAt: new Date(now.getTime() + 15 * 24 * 60 * 60 * 1000),
+      estimatedValueUsd: "18750.00",
+    },
+    {
+      ewrsReceiptId: "EWR-NBI-2025-010",
+      wrscSignature: "WRSC-SIG-8w9x0y1z",
+      warehouseCode: "NBI-WH-01",
+      commodityType: "MAIZE" as const,
+      grade: "Grade 1",
+      weightMt: "320.000",
+      moisturePct: "12.10",
+      harvestSeason: "2025-LR",
+      isLienActive: false,
+      state: "INGESTED" as const,
+      ownerId: producer2.id,
+      estimatedValueUsd: "64000.00",
+    },
+    {
+      ewrsReceiptId: "EWR-ELD-2025-011",
+      wrscSignature: "WRSC-SIG-2a3b4c5d",
+      warehouseCode: "ELD-WH-06",
+      commodityType: "MAIZE" as const,
+      grade: "Grade 1",
+      weightMt: "500.000",
+      moisturePct: "12.80",
+      harvestSeason: "2024-SR",
+      isLienActive: false,
+      state: "MARKET_LISTED" as const,
+      ownerId: producer2.id,
+      estimatedValueUsd: "95000.00",
+    },
+    {
+      ewrsReceiptId: "EWR-MOM-2025-012",
+      wrscSignature: "WRSC-SIG-6e7f8g9h",
+      warehouseCode: "MOM-WH-02",
+      commodityType: "RICE" as const,
+      grade: "Standard",
+      weightMt: "200.000",
+      moisturePct: "12.50",
+      harvestSeason: "2025-IR1",
+      isLienActive: false,
+      state: "INGESTED" as const,
+      ownerId: producer1.id,
+      estimatedValueUsd: "100000.00",
+    },
+    {
+      ewrsReceiptId: "EWR-KSM-2025-013",
+      wrscSignature: "WRSC-SIG-0i1j2k3l",
+      warehouseCode: "KSM-WH-03",
+      commodityType: "COFFEE" as const,
+      grade: "C",
+      weightMt: "25.000",
+      moisturePct: "12.00",
+      harvestSeason: "2025-Main",
+      isLienActive: true,
+      lienHolderId: financier.id,
+      state: "ENCUMBERED" as const,
+      ownerId: producer1.id,
+      estimatedValueUsd: "75000.00",
+    },
+    {
+      ewrsReceiptId: "EWR-NKR-2025-014",
+      wrscSignature: "WRSC-SIG-4m5n6o7p",
+      warehouseCode: "NKR-WH-04",
+      commodityType: "TEA" as const,
+      grade: "BOPI",
+      weightMt: "60.000",
+      moisturePct: null,
+      harvestSeason: "2025-Q2",
+      isLienActive: false,
+      state: "INGESTED" as const,
+      ownerId: producer2.id,
+      estimatedValueUsd: "90000.00",
+    },
+    {
+      ewrsReceiptId: "EWR-ELD-2025-015",
+      wrscSignature: "WRSC-SIG-8q9r0s1t",
+      warehouseCode: "ELD-WH-06",
+      commodityType: "MAIZE" as const,
+      grade: "Grade 2",
+      weightMt: "400.000",
+      moisturePct: "13.50",
+      harvestSeason: "2024-SR",
+      isLienActive: false,
+      state: "SETTLED" as const,
+      ownerId: offtaker.id,
+      estimatedValueUsd: "68000.00",
+    },
+  ];
+
+  const insertedEwrs = await db.insert(ewrsTable).values(ewrValues).returning();
+  console.log(`Seeded ${insertedEwrs.length} eWRs`);
+
+  const marketListedEwrs = insertedEwrs.filter(e => e.state === "MARKET_LISTED");
+
+  const listingValues = marketListedEwrs.map((ewr) => {
+    const priceMap: Record<string, string> = {
+      MAIZE: "190.00",
+      RICE: "580.00",
+      COFFEE: "3500.00",
+      TEA: "1450.00",
+      AVOCADO: "1300.00",
+    };
+    return {
+      ewrId: ewr.id,
+      sellerId: ewr.ownerId,
+      pricePerMt: priceMap[ewr.commodityType],
+      currency: "USD",
+      status: "ACTIVE" as const,
+    };
+  });
+
+  const insertedListings = await db.insert(spotListingsTable).values(listingValues).returning();
+  console.log(`Seeded ${insertedListings.length} spot listings`);
+
+  console.log("Seed complete.");
+  process.exit(0);
+}
+
+seed().catch((err) => {
+  console.error("Seed failed:", err);
+  process.exit(1);
+});

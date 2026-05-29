@@ -1,0 +1,2 @@
+- [Clerk SDK version matrix](clerk-sdk-versions.md) — @clerk/react@5.54.0 is broken; use @clerk/react@^6 + @clerk/shared@^4 override
+- [Seed script execution](seed-execution.md) — run from workspace root with tsx, not from artifact dir
