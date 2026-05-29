@@ -229,9 +229,17 @@ export default function Portfolio() {
                         </Badge>
                       </div>
                       {ewr.isLienActive && (
-                        <p className="text-xs text-orange-700 bg-orange-50 border border-orange-200 rounded px-2 py-1">
-                          Lien active — lien follows receipt to new owner
-                        </p>
+                        <div className="mt-1 space-y-1">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-bold bg-orange-600 text-white px-1.5 py-0.5 rounded uppercase tracking-wide">LIEN</span>
+                            {(ewr as any).lienLoanOutstandingUsd != null && (
+                              <span className="text-xs font-semibold text-orange-700">
+                                ${Number((ewr as any).lienLoanOutstandingUsd).toLocaleString(undefined, { maximumFractionDigits: 2 })} outstanding
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-orange-700">Lien follows receipt to new owner</p>
+                        </div>
                       )}
                       {ewr.commodityType === "AVOCADO" && ewr.expiryAt && (() => {
                         const msLeft = new Date(ewr.expiryAt).getTime() - Date.now();

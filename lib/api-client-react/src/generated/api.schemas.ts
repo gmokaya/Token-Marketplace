@@ -102,6 +102,8 @@ export interface Ewr {
   issuedAt: string;
   /** @nullable */
   estimatedValueUsd?: number | null;
+  /** @nullable */
+  lienLoanOutstandingUsd?: number | null;
 }
 
 export type PortfolioByStateItem = {

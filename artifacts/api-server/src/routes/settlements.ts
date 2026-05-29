@@ -46,6 +46,9 @@ async function deriveEntityValue(
   if (entityType === "AUCTION") {
     const [auction] = await db.select().from(auctionsTable).where(eq(auctionsTable.id, entityId)).limit(1);
     if (!auction) throw Object.assign(new Error("Auction not found"), { statusCode: 404 });
+    if (auction.status !== "CLOSED") {
+      throw Object.assign(new Error("Auction is not CLOSED — settlement requires a closed auction"), { statusCode: 400 });
+    }
     if (!auction.winningBidId) {
       throw Object.assign(new Error("Auction has no winning bid"), { statusCode: 400 });
     }
@@ -60,8 +63,8 @@ async function deriveEntityValue(
 
   const [forward] = await db.select().from(forwardContractsTable).where(eq(forwardContractsTable.id, entityId)).limit(1);
   if (!forward) throw Object.assign(new Error("Forward contract not found"), { statusCode: 404 });
-  if (!["ACTIVE", "MATURED"].includes(forward.contractStatus)) {
-    throw Object.assign(new Error("Forward contract must be ACTIVE or MATURED to settle"), { statusCode: 400 });
+  if (forward.contractStatus !== "MATURED") {
+    throw Object.assign(new Error("Forward contract must be MATURED to settle"), { statusCode: 400 });
   }
   return {
     vTotalUsd: parseFloat(forward.deliveryPriceUsd),

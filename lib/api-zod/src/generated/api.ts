@@ -101,7 +101,8 @@ export const ListEwrsResponseItem = zod.object({
   "ownerName": zod.string().nullish(),
   "expiryAt": zod.coerce.date().nullish(),
   "issuedAt": zod.coerce.date(),
-  "estimatedValueUsd": zod.number().nullish()
+  "estimatedValueUsd": zod.number().nullish(),
+  "lienLoanOutstandingUsd": zod.number().nullish()
 })
 export const ListEwrsResponse = zod.array(ListEwrsResponseItem)
 
@@ -130,7 +131,8 @@ export const GetEwrResponse = zod.object({
   "ownerName": zod.string().nullish(),
   "expiryAt": zod.coerce.date().nullish(),
   "issuedAt": zod.coerce.date(),
-  "estimatedValueUsd": zod.number().nullish()
+  "estimatedValueUsd": zod.number().nullish(),
+  "lienLoanOutstandingUsd": zod.number().nullish()
 })
 
 
@@ -155,7 +157,8 @@ export const GetMyPortfolioResponse = zod.object({
   "ownerName": zod.string().nullish(),
   "expiryAt": zod.coerce.date().nullish(),
   "issuedAt": zod.coerce.date(),
-  "estimatedValueUsd": zod.number().nullish()
+  "estimatedValueUsd": zod.number().nullish(),
+  "lienLoanOutstandingUsd": zod.number().nullish()
 })),
   "totalValueUsd": zod.number(),
   "byState": zod.array(zod.object({
@@ -260,7 +263,8 @@ export const GetSpotListingResponse = zod.object({
   "ownerName": zod.string().nullish(),
   "expiryAt": zod.coerce.date().nullish(),
   "issuedAt": zod.coerce.date(),
-  "estimatedValueUsd": zod.number().nullish()
+  "estimatedValueUsd": zod.number().nullish(),
+  "lienLoanOutstandingUsd": zod.number().nullish()
 })
 })
 
@@ -587,7 +591,8 @@ export const GetAuctionResponse = zod.object({
   "ownerName": zod.string().nullish(),
   "expiryAt": zod.coerce.date().nullish(),
   "issuedAt": zod.coerce.date(),
-  "estimatedValueUsd": zod.number().nullish()
+  "estimatedValueUsd": zod.number().nullish(),
+  "lienLoanOutstandingUsd": zod.number().nullish()
 }).optional()
 })
 

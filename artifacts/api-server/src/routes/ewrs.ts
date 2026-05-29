@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { getAuth } from "@clerk/express";
 import { db } from "@workspace/db";
-import { ewrsTable, usersTable, spotListingsTable } from "@workspace/db";
-import { eq, and, SQL } from "drizzle-orm";
+import { ewrsTable, usersTable, spotListingsTable, financingRequestsTable, loansTable } from "@workspace/db";
+import { eq, and, inArray, SQL } from "drizzle-orm";
 
 const router = Router();
 
@@ -37,6 +37,33 @@ router.get("/ewrs/my-portfolio", async (req, res) => {
     .leftJoin(usersTable, eq(ewrsTable.ownerId, usersTable.id))
     .where(eq(ewrsTable.ownerId, user.id));
 
+  const lienedEwrIds = ewrs.filter(e => e.isLienActive).map(e => e.id);
+  const loanByEwrId = new Map<number, string>();
+
+  if (lienedEwrIds.length > 0) {
+    const loanRows = await db
+      .select({
+        ewrId: financingRequestsTable.ewrId,
+        outstandingBalanceUsd: loansTable.outstandingBalanceUsd,
+      })
+      .from(loansTable)
+      .innerJoin(financingRequestsTable, eq(loansTable.financingRequestId, financingRequestsTable.id))
+      .where(
+        and(
+          inArray(financingRequestsTable.ewrId, lienedEwrIds),
+          eq(loansTable.lienStatus, "ACTIVE")
+        )
+      );
+    for (const row of loanRows) {
+      loanByEwrId.set(row.ewrId, row.outstandingBalanceUsd);
+    }
+  }
+
+  const ewrsWithLoan = ewrs.map(e => ({
+    ...e,
+    lienLoanOutstandingUsd: loanByEwrId.has(e.id) ? parseFloat(loanByEwrId.get(e.id)!) : null,
+  }));
+
   const totalValueUsd = ewrs.reduce((sum, e) => sum + parseFloat(e.estimatedValueUsd ?? "0"), 0);
 
   const byStateMap = new Map<string, number>();
@@ -52,7 +79,7 @@ router.get("/ewrs/my-portfolio", async (req, res) => {
   }
 
   return res.json({
-    ewrs,
+    ewrs: ewrsWithLoan,
     totalValueUsd,
     byState: Array.from(byStateMap.entries()).map(([state, count]) => ({ state, count })),
     byCommodity: Array.from(byCommodityMap.entries()).map(([commodityType, data]) => ({ commodityType, ...data })),

@@ -1105,6 +1105,8 @@ components:
           format: date-time
         estimatedValueUsd:
           type: ["number", "null"]
+        lienLoanOutstandingUsd:
+          type: ["number", "null"]
 
     Portfolio:
       type: object

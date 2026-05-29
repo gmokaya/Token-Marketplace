@@ -109,7 +109,7 @@ router.post("/auctions", async (req, res) => {
   const [ewr] = await db.select().from(ewrsTable).where(eq(ewrsTable.id, ewrId)).limit(1);
   if (!ewr) return res.status(404).json({ error: "eWR not found" });
   if (ewr.ownerId !== user.id) return res.status(403).json({ error: "You do not own this eWR" });
-  if (ewr.state !== "INGESTED") return res.status(400).json({ error: "eWR must be in INGESTED state to auction" });
+  if (!["INGESTED", "ENCUMBERED"].includes(ewr.state)) return res.status(400).json({ error: "eWR must be INGESTED or ENCUMBERED to auction" });
 
   const now = new Date();
   const endAt = new Date(now.getTime() + durationMinutes * 60 * 1000);
@@ -335,18 +335,20 @@ export async function startAuctionExpiryWorker() {
               // Lock eWR while settlement is pending
               await tx.update(ewrsTable).set({ state: "LOCK_TRADING" }).where(eq(ewrsTable.id, auction.ewrId));
             } else {
-              // No valid winner → cancel
+              // No valid winner → cancel; restore eWR to ENCUMBERED if lien is still active
+              const [ewrData] = await tx.select({ isLienActive: ewrsTable.isLienActive }).from(ewrsTable).where(eq(ewrsTable.id, auction.ewrId)).limit(1);
               await tx.update(auctionsTable)
                 .set({ status: "CANCELLED", winningBidId: null })
                 .where(eq(auctionsTable.id, auction.id));
-              await tx.update(ewrsTable).set({ state: "INGESTED" }).where(eq(ewrsTable.id, auction.ewrId));
+              await tx.update(ewrsTable).set({ state: ewrData?.isLienActive ? "ENCUMBERED" : "INGESTED" }).where(eq(ewrsTable.id, auction.ewrId));
             }
           } else {
-            // No bids → cancel
+            // No bids → cancel; restore eWR to ENCUMBERED if lien is still active
+            const [ewrData] = await tx.select({ isLienActive: ewrsTable.isLienActive }).from(ewrsTable).where(eq(ewrsTable.id, auction.ewrId)).limit(1);
             await tx.update(auctionsTable)
               .set({ status: "CANCELLED" })
               .where(eq(auctionsTable.id, auction.id));
-            await tx.update(ewrsTable).set({ state: "INGESTED" }).where(eq(ewrsTable.id, auction.ewrId));
+            await tx.update(ewrsTable).set({ state: ewrData?.isLienActive ? "ENCUMBERED" : "INGESTED" }).where(eq(ewrsTable.id, auction.ewrId));
           }
         });
       }
