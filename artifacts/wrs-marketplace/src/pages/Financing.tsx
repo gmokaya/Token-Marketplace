@@ -138,6 +138,9 @@ export default function Financing() {
   const { data: loanBook, isLoading: loanLoading } = useGetLoanBook({
     query: { enabled: isFinancier } as any,
   });
+  const { data: eligibleEwrs, isLoading: eligibleLoading } = useListEligibleEwrs({
+    query: { enabled: isFinancier } as any,
+  });
 
   return (
     <Layout>
@@ -154,6 +157,7 @@ export default function Financing() {
           <TabsList>
             <TabsTrigger value="requests">Requests</TabsTrigger>
             {isFinancier && <TabsTrigger value="loanbook">Loan Book</TabsTrigger>}
+            {isFinancier && <TabsTrigger value="creditrisk">Credit Risk</TabsTrigger>}
           </TabsList>
 
           <TabsContent value="requests" className="mt-4 space-y-3">
@@ -228,6 +232,53 @@ export default function Financing() {
                         <div className="text-xs text-muted-foreground">principal</div>
                         <div className="text-sm font-semibold text-orange-600">+${Number(loan.accruedInterestUsd).toLocaleString()} interest</div>
                         <div className="text-xs text-muted-foreground">Total: ${Number(loan.totalRepayableUsd).toLocaleString()}</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </TabsContent>
+          )}
+
+          {isFinancier && (
+            <TabsContent value="creditrisk" className="mt-4 space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Unencumbered eWRs eligible for financing — credit risk view for underwriting decisions.
+              </p>
+              {eligibleLoading && Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-20" />)}
+              {!eligibleLoading && !eligibleEwrs?.length && (
+                <Card>
+                  <CardContent className="py-12 text-center text-muted-foreground">
+                    <AlertCircle className="w-10 h-10 mx-auto mb-3 opacity-30" />
+                    No unencumbered eligible eWRs in the system.
+                  </CardContent>
+                </Card>
+              )}
+              {eligibleEwrs?.map(ewr => (
+                <Card key={ewr.id}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-mono text-sm font-semibold">{ewr.ewrsReceiptId}</span>
+                          <Badge variant="outline">{ewr.commodityType}</Badge>
+                          <span className="text-xs text-muted-foreground">{ewr.grade}</span>
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1 flex gap-3 flex-wrap">
+                          <span>{ewr.warehouseCode}</span>
+                          <span>{Number(ewr.weightMt).toFixed(1)} MT</span>
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0 space-y-0.5">
+                        {ewr.estimatedValueUsd != null && (
+                          <>
+                            <div className="font-bold">${Number(ewr.estimatedValueUsd).toLocaleString()}</div>
+                            <div className="text-xs text-muted-foreground">est. value</div>
+                            <div className="text-sm font-semibold text-green-700">
+                              Max advance: ${(Number(ewr.estimatedValueUsd) * 0.6).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   </CardContent>

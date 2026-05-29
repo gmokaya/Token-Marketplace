@@ -133,9 +133,9 @@ router.patch("/orders/:orderId", async (req, res) => {
   const [user] = await db.select().from(usersTable).where(eq(usersTable.clerkId, clerkId)).limit(1);
   if (!user) return res.status(404).json({ error: "User not found" });
 
-  const { status } = req.body as { status: "SETTLED" | "CANCELLED" };
-  if (!status || !["SETTLED", "CANCELLED"].includes(status)) {
-    return res.status(400).json({ error: "status must be SETTLED or CANCELLED" });
+  const { status } = req.body as { status: "CANCELLED" };
+  if (!status || status !== "CANCELLED") {
+    return res.status(400).json({ error: "status must be CANCELLED — use POST /settlements to settle an order through the split engine" });
   }
 
   try {
@@ -161,32 +161,22 @@ router.patch("/orders/:orderId", async (req, res) => {
         .where(eq(spotListingsTable.id, lockedOrder.listingId))
         .limit(1);
 
-      if (status === "SETTLED") {
-        const now = new Date();
-        const [result] = await tx
-          .update(ordersTable)
-          .set({ status: "SETTLED", settledAt: now })
-          .where(eq(ordersTable.id, orderId))
-          .returning();
+      // CANCELLED only — SETTLED is handled exclusively by POST /settlements (split engine)
+      const [result] = await tx
+        .update(ordersTable)
+        .set({ status: "CANCELLED" })
+        .where(eq(ordersTable.id, orderId))
+        .returning();
 
-        if (listing) {
-          await tx.update(spotListingsTable).set({ status: "SETTLED" }).where(eq(spotListingsTable.id, listing.id));
-          await tx.update(ewrsTable).set({ state: "SETTLED", ownerId: user.id }).where(eq(ewrsTable.id, listing.ewrId));
-        }
-        return result;
-      } else {
-        const [result] = await tx
-          .update(ordersTable)
-          .set({ status: "CANCELLED" })
-          .where(eq(ordersTable.id, orderId))
-          .returning();
-
-        if (listing) {
-          await tx.update(spotListingsTable).set({ status: "ACTIVE" }).where(eq(spotListingsTable.id, listing.id));
-          await tx.update(ewrsTable).set({ state: "MARKET_LISTED" }).where(eq(ewrsTable.id, listing.ewrId));
-        }
-        return result;
+      if (listing) {
+        await tx.update(spotListingsTable).set({ status: "ACTIVE" }).where(eq(spotListingsTable.id, listing.id));
+        const [ewrForListing] = await tx.select({ isLienActive: ewrsTable.isLienActive })
+          .from(ewrsTable).where(eq(ewrsTable.id, listing.ewrId)).limit(1);
+        await tx.update(ewrsTable)
+          .set({ state: ewrForListing?.isLienActive ? "ENCUMBERED" : "MARKET_LISTED" })
+          .where(eq(ewrsTable.id, listing.ewrId));
       }
+      return result;
     });
 
     const enriched = await enrichOrder(updated);

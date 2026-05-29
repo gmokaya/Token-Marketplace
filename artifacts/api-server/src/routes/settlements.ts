@@ -392,11 +392,15 @@ router.post("/settlements/:settlementId/disburse", async (req, res) => {
         if (settlement.entityType === "ORDER") {
           const [order] = await tx.select().from(ordersTable).where(eq(ordersTable.id, settlement.entityId)).limit(1);
           if (order) {
-            const [listing] = await tx.select({ ewrId: spotListingsTable.ewrId })
+            const [listing] = await tx.select({ id: spotListingsTable.id, ewrId: spotListingsTable.ewrId })
               .from(spotListingsTable).where(eq(spotListingsTable.id, order.listingId)).limit(1);
             tradeEwrId = listing?.ewrId ?? null;
             buyerIdForTransfer = order.buyerId;
             await tx.update(ordersTable).set({ status: "SETTLED" }).where(eq(ordersTable.id, settlement.entityId));
+            // Finalize the listing so it no longer shows as LOCKED in the marketplace
+            if (listing) {
+              await tx.update(spotListingsTable).set({ status: "SETTLED" }).where(eq(spotListingsTable.id, listing.id));
+            }
           }
         } else if (settlement.entityType === "AUCTION") {
           const [auction] = await tx.select().from(auctionsTable).where(eq(auctionsTable.id, settlement.entityId)).limit(1);
