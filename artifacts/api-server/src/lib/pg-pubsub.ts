@@ -3,6 +3,7 @@ import { logger } from "./logger";
 
 const CHANNEL = "auction_events";
 const RECONNECT_DELAY_MS = 3_000;
+export const DEGRADED_THRESHOLD_MS = Number(process.env.PUBSUB_DEGRADED_THRESHOLD_MS ?? 30_000);
 
 export type AuctionEventPayload =
   | { type: "bid"; auctionId: number; data: unknown }
@@ -27,6 +28,7 @@ type SubscriberStatus = "initializing" | "connected" | "reconnecting";
 
 let _subscriberStatus: SubscriberStatus = "initializing";
 let _disconnectedAt: number | null = null;
+let _degradedAlertEmitted = false;
 
 export function getSubscriberStatus(): { status: SubscriberStatus; reconnectingForMs: number | null } {
   return {
@@ -69,8 +71,23 @@ async function createListenClient(): Promise<pg.Client> {
   return client;
 }
 
+function checkDegradedThreshold() {
+  if (_subscriberStatus === "reconnecting" && _disconnectedAt !== null && !_degradedAlertEmitted) {
+    const downMs = Date.now() - _disconnectedAt;
+    if (downMs >= DEGRADED_THRESHOLD_MS) {
+      _degradedAlertEmitted = true;
+      logger.error(
+        { downMs, thresholdMs: DEGRADED_THRESHOLD_MS },
+        `[PgPubSub] Subscriber has been reconnecting for ${downMs}ms (threshold ${DEGRADED_THRESHOLD_MS}ms) — events published during this gap are lost`
+      );
+    }
+  }
+}
+
 export async function startAuctionPubSubSubscriber() {
   async function connect() {
+    checkDegradedThreshold();
+
     try {
       const wasReconnecting = _subscriberStatus === "reconnecting";
       const gapStart = _disconnectedAt;
@@ -78,6 +95,7 @@ export async function startAuctionPubSubSubscriber() {
       const client = await createListenClient();
 
       _subscriberStatus = "connected";
+      _degradedAlertEmitted = false;
       const connectedAt = Date.now();
 
       if (wasReconnecting && gapStart !== null) {
