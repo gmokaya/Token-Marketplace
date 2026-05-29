@@ -95,6 +95,28 @@ async function resolveEntityParties(
   return { sellerId: forward?.sellerId ?? 0, buyerId: forward?.buyerId ?? null };
 }
 
+async function deriveTradeEwrId(
+  entityType: "ORDER" | "AUCTION" | "FORWARD",
+  entityId: number
+): Promise<number | null> {
+  if (entityType === "ORDER") {
+    const [order] = await db.select({ listingId: ordersTable.listingId }).from(ordersTable)
+      .where(eq(ordersTable.id, entityId)).limit(1);
+    if (!order) return null;
+    const [listing] = await db.select({ ewrId: spotListingsTable.ewrId }).from(spotListingsTable)
+      .where(eq(spotListingsTable.id, order.listingId)).limit(1);
+    return listing?.ewrId ?? null;
+  }
+  if (entityType === "AUCTION") {
+    const [auction] = await db.select({ ewrId: auctionsTable.ewrId }).from(auctionsTable)
+      .where(eq(auctionsTable.id, entityId)).limit(1);
+    return auction?.ewrId ?? null;
+  }
+  const [forward] = await db.select({ ewrId: forwardContractsTable.ewrId }).from(forwardContractsTable)
+    .where(eq(forwardContractsTable.id, entityId)).limit(1);
+  return forward?.ewrId ?? null;
+}
+
 router.post("/settlements", async (req, res) => {
   const { userId: clerkId } = getAuth(req);
   if (!clerkId) return res.status(401).json({ error: "Unauthorized" });
@@ -125,6 +147,9 @@ router.post("/settlements", async (req, res) => {
       return res.status(403).json({ error: "Only transaction parties or platform admins can initiate settlement" });
     }
 
+    // Derive the eWR that backs this trade — needed for mandatory lien repayment
+    const tradeEwrId = await deriveTradeEwrId(entityType, entityId);
+
     const settlement = await db.transaction(async (tx) => {
       const [dup] = await tx.select({ id: settlementsTable.id })
         .from(settlementsTable)
@@ -135,30 +160,71 @@ router.post("/settlements", async (req, res) => {
         .limit(1).for("update");
       if (dup) throw Object.assign(new Error("A settlement already exists for this entity"), { statusCode: 409 });
 
-      let loan: typeof loansTable.$inferSelect | null = null;
-      if (loanId) {
-        [loan] = await tx.select().from(loansTable).where(eq(loansTable.id, loanId)).limit(1);
-        if (!loan) throw Object.assign(new Error("Loan not found"), { statusCode: 404 });
-        if (loan.lienStatus !== "ACTIVE") {
+      // Auto-resolve active loan from the trade's collateral eWR.
+      // If the eWR is encumbered, repayment to the lien holder is MANDATORY —
+      // the caller cannot skip it by omitting loanId.
+      let resolvedLoan: typeof loansTable.$inferSelect | null = null;
+
+      if (tradeEwrId !== null) {
+        const [tradeEwr] = await tx.select({ isLienActive: ewrsTable.isLienActive })
+          .from(ewrsTable).where(eq(ewrsTable.id, tradeEwrId)).limit(1);
+
+        if (tradeEwr?.isLienActive) {
+          // Look up the single ACTIVE loan backed by this eWR
+          const [fr] = await tx.select().from(financingRequestsTable)
+            .where(eq(financingRequestsTable.ewrId, tradeEwrId)).limit(1);
+          if (fr) {
+            const [activeLoan] = await tx.select().from(loansTable)
+              .where(and(eq(loansTable.financingRequestId, fr.id), eq(loansTable.lienStatus, "ACTIVE")))
+              .limit(1);
+            if (activeLoan) {
+              // If caller supplied an explicit loanId it must match the collateral loan exactly
+              if (loanId !== undefined && loanId !== activeLoan.id) {
+                throw Object.assign(
+                  new Error(`Supplied loanId ${loanId} does not match the active collateral loan ${activeLoan.id} on this trade's eWR`),
+                  { statusCode: 400 }
+                );
+              }
+              resolvedLoan = activeLoan;
+            }
+          }
+        }
+      }
+
+      // If caller supplied a loanId but eWR has no active lien, still accept it
+      // (admin override / manual association) — but validate ownership and eWR match
+      if (loanId !== undefined && resolvedLoan === null) {
+        const [manualLoan] = await tx.select().from(loansTable).where(eq(loansTable.id, loanId)).limit(1);
+        if (!manualLoan) throw Object.assign(new Error("Loan not found"), { statusCode: 404 });
+        if (manualLoan.lienStatus !== "ACTIVE") {
           throw Object.assign(new Error("Loan is not ACTIVE — cannot be used for repayment"), { statusCode: 400 });
         }
         const [fr] = await tx.select().from(financingRequestsTable)
-          .where(eq(financingRequestsTable.id, loan.financingRequestId)).limit(1);
+          .where(eq(financingRequestsTable.id, manualLoan.financingRequestId)).limit(1);
         if (!fr) throw Object.assign(new Error("Financing request linked to loan not found"), { statusCode: 400 });
-        const [collateralEwr] = await tx.select().from(ewrsTable)
-          .where(eq(ewrsTable.id, fr.ewrId)).limit(1);
-        if (!collateralEwr) throw Object.assign(new Error("Collateral eWR not found"), { statusCode: 400 });
-        if (collateralEwr.ownerId !== sellerId) {
-          throw Object.assign(new Error("Loan collateral does not belong to the settlement seller"), { statusCode: 400 });
+        // Enforce: the loan's collateral eWR must be the same eWR backing the trade
+        if (tradeEwrId !== null && fr.ewrId !== tradeEwrId) {
+          throw Object.assign(
+            new Error("Supplied loan's collateral eWR does not match the eWR backing this trade"),
+            { statusCode: 400 }
+          );
         }
+        if (fr.ewrId !== tradeEwrId) {
+          const [collateralEwr] = await tx.select().from(ewrsTable).where(eq(ewrsTable.id, fr.ewrId)).limit(1);
+          if (!collateralEwr) throw Object.assign(new Error("Collateral eWR not found"), { statusCode: 400 });
+          if (collateralEwr.ownerId !== sellerId) {
+            throw Object.assign(new Error("Loan collateral does not belong to the settlement seller"), { statusCode: 400 });
+          }
+        }
+        resolvedLoan = manualLoan;
       }
 
       const now = new Date();
       let rBankUsd = 0;
 
-      if (loan && loan.lienStatus === "ACTIVE") {
-        const daysElapsed = Math.max(1, Math.ceil((now.getTime() - loan.startDate.getTime()) / (24 * 60 * 60 * 1000)));
-        rBankUsd = parseFloat(loan.principalUsd) * (1 + parseFloat(loan.interestRate) * daysElapsed / 365);
+      if (resolvedLoan) {
+        const daysElapsed = Math.max(1, Math.ceil((now.getTime() - resolvedLoan.startDate.getTime()) / (24 * 60 * 60 * 1000)));
+        rBankUsd = parseFloat(resolvedLoan.principalUsd) * (1 + parseFloat(resolvedLoan.interestRate) * daysElapsed / 365);
       }
 
       const fPlatformUsd = vTotalUsd * PLATFORM_FEE_RATE;
@@ -172,7 +238,7 @@ router.post("/settlements", async (req, res) => {
         rBankUsd: rBankUsd.toFixed(2),
         fPlatformUsd: fPlatformUsd.toFixed(2),
         pProducerUsd: pProducerUsd.toFixed(2),
-        loanId: loan?.id ?? null,
+        loanId: resolvedLoan?.id ?? null,
         bankLegStatus: rBankUsd > 0 ? "PENDING" : "N_A",
         platformLegStatus: "PENDING",
         producerLegStatus: "PENDING",
