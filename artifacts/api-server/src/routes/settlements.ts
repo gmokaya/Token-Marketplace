@@ -156,7 +156,6 @@ router.post("/settlements", async (req, res) => {
       if (loan && loan.lienStatus === "ACTIVE") {
         const daysElapsed = Math.max(1, Math.ceil((now.getTime() - loan.startDate.getTime()) / (24 * 60 * 60 * 1000)));
         rBankUsd = parseFloat(loan.principalUsd) * (1 + parseFloat(loan.interestRate) * daysElapsed / 365);
-        rBankUsd = Math.min(rBankUsd, vTotalUsd * 0.90);
       }
 
       const fPlatformUsd = vTotalUsd * PLATFORM_FEE_RATE;

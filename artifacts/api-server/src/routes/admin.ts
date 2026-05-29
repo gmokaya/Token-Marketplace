@@ -4,7 +4,6 @@ import { db } from "@workspace/db";
 import {
   settlementsTable,
   loansTable,
-  ordersTable,
   auditLogTable,
   usersTable,
 } from "@workspace/db";
@@ -38,19 +37,9 @@ router.get("/admin/earnings", async (req, res) => {
     completedCount: sql<number>`COUNT(CASE WHEN ${settlementsTable.completedAt} IS NOT NULL THEN 1 END)`,
   }).from(settlementsTable).leftJoin(loansTable, eq(settlementsTable.loanId, loansTable.id));
 
-  const oQuery = db.select({
-    totalPlatformFees: sql<number>`COALESCE(SUM(CAST(${ordersTable.platformFeeUsd} AS NUMERIC)), 0)`,
-    totalEscrowFees: sql<number>`COALESCE(SUM(CAST(${ordersTable.escrowFeeUsd} AS NUMERIC)), 0)`,
-    settledCount: sql<number>`COUNT(CASE WHEN ${ordersTable.status} = 'SETTLED' THEN 1 END)`,
-  }).from(ordersTable);
-
   const [sStats] = since
     ? await sQuery.where(gte(settlementsTable.createdAt, since))
     : await sQuery;
-
-  const [oStats] = since
-    ? await oQuery.where(gte(ordersTable.createdAt, since))
-    : await oQuery;
 
   const totalBankRepayments = Number(sStats?.totalBankRepayments ?? 0);
   const interestEarned = Number(sStats?.interestEarned ?? 0);
@@ -59,14 +48,14 @@ router.get("/admin/earnings", async (req, res) => {
 
   return res.json({
     period,
-    totalPlatformFeesUsd: Number(sStats?.totalPlatformFees ?? 0) + Number(oStats?.totalPlatformFees ?? 0),
-    totalEscrowFeesUsd: Number(oStats?.totalEscrowFees ?? 0),
+    totalPlatformFeesUsd: Number(sStats?.totalPlatformFees ?? 0),
+    totalEscrowFeesUsd: 0,
     financingFacilitationFeesUsd: parseFloat(financingFacilitationFees.toFixed(2)),
     interestEarnedUsd: parseFloat(interestEarned.toFixed(2)),
     totalBankRepaymentsUsd: totalBankRepayments,
     settlementCount: Number(sStats?.settlementCount ?? 0),
     completedSettlementCount: Number(sStats?.completedCount ?? 0),
-    settledOrderCount: Number(oStats?.settledCount ?? 0),
+    settledOrderCount: 0,
   });
 });
 
