@@ -1046,8 +1046,20 @@ components:
       properties:
         status:
           type: string
+        pubsub:
+          type: object
+          properties:
+            status:
+              type: string
+              enum: [initializing, connected, reconnecting]
+            reconnectingForMs:
+              type: integer
+              description: Milliseconds the subscriber has been in reconnecting state (only present when status is reconnecting)
+          required:
+            - status
       required:
         - status
+        - pubsub
 
     User:
       type: object

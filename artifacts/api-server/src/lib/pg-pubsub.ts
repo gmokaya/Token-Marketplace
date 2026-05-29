@@ -9,12 +9,36 @@ export type AuctionEventPayload =
   | { type: "closed"; auctionId: number; data: unknown };
 
 type NotifyHandler = (payload: AuctionEventPayload) => void;
+type ReconnectHandler = (gapMs: number) => void;
 
 let notifyHandler: NotifyHandler | null = null;
+let reconnectHandler: ReconnectHandler | null = null;
 
 export function setAuctionEventHandler(handler: NotifyHandler) {
   notifyHandler = handler;
 }
+
+export function setReconnectHandler(handler: ReconnectHandler) {
+  reconnectHandler = handler;
+}
+
+// ── Subscriber health state ───────────────────────────────────────────────────
+type SubscriberStatus = "initializing" | "connected" | "reconnecting";
+
+let _subscriberStatus: SubscriberStatus = "initializing";
+let _disconnectedAt: number | null = null;
+
+export function getSubscriberStatus(): { status: SubscriberStatus; reconnectingForMs: number | null } {
+  return {
+    status: _subscriberStatus,
+    reconnectingForMs:
+      _subscriberStatus === "reconnecting" && _disconnectedAt !== null
+        ? Date.now() - _disconnectedAt
+        : null,
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 async function createListenClient(): Promise<pg.Client> {
   if (!process.env.DATABASE_URL) {
@@ -36,6 +60,10 @@ async function createListenClient(): Promise<pg.Client> {
 
   client.on("error", (err: Error) => {
     logger.warn({ err }, "[PgPubSub] LISTEN client error — will reconnect");
+    if (_subscriberStatus !== "reconnecting") {
+      _subscriberStatus = "reconnecting";
+      _disconnectedAt = Date.now();
+    }
   });
 
   return client;
@@ -44,14 +72,37 @@ async function createListenClient(): Promise<pg.Client> {
 export async function startAuctionPubSubSubscriber() {
   async function connect() {
     try {
+      const wasReconnecting = _subscriberStatus === "reconnecting";
+      const gapStart = _disconnectedAt;
+
       const client = await createListenClient();
-      logger.info(`[PgPubSub] Subscribed to channel "${CHANNEL}"`);
+
+      _subscriberStatus = "connected";
+      const connectedAt = Date.now();
+
+      if (wasReconnecting && gapStart !== null) {
+        const gapMs = connectedAt - gapStart;
+        logger.warn(
+          { gapMs },
+          `[PgPubSub] Subscriber reconnected after ${gapMs}ms gap — SSE clients may have missed events`
+        );
+        _disconnectedAt = null;
+        reconnectHandler?.(gapMs);
+      } else {
+        logger.info(`[PgPubSub] Subscribed to channel "${CHANNEL}"`);
+      }
 
       client.on("end", () => {
+        _subscriberStatus = "reconnecting";
+        _disconnectedAt = Date.now();
         logger.warn(`[PgPubSub] LISTEN client disconnected — reconnecting in ${RECONNECT_DELAY_MS}ms`);
         setTimeout(connect, RECONNECT_DELAY_MS);
       });
     } catch (err) {
+      if (_subscriberStatus !== "reconnecting") {
+        _subscriberStatus = "reconnecting";
+        _disconnectedAt = Date.now();
+      }
       logger.warn({ err }, `[PgPubSub] Failed to connect — retrying in ${RECONNECT_DELAY_MS}ms`);
       setTimeout(connect, RECONNECT_DELAY_MS);
     }

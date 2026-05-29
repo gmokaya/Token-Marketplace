@@ -1,9 +1,9 @@
 import app from "./app";
 import { logger } from "./lib/logger";
 import { startOrderExpiryWorker } from "./routes/orders";
-import { startAuctionExpiryWorker, broadcastSseEvent } from "./routes/auctions";
+import { startAuctionExpiryWorker, broadcastSseEvent, broadcastReconnectHint } from "./routes/auctions";
 import { startAvocadoDegradationWorker } from "./routes/ewrs";
-import { startAuctionPubSubSubscriber, setAuctionEventHandler } from "./lib/pg-pubsub";
+import { startAuctionPubSubSubscriber, setAuctionEventHandler, setReconnectHandler } from "./lib/pg-pubsub";
 import { applyDbConstraints } from "@workspace/db/migrate";
 
 const rawPort = process.env["PORT"];
@@ -42,6 +42,10 @@ app.listen(port, async (err) => {
   // Wire pg LISTEN/NOTIFY so every instance fans out SSE events received from any instance
   setAuctionEventHandler((payload) => {
     broadcastSseEvent(payload.auctionId, payload.type, payload.data);
+  });
+  // Notify SSE clients to re-fetch state after a subscriber reconnect gap
+  setReconnectHandler((_gapMs) => {
+    broadcastReconnectHint();
   });
   startAuctionPubSubSubscriber().catch((err) =>
     logger.error({ err }, "Failed to start auction pub/sub subscriber"),

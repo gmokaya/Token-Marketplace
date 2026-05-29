@@ -36,6 +36,18 @@ function unregisterSseClient(auctionId: number, res: Response) {
   if (sseClients.get(auctionId)?.size === 0) sseClients.delete(auctionId);
 }
 
+export function broadcastReconnectHint() {
+  const payload = `event: reconnect\ndata: {}\n\n`;
+  for (const client of globalSseClients) {
+    try { client.write(payload); } catch { /* client gone */ }
+  }
+  for (const clients of sseClients.values()) {
+    for (const client of clients) {
+      try { client.write(payload); } catch { /* client gone */ }
+    }
+  }
+}
+
 export function broadcastSseEvent(auctionId: number, event: string, data: unknown) {
   const payload = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
 
@@ -181,6 +193,7 @@ router.post("/auctions", async (req, res) => {
 //   - "closed"    → { auctionId }
 //   - "ping"      → {}  — keepalive every 25s
 //   - "connected" → {}
+//   - "reconnect" → {}  — subscriber reconnected after a gap; clients should re-fetch current state
 router.get("/auctions/stream", (req: Request, res: Response) => {
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
@@ -268,9 +281,10 @@ router.get("/auctions/:auctionId/bids", async (req, res) => {
 // ── Per-auction SSE stream endpoint ──────────────────────────────────────────
 // Clients connect here and receive pushed events whenever a bid is placed.
 // Events emitted:
-//   - "bid"     → { bid, auction } — new bid placed + updated auction state
-//   - "closed"  → { auctionId }    — auction status changed to non-OPEN
-//   - "ping"    → {}               — keepalive every 25s
+//   - "bid"       → { bid, auction } — new bid placed + updated auction state
+//   - "closed"    → { auctionId }    — auction status changed to non-OPEN
+//   - "ping"      → {}               — keepalive every 25s
+//   - "reconnect" → {}               — subscriber reconnected after a gap; clients should re-fetch current state
 router.get("/auctions/:auctionId/stream", async (req: Request, res: Response) => {
   const auctionId = parseInt(req.params["auctionId"] as string);
   if (isNaN(auctionId)) {

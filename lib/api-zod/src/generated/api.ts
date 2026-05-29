@@ -13,7 +13,11 @@ import * as zod from 'zod';
  * @summary Health check
  */
 export const HealthCheckResponse = zod.object({
-  "status": zod.string()
+  "status": zod.string(),
+  "pubsub": zod.object({
+    "status": zod.enum(["initializing", "connected", "reconnecting"]),
+    "reconnectingForMs": zod.number().int().optional(),
+  }),
 })
 
 
