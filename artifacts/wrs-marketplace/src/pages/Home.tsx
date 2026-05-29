@@ -6,6 +6,7 @@ import { PriceTicker } from "@/components/PriceTicker";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const img = (name: string) => `${BASE}/theme/${name}`;
+const photo = (name: string) => `${BASE}/photos/${name}`;
 
 const ACCENT = "hsl(155 100% 18%)";   // WRS green
 
@@ -109,10 +110,16 @@ export default function Home() {
           <section style={{ position: "relative", height: "100vh", minHeight: 600, display: "flex", alignItems: "center" }}>
             {/* left charcoal panel */}
             <div style={{ position: "absolute", inset: 0, right: "42%", background: "#161616", zIndex: 1 }} />
-            {/* right panel — WRS brand green with grain texture */}
+            {/* right panel — East African farmer photo */}
             <div style={{
               position: "absolute", inset: 0, left: "58%", zIndex: 1,
-              background: "linear-gradient(145deg, hsl(155 80% 10%) 0%, hsl(155 100% 6%) 60%, hsl(130 60% 8%) 100%)",
+              backgroundImage: `url(${photo("hero-soybean-farmer.jpg")})`,
+              backgroundSize: "cover", backgroundPosition: "center",
+            }} />
+            {/* WRS brand green overlay over the photo for cohesion + legibility */}
+            <div style={{
+              position: "absolute", inset: 0, left: "58%", zIndex: 1,
+              background: "linear-gradient(145deg, hsl(155 80% 10% / 0.74) 0%, hsl(155 100% 6% / 0.82) 60%, hsl(130 60% 8% / 0.72) 100%)",
             }} />
             {/* subtle dot-grid pattern overlay */}
             <div style={{
@@ -214,7 +221,7 @@ export default function Home() {
           <section id="about" style={{ background: "#f5f5f5", padding: "96px 0 104px" }}>
             <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 72, alignItems: "center" }}>
               <div>
-                <img src={img("iStock-1134997420.jpg")} alt="Trading floor" style={{ width: "100%", display: "block", objectFit: "cover" }} />
+                <img src={photo("about-planting.jpg")} alt="East African farmer planting in the field" style={{ width: "100%", display: "block", objectFit: "cover", aspectRatio: "4 / 3" }} />
               </div>
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
@@ -348,7 +355,7 @@ export default function Home() {
           {/* ══ CTA ─────────────────────────────────────────────── */}
           <section id="cta" style={{
             position: "relative", padding: "96px 0",
-            backgroundImage: `url(${img("SVC-bg-black.jpg")})`,
+            backgroundImage: `url(${photo("cta-harvest.jpg")})`,
             backgroundSize: "cover", backgroundPosition: "center",
           }}>
             <div style={{ position: "absolute", inset: 0, background: "rgba(8,8,8,0.85)" }} />
