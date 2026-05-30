@@ -201,19 +201,22 @@ function EsgSection() {
             {
               letter: "E",
               label: "Environmental",
-              body: "Digitising grain storage and enabling direct farm-to-buyer trades cuts unnecessary commodity transit across East Africa. Fewer intermediaries means lower emissions, less spoilage, and a measurable reduction in the carbon intensity of the food supply chain.",
+              heading: "Smarter Storage. Shorter Supply Chains.",
+              body: "Digitising agricultural storage and enabling direct producer-to-buyer trades optimizes commodity transit across East Africa. By routing volumes through certified cooperative networks, TokenHarvest systematically eliminates middle-mile logistics inefficiencies. Moving assets closer to the demand source results in fewer intermediaries, less spoilage, and a measurable reduction in the carbon intensity of the food supply chain.",
             },
             {
               letter: "S",
               label: "Social",
-              body: "TokenHarvest connects smallholder farmers directly to verified buyers and formal financing, broadening market access and raising incomes for communities that have historically been priced out of agri-finance. Every trade on the platform is a step toward financial inclusion.",
+              heading: "Grassroots Financial & Market Inclusion.",
+              body: "TokenHarvest connects rural agricultural networks directly to verified buyers and formal financing structures. By broadening market access for aggregated producer communities, the platform drives sustainable livelihood improvements and raises incomes for sectors historically priced out of agri-finance. Every trade facilitated on the platform serves as a scalable step toward regional financial inclusion and economic resilience.",
             },
             {
               letter: "G",
               label: "Governance",
-              body: "Every eWR transaction is sealed with a SHA-256 audit hash and governed by a \u00a76.1 state-machine lifecycle. The result is an immutable record that satisfies lender covenants, regulatory requirements, and investor reporting standards without additional reconciliation work.",
+              heading: "Secured Transaction Lifecycles Across All Value Chains.",
+              body: "Every transaction, whether handling grains, coffee, tea, or perishables, is executed through a secure, structured state-machine lifecycle and protected by advanced cryptographic hashing. By seamlessly integrating data protocols across diverse agricultural value chains, TokenHarvest provides absolute transaction integrity and eliminates standard contract defaults. The result is a transparent, automated governance architecture that effortlessly satisfies bank lending covenants, regional regulatory requirements, and international investor reporting standards without manual reconciliation.",
             },
-          ] as const).map(({ letter, label, body }, i) => (
+          ] as const).map(({ letter, label, heading, body }, i) => (
             <div key={label} style={{
               background: "#f7f7f7",
               borderLeft: i === 0 ? "none" : "1px solid #ebebeb",
@@ -232,10 +235,16 @@ function EsgSection() {
               <h3 style={{
                 fontSize: 11, fontWeight: 700, color: ACCENT,
                 letterSpacing: "0.2em", textTransform: "uppercase",
-                margin: "0 0 16px",
+                margin: "0 0 12px",
               }}>
                 {label}
               </h3>
+              <h4 style={{
+                fontSize: 14, fontWeight: 600, color: "#222",
+                margin: "0 0 16px", lineHeight: 1.4,
+              }}>
+                {heading}
+              </h4>
               <p style={{ fontSize: 15, color: "#666", lineHeight: 1.85, margin: 0, flex: 1 }}>
                 {body}
               </p>
