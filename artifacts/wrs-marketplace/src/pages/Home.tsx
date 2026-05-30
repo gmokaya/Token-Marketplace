@@ -552,10 +552,10 @@ export default function Home() {
           </section>
 
           {/* ══ ABOUT ════════════════════════════════════════════════ */}
-          <section id="about" style={{ background: "#f5f5f5", padding: "96px 0 104px" }}>
+          <section id="about" style={{ background: "#e8e8e8", padding: "96px 0 104px" }}>
             <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 72, alignItems: "center" }}>
               <div>
-                <img src={photo("about-planting.jpg")} alt="East African farmer planting in the field" style={{ width: "100%", display: "block", objectFit: "cover", aspectRatio: "4 / 3", borderRadius: 8, boxShadow: "0 4px 8px rgba(0,0,0,0.08), 0 12px 24px rgba(0,0,0,0.06), 0 24px 48px rgba(0,0,0,0.04)" }} />
+                <img src={photo("about-planting.jpg")} alt="East African farmer planting in the field" style={{ width: "100%", display: "block", objectFit: "cover", aspectRatio: "4 / 3", boxShadow: "0 8px 20px rgba(0,0,0,0.35), 0 24px 60px rgba(0,0,0,0.25), 0 48px 100px rgba(0,0,0,0.15)" }} />
               </div>
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
