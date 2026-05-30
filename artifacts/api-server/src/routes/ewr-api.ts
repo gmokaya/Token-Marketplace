@@ -10,7 +10,7 @@
  */
 
 import { Router, type Request, type Response, type NextFunction } from "express";
-import { createHmac, randomUUID } from "crypto";
+import { createHmac, randomUUID, timingSafeEqual } from "crypto";
 import { db } from "@workspace/db";
 import {
   ewrsTable,
@@ -220,16 +220,21 @@ router.post("/ewr/oauth2/token", (req: Request, res: Response): void => {
 //     Accepts §3.1 standardised JSON from the WRSC Central Registry
 // ─────────────────────────────────────────────────────────────────────────────
 router.post("/webhooks/registry-sync", async (req: Request, res: Response): Promise<void> => {
-  // Verify WRSC-CR HMAC if the header is present
-  const signature = req.headers["x-wrsc-signature"] as string | undefined;
-  if (signature) {
-    const expected = createHmac("sha256", WRSC_SECRET)
-      .update(JSON.stringify(req.body))
-      .digest("hex");
-    if (signature !== expected) {
-      res.status(401).json({ error: "Invalid webhook signature" });
-      return;
-    }
+  // WRSC-CR HMAC is MANDATORY: this is a pre-Clerk route that mutates core asset
+  // registry data, so an unsigned/invalid request must always be rejected.
+  const signature = req.headers["x-wrsc-signature"];
+  if (typeof signature !== "string" || signature.length === 0) {
+    res.status(401).json({ error: "Missing webhook signature" });
+    return;
+  }
+  const expected = createHmac("sha256", WRSC_SECRET)
+    .update(JSON.stringify(req.body))
+    .digest("hex");
+  const sigBuf = Buffer.from(signature, "utf8");
+  const expBuf = Buffer.from(expected, "utf8");
+  if (sigBuf.length !== expBuf.length || !timingSafeEqual(sigBuf, expBuf)) {
+    res.status(401).json({ error: "Invalid webhook signature" });
+    return;
   }
 
   const {
