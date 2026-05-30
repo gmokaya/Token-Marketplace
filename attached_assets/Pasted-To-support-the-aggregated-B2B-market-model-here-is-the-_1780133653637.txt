@@ -1,0 +1,75 @@
+To support the aggregated B2B market model, here is the functional and technical specification for the **TokenHarvest Cooperative & Factory Module**. This module serves as the primary gateway for professional aggregators, completely isolating individual depositor identities while interfacing directly with the WRSC Central Registry and the bank settlement engine.
+
+---
+
+### **1. Member Registration & Roster Ledger**
+
+To maintain a strict "regulatory-light" framework, individual smallholder identities never leave this module. The platform treats the cooperative as the sole legal owner of the aggregated assets, while the cooperative uses this sub-module to manage its internal relationships.
+
+* **KYB & Group Profile:** Stores corporate registration details, tax identifiers, active value-chain licenses (e.g., coffee/tea trading permits), and verified corporate bank/mobile accounts for final payout distribution.
+* **Internal Member Ledger:** An append-only database table tracking internal farmer data (Name, National ID, Farm Location, Gender, and Acreage).
+* **Data Privacy Guard:** Maps individual members to unique internal database hashes (e.g., `MEMBER_REF_00912`). This ensures that individual identities are never exposed to external buyers or banking partners during trading.
+
+---
+
+### **2. Off-Platform Commodity Intake Engine**
+
+This feature logs physical crop deliveries at the cooperative or factory gates *prior* to bulk consolidation and formal warehouse deposit.
+
+* **Intake Logging:** The factory operator records weights, moisture percentages, and quality grades against the internal member reference hash.
+* **Macro-Lot Aggregation (The Blending Logic):** Grains matching identical grading criteria (e.g., EAS Grade 1 Maize, Moisture $\le 13.5\%$) or coffee matching identical processing runs are digitally batched into standardized commercial volumes (e.g., 10-tonne or 50-tonne bulk blocks).
+* **Registry Export Handshake:** Once a macro-lot is finalized, the module compiles the quality and weight data into a signed JSON payload. This payload is transmitted to the WRSC Central Registry to trigger the generation of a formal Electronic Warehouse Receipt (e-WR) issued **exclusively in the name of the Cooperative/Factory**.
+
+---
+
+### **3. Inventory Management & Lifecycle Controls**
+
+Once the WRSC Registry issues an e-WR to the cooperative, the asset appears on the manager's live inventory dashboard. The module provides full lifecycle control to manipulate these receipts as market requirements change:
+
+* **Inventory Tracking:** Real-time dual tracking showing (a) local, unaggregated factory-gate stock, and (b) verified e-WRs held in certified, third-party storage hubs.
+* **The Split Protocol:** If a cooperative holds a single 100-tonne e-WR but wants to sell small amounts to different buyers, the manager can execute a digital split. The system pings the WRSC API to cancel the parent receipt and instantly issue two or more child receipts (e.g., two 50-tonne e-WRs) under the cooperative's account.
+* **The Transfer Protocol:** Facilitates the programmatic change of title. When a trade is verified, the system routes an instruction to the Central Registry to transfer ownership of the e-WR from the cooperative's account to the buyer's account.
+* **The Retiring Protocol (Physical Outtake):** When an off-taker wants to physically withdraw the commodity to process it, the module executes a "Retire" command. The system logs a final validation call to the registry, marking the e-WR as `EXTINGUISHED` so it can never be traded, split, or financed again.
+
+---
+
+### **4. White-Labeled Market Listing (Privacy Safeguard)**
+
+To protect trade secrets, secure commercial confidentiality, and prevent predatory bargaining, the module features a mandatory anonymity filter for all public market channels.
+
+* **Anonymized Routing:** When a cooperative administrator selects an e-WR and clicks "List for Sale," the system strips away all cooperative branding, location specifics, and historical depositor data from the public facing interface.
+* **Public Visibility Metadata:** External buyers on the Spot Marketplace or Live Auction Engine only see verified structural variables: **Commodity Type**, **Official Grade**, **Moisture Content**, **Total Metric Tonnage**, and the generic **WRSC Warehouse ID Zone**.
+
+---
+
+### **5. Forward Contracts & Digital Signing**
+
+For long-term security of supply (especially critical in coffee and tea value chains), the module hosts a bilateral term-contracting interface.
+
+* **Automated Document Generation:** When a buyer and the cooperative agree on terms (Maturity Date, Delivery Volume, and Price per Tonne), the platform pulls these variables to generate a legally binding, deliverable Forward Contract template.
+* **Bilateral Digital Signing:** Both parties execute the contract directly inside the web dashboard using a secure cryptographic signature mechanism (backed by multi-factor authentication codes).
+* **Performance Bond Lock:** Upon signing, the contract engine triggers an API call to the main bank ledger to instantly lock the mandatory **15% performance bonds** from both the buyer's and seller's accounts into a neutral transaction escrow to prevent default.
+
+---
+
+### **6. Main Engine Settlement Integration**
+
+When an inventory asset changes hands via a Spot sale, won Auction, or matured Forward contract, the module interfaces with the platform's core financial routing engine.
+
+* **Clearing Triggers:** The cooperative module sends the transaction data block to the partner commercial bank's escrow clearing loop.
+* **Automated Multi-Party Split:** The bank escrow executes the programmatic split sequence:
+1. Deducts outstanding pre-sale loan principal and accrued interest back to the financing bank's liquidity pool (if the cooperative took a 60% advance).
+2. Routes the platform's 2% transaction commission to your corporate operational account.
+3. Dispatches the clean, net residual payout directly to the cooperative's corporate bank account or business wallet.
+
+
+
+---
+
+### **7. Integrated Logistics & Delivery Gateway**
+
+Once final settlement is confirmed and title has been transferred, the module activates the logistics coordination interface to manage physical product collection.
+
+* **The Release Pass:** The bank escrow core auto-generates a one-time cryptographic **Digital Release Token** (QR/Barcode code) on the buyer's mobile app and pings the warehouse operator's WMS client.
+* **Third-Party Logistics (3PL) Interfacing:** The cooperative module integrates with approved regional logistics networks via a transport API. The buyer can book certified trucks directly through the interface.
+* **Gate Validation:** When the transport vehicle arrives at the warehouse, the operator scans the buyer's Digital Release Token to verify the clean title change, weights, and transport numbers before physically loading the vehicle and completing the value-chain loop.
