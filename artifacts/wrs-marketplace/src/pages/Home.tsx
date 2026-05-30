@@ -159,20 +159,9 @@ function MarketCard({ num, name, grade, desc, photo }: (typeof MARKET_CARDS)[num
   );
 }
 
-/* ── ESG alignment data ─────────────────────────────────────── */
-const ESG_ROWS = [
-  { target: "5,000–15,000 farmers onboarded",      esg: "Social inclusion & financial access KPI (IRIS+)" },
-  { target: "20–35% income increase",               esg: "Livelihood improvement metric 2X Challenge eligible" },
-  { target: "30–40% post-harvest loss reduction",   esg: "Food systems GHG mitigation proxy" },
-  { target: "60%+ climate-smart practice adoption", esg: "Climate adaptation indicator NDC-aligned" },
-  { target: "70% first-time finance access",        esg: "Financial inclusion / gender disaggregated" },
-  { target: "$8M–$12M credit unlocked",             esg: "Asset-backed green lending volume" },
-  { target: "50,000+ tonnes commodities digitised", esg: "Supply chain traceability ESRS alignment" },
-] as const;
-
 function EsgSection() {
   return (
-    <section id="esg" style={{ background: "#080e09", padding: "96px 0 104px", position: "relative", overflow: "hidden" }}>
+    <section id="esg" style={{ background: "#080e09", padding: "96px 0 112px", position: "relative", overflow: "hidden" }}>
       {/* dot-grid texture */}
       <div style={{
         position: "absolute", inset: 0,
@@ -183,72 +172,84 @@ function EsgSection() {
 
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", position: "relative", zIndex: 1 }}>
 
-        {/* ─ Section header ─ */}
-        <div style={{ marginBottom: 60 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
-            <div style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT_LIGHT }} />
-            <span style={{ color: ACCENT_LIGHT, fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase" }}>
-              ESG Alignment
-            </span>
+        {/* ─ Top layout: statement left, quote right ─ */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "end", marginBottom: 80 }}>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 16 }}>
+              <div style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT_LIGHT }} />
+              <span style={{ color: ACCENT_LIGHT, fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase" }}>
+                Our Commitment
+              </span>
+            </div>
+            <h2 style={{
+              fontSize: "clamp(2rem, 3.5vw, 46px)", fontWeight: 300,
+              color: "#fff", margin: "0 0 8px", lineHeight: 1.12,
+            }}>
+              ESG is not<br />
+              <strong style={{ fontWeight: 700 }}>a checkbox.</strong>
+            </h2>
+            <div style={{ width: 40, height: 2, background: ACCENT_LIGHT, marginTop: 24 }} />
           </div>
-          <h2 style={{
-            fontSize: "clamp(1.8rem, 3vw, 40px)", fontWeight: 500,
-            color: "#fff", margin: "0 0 16px", lineHeight: 1.15,
-          }}>
-            Measurable Impact
-          </h2>
-          <p style={{ fontSize: 16, color: "rgba(255,255,255,0.38)", maxWidth: 560, lineHeight: 1.85, margin: 0 }}>
-            Every target on the TokenHarvest platform maps directly to an internationally recognised
-            ESG framework — giving investors verifiable, reportable outcomes.
-          </p>
+
+          <div>
+            <p style={{ fontSize: 17, color: "rgba(255,255,255,0.45)", lineHeight: 1.9, margin: 0 }}>
+              Agricultural commodity trading sits at the intersection of climate, livelihoods,
+              and financial inclusion. We built TokenHarvest around the conviction that a
+              transparent, digitised supply chain is inherently a more responsible one — and
+              that ESG outcomes should be an unavoidable consequence of doing business
+              on the platform, not an afterthought.
+            </p>
+          </div>
         </div>
 
-        {/* ─ Table ─ */}
-        <div style={{ border: "1px solid rgba(255,255,255,0.07)", overflow: "hidden" }}>
-          {/* Column headers */}
-          <div style={{
-            display: "grid", gridTemplateColumns: "1fr 1fr",
-            background: `linear-gradient(135deg, ${ACCENT} 0%, hsl(155 80% 22%) 100%)`,
-            padding: "20px 32px",
-          }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#fff", letterSpacing: "0.18em", textTransform: "uppercase" }}>
-              TokenHarvest Target
-            </div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.6)", letterSpacing: "0.18em", textTransform: "uppercase" }}>
-              ESG Translation
-            </div>
-          </div>
-
-          {/* Data rows */}
-          {ESG_ROWS.map(({ target, esg }, i) => (
-            <div
-              key={target}
-              style={{
-                display: "grid", gridTemplateColumns: "1fr 1fr",
-                padding: "22px 32px",
-                borderTop: "1px solid rgba(255,255,255,0.055)",
-                background: i % 2 === 0 ? "rgba(255,255,255,0.012)" : "transparent",
-                transition: "background 0.2s",
-                cursor: "default",
-              }}
-              onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.045)"; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = i % 2 === 0 ? "rgba(255,255,255,0.012)" : "transparent"; }}
-            >
-              <div style={{ fontSize: 15, fontWeight: 600, color: "#f0f0f0", lineHeight: 1.55, paddingRight: 24 }}>
-                {target}
+        {/* ─ Three pillars ─ */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 2 }}>
+          {([
+            {
+              letter: "E",
+              label: "Environmental",
+              body: "Digitising grain storage and enabling direct farm-to-buyer trades cuts unnecessary commodity transit across East Africa. Fewer intermediaries means lower emissions, less spoilage, and a measurable reduction in the carbon intensity of the food supply chain.",
+            },
+            {
+              letter: "S",
+              label: "Social",
+              body: "TokenHarvest connects smallholder farmers directly to verified buyers and formal financing — broadening market access and raising incomes for communities that have historically been priced out of agri-finance. Every trade on the platform is a step toward financial inclusion.",
+            },
+            {
+              letter: "G",
+              label: "Governance",
+              body: "Every eWR transaction is sealed with a SHA-256 audit hash and governed by a §6.1 state-machine lifecycle. The result is an immutable record that satisfies lender covenants, regulatory requirements, and investor reporting standards without additional reconciliation work.",
+            },
+          ] as const).map(({ letter, label, body }, i) => (
+            <div key={label} style={{
+              background: "rgba(255,255,255,0.03)",
+              borderLeft: i === 0 ? "none" : "1px solid rgba(255,255,255,0.06)",
+              padding: "48px 40px 52px",
+              display: "flex",
+              flexDirection: "column",
+            }}>
+              {/* Large letter watermark */}
+              <div style={{
+                fontSize: 80, fontWeight: 800, lineHeight: 1,
+                color: ACCENT_LIGHT, opacity: 0.18,
+                marginBottom: 20, letterSpacing: "-0.04em",
+              }}>
+                {letter}
               </div>
-              <div style={{ fontSize: 15, color: ACCENT_LIGHT, lineHeight: 1.55, display: "flex", alignItems: "flex-start", gap: 12 }}>
-                <div style={{ width: 2, minHeight: 20, background: ACCENT_LIGHT, opacity: 0.55, flexShrink: 0, marginTop: 3 }} />
-                {esg}
-              </div>
+              <h3 style={{
+                fontSize: 11, fontWeight: 700, color: ACCENT_LIGHT,
+                letterSpacing: "0.2em", textTransform: "uppercase",
+                margin: "0 0 16px",
+              }}>
+                {label}
+              </h3>
+              <p style={{ fontSize: 15, color: "rgba(255,255,255,0.48)", lineHeight: 1.85, margin: 0, flex: 1 }}>
+                {body}
+              </p>
+              <div style={{ width: 28, height: 2, background: ACCENT_LIGHT, opacity: 0.4, marginTop: 32 }} />
             </div>
           ))}
         </div>
-
-        {/* ─ Framework footnote ─ */}
-        <p style={{ marginTop: 28, fontSize: 12, color: "rgba(255,255,255,0.22)", textAlign: "center", letterSpacing: "0.06em" }}>
-          Aligned with IRIS+ · ESRS · NDC · 2X Challenge frameworks
-        </p>
 
       </div>
     </section>
