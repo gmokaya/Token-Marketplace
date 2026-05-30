@@ -16,10 +16,7 @@ const clerkAppearance = {
     rootBox: "w-full",
     cardBox: "!shadow-none !border-0 !rounded-none !w-full !bg-transparent",
     card: "!shadow-none !border-0 !bg-transparent !p-0",
-    header: "!mb-6",
-    headerTitle: "!text-2xl !font-semibold !text-gray-900 !tracking-tight",
-    headerSubtitle: "!text-sm !text-gray-500 !mt-1",
-    headerBackIcon: "!hidden",
+    header: "!hidden",
     logoBox: "!hidden",
     socialButtonsBlockButton:
       "!border !border-gray-200 !bg-white !text-gray-800 !text-sm !font-medium !shadow-none !rounded-lg !h-11 hover:!bg-gray-50 hover:!border-gray-300 transition-colors",
@@ -108,6 +105,12 @@ export default function SignInPage() {
         {/* Centered form */}
         <div className="flex-1 flex flex-col items-center justify-center px-8 py-12">
           <div className="w-full max-w-[380px]">
+            {/* Custom heading */}
+            <div className="mb-6">
+              <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">Sign in to TokenHarvest Marketplace</h1>
+              <p className="text-sm text-gray-500 mt-1">Welcome back! Please sign in to continue.</p>
+            </div>
+
             <SignIn
               routing="path"
               path={`${basePath}/sign-in`}
