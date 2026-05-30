@@ -159,6 +159,102 @@ function MarketCard({ num, name, grade, desc, photo }: (typeof MARKET_CARDS)[num
   );
 }
 
+/* ── ESG alignment data ─────────────────────────────────────── */
+const ESG_ROWS = [
+  { target: "5,000–15,000 farmers onboarded",      esg: "Social inclusion & financial access KPI (IRIS+)" },
+  { target: "20–35% income increase",               esg: "Livelihood improvement metric 2X Challenge eligible" },
+  { target: "30–40% post-harvest loss reduction",   esg: "Food systems GHG mitigation proxy" },
+  { target: "60%+ climate-smart practice adoption", esg: "Climate adaptation indicator NDC-aligned" },
+  { target: "70% first-time finance access",        esg: "Financial inclusion / gender disaggregated" },
+  { target: "$8M–$12M credit unlocked",             esg: "Asset-backed green lending volume" },
+  { target: "50,000+ tonnes commodities digitised", esg: "Supply chain traceability ESRS alignment" },
+] as const;
+
+function EsgSection() {
+  return (
+    <section id="esg" style={{ background: "#080e09", padding: "96px 0 104px", position: "relative", overflow: "hidden" }}>
+      {/* dot-grid texture */}
+      <div style={{
+        position: "absolute", inset: 0,
+        backgroundImage: "radial-gradient(rgba(255,255,255,0.028) 1px, transparent 1px)",
+        backgroundSize: "32px 32px",
+        pointerEvents: "none",
+      }} />
+
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", position: "relative", zIndex: 1 }}>
+
+        {/* ─ Section header ─ */}
+        <div style={{ marginBottom: 60 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
+            <div style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT_LIGHT }} />
+            <span style={{ color: ACCENT_LIGHT, fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase" }}>
+              ESG Alignment
+            </span>
+          </div>
+          <h2 style={{
+            fontSize: "clamp(1.8rem, 3vw, 40px)", fontWeight: 500,
+            color: "#fff", margin: "0 0 16px", lineHeight: 1.15,
+          }}>
+            Measurable Impact
+          </h2>
+          <p style={{ fontSize: 16, color: "rgba(255,255,255,0.38)", maxWidth: 560, lineHeight: 1.85, margin: 0 }}>
+            Every target on the TokenHarvest platform maps directly to an internationally recognised
+            ESG framework — giving investors verifiable, reportable outcomes.
+          </p>
+        </div>
+
+        {/* ─ Table ─ */}
+        <div style={{ border: "1px solid rgba(255,255,255,0.07)", overflow: "hidden" }}>
+          {/* Column headers */}
+          <div style={{
+            display: "grid", gridTemplateColumns: "1fr 1fr",
+            background: `linear-gradient(135deg, ${ACCENT} 0%, hsl(155 80% 22%) 100%)`,
+            padding: "20px 32px",
+          }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#fff", letterSpacing: "0.18em", textTransform: "uppercase" }}>
+              TokenHarvest Target
+            </div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.6)", letterSpacing: "0.18em", textTransform: "uppercase" }}>
+              ESG Translation
+            </div>
+          </div>
+
+          {/* Data rows */}
+          {ESG_ROWS.map(({ target, esg }, i) => (
+            <div
+              key={target}
+              style={{
+                display: "grid", gridTemplateColumns: "1fr 1fr",
+                padding: "22px 32px",
+                borderTop: "1px solid rgba(255,255,255,0.055)",
+                background: i % 2 === 0 ? "rgba(255,255,255,0.012)" : "transparent",
+                transition: "background 0.2s",
+                cursor: "default",
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.045)"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = i % 2 === 0 ? "rgba(255,255,255,0.012)" : "transparent"; }}
+            >
+              <div style={{ fontSize: 15, fontWeight: 600, color: "#f0f0f0", lineHeight: 1.55, paddingRight: 24 }}>
+                {target}
+              </div>
+              <div style={{ fontSize: 15, color: ACCENT_LIGHT, lineHeight: 1.55, display: "flex", alignItems: "flex-start", gap: 12 }}>
+                <div style={{ width: 2, minHeight: 20, background: ACCENT_LIGHT, opacity: 0.55, flexShrink: 0, marginTop: 3 }} />
+                {esg}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* ─ Framework footnote ─ */}
+        <p style={{ marginTop: 28, fontSize: 12, color: "rgba(255,255,255,0.22)", textAlign: "center", letterSpacing: "0.06em" }}>
+          Aligned with IRIS+ · ESRS · NDC · 2X Challenge frameworks
+        </p>
+
+      </div>
+    </section>
+  );
+}
+
 /* ── Partners data types ───────────────────────────────────── */
 type Partner = { id: string; name: string; logoUrl: string; website: string };
 
@@ -570,6 +666,9 @@ export default function Home() {
             </div>
 
           </section>
+
+          {/* ══ ESG ──────────────────────────────────────────────── */}
+          <EsgSection />
 
           {/* ══ PARTNERS ─────────────────────────────────────────── */}
           <PartnersSection />
