@@ -13,7 +13,12 @@ const ACCENT_LIGHT = "hsl(155 72% 42%)";    // WRS green (on dark bg)
 
 /* ── smooth scroll helper ─────────────────────────────────── */
 function scrollTo(id: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const el = document.getElementById(id);
+  if (!el) return;
+  const navHeight = 68;
+  const extraPad = 24;
+  const top = el.getBoundingClientRect().top + window.scrollY - navHeight - extraPad;
+  window.scrollTo({ top, behavior: "smooth" });
 }
 
 /* ── animated counter ─────────────────────────────────────── */
@@ -308,11 +313,21 @@ export default function Home() {
               White panel overlapping hero by −72px, 3 columns
               Exact Corzo: icon → red-dot title → text → divider
           ════════════════════════════════════════════════════════ */}
-          <section id="services" style={{ background: "#f5f5f5" }}>
+          <section id="services" style={{ background: "#f5f5f5", paddingTop: 80, paddingBottom: 80 }}>
             <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px" }}>
+              {/* Section title */}
+              <div style={{ textAlign: "center", padding: "48px 0 32px" }}>
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
+                  <div style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT }} />
+                  <span style={{ color: ACCENT, fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase" }}>Our Services</span>
+                </div>
+                <h2 style={{ fontSize: "clamp(1.8rem, 3vw, 40px)", fontWeight: 500, color: "#232323", margin: 0 }}>
+                  Trading Solutions
+                </h2>
+              </div>
               <div style={{
                 display: "grid", gridTemplateColumns: "1fr 1fr 1fr",
-                background: "#fff", marginTop: -72, position: "relative", zIndex: 10,
+                background: "#fff", position: "relative", zIndex: 10,
                 boxShadow: "0 8px 40px rgba(0,0,0,0.10)",
               }}>
                 {([
