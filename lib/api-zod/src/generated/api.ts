@@ -1486,3 +1486,50 @@ export const RetireEwrResponse = zod.object({
 })
 
 
+/**
+ * @summary Transfer eWR ownership to another registered user (Cooperative only)
+ */
+export const TransferEwrParams = zod.object({
+  "ewrId": zod.coerce.number()
+})
+
+export const TransferEwrBody = zod.object({
+  "toUserId": zod.number().describe('ID of the recipient user')
+})
+
+export const TransferEwrResponse = zod.object({
+  "id": zod.number(),
+  "ewrsReceiptId": zod.string(),
+  "wrscSignature": zod.string(),
+  "warehouseCode": zod.string(),
+  "commodityType": zod.enum(['MAIZE', 'RICE', 'COFFEE', 'TEA', 'AVOCADO']),
+  "batchType": zod.enum(['FUNGIBLE', 'SEMI_FUNGIBLE', 'NON_FUNGIBLE', 'TIME_DECAYING']),
+  "grade": zod.string(),
+  "weightMt": zod.number(),
+  "harvestSeason": zod.string(),
+  "isLienActive": zod.boolean(),
+  "lienHolderId": zod.number().nullish(),
+  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'AUCTION_ACTIVE', 'FORWARD_BOUND', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED']),
+  "ownerId": zod.number(),
+  "ownerName": zod.string().nullish(),
+  "expiryAt": zod.coerce.date().nullish(),
+  "issuedAt": zod.coerce.date(),
+  "estimatedValueUsd": zod.number().nullish(),
+  "lienLoanOutstandingUsd": zod.number().nullish(),
+  "moisturePct": zod.number().nullish(),
+  "foreignMatterPct": zod.number().nullish(),
+  "brokenGrainsPct": zod.number().nullish(),
+  "insectDamagedGrainsPct": zod.number().nullish(),
+  "coffeeBeanSize": zod.union([zod.literal('AA'),zod.literal('AB'),zod.literal('PB'),zod.literal('C'),zod.literal(null)]).nullish(),
+  "coffeeCuppingScore": zod.number().nullish(),
+  "teaProcessingType": zod.union([zod.literal('CTC'),zod.literal('ORTHODOX'),zod.literal(null)]).nullish(),
+  "teaLeafGrade": zod.union([zod.literal('BOP'),zod.literal('BOPF'),zod.literal('D1'),zod.literal('PF'),zod.literal(null)]).nullish(),
+  "teaInvoiceSerial": zod.string().nullish(),
+  "avocadoVariety": zod.union([zod.literal('HASS'),zod.literal('FUERTE'),zod.literal(null)]).nullish(),
+  "avocadoSizingCode": zod.number().nullish(),
+  "avocadoColdChainCompliant": zod.boolean().nullish(),
+  "avocadoDegradationCoefficient": zod.number().nullish(),
+  "poolGroupId": zod.string().nullish()
+})
+
+

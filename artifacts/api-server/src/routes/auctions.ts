@@ -272,12 +272,34 @@ router.get("/auctions/:auctionId", async (req, res) => {
   const secondsRemaining = Math.max(0, (auction.endAt.getTime() - now.getTime()) / 1000);
 
   const enrichedAuction = await enrichAuction(auction);
+  const isAnon = (enrichedAuction as any)._anonymous === true;
+  const safeEwr = ewr
+    ? isAnon
+      ? {
+          id: ewr.id,
+          commodityType: ewr.commodityType,
+          grade: ewr.grade,
+          weightMt: ewr.weightMt,
+          moisturePct: ewr.moisturePct,
+          harvestSeason: ewr.harvestSeason,
+          state: ewr.state,
+          expiryAt: ewr.expiryAt,
+          warehouseCode: typeof ewr.warehouseCode === "string" ? ewr.warehouseCode.slice(0, 3) : null,
+          ownerId: null,
+          ewrsReceiptId: null,
+          wrscSignature: null,
+          batchType: ewr.batchType,
+          isLienActive: ewr.isLienActive,
+          _anonymous: true,
+        }
+      : ewr
+    : null;
 
   return res.json({
     auction: enrichedAuction,
     bids,
     secondsRemaining,
-    ewr: ewr ?? null,
+    ewr: safeEwr,
   });
 });
 

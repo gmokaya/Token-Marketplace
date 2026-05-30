@@ -1318,6 +1318,36 @@ paths:
               schema:
                 $ref: "#/components/schemas/Ewr"
 
+  /ewrs/{ewrId}/transfer:
+    post:
+      operationId: transferEwr
+      tags: [ewrs]
+      summary: Transfer eWR ownership to another registered user (Cooperative only)
+      parameters:
+        - name: ewrId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [toUserId]
+              properties:
+                toUserId:
+                  type: integer
+                  description: ID of the recipient user
+      responses:
+        "200":
+          description: Updated eWR with new owner
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ewr"
+
 components:
   schemas:
     HealthStatus:

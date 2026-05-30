@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
-import { useListEwrs, useGetMe, useSplitEwr, useRetireEwr, useCreateSpotListing, getListEwrsQueryKey, getListSpotListingsQueryKey } from "@workspace/api-client-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useListEwrs, useGetMe, useSplitEwr, useRetireEwr, useTransferEwr, useCreateSpotListing, getListEwrsQueryKey, getListSpotListingsQueryKey } from "@workspace/api-client-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
-import { Package, Scissors, Flame, ArrowUpRight, ShoppingBag } from "lucide-react";
+import { Package, Scissors, Flame, ArrowRightLeft, ShoppingBag } from "lucide-react";
 
 const ACCENT = "hsl(155 100% 18%)";
 
@@ -31,17 +31,20 @@ export default function CoopInventory() {
   );
   const { mutateAsync: splitEwr, isPending: splitting } = useSplitEwr();
   const { mutateAsync: retireEwr, isPending: retiring } = useRetireEwr();
+  const { mutateAsync: transferEwr, isPending: transferring } = useTransferEwr();
   const { mutateAsync: createListing, isPending: listing } = useCreateSpotListing();
   const { toast } = useToast();
   const qc = useQueryClient();
 
   const [splitOpen, setSplitOpen] = useState(false);
   const [retireOpen, setRetireOpen] = useState(false);
+  const [transferOpen, setTransferOpen] = useState(false);
   const [listOpen, setListOpen] = useState(false);
   const [activeEwr, setActiveEwr] = useState<number | null>(null);
   const [activeWeight, setActiveWeight] = useState(0);
   const [splitA, setSplitA] = useState("");
   const [pricePerMt, setPricePerMt] = useState("");
+  const [toUserId, setToUserId] = useState("");
 
   const activeEwrs = (ewrs ?? []).filter(e => !["SETTLED", "EXTINGUISHED"].includes(e.state));
 
@@ -50,6 +53,9 @@ export default function CoopInventory() {
   }
   function openRetire(id: number) {
     setActiveEwr(id); setRetireOpen(true);
+  }
+  function openTransfer(id: number) {
+    setActiveEwr(id); setToUserId(""); setTransferOpen(true);
   }
   function openList(id: number) {
     setActiveEwr(id); setPricePerMt(""); setListOpen(true);
@@ -83,6 +89,22 @@ export default function CoopInventory() {
     }
   }
 
+  async function handleTransfer() {
+    const recipientId = parseInt(toUserId);
+    if (isNaN(recipientId) || recipientId <= 0) {
+      toast({ title: "Invalid Recipient", description: "Enter a valid numeric user ID.", variant: "destructive" });
+      return;
+    }
+    try {
+      await transferEwr({ ewrId: activeEwr!, data: { toUserId: recipientId } });
+      await qc.invalidateQueries({ queryKey: getListEwrsQueryKey() });
+      toast({ title: "eWR Transferred", description: `Ownership transferred to user #${recipientId}.` });
+      setTransferOpen(false);
+    } catch (err: any) {
+      toast({ title: "Error", description: err?.response?.data?.error ?? err.message, variant: "destructive" });
+    }
+  }
+
   async function handleList() {
     if (!pricePerMt || isNaN(parseFloat(pricePerMt))) {
       toast({ title: "Validation Error", description: "Enter a valid price per MT.", variant: "destructive" });
@@ -105,7 +127,7 @@ export default function CoopInventory() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">e-WR Inventory</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Manage your cooperative's electronic warehouse receipts — split, retire, transfer, or list on the market.
+            Manage your cooperative's electronic warehouse receipts — split, transfer, retire, or list on the market.
           </p>
         </div>
 
@@ -128,6 +150,7 @@ export default function CoopInventory() {
               const weight = parseFloat(String(ewr.weightMt));
               const canSplit = ewr.state === "INGESTED";
               const canRetire = ewr.state === "INGESTED" && !ewr.isLienActive;
+              const canTransfer = ewr.state === "INGESTED" && !ewr.isLienActive;
               const canList = ewr.state === "INGESTED";
               return (
                 <Card key={ewr.id}>
@@ -155,6 +178,12 @@ export default function CoopInventory() {
                         <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => openSplit(ewr.id, weight)}>
                           <Scissors className="w-3.5 h-3.5" />
                           Split
+                        </Button>
+                      )}
+                      {canTransfer && (
+                        <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => openTransfer(ewr.id)}>
+                          <ArrowRightLeft className="w-3.5 h-3.5" />
+                          Transfer
                         </Button>
                       )}
                       {canRetire && (
@@ -189,6 +218,33 @@ export default function CoopInventory() {
             <Button variant="outline" onClick={() => setSplitOpen(false)}>Cancel</Button>
             <Button onClick={handleSplit} disabled={splitting} style={{ background: ACCENT }}>
               {splitting ? "Splitting…" : "Split eWR"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={transferOpen} onOpenChange={setTransferOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Transfer eWR</DialogTitle>
+            <DialogDescription>Transfer ownership of this receipt to another registered user. The recipient must be a registered platform user.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-1.5 py-2">
+            <Label>Recipient User ID *</Label>
+            <Input
+              type="number"
+              min="1"
+              step="1"
+              value={toUserId}
+              onChange={e => setToUserId(e.target.value)}
+              placeholder="e.g. 3"
+            />
+            <p className="text-xs text-muted-foreground">Enter the numeric user ID of the recipient (visible in their profile).</p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setTransferOpen(false)}>Cancel</Button>
+            <Button onClick={handleTransfer} disabled={transferring} style={{ background: ACCENT }}>
+              {transferring ? "Transferring…" : "Transfer Ownership"}
             </Button>
           </DialogFooter>
         </DialogContent>

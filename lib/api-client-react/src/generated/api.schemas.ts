@@ -1154,3 +1154,8 @@ export type SplitEwr201 = {
   ewrB?: Ewr;
 };
 
+export type TransferEwrBody = {
+  /** ID of the recipient user */
+  toUserId: number;
+};
+

@@ -71,6 +71,7 @@ import type {
   SpotListingDetail,
   SpotListingInput,
   TopBidder,
+  TransferEwrBody,
   User,
   UserUpdate,
   WarehouseStat
@@ -4553,5 +4554,77 @@ export const useRetireEwr = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getRetireEwrMutationOptions(options));
+    }
+
+export const getTransferEwrUrl = (ewrId: number,) => {
+
+
+
+
+  return `/api/ewrs/${ewrId}/transfer`
+}
+
+/**
+ * @summary Transfer eWR ownership to another registered user (Cooperative only)
+ */
+export const transferEwr = async (ewrId: number,
+    transferEwrBody: TransferEwrBody, options?: RequestInit): Promise<Ewr> => {
+
+  return customFetch<Ewr>(getTransferEwrUrl(ewrId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      transferEwrBody,)
+  }
+);}
+
+
+
+
+export const getTransferEwrMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof transferEwr>>, TError,{ewrId: number;data: BodyType<TransferEwrBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof transferEwr>>, TError,{ewrId: number;data: BodyType<TransferEwrBody>}, TContext> => {
+
+const mutationKey = ['transferEwr'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof transferEwr>>, {ewrId: number;data: BodyType<TransferEwrBody>}> = (props) => {
+          const {ewrId,data} = props ?? {};
+
+          return  transferEwr(ewrId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type TransferEwrMutationResult = NonNullable<Awaited<ReturnType<typeof transferEwr>>>
+    export type TransferEwrMutationBody = BodyType<TransferEwrBody>
+    export type TransferEwrMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Transfer eWR ownership to another registered user (Cooperative only)
+ */
+export const useTransferEwr = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof transferEwr>>, TError,{ewrId: number;data: BodyType<TransferEwrBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof transferEwr>>,
+        TError,
+        {ewrId: number;data: BodyType<TransferEwrBody>},
+        TContext
+      > => {
+      return useMutation(getTransferEwrMutationOptions(options));
     }
 
