@@ -16,7 +16,7 @@ export default function SignUpPage() {
     }}>
       {/* Logo */}
       <div style={{ marginBottom: 32 }}>
-        <img src={`${basePath}/logo-tokenharvest.png`} alt="TokenHarvest" style={{ height: 52, width: "auto", filter: "brightness(0)" }} />
+        <img src={`${basePath}/logo-dark.png`} alt="TokenHarvest" style={{ height: 36, width: "auto" }} />
       </div>
 
       {/* Clerk card */}

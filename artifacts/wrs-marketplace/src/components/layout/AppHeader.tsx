@@ -66,10 +66,9 @@ export function AppHeader({ collapsed, onToggle }: AppHeaderProps) {
 
         <Link href="/dashboard" className="flex items-center ml-1">
           <img
-            src={`${basePath}/logo-tokenharvest.png`}
+            src={`${basePath}/logo-dark.png`}
             alt="TokenHarvest"
-            className="h-8 w-auto shrink-0"
-            style={{ filter: "brightness(0)" }}
+            className="h-7 w-auto shrink-0"
           />
         </Link>
       </div>
