@@ -84,7 +84,7 @@ export const GetUserResponse = zod.object({
  */
 export const ListEwrsQueryParams = zod.object({
   "ownerId": zod.coerce.number().optional(),
-  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'AUCTION_ACTIVE', 'FORWARD_BOUND', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED']).optional(),
+  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'AUCTION_ACTIVE', 'FORWARD_BOUND', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED', 'EXTINGUISHED']).optional(),
   "commodityType": zod.enum(['MAIZE', 'RICE', 'COFFEE', 'TEA', 'AVOCADO']).optional()
 })
 
@@ -100,7 +100,7 @@ export const ListEwrsResponseItem = zod.object({
   "harvestSeason": zod.string(),
   "isLienActive": zod.boolean(),
   "lienHolderId": zod.number().nullish(),
-  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'AUCTION_ACTIVE', 'FORWARD_BOUND', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED']),
+  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'AUCTION_ACTIVE', 'FORWARD_BOUND', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED', 'EXTINGUISHED']),
   "ownerId": zod.number(),
   "ownerName": zod.string().nullish(),
   "expiryAt": zod.coerce.date().nullish(),
@@ -171,7 +171,7 @@ export const GetEwrResponse = zod.object({
   "harvestSeason": zod.string(),
   "isLienActive": zod.boolean(),
   "lienHolderId": zod.number().nullish(),
-  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'AUCTION_ACTIVE', 'FORWARD_BOUND', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED']),
+  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'AUCTION_ACTIVE', 'FORWARD_BOUND', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED', 'EXTINGUISHED']),
   "ownerId": zod.number(),
   "ownerName": zod.string().nullish(),
   "expiryAt": zod.coerce.date().nullish(),
@@ -211,7 +211,7 @@ export const GetMyPortfolioResponse = zod.object({
   "harvestSeason": zod.string(),
   "isLienActive": zod.boolean(),
   "lienHolderId": zod.number().nullish(),
-  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'AUCTION_ACTIVE', 'FORWARD_BOUND', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED']),
+  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'AUCTION_ACTIVE', 'FORWARD_BOUND', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED', 'EXTINGUISHED']),
   "ownerId": zod.number(),
   "ownerName": zod.string().nullish(),
   "expiryAt": zod.coerce.date().nullish(),
@@ -331,7 +331,7 @@ export const GetSpotListingResponse = zod.object({
   "harvestSeason": zod.string(),
   "isLienActive": zod.boolean(),
   "lienHolderId": zod.number().nullish(),
-  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'AUCTION_ACTIVE', 'FORWARD_BOUND', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED']),
+  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'AUCTION_ACTIVE', 'FORWARD_BOUND', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED', 'EXTINGUISHED']),
   "ownerId": zod.number(),
   "ownerName": zod.string().nullish(),
   "expiryAt": zod.coerce.date().nullish(),
@@ -673,7 +673,7 @@ export const GetAuctionResponse = zod.object({
   "harvestSeason": zod.string(),
   "isLienActive": zod.boolean(),
   "lienHolderId": zod.number().nullish(),
-  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'AUCTION_ACTIVE', 'FORWARD_BOUND', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED']),
+  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'AUCTION_ACTIVE', 'FORWARD_BOUND', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED', 'EXTINGUISHED']),
   "ownerId": zod.number(),
   "ownerName": zod.string().nullish(),
   "expiryAt": zod.coerce.date().nullish(),
@@ -1247,20 +1247,23 @@ export const GetCoopProfileResponse = zod.object({
  * @summary Create or update cooperative profile
  */
 export const UpsertCoopProfileBody = zod.object({
-  "id": zod.number(),
-  "userId": zod.number(),
   "entityName": zod.string(),
   "registrationNumber": zod.string(),
   "licenceNumber": zod.string().nullish(),
   "kraPin": zod.string().nullish(),
   "officeAddress": zod.string().nullish(),
+  "gpsLatitude": zod.string().nullish(),
+  "gpsLongitude": zod.string().nullish(),
   "adminFirstName": zod.string().nullish(),
   "adminLastName": zod.string().nullish(),
+  "adminNationalId": zod.string().nullish(),
   "adminPhone": zod.string().nullish(),
   "adminEmail": zod.string().nullish(),
   "bankName": zod.string().nullish(),
+  "bankBranch": zod.string().nullish(),
+  "bankSwiftCode": zod.string().nullish(),
   "bankAccountNumber": zod.string().nullish(),
-  "createdAt": zod.coerce.date()
+  "mobileMoneyPaybill": zod.string().nullish()
 })
 
 export const UpsertCoopProfileResponse = zod.object({
@@ -1302,15 +1305,11 @@ export const ListCoopMembersResponse = zod.array(ListCoopMembersResponseItem)
  * @summary Add a member to the cooperative
  */
 export const AddCoopMemberBody = zod.object({
-  "id": zod.number(),
-  "cooperativeId": zod.number(),
-  "memberRef": zod.string(),
   "fullName": zod.string(),
   "nationalId": zod.string(),
   "farmLocation": zod.string().nullish(),
   "gender": zod.string().nullish(),
-  "acreageMt": zod.number().nullish(),
-  "createdAt": zod.coerce.date()
+  "acreageMt": zod.number().nullish()
 })
 
 
@@ -1335,15 +1334,13 @@ export const ListIntakeLogsResponse = zod.array(ListIntakeLogsResponseItem)
  * @summary Record a crop intake delivery
  */
 export const CreateIntakeLogBody = zod.object({
-  "id": zod.number(),
-  "cooperativeId": zod.number(),
   "memberRef": zod.string(),
   "commodityType": zod.enum(['MAIZE', 'RICE', 'COFFEE', 'TEA', 'AVOCADO']),
   "weightMt": zod.number(),
-  "moisturePct": zod.number().nullish(),
   "grade": zod.string(),
+  "moisturePct": zod.number().nullish(),
   "macroLotId": zod.number().nullish(),
-  "intakeAt": zod.coerce.date()
+  "intakeAt": zod.coerce.date().optional()
 })
 
 
@@ -1369,16 +1366,10 @@ export const ListMacroLotsResponse = zod.array(ListMacroLotsResponseItem)
  * @summary Create a macro lot
  */
 export const CreateMacroLotBody = zod.object({
-  "id": zod.number(),
-  "cooperativeId": zod.number(),
   "commodityType": zod.enum(['MAIZE', 'RICE', 'COFFEE', 'TEA', 'AVOCADO']),
   "grade": zod.string(),
-  "totalWeightMt": zod.number(),
-  "status": zod.enum(['OPEN', 'FINALISED', 'EWR_REQUESTED', 'EWR_ISSUED']),
-  "ewrId": zod.number().nullish(),
   "warehouseCode": zod.string().nullish(),
-  "harvestSeason": zod.string().nullish(),
-  "createdAt": zod.coerce.date()
+  "harvestSeason": zod.string().nullish()
 })
 
 
@@ -1462,7 +1453,7 @@ export const RetireEwrResponse = zod.object({
   "harvestSeason": zod.string(),
   "isLienActive": zod.boolean(),
   "lienHolderId": zod.number().nullish(),
-  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'AUCTION_ACTIVE', 'FORWARD_BOUND', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED']),
+  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'AUCTION_ACTIVE', 'FORWARD_BOUND', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED', 'EXTINGUISHED']),
   "ownerId": zod.number(),
   "ownerName": zod.string().nullish(),
   "expiryAt": zod.coerce.date().nullish(),
@@ -1509,7 +1500,7 @@ export const TransferEwrResponse = zod.object({
   "harvestSeason": zod.string(),
   "isLienActive": zod.boolean(),
   "lienHolderId": zod.number().nullish(),
-  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'AUCTION_ACTIVE', 'FORWARD_BOUND', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED']),
+  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'AUCTION_ACTIVE', 'FORWARD_BOUND', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED', 'EXTINGUISHED']),
   "ownerId": zod.number(),
   "ownerName": zod.string().nullish(),
   "expiryAt": zod.coerce.date().nullish(),

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getAuth } from "@clerk/express";
-import { randomUUID, createHash, createHmac } from "crypto";
+import { randomUUID, createHash } from "crypto";
 import { db } from "@workspace/db";
 import {
   usersTable,
@@ -14,20 +14,7 @@ import {
 } from "@workspace/db";
 import { eq, and, sql } from "drizzle-orm";
 import { auditEntry } from "../lib/audit";
-
-// Mirror of wrsc.ts — must use the same secret so cooperative-issued receipts
-// pass the same signature validation as WMS intake receipts.
-function loadWrscSecret(): string {
-  const v = process.env.WRSC_SECRET;
-  if (v && v.length > 0) return v;
-  if (process.env.NODE_ENV === "production") throw new Error("[wrsc] WRSC_SECRET must be set in production");
-  return "wrsc-dev-registry-secret-2025";
-}
-const WRSC_SECRET = loadWrscSecret();
-
-function wrscSign(payload: object): string {
-  return createHmac("sha256", WRSC_SECRET).update(JSON.stringify(payload)).digest("hex");
-}
+import { signEwr, generateEwrReceiptId, splitEwrInWrsc, retireEwrInWrsc } from "../lib/ewr-service";
 
 const router = Router();
 
@@ -278,7 +265,7 @@ router.post("/cooperatives/me/macro-lots/:lotId/request-ewr", async (req, res) =
     }
 
     const ewrsReceiptId = `COOP-${lotId}-${randomUUID().slice(0, 8).toUpperCase()}`;
-    const wrscSignature = wrscSign({
+    const wrscSignature = signEwr({
       ewrsReceiptId,
       cooperativeId: user.id,
       weightMt: lot.totalWeightMt,
@@ -353,43 +340,13 @@ router.post("/ewrs/:ewrId/split", async (req, res) => {
       return res.status(400).json({ error: `Split weights must sum to ${totalWeight} MT` });
     }
 
-    await db.update(ewrsTable).set({ state: "EXTINGUISHED" }).where(eq(ewrsTable.id, ewrId));
-
-    const makeChildId = (suffix: string) => `${parent.ewrsReceiptId}-${suffix}`;
-    const [ewrA] = await db.insert(ewrsTable).values({
-      ewrsReceiptId: makeChildId("A"),
-      wrscSignature: wrscSign({ parentReceiptId: parent.ewrsReceiptId, split: "A", weightMt: weightMtA }),
-      warehouseCode: parent.warehouseCode,
-      commodityType: parent.commodityType,
-      batchType: parent.batchType,
-      grade: parent.grade,
-      weightMt: String(weightMtA),
-      harvestSeason: parent.harvestSeason,
-      state: "INGESTED",
+    const { ewrA, ewrB } = await splitEwrInWrsc({
+      parentEwrId: ewrId,
       ownerId: user.id,
-      poolGroupId: parent.poolGroupId,
-    }).returning();
-
-    const [ewrB] = await db.insert(ewrsTable).values({
-      ewrsReceiptId: makeChildId("B"),
-      wrscSignature: wrscSign({ parentReceiptId: parent.ewrsReceiptId, split: "B", weightMt: weightMtB }),
-      warehouseCode: parent.warehouseCode,
-      commodityType: parent.commodityType,
-      batchType: parent.batchType,
-      grade: parent.grade,
-      weightMt: String(weightMtB),
-      harvestSeason: parent.harvestSeason,
-      state: "INGESTED",
-      ownerId: user.id,
-      poolGroupId: parent.poolGroupId,
-    }).returning();
-
-    await db.insert(auditLogTable).values(
-      auditEntry("EWR", ewrId, "EWR_SPLIT", user.id,
-        { parentEwrId: ewrId, ewrAId: ewrA.id, ewrBId: ewrB.id, weightMtA, weightMtB },
-        { parentEwrsReceiptId: parent.ewrsReceiptId }
-      )
-    );
+      weightMtA,
+      weightMtB,
+      actorId: user.id,
+    });
     return res.status(201).json({ ewrA, ewrB });
   } catch (err: any) {
     return res.status(err.statusCode ?? 500).json({ error: err.message });
@@ -411,16 +368,7 @@ router.post("/ewrs/:ewrId/retire", async (req, res) => {
     if (ewr.isLienActive) return res.status(400).json({ error: "Cannot retire eWR with active lien" });
     if (ewr.state === "EXTINGUISHED") return res.status(400).json({ error: "eWR already extinguished" });
 
-    const [retired] = await db.update(ewrsTable)
-      .set({ state: "EXTINGUISHED" })
-      .where(eq(ewrsTable.id, ewrId)).returning();
-
-    await db.insert(auditLogTable).values(
-      auditEntry("EWR", ewrId, "EWR_RETIRED", user.id,
-        { ewrId, cooperativeId: user.id, retiredAt: new Date().toISOString() },
-        { warehouseCode: ewr.warehouseCode, weightMt: ewr.weightMt }
-      )
-    );
+    const retired = await retireEwrInWrsc({ ewrId, actorId: user.id });
     return res.json(retired);
   } catch (err: any) {
     return res.status(err.statusCode ?? 500).json({ error: err.message });

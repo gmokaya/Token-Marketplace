@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { getAuth } from "@clerk/express";
-import { createHmac, randomBytes } from "crypto";
+import { randomBytes } from "crypto";
+import { signEwr as signEwrFromService } from "../lib/ewr-service";
 import { db } from "@workspace/db";
 import { ewrsTable, usersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
@@ -10,13 +11,6 @@ const router = Router();
 
 // Registry HMAC secret must be supplied via env in production; the dev fallback
 // only applies outside production so we never ship a well-known default secret.
-function loadWrscSecret(): string {
-  const v = process.env.WRSC_SECRET;
-  if (v && v.length > 0) return v;
-  if (process.env.NODE_ENV === "production") throw new Error("[wrsc] WRSC_SECRET must be set in production");
-  return "wrsc-dev-registry-secret-2025";
-}
-const WRSC_SECRET = loadWrscSecret();
 const AVOCADO_SHELF_DAYS = 30;
 
 const GRAIN_LIMITS = {
@@ -29,12 +23,6 @@ function generateReceiptId(): string {
   const date = new Date().toISOString().slice(0, 10).replace(/-/g, "");
   const rand = randomBytes(4).toString("hex").toUpperCase();
   return `WRSC-CR-${date}-${rand}`;
-}
-
-function generateSignature(payload: object): string {
-  return createHmac("sha256", WRSC_SECRET)
-    .update(JSON.stringify(payload))
-    .digest("hex");
 }
 
 function grainPoolId(wc: string, ct: string, grade: string, moist: number): string {
@@ -217,7 +205,7 @@ router.post("/wrsc/intake", async (req, res) => {
 
   // ── Step 3: WRSC-CR mints receipt ────────────────────────────────────────────
   const ewrsReceiptId = generateReceiptId();
-  const wrscSignature = generateSignature({
+  const wrscSignature = signEwrFromService({
     ewrsReceiptId,
     ownerId: owner.id,
     commodityType: body.commodityType,

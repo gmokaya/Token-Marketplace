@@ -175,6 +175,7 @@ export const EwrState = {
   LOCK_TRADING: 'LOCK_TRADING',
   SETTLED: 'SETTLED',
   ENCUMBERED: 'ENCUMBERED',
+  EXTINGUISHED: 'EXTINGUISHED',
 } as const;
 
 /**
@@ -810,6 +811,95 @@ export interface PlatformEarnings {
   settledOrderCount: number;
 }
 
+export interface CooperativeProfileInput {
+  entityName: string;
+  registrationNumber: string;
+  /** @nullable */
+  licenceNumber?: string | null;
+  /** @nullable */
+  kraPin?: string | null;
+  /** @nullable */
+  officeAddress?: string | null;
+  /** @nullable */
+  gpsLatitude?: string | null;
+  /** @nullable */
+  gpsLongitude?: string | null;
+  /** @nullable */
+  adminFirstName?: string | null;
+  /** @nullable */
+  adminLastName?: string | null;
+  /** @nullable */
+  adminNationalId?: string | null;
+  /** @nullable */
+  adminPhone?: string | null;
+  /** @nullable */
+  adminEmail?: string | null;
+  /** @nullable */
+  bankName?: string | null;
+  /** @nullable */
+  bankBranch?: string | null;
+  /** @nullable */
+  bankSwiftCode?: string | null;
+  /** @nullable */
+  bankAccountNumber?: string | null;
+  /** @nullable */
+  mobileMoneyPaybill?: string | null;
+}
+
+export interface CoopMemberInput {
+  fullName: string;
+  nationalId: string;
+  /** @nullable */
+  farmLocation?: string | null;
+  /** @nullable */
+  gender?: string | null;
+  /** @nullable */
+  acreageMt?: number | null;
+}
+
+export type IntakeLogInputCommodityType = typeof IntakeLogInputCommodityType[keyof typeof IntakeLogInputCommodityType];
+
+
+export const IntakeLogInputCommodityType = {
+  MAIZE: 'MAIZE',
+  RICE: 'RICE',
+  COFFEE: 'COFFEE',
+  TEA: 'TEA',
+  AVOCADO: 'AVOCADO',
+} as const;
+
+export interface IntakeLogInput {
+  memberRef: string;
+  commodityType: IntakeLogInputCommodityType;
+  weightMt: number;
+  grade: string;
+  /** @nullable */
+  moisturePct?: number | null;
+  /** @nullable */
+  macroLotId?: number | null;
+  intakeAt?: string;
+}
+
+export type MacroLotInputCommodityType = typeof MacroLotInputCommodityType[keyof typeof MacroLotInputCommodityType];
+
+
+export const MacroLotInputCommodityType = {
+  MAIZE: 'MAIZE',
+  RICE: 'RICE',
+  COFFEE: 'COFFEE',
+  TEA: 'TEA',
+  AVOCADO: 'AVOCADO',
+} as const;
+
+export interface MacroLotInput {
+  commodityType: MacroLotInputCommodityType;
+  grade: string;
+  /** @nullable */
+  warehouseCode?: string | null;
+  /** @nullable */
+  harvestSeason?: string | null;
+}
+
 export interface CooperativeProfile {
   id: number;
   userId: number;
@@ -955,6 +1045,7 @@ export const ListEwrsState = {
   LOCK_TRADING: 'LOCK_TRADING',
   SETTLED: 'SETTLED',
   ENCUMBERED: 'ENCUMBERED',
+  EXTINGUISHED: 'EXTINGUISHED',
 } as const;
 
 export type ListEwrsCommodityType = typeof ListEwrsCommodityType[keyof typeof ListEwrsCommodityType];

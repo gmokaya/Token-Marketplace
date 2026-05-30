@@ -117,7 +117,7 @@ paths:
           in: query
           schema:
             type: string
-            enum: [INGESTED, MARKET_LISTED, AUCTION_ACTIVE, FORWARD_BOUND, LOCK_TRADING, SETTLED, ENCUMBERED]
+            enum: [INGESTED, MARKET_LISTED, AUCTION_ACTIVE, FORWARD_BOUND, LOCK_TRADING, SETTLED, ENCUMBERED, EXTINGUISHED]
         - name: commodityType
           in: query
           schema:
@@ -1093,7 +1093,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CooperativeProfile"
+              $ref: "#/components/schemas/CooperativeProfileInput"
       responses:
         "200":
           description: Updated profile
@@ -1125,7 +1125,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CoopMember"
+              $ref: "#/components/schemas/CoopMemberInput"
       responses:
         "201":
           description: Member added
@@ -1157,7 +1157,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/IntakeLog"
+              $ref: "#/components/schemas/IntakeLogInput"
       responses:
         "201":
           description: Intake log created
@@ -1189,7 +1189,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/MacroLot"
+              $ref: "#/components/schemas/MacroLotInput"
       responses:
         "201":
           description: Macro lot created
@@ -1487,7 +1487,7 @@ components:
           type: ["integer", "null"]
         state:
           type: string
-          enum: [INGESTED, MARKET_LISTED, AUCTION_ACTIVE, FORWARD_BOUND, LOCK_TRADING, SETTLED, ENCUMBERED]
+          enum: [INGESTED, MARKET_LISTED, AUCTION_ACTIVE, FORWARD_BOUND, LOCK_TRADING, SETTLED, ENCUMBERED, EXTINGUISHED]
         ownerId:
           type: integer
         ownerName:
@@ -2168,6 +2168,95 @@ components:
           type: integer
         settledOrderCount:
           type: integer
+
+    CooperativeProfileInput:
+      type: object
+      required: [entityName, registrationNumber]
+      properties:
+        entityName:
+          type: string
+        registrationNumber:
+          type: string
+        licenceNumber:
+          type: ["string", "null"]
+        kraPin:
+          type: ["string", "null"]
+        officeAddress:
+          type: ["string", "null"]
+        gpsLatitude:
+          type: ["string", "null"]
+        gpsLongitude:
+          type: ["string", "null"]
+        adminFirstName:
+          type: ["string", "null"]
+        adminLastName:
+          type: ["string", "null"]
+        adminNationalId:
+          type: ["string", "null"]
+        adminPhone:
+          type: ["string", "null"]
+        adminEmail:
+          type: ["string", "null"]
+        bankName:
+          type: ["string", "null"]
+        bankBranch:
+          type: ["string", "null"]
+        bankSwiftCode:
+          type: ["string", "null"]
+        bankAccountNumber:
+          type: ["string", "null"]
+        mobileMoneyPaybill:
+          type: ["string", "null"]
+
+    CoopMemberInput:
+      type: object
+      required: [fullName, nationalId]
+      properties:
+        fullName:
+          type: string
+        nationalId:
+          type: string
+        farmLocation:
+          type: ["string", "null"]
+        gender:
+          type: ["string", "null"]
+        acreageMt:
+          type: ["number", "null"]
+
+    IntakeLogInput:
+      type: object
+      required: [memberRef, commodityType, weightMt, grade]
+      properties:
+        memberRef:
+          type: string
+        commodityType:
+          type: string
+          enum: [MAIZE, RICE, COFFEE, TEA, AVOCADO]
+        weightMt:
+          type: number
+        grade:
+          type: string
+        moisturePct:
+          type: ["number", "null"]
+        macroLotId:
+          type: ["integer", "null"]
+        intakeAt:
+          type: string
+          format: date-time
+
+    MacroLotInput:
+      type: object
+      required: [commodityType, grade]
+      properties:
+        commodityType:
+          type: string
+          enum: [MAIZE, RICE, COFFEE, TEA, AVOCADO]
+        grade:
+          type: string
+        warehouseCode:
+          type: ["string", "null"]
+        harvestSeason:
+          type: ["string", "null"]
 
     CooperativeProfile:
       type: object

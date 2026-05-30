@@ -29,7 +29,9 @@ import type {
   BidInput,
   CommodityStat,
   CoopMember,
+  CoopMemberInput,
   CooperativeProfile,
+  CooperativeProfileInput,
   CreateEwrRequest,
   DigitalReleaseToken,
   DisburseInput,
@@ -45,6 +47,7 @@ import type {
   GetTopBiddersParams,
   HealthStatus,
   IntakeLog,
+  IntakeLogInput,
   ListAuctionsParams,
   ListAuditLogParams,
   ListEwrsParams,
@@ -54,6 +57,7 @@ import type {
   ListSpotListingsParams,
   Loan,
   MacroLot,
+  MacroLotInput,
   MarketSummary,
   Order,
   OrderInput,
@@ -3691,7 +3695,7 @@ export const getUpsertCoopProfileUrl = () => {
 /**
  * @summary Create or update cooperative profile
  */
-export const upsertCoopProfile = async (cooperativeProfile: CooperativeProfile, options?: RequestInit): Promise<CooperativeProfile> => {
+export const upsertCoopProfile = async (cooperativeProfileInput: CooperativeProfileInput, options?: RequestInit): Promise<CooperativeProfile> => {
 
   return customFetch<CooperativeProfile>(getUpsertCoopProfileUrl(),
   {
@@ -3699,7 +3703,7 @@ export const upsertCoopProfile = async (cooperativeProfile: CooperativeProfile, 
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
-      cooperativeProfile,)
+      cooperativeProfileInput,)
   }
 );}
 
@@ -3707,8 +3711,8 @@ export const upsertCoopProfile = async (cooperativeProfile: CooperativeProfile, 
 
 
 export const getUpsertCoopProfileMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof upsertCoopProfile>>, TError,{data: BodyType<CooperativeProfile>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof upsertCoopProfile>>, TError,{data: BodyType<CooperativeProfile>}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof upsertCoopProfile>>, TError,{data: BodyType<CooperativeProfileInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof upsertCoopProfile>>, TError,{data: BodyType<CooperativeProfileInput>}, TContext> => {
 
 const mutationKey = ['upsertCoopProfile'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -3720,7 +3724,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof upsertCoopProfile>>, {data: BodyType<CooperativeProfile>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof upsertCoopProfile>>, {data: BodyType<CooperativeProfileInput>}> = (props) => {
           const {data} = props ?? {};
 
           return  upsertCoopProfile(data,requestOptions)
@@ -3734,18 +3738,18 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type UpsertCoopProfileMutationResult = NonNullable<Awaited<ReturnType<typeof upsertCoopProfile>>>
-    export type UpsertCoopProfileMutationBody = BodyType<CooperativeProfile>
+    export type UpsertCoopProfileMutationBody = BodyType<CooperativeProfileInput>
     export type UpsertCoopProfileMutationError = ErrorType<unknown>
 
     /**
  * @summary Create or update cooperative profile
  */
 export const useUpsertCoopProfile = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof upsertCoopProfile>>, TError,{data: BodyType<CooperativeProfile>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof upsertCoopProfile>>, TError,{data: BodyType<CooperativeProfileInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof upsertCoopProfile>>,
         TError,
-        {data: BodyType<CooperativeProfile>},
+        {data: BodyType<CooperativeProfileInput>},
         TContext
       > => {
       return useMutation(getUpsertCoopProfileMutationOptions(options));
@@ -3839,7 +3843,7 @@ export const getAddCoopMemberUrl = () => {
 /**
  * @summary Add a member to the cooperative
  */
-export const addCoopMember = async (coopMember: CoopMember, options?: RequestInit): Promise<CoopMember> => {
+export const addCoopMember = async (coopMemberInput: CoopMemberInput, options?: RequestInit): Promise<CoopMember> => {
 
   return customFetch<CoopMember>(getAddCoopMemberUrl(),
   {
@@ -3847,7 +3851,7 @@ export const addCoopMember = async (coopMember: CoopMember, options?: RequestIni
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
-      coopMember,)
+      coopMemberInput,)
   }
 );}
 
@@ -3855,8 +3859,8 @@ export const addCoopMember = async (coopMember: CoopMember, options?: RequestIni
 
 
 export const getAddCoopMemberMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addCoopMember>>, TError,{data: BodyType<CoopMember>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof addCoopMember>>, TError,{data: BodyType<CoopMember>}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addCoopMember>>, TError,{data: BodyType<CoopMemberInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof addCoopMember>>, TError,{data: BodyType<CoopMemberInput>}, TContext> => {
 
 const mutationKey = ['addCoopMember'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -3868,7 +3872,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof addCoopMember>>, {data: BodyType<CoopMember>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof addCoopMember>>, {data: BodyType<CoopMemberInput>}> = (props) => {
           const {data} = props ?? {};
 
           return  addCoopMember(data,requestOptions)
@@ -3882,18 +3886,18 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type AddCoopMemberMutationResult = NonNullable<Awaited<ReturnType<typeof addCoopMember>>>
-    export type AddCoopMemberMutationBody = BodyType<CoopMember>
+    export type AddCoopMemberMutationBody = BodyType<CoopMemberInput>
     export type AddCoopMemberMutationError = ErrorType<unknown>
 
     /**
  * @summary Add a member to the cooperative
  */
 export const useAddCoopMember = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addCoopMember>>, TError,{data: BodyType<CoopMember>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addCoopMember>>, TError,{data: BodyType<CoopMemberInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof addCoopMember>>,
         TError,
-        {data: BodyType<CoopMember>},
+        {data: BodyType<CoopMemberInput>},
         TContext
       > => {
       return useMutation(getAddCoopMemberMutationOptions(options));
@@ -3987,7 +3991,7 @@ export const getCreateIntakeLogUrl = () => {
 /**
  * @summary Record a crop intake delivery
  */
-export const createIntakeLog = async (intakeLog: IntakeLog, options?: RequestInit): Promise<IntakeLog> => {
+export const createIntakeLog = async (intakeLogInput: IntakeLogInput, options?: RequestInit): Promise<IntakeLog> => {
 
   return customFetch<IntakeLog>(getCreateIntakeLogUrl(),
   {
@@ -3995,7 +3999,7 @@ export const createIntakeLog = async (intakeLog: IntakeLog, options?: RequestIni
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
-      intakeLog,)
+      intakeLogInput,)
   }
 );}
 
@@ -4003,8 +4007,8 @@ export const createIntakeLog = async (intakeLog: IntakeLog, options?: RequestIni
 
 
 export const getCreateIntakeLogMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createIntakeLog>>, TError,{data: BodyType<IntakeLog>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof createIntakeLog>>, TError,{data: BodyType<IntakeLog>}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createIntakeLog>>, TError,{data: BodyType<IntakeLogInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createIntakeLog>>, TError,{data: BodyType<IntakeLogInput>}, TContext> => {
 
 const mutationKey = ['createIntakeLog'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -4016,7 +4020,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createIntakeLog>>, {data: BodyType<IntakeLog>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createIntakeLog>>, {data: BodyType<IntakeLogInput>}> = (props) => {
           const {data} = props ?? {};
 
           return  createIntakeLog(data,requestOptions)
@@ -4030,18 +4034,18 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type CreateIntakeLogMutationResult = NonNullable<Awaited<ReturnType<typeof createIntakeLog>>>
-    export type CreateIntakeLogMutationBody = BodyType<IntakeLog>
+    export type CreateIntakeLogMutationBody = BodyType<IntakeLogInput>
     export type CreateIntakeLogMutationError = ErrorType<unknown>
 
     /**
  * @summary Record a crop intake delivery
  */
 export const useCreateIntakeLog = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createIntakeLog>>, TError,{data: BodyType<IntakeLog>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createIntakeLog>>, TError,{data: BodyType<IntakeLogInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof createIntakeLog>>,
         TError,
-        {data: BodyType<IntakeLog>},
+        {data: BodyType<IntakeLogInput>},
         TContext
       > => {
       return useMutation(getCreateIntakeLogMutationOptions(options));
@@ -4135,7 +4139,7 @@ export const getCreateMacroLotUrl = () => {
 /**
  * @summary Create a macro lot
  */
-export const createMacroLot = async (macroLot: MacroLot, options?: RequestInit): Promise<MacroLot> => {
+export const createMacroLot = async (macroLotInput: MacroLotInput, options?: RequestInit): Promise<MacroLot> => {
 
   return customFetch<MacroLot>(getCreateMacroLotUrl(),
   {
@@ -4143,7 +4147,7 @@ export const createMacroLot = async (macroLot: MacroLot, options?: RequestInit):
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
-      macroLot,)
+      macroLotInput,)
   }
 );}
 
@@ -4151,8 +4155,8 @@ export const createMacroLot = async (macroLot: MacroLot, options?: RequestInit):
 
 
 export const getCreateMacroLotMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMacroLot>>, TError,{data: BodyType<MacroLot>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof createMacroLot>>, TError,{data: BodyType<MacroLot>}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMacroLot>>, TError,{data: BodyType<MacroLotInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createMacroLot>>, TError,{data: BodyType<MacroLotInput>}, TContext> => {
 
 const mutationKey = ['createMacroLot'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -4164,7 +4168,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createMacroLot>>, {data: BodyType<MacroLot>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createMacroLot>>, {data: BodyType<MacroLotInput>}> = (props) => {
           const {data} = props ?? {};
 
           return  createMacroLot(data,requestOptions)
@@ -4178,18 +4182,18 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type CreateMacroLotMutationResult = NonNullable<Awaited<ReturnType<typeof createMacroLot>>>
-    export type CreateMacroLotMutationBody = BodyType<MacroLot>
+    export type CreateMacroLotMutationBody = BodyType<MacroLotInput>
     export type CreateMacroLotMutationError = ErrorType<unknown>
 
     /**
  * @summary Create a macro lot
  */
 export const useCreateMacroLot = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMacroLot>>, TError,{data: BodyType<MacroLot>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMacroLot>>, TError,{data: BodyType<MacroLotInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof createMacroLot>>,
         TError,
-        {data: BodyType<MacroLot>},
+        {data: BodyType<MacroLotInput>},
         TContext
       > => {
       return useMutation(getCreateMacroLotMutationOptions(options));
