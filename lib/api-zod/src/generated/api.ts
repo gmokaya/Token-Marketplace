@@ -459,7 +459,7 @@ export const UpdateOrderParams = zod.object({
 })
 
 export const UpdateOrderBody = zod.object({
-  "status": zod.enum(['SETTLED', 'CANCELLED'])
+  "status": zod.enum(['CANCELLED'])
 })
 
 export const UpdateOrderResponse = zod.object({

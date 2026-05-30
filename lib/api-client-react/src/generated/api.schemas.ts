@@ -395,7 +395,6 @@ export type OrderUpdateStatus = typeof OrderUpdateStatus[keyof typeof OrderUpdat
 
 
 export const OrderUpdateStatus = {
-  SETTLED: 'SETTLED',
   CANCELLED: 'CANCELLED',
 } as const;
 

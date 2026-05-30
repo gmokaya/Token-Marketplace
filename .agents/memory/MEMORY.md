@@ -1,5 +1,6 @@
 - [Clerk SDK version matrix](clerk-sdk-versions.md) — @clerk/react@5.54.0 is broken; use @clerk/react@^6 + @clerk/shared@^4 override
 - [Seed script execution](seed-execution.md) — run from workspace root with tsx, not from artifact dir
 - [TS project references rebuild](ts-project-refs-rebuild.md) — after adding exports to lib/db or lib/api-client-react, must run tsc -p tsconfig.json in that package before downstream packages see the new types
+- [Forward settlement flow](forward-settlement-flow.md) — maturity only marks MATURED; never set eWR SETTLED (terminal); /settlements is the sole finalizer. Forward encumbrance reuses isLienActive but isn't a loan
 - [Transaction retry under load](concurrency-retry.md) — wrap money/inventory db.transaction in lib/db's withTxRetry (retries 40001/40P01); keep side effects outside the retried closure
 - [Financing eligibility & pre-auth API surface](financing-and-preauth-surface.md) — financeable = unencumbered (INGESTED/MARKET_LISTED + no lien); ewr-api/wrsc pre-Clerk surface must never run on default secrets in prod

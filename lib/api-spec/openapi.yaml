@@ -1409,7 +1409,7 @@ components:
       properties:
         status:
           type: string
-          enum: [SETTLED, CANCELLED]
+          enum: [CANCELLED]
 
     MarketSummary:
       type: object

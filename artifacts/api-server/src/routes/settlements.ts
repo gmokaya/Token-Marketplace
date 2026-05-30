@@ -194,6 +194,19 @@ router.post("/settlements", async (req, res) => {
               );
             }
             resolvedLoan = activeLoan;
+          } else if (entityType === "FORWARD") {
+            // For a forward, isLienActive also represents the contract's own performance
+            // encumbrance (set at buyer co-sign), not necessarily a financing lien. When no
+            // ACTIVE financing loan backs the eWR, there is simply no bank leg to repay —
+            // proceed with rBank=0. (If a financing loan IS active it is matched above and
+            // repaid via the bank leg.) An explicit loanId here is invalid since none applies.
+            if (loanId !== undefined) {
+              throw Object.assign(
+                new Error(`No active financing loan exists on this forward's eWR — loanId ${loanId} cannot be applied`),
+                { statusCode: 400 }
+              );
+            }
+            resolvedLoan = null;
           } else {
             // eWR is lien-active but no ACTIVE loan found — block settlement
             throw Object.assign(

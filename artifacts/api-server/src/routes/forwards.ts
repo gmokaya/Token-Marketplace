@@ -385,7 +385,7 @@ router.post("/forwards/:contractId/complete", async (req, res) => {
         contractId,
         eventType: "MATURED",
         actorId: user.id,
-        note: `Contract completed at maturity. Both performance bonds released.`,
+        note: `Contract matured. Both performance bonds released. Settlement can now proceed via the split settlement engine.`,
       });
 
       await tx.insert(auditLogTable).values(
@@ -395,10 +395,11 @@ router.post("/forwards/:contractId/complete", async (req, res) => {
         )
       );
 
-      // Release eWR encumbrance — ownership transfer happens off-chain
-      await tx.update(ewrsTable)
-        .set({ state: "SETTLED", isLienActive: false, lienHolderId: null })
-        .where(eq(ewrsTable.id, contract.ewrId));
+      // NOTE: eWR ownership/state/lien finalization is intentionally NOT done here.
+      // Maturity only moves the contract to MATURED ("ready for settlement"). The eWR
+      // stays ENCUMBERED so the split settlement engine (POST /settlements, entityType
+      // FORWARD) is the single authority that disburses the legs and, on completion,
+      // transfers title to the buyer (ENCUMBERED → INGESTED) and clears the lien.
 
       return result;
     });
@@ -448,9 +449,9 @@ export function startForwardMaturityWorker() {
             note: `Contract auto-matured by system at maturity date. Both bonds released. Settlement can now proceed.`,
           });
 
-          await tx.update(ewrsTable)
-            .set({ state: "SETTLED", isLienActive: false, lienHolderId: null })
-            .where(eq(ewrsTable.id, contract.ewrId));
+          // eWR finalization is deferred to the split settlement engine — see the
+          // /complete handler above. Maturity only marks the contract MATURED; the
+          // eWR stays ENCUMBERED until POST /settlements (FORWARD) disburses + transfers.
         });
 
         console.log(`[ForwardMaturityWorker] Auto-matured contract #${contract.id}`);
