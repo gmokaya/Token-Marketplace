@@ -673,6 +673,58 @@ export default function Home() {
           {/* ══ ESG ──────────────────────────────────────────────── */}
           <EsgSection />
 
+          {/* ══ TRADE FINANCE & LIQUIDITY ════════════════════════ */}
+          <section style={{ background: "#f7f7f7", padding: "96px 0" }}>
+            <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 72, alignItems: "center" }}>
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
+                  <div style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT }} />
+                  <span style={{ color: ACCENT, fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase" }}>Trade Finance</span>
+                </div>
+                <h2 style={{ fontSize: "clamp(1.8rem, 3.2vw, 40px)", fontWeight: 500, color: "#090909", margin: "0 0 16px", lineHeight: 1.15 }}>
+                  Trade Finance &amp; Liquidity
+                </h2>
+                <div style={{ width: 40, height: 2, background: ACCENT, marginBottom: 24 }} />
+                <p style={{ color: "#555", fontSize: 16, fontWeight: 300, lineHeight: 1.8, margin: "0 0 28px" }}>
+                  <strong style={{ fontWeight: 500, color: "#1a1a1a" }}>Capitalize on Your Stored Harvest, Instantly.</strong>
+                </p>
+                <p style={{ color: "#555", fontSize: 16, fontWeight: 300, lineHeight: 1.8, margin: 0 }}>
+                  Verified harvests in our certified warehouses become liquid collateral. Farmers and cooperatives unlock instant working capital for operational costs, early payouts, or next-season inputs without liquidating their stored assets.
+                </p>
+              </div>
+              <div>
+                <div style={{
+                  background: "#fff",
+                  borderRadius: 8,
+                  boxShadow: "0 4px 8px rgba(0,0,0,0.06), 0 12px 24px rgba(0,0,0,0.04), 0 24px 48px rgba(0,0,0,0.03)",
+                  padding: 48,
+                  textAlign: "center",
+                  border: "1px solid #ececec",
+                }}>
+                  <div style={{ fontSize: 48, fontWeight: 200, color: ACCENT, lineHeight: 1, marginBottom: 12 }}>
+                    75%
+                  </div>
+                  <div style={{ color: "#666", fontSize: 13, fontWeight: 500, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 32 }}>
+                    LTV on Stored Inventory
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, textAlign: "left" }}>
+                    {([
+                      { label: "Loan Amount", value: "$150,000" },
+                      { label: "Interest Rate", value: "9.5% APR" },
+                      { label: "Tenure", value: "6 Months" },
+                      { label: "Collateral", value: "500 MT Maize" },
+                    ]).map(({ label, value }) => (
+                      <div key={label}>
+                        <div style={{ color: "#999", fontSize: 11, fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 6 }}>{label}</div>
+                        <div style={{ color: "#1a1a1a", fontSize: 16, fontWeight: 500 }}>{value}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
           {/* ══ PARTNERS ─────────────────────────────────────────── */}
           <PartnersSection />
 
