@@ -13,6 +13,7 @@ import settlementsRouter from "./settlements";
 import adminRouter from "./admin";
 import wrscRouter from "./wrsc";
 import profilesRouter from "./profiles";
+import contentRouter from "./content";
 import ewrApiRouter, { EWR_API_SECURELY_CONFIGURED } from "./ewr-api";
 
 const router: IRouter = Router();
@@ -25,6 +26,9 @@ function requireAuth(req: Request, res: Response, next: NextFunction): void {
   }
   next();
 }
+
+// Public content endpoint — no auth needed
+router.use(contentRouter);
 
 // eWR external API + registry-sync webhook — own auth, must come before Clerk requireAuth
 router.use(healthRouter);

@@ -15,3 +15,4 @@ export * from "./producer_profiles";
 export * from "./buyer_profiles";
 export * from "./warehouse_profiles";
 export * from "./financier_profiles";
+export * from "./site_content";

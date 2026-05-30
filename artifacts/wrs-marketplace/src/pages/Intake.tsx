@@ -618,7 +618,7 @@ export default function Intake() {
     return (
       <Layout>
         <div className="flex items-center justify-center h-64 text-muted-foreground">
-          WMS Intake is only available to Producers and Enablers.
+          WMS Intake is only available to Producers and Warehouse Operators.
         </div>
       </Layout>
     );

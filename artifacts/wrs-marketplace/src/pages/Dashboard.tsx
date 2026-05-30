@@ -480,11 +480,11 @@ function EnablerDashboard() {
       <OnboardingBanner />
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Enabler Dashboard</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Warehouse Operator Dashboard</h1>
           <p className="text-muted-foreground mt-1">Monitor warehouse activity and market flow</p>
         </div>
         <Badge variant="outline" className="px-3 py-1 text-sm font-medium border-primary/30 text-primary">
-          {user?.company || "Enabler"}
+          {user?.company || "Warehouse Operator"}
         </Badge>
       </div>
 
@@ -577,7 +577,7 @@ function EnablerDashboard() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Role</p>
-                  <p className="font-medium">Enabler</p>
+                  <p className="font-medium">Warehouse Operator</p>
                 </div>
               </div>
             </div>

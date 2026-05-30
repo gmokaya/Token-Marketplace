@@ -3,7 +3,7 @@ import { useGetMe } from "@workspace/api-client-react";
 import {
   LayoutDashboard, Wallet, ShoppingBag, List, BarChart3,
   User, ClipboardList, Package, Gavel, FileText, Landmark,
-  TrendingUp, ShieldCheck, PackagePlus, Plug, Users,
+  TrendingUp, ShieldCheck, PackagePlus, Plug, Users, LayoutTemplate,
 } from "lucide-react";
 import { formatTier } from "@/lib/formatTier";
 
@@ -32,6 +32,7 @@ export function Sidebar({ collapsed }: SidebarProps) {
     { href: "/admin/earnings",   label: "Platform Earnings",icon: TrendingUp,      tiers: ["ENABLER","FINANCIER"] },
     { href: "/admin/audit",      label: "Audit Log",        icon: ShieldCheck,     tiers: ["ENABLER","FINANCIER"] },
     { href: "/admin/ewr-api",    label: "API Integration",  icon: Plug,            tiers: ["ENABLER","FINANCIER"] },
+    { href: "/admin/homepage",   label: "Homepage Content", icon: LayoutTemplate,  tiers: ["ENABLER","FINANCIER"] },
     { href: "/profile",          label: "Profile",          icon: User,            tiers: ["PRODUCER","OFF_TAKER","ENABLER","FINANCIER"] },
   ];
 

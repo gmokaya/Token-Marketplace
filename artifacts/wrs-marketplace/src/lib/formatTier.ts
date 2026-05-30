@@ -1,7 +1,7 @@
 const TIER_LABELS: Record<string, string> = {
   PRODUCER: "Producer",
   OFF_TAKER: "Off-Taker",
-  ENABLER: "Exchange Administrator",
+  ENABLER: "Warehouse Operator",
   FINANCIER: "Financier",
 };
 

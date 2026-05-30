@@ -27,6 +27,7 @@ import FinancingDetail from "@/pages/FinancingDetail";
 import SettlementDetail from "@/pages/SettlementDetail";
 import AdminEarnings from "@/pages/AdminEarnings";
 import AdminUsers from "@/pages/AdminUsers";
+import AdminHomepage from "@/pages/AdminHomepage";
 import AuditLog from "@/pages/AuditLog";
 import Intake from "@/pages/Intake";
 import EwrApi from "@/pages/EwrApi";
@@ -133,6 +134,7 @@ function ClerkProviderWithRoutes() {
             <Route path="/admin/audit"><ProtectedRoute><AuditLog /></ProtectedRoute></Route>
             <Route path="/intake"><ProtectedRoute><Intake /></ProtectedRoute></Route>
             <Route path="/admin/ewr-api"><ProtectedRoute><EwrApi /></ProtectedRoute></Route>
+            <Route path="/admin/homepage"><ProtectedRoute><AdminHomepage /></ProtectedRoute></Route>
             <Route path="*">
               <div className="flex items-center justify-center h-screen">404 Not Found</div>
             </Route>

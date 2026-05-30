@@ -159,6 +159,105 @@ function MarketCard({ num, name, grade, desc, photo }: (typeof MARKET_CARDS)[num
   );
 }
 
+/* ── Partners data types ───────────────────────────────────── */
+type Partner = { id: string; name: string; logoUrl: string; website: string };
+
+const DEFAULT_PARTNERS: Partner[] = [
+  { id: "1", name: "Kenya Cereal Board",             logoUrl: "", website: "https://kdb.go.ke" },
+  { id: "2", name: "East African Community",         logoUrl: "", website: "https://eac.int" },
+  { id: "3", name: "African Development Bank",       logoUrl: "", website: "https://afdb.org" },
+  { id: "4", name: "Equity Bank Kenya",              logoUrl: "", website: "https://equitybankgroup.com" },
+  { id: "5", name: "Kilimo Trust",                   logoUrl: "", website: "https://kilimotrust.org" },
+  { id: "6", name: "Kenya National Farmers Fed.",    logoUrl: "", website: "https://kenaff.org" },
+  { id: "7", name: "WFP East Africa",                logoUrl: "", website: "https://wfp.org" },
+  { id: "8", name: "USAID AgriLinks",                logoUrl: "", website: "https://agrilinks.org" },
+];
+
+function PartnerLogo({ partner }: { partner: Partner }) {
+  const [broken, setBroken] = useState(false);
+  const initials = partner.name.split(" ").map(w => w[0]).join("").slice(0, 3).toUpperCase();
+
+  const inner = !partner.logoUrl || broken ? (
+    <div style={{
+      width: 120, height: 52,
+      display: "flex", alignItems: "center", justifyContent: "center",
+      background: "#f0f0f0", borderRadius: 6,
+      fontSize: 13, fontWeight: 700, color: "#aaa", letterSpacing: "0.1em",
+    }}>
+      {initials}
+    </div>
+  ) : (
+    <img
+      src={partner.logoUrl}
+      alt={partner.name}
+      onError={() => setBroken(true)}
+      style={{ height: 48, maxWidth: 120, objectFit: "contain", filter: "grayscale(1)", opacity: 0.6 }}
+    />
+  );
+
+  return partner.website ? (
+    <a href={partner.website} target="_blank" rel="noopener noreferrer"
+      title={partner.name}
+      style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, textDecoration: "none",
+               transition: "opacity 0.2s" }}
+      onMouseEnter={e => (e.currentTarget.style.opacity = "0.75")}
+      onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+    >
+      {inner}
+      <span style={{ fontSize: 10, color: "#999", fontWeight: 500, letterSpacing: "0.06em",
+                     textAlign: "center", maxWidth: 100 }}>{partner.name}</span>
+    </a>
+  ) : (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+      {inner}
+      <span style={{ fontSize: 10, color: "#999", fontWeight: 500, letterSpacing: "0.06em",
+                     textAlign: "center", maxWidth: 100 }}>{partner.name}</span>
+    </div>
+  );
+}
+
+function PartnersSection() {
+  const [partners, setPartners] = useState<Partner[]>(DEFAULT_PARTNERS);
+  const API = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
+
+  useEffect(() => {
+    fetch(`${API}/api/content/partners`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data?.value?.partners?.length) setPartners(data.value.partners); })
+      .catch(() => {});
+  }, [API]);
+
+  return (
+    <section style={{ background: "#fafafa", borderTop: "1px solid #f0f0f0", borderBottom: "1px solid #f0f0f0", padding: "64px 32px" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+        {/* Header */}
+        <div style={{ textAlign: "center", marginBottom: 48 }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 9, marginBottom: 10 }}>
+            <div style={{ width: 24, height: 1, background: "#ccc" }} />
+            <span style={{ color: "#aaa", fontSize: 11, fontWeight: 600, letterSpacing: "0.22em", textTransform: "uppercase" }}>
+              Trusted Partners
+            </span>
+            <div style={{ width: 24, height: 1, background: "#ccc" }} />
+          </div>
+          <p style={{ color: "#999", fontSize: 14, margin: 0 }}>
+            Working alongside East Africa's leading agricultural institutions
+          </p>
+        </div>
+
+        {/* Logo grid */}
+        <div style={{
+          display: "flex", flexWrap: "wrap", justifyContent: "center",
+          alignItems: "center", gap: "32px 48px",
+        }}>
+          {partners.filter(p => p.name).map(p => (
+            <PartnerLogo key={p.id} partner={p} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
   const [scrolled, setScrolled] = useState(false);
   const [statsOn, setStatsOn]   = useState(false);
@@ -471,6 +570,9 @@ export default function Home() {
             </div>
 
           </section>
+
+          {/* ══ PARTNERS ─────────────────────────────────────────── */}
+          <PartnersSection />
 
           {/* ══ CTA ─────────────────────────────────────────────── */}
           <section id="cta" style={{
