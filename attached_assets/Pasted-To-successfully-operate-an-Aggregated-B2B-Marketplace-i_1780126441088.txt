@@ -1,0 +1,93 @@
+To successfully operate an **Aggregated B2B Marketplace** integrated with a state-backed central registry and commercial bank escrow accounts, your onboarding profile fields must be strictly designed around corporate identity, regulatory compliance, and transactional verification.
+
+Because you are bypassing individual smallholders, you are collecting data on **legal entities and commercial businesses**. This structure filters out fraud and automates transaction routing.
+
+---
+
+## 1. TIER 1: The Producers (Factories & Cooperatives)
+
+*System Objective:* Verify that the entity is a legally registered cooperative or factory mark, and link their account to the exact identity parameters used by the **WRSC Central Registry**.
+
+### General Identity & KYB
+
+* **Registered Entity Name:** (e.g., *Nyeri Coffee Farmers Co-operative Society Ltd*).
+* **Registration Number / Certificate of Incorporation:** Issued by the Business Registration Service (BRS) or the Commissioner for Co-operatives.
+* **Corporate KRA PIN:** For tax validation and automatic generation of withholding tax logs or platform invoice billing.
+* **Registered Office Address & Factory/Silo Locations:** Physical GPS coordinates of the primary cooperative hubs.
+
+### Contact & Operational Authorizations
+
+* **Authorized System Administrator Profile:** First Name, Last Name, National ID/Passport Number, Official Email, and Phone Number. (This is the specific individual authorized to list inventory and accept auction bids).
+* **Factory Marks / Codes:** For Coffee and Tea value chains, collect their official unique identifier stamps used globally by brokers and auctions.
+
+### Banking & Mobile Money Ingress (Payout Endpoints)
+
+* **Cooperative Settlement Corporate Bank Account:** Bank Name, Branch, Swift Code, and Account Number.
+* **Corporate Paybill / Till Number or Designated Mobile Money Wallet:** For instant split-payout routing under the maximum transaction thresholds.
+
+---
+
+## 2. TIER 2: The Off-Takers (Buyers, Millers, & Exporters)
+
+*System Objective:* Establish corporate creditworthiness, secure anti-money laundering (AML) protocols, and ensure the business has the proper licenses to buy regulated agricultural assets.
+
+### General Identity & Business Verification
+
+* **Company Legal Name:** (e.g., *Mombasa Tea Exporters Ltd* or *Alpha Maize Millers Ltd*).
+* **Certificate of Incorporation / Registration Number:** * **Corporate KRA PIN:** Mandatory for corporate transaction logging.
+* **Primary Corporate Office Physical Location:** ### Sector-Specific Compliance Licenses
+The platform must collect and store valid, unexpired scans of industry-specific trading licenses. This acts as a software guardrail—blocking users from bidding on specific value chains if their regulatory paperwork lapses:
+* **For Grain Buyers:** Agribusiness trading permits / County business licenses.
+* **For Coffee Buyers:** AFA Coffee Directorate Coffee Dealer’s License.
+* **For Tea Buyers:** AFA Tea Directorate Tea Buyer/Exporter License.
+
+### Financial Escrow Profiles
+
+* **Settlement Corporate Bank Account Details:** (The account from which they will fund the marketplace escrow nodes).
+* **Authorized Buyer Personnel:** National ID, Email, Phone Number, and explicit Platform Purchasing Limit Cap (e.g., *Authorized to bid up to $50,000 per auction*).
+
+---
+
+## 3. TIER 3: The Enablers (Warehouse Operators)
+
+*System Objective:* Ensure the storage hub is legally allowed to store, grade, and secure collateral under the Warehouse Receipt System Act.
+
+### Legal & Regulatory Anchors
+
+* **Operator Company Name:** (e.g., *AgriBora Certified Silos* or *NCPB Eldoret Depot*).
+* **Official WRSC License Number:** The structural operator license number issued by the Warehouse Receipt System Council.
+* **WRSC Central Registry System API Key / Client Identifier:** The structural endpoint token allowing your platform to read their specific e-WR issuance events.
+
+### Structural Details (Database Parameters)
+
+* **Warehouse Facility Type & Capacity:** (e.g., *Dry Grain Silo, 10,000 Metric Ton Capacity* or *Controlled Atmosphere Cold Storage*).
+* **List of Approved Handled Value Chains:** Select checkboxes matching your marketplace options (Maize, Rice, Coffee, Tea).
+* **Structural and Collateral Insurance Policy Numbers:** Insurer Name, Underwritten Value Limit, and Expiry Date (to ensure the crops are covered against fire, theft, or spoilage while transactions clear).
+
+### Operations Contact
+
+* **Head Warehouse In-Charge / Collateral Manager:** Direct phone number and secure platform system email (for automated notification dispatch when an e-WR owner changes).
+
+---
+
+## 4. TIER 4: The Financiers (Banks & Lenders)
+
+*System Objective:* Secure the connection parameters for corporate credit facilities and ensure all risk managers have strict audit tracking.
+
+### Corporate Identity
+
+* **Financial Institution Name:** (e.g., *Equity Bank Kenya* or *Co-operative Bank*).
+* **Central Bank License Identifier / Code:** * **Department Designation:** (e.g., *Agribusiness Structured Trade Finance Division*).
+
+### Risk Management Control Profiles
+
+* **Credit Approver Profile:** Name, Designation, and Corporate Email of the specific underwriting team members given authority to approve pre-sale inventory financing advances.
+* **Assigned Max Liquidity Pool Parameter:** Total portfolio ceiling allocation built into the dashboard configuration (e.g., *Platform allocation maximum cap: $1,000,000*).
+
+---
+
+## Technical Onboarding Architecture Recommendation
+
+When designing your database schema in **PostgreSQL**, use a base `users` table linked via a one-to-one relationship to distinct profile tables based on role designation: `producer_profiles`, `buyer_profiles`, `warehouse_profiles`, and `financier_profiles`.
+
+Ensure that during the registration phase, your backend implements a **Status Workflow** tracking field (`PENDING_KYB_APPROVAL` $\rightarrow$ `WRSC_VERIFIED` $\rightarrow$ `ACTIVE`). A user profile must only shift to `ACTIVE` once their corporate registration numbers match clean results from integrated business registries and the WRSC database via your validation endpoints.

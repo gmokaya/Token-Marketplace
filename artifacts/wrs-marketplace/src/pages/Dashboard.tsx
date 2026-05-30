@@ -6,6 +6,7 @@ import { Layout } from "@/components/layout/Layout";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
+import { OnboardingBanner } from "@/components/OnboardingBanner";
 
 function ProducerDashboard() {
   const { data: user } = useGetMe();
@@ -18,6 +19,7 @@ function ProducerDashboard() {
 
   return (
     <div className="space-y-8">
+      <OnboardingBanner />
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Producer Dashboard</h1>
@@ -157,6 +159,7 @@ function OffTakerDashboard() {
 
   return (
     <div className="space-y-8">
+      <OnboardingBanner />
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Buyer Dashboard</h1>
@@ -309,6 +312,7 @@ function FinancierDashboard() {
 
   return (
     <div className="space-y-8">
+      <OnboardingBanner />
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Financier Dashboard</h1>
@@ -473,6 +477,7 @@ function EnablerDashboard() {
 
   return (
     <div className="space-y-8">
+      <OnboardingBanner />
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Enabler Dashboard</h1>

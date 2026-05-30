@@ -4,6 +4,7 @@ import { z } from "zod/v4";
 
 export const userTierEnum = pgEnum("user_tier", ["PRODUCER", "OFF_TAKER", "ENABLER", "FINANCIER"]);
 export const kybStatusEnum = pgEnum("kyb_status", ["PENDING", "VERIFIED", "REJECTED"]);
+export const onboardingStatusEnum = pgEnum("onboarding_status", ["PENDING_KYB_APPROVAL", "WRSC_VERIFIED", "ACTIVE", "REJECTED"]);
 
 export const usersTable = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -13,7 +14,10 @@ export const usersTable = pgTable("users", {
   tier: userTierEnum("tier").notNull().default("PRODUCER"),
   reputationScore: integer("reputation_score").notNull().default(100),
   kybStatus: kybStatusEnum("kyb_status").notNull().default("PENDING"),
+  onboardingStatus: onboardingStatusEnum("onboarding_status").notNull().default("PENDING_KYB_APPROVAL"),
   company: text("company"),
+  phone: text("phone"),
+  nationalId: text("national_id"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

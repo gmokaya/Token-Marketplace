@@ -11,3 +11,7 @@ export * from "./financing_requests";
 export * from "./loans";
 export * from "./settlements";
 export * from "./audit_log";
+export * from "./producer_profiles";
+export * from "./buyer_profiles";
+export * from "./warehouse_profiles";
+export * from "./financier_profiles";
