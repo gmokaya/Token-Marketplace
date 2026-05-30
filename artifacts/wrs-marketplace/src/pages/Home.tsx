@@ -239,7 +239,7 @@ function EsgSection() {
               }}>
                 {label}
               </h3>
-              <p style={{ fontSize: 15, color: "#666", lineHeight: 1.85, textAlign: "justify", margin: 0, flex: 1 }}>
+              <p style={{ fontSize: 15, color: "#666", lineHeight: 1.85, textAlign: "left", margin: 0, flex: 1 }}>
                 {body}
               </p>
               <h4 style={{
