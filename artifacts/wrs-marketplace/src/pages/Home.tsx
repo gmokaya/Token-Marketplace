@@ -201,9 +201,10 @@ export default function Home() {
             {/* main nav */}
             <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", height: 68, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               {/* logo */}
-              <div style={{ display: "flex", alignItems: "center" }}>
+              <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center" }}>
                 <img src={`${BASE}/logo-white.png`} alt="TokenHarvest" style={{ height: 40, width: "auto" }} />
-              </div>
+              </button>
               {/* numbered links */}
               <nav style={{ display: "flex", gap: 32, alignItems: "center" }}>
                 {([ ["01","Platform","platform"], ["02","Services","services"], ["03","About","about"], ["04","Contact","cta"] ] as const).map(([n, label, id]) => (
