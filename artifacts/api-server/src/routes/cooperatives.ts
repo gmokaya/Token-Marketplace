@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getAuth } from "@clerk/express";
-import { randomUUID, createHash } from "crypto";
+import { randomUUID, createHash, createHmac } from "crypto";
 import { db } from "@workspace/db";
 import {
   usersTable,
@@ -14,6 +14,20 @@ import {
 } from "@workspace/db";
 import { eq, and, sql } from "drizzle-orm";
 import { auditEntry } from "../lib/audit";
+
+// Mirror of wrsc.ts — must use the same secret so cooperative-issued receipts
+// pass the same signature validation as WMS intake receipts.
+function loadWrscSecret(): string {
+  const v = process.env.WRSC_SECRET;
+  if (v && v.length > 0) return v;
+  if (process.env.NODE_ENV === "production") throw new Error("[wrsc] WRSC_SECRET must be set in production");
+  return "wrsc-dev-registry-secret-2025";
+}
+const WRSC_SECRET = loadWrscSecret();
+
+function wrscSign(payload: object): string {
+  return createHmac("sha256", WRSC_SECRET).update(JSON.stringify(payload)).digest("hex");
+}
 
 const router = Router();
 
@@ -264,9 +278,13 @@ router.post("/cooperatives/me/macro-lots/:lotId/request-ewr", async (req, res) =
     }
 
     const ewrsReceiptId = `COOP-${lotId}-${randomUUID().slice(0, 8).toUpperCase()}`;
-    const wrscSignature = createHash("sha256")
-      .update(`${ewrsReceiptId}:${user.id}:${lot.totalWeightMt}`)
-      .digest("hex");
+    const wrscSignature = wrscSign({
+      ewrsReceiptId,
+      cooperativeId: user.id,
+      weightMt: lot.totalWeightMt,
+      commodityType: lot.commodityType,
+      grade: lot.grade,
+    });
 
     const [ewr] = await db.insert(ewrsTable).values({
       ewrsReceiptId,
@@ -340,7 +358,7 @@ router.post("/ewrs/:ewrId/split", async (req, res) => {
     const makeChildId = (suffix: string) => `${parent.ewrsReceiptId}-${suffix}`;
     const [ewrA] = await db.insert(ewrsTable).values({
       ewrsReceiptId: makeChildId("A"),
-      wrscSignature: createHash("sha256").update(`${parent.ewrsReceiptId}:A:${weightMtA}`).digest("hex"),
+      wrscSignature: wrscSign({ parentReceiptId: parent.ewrsReceiptId, split: "A", weightMt: weightMtA }),
       warehouseCode: parent.warehouseCode,
       commodityType: parent.commodityType,
       batchType: parent.batchType,
@@ -354,7 +372,7 @@ router.post("/ewrs/:ewrId/split", async (req, res) => {
 
     const [ewrB] = await db.insert(ewrsTable).values({
       ewrsReceiptId: makeChildId("B"),
-      wrscSignature: createHash("sha256").update(`${parent.ewrsReceiptId}:B:${weightMtB}`).digest("hex"),
+      wrscSignature: wrscSign({ parentReceiptId: parent.ewrsReceiptId, split: "B", weightMt: weightMtB }),
       warehouseCode: parent.warehouseCode,
       commodityType: parent.commodityType,
       batchType: parent.batchType,
@@ -404,6 +422,49 @@ router.post("/ewrs/:ewrId/retire", async (req, res) => {
       )
     );
     return res.json(retired);
+  } catch (err: any) {
+    return res.status(err.statusCode ?? 500).json({ error: err.message });
+  }
+});
+
+// ── eWR Transfer (cooperative → any registered user) ─────────────────────────
+
+router.post("/ewrs/:ewrId/transfer", async (req, res) => {
+  const { userId: clerkId } = getAuth(req);
+  if (!clerkId) return res.status(401).json({ error: "Unauthorized" });
+  try {
+    const user = await requireCoop(clerkId);
+    const ewrId = parseInt(req.params.ewrId);
+    if (isNaN(ewrId)) return res.status(400).json({ error: "Invalid eWR ID" });
+
+    const [ewr] = await db.select().from(ewrsTable).where(eq(ewrsTable.id, ewrId)).limit(1);
+    if (!ewr) return res.status(404).json({ error: "eWR not found" });
+    if (ewr.ownerId !== user.id) return res.status(403).json({ error: "You do not own this eWR" });
+    if (ewr.isLienActive) return res.status(400).json({ error: "Cannot transfer eWR with active lien" });
+    if (!["INGESTED", "ENCUMBERED"].includes(ewr.state)) {
+      return res.status(400).json({ error: "Only INGESTED or ENCUMBERED eWRs can be transferred" });
+    }
+
+    const { toUserId } = req.body as { toUserId: number };
+    if (!toUserId || isNaN(toUserId)) return res.status(400).json({ error: "toUserId is required" });
+    if (toUserId === user.id) return res.status(400).json({ error: "Cannot transfer to yourself" });
+
+    const [recipient] = await db.select({ id: usersTable.id, name: usersTable.name })
+      .from(usersTable).where(eq(usersTable.id, toUserId)).limit(1);
+    if (!recipient) return res.status(404).json({ error: "Recipient user not found" });
+
+    const [updated] = await db.update(ewrsTable)
+      .set({ ownerId: toUserId })
+      .where(eq(ewrsTable.id, ewrId))
+      .returning();
+
+    await db.insert(auditLogTable).values(
+      auditEntry("EWR", ewrId, "EWR_TRANSFERRED", user.id,
+        { ewrId, fromUserId: user.id, toUserId, recipientName: recipient.name },
+        { warehouseCode: ewr.warehouseCode, weightMt: ewr.weightMt }
+      )
+    );
+    return res.json(updated);
   } catch (err: any) {
     return res.status(err.statusCode ?? 500).json({ error: err.message });
   }

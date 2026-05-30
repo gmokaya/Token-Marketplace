@@ -343,7 +343,7 @@ export default function SettlementDetail() {
                   </code>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Issued: {new Date((settlement as any).releaseToken.issuedAt).toLocaleString()}
+                  Issued: {new Date((settlement as any).releaseToken.createdAt).toLocaleString()}
                 </p>
               </div>
             </CardContent>

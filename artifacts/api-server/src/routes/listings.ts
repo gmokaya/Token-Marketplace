@@ -11,10 +11,11 @@ const ESCROW_FEE_RATE = 0.005;
 const router = Router();
 
 function anonymiseForCoop(obj: Record<string, unknown>): Record<string, unknown> {
-  const { sellerName, warehouseCode, ...rest } = obj;
+  const { sellerName, warehouseCode, sellerId, ...rest } = obj;
   return {
     ...rest,
     sellerName: null,
+    sellerId: null,
     warehouseCode: typeof warehouseCode === "string" ? warehouseCode.slice(0, 3) : null,
     _anonymous: true,
   };
@@ -130,7 +131,7 @@ router.post("/listings", async (req, res) => {
 
   const [user] = await db.select().from(usersTable).where(eq(usersTable.clerkId, clerkId)).limit(1);
   if (!user) return res.status(404).json({ error: "User not found" });
-  if (user.tier !== "PRODUCER") return res.status(403).json({ error: "Only PRODUCER accounts can create listings" });
+  if (!["PRODUCER", "COOPERATIVE"].includes(user.tier)) return res.status(403).json({ error: "Only PRODUCER or COOPERATIVE accounts can create listings" });
 
   const { ewrId, pricePerMt, currency = "USD" } = req.body as {
     ewrId: number;
@@ -202,7 +203,16 @@ router.get("/listings/:listingId", async (req, res) => {
     .limit(1);
 
   const enrichedListing = await enrichListing(listing);
-  return res.json({ listing: enrichedListing, ewr });
+  const isAnon = (enrichedListing as any)._anonymous === true;
+  const safeEwr = isAnon ? {
+    ...ewr,
+    ownerId: null,
+    ownerName: null,
+    ewrsReceiptId: null,
+    wrscSignature: null,
+    warehouseCode: typeof ewr?.warehouseCode === "string" ? ewr.warehouseCode.slice(0, 3) : ewr?.warehouseCode,
+  } : ewr;
+  return res.json({ listing: enrichedListing, ewr: safeEwr });
 });
 
 router.delete("/listings/:listingId", async (req, res) => {

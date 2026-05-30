@@ -112,6 +112,7 @@ async function enrichAuction(auction: typeof auctionsTable.$inferSelect) {
       .from(usersTable).where(eq(usersTable.id, auction.sellerId)).limit(1);
     if (sellerFull?.tier === "COOPERATIVE") {
       enriched.sellerName = null;
+      enriched.sellerId = null;
       enriched.warehouseCode = typeof enriched.warehouseCode === "string"
         ? (enriched.warehouseCode as string).slice(0, 3)
         : null;
@@ -157,7 +158,7 @@ router.post("/auctions", async (req, res) => {
 
   const [user] = await db.select().from(usersTable).where(eq(usersTable.clerkId, clerkId)).limit(1);
   if (!user) return res.status(404).json({ error: "User not found" });
-  if (user.tier !== "PRODUCER") return res.status(403).json({ error: "Only producers can create auctions" });
+  if (!["PRODUCER", "COOPERATIVE"].includes(user.tier)) return res.status(403).json({ error: "Only PRODUCER or COOPERATIVE accounts can create auctions" });
 
   const { ewrId, reservePriceUsd, bidIncrementPct = 1.5, durationMinutes } = req.body as {
     ewrId: number;
