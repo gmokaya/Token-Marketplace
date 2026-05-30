@@ -202,7 +202,7 @@ export default function Home() {
             <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", height: 68, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               {/* logo */}
               <div style={{ display: "flex", alignItems: "center" }}>
-                <img src={`${BASE}/logo-white.png`} alt="TokenHarvest" style={{ height: 28, width: "auto" }} />
+                <img src={`${BASE}/logo-white.png`} alt="TokenHarvest" style={{ height: 40, width: "auto" }} />
               </div>
               {/* numbered links */}
               <nav style={{ display: "flex", gap: 32, alignItems: "center" }}>
