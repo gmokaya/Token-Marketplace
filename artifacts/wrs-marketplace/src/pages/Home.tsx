@@ -214,7 +214,7 @@ function EsgSection() {
               letter: "G",
               label: "Governance",
               heading: "Secured Transaction Lifecycles Across All Value Chains.",
-              body: "Every transaction, whether handling grains, coffee, tea, or perishables, is executed through a secure state-machine lifecycle and protected by cryptographic hashing. Integrating data protocols across diverse value chains, TokenHarvest provides transaction integrity and eliminates contract defaults. The result is a transparent governance architecture that satisfies bank lending covenants, regulatory requirements, and international investor reporting standards without manual reconciliation.",
+              body: "Every transaction, whether handling grains, coffee, tea, or perishables, is executed through a secure state-machine lifecycle and protected by cryptographic hashing. TokenHarvest provides transaction integrity by integrating data protocols across diverse value chains. The result is a transparent governance architecture that satisfies lending covenants, regulatory requirements, and investor reporting standards without manual reconciliation.",
             },
           ] as const).map(({ letter, label, heading, body }, i) => (
             <div key={label} style={{
@@ -239,16 +239,16 @@ function EsgSection() {
               }}>
                 {label}
               </h3>
+              <p style={{ fontSize: 15, color: "#666", lineHeight: 1.85, textAlign: "justify", margin: 0, flex: 1 }}>
+                {body}
+              </p>
               <h4 style={{
                 fontSize: 14, fontWeight: 600, color: "#222",
-                margin: "0 0 16px", lineHeight: 1.4,
+                margin: "32px 0 0", lineHeight: 1.4,
               }}>
                 {heading}
               </h4>
-              <p style={{ fontSize: 15, color: "#666", lineHeight: 1.85, margin: 0, flex: 1 }}>
-                {body}
-              </p>
-              <div style={{ width: 28, height: 2, background: ACCENT, marginTop: 32 }} />
+              <div style={{ width: 28, height: 2, background: ACCENT, marginTop: 16 }} />
             </div>
           ))}
         </div>
