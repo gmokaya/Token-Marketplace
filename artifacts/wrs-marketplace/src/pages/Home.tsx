@@ -213,7 +213,7 @@ function EsgSection() {
             {
               letter: "G",
               label: "Governance",
-              heading: "Secured Transaction Lifecycles Across All Value Chains.",
+              heading: "Traceable Transaction Lifecycles.",
               body: "Every transaction, whether handling grains, coffee, tea, or perishables, is executed through a secure lifecycle and protected by cryptographic hashing. TokenHarvest provides transaction integrity by integrating data protocols across diverse value chains. The result is a transparent governance architecture that satisfies lending covenants, regulatory requirements, and investor reporting standards without manual reconciliation.",
             },
           ] as const).map(({ letter, label, heading, body }, i) => (
