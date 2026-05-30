@@ -3,6 +3,7 @@ const TIER_LABELS: Record<string, string> = {
   OFF_TAKER: "Off-Taker",
   ENABLER: "Warehouse Operator",
   FINANCIER: "Financier",
+  COOPERATIVE: "Cooperative",
 };
 
 export function formatTier(tier: string | null | undefined): string {

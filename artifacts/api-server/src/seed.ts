@@ -11,9 +11,14 @@ import {
   loansTable,
   settlementsTable,
   auditLogTable,
+  cooperativeProfilesTable,
+  coopMembersTable,
+  intakeLogsTable,
+  macroLotsTable,
+  digitalReleaseTokensTable,
 } from "@workspace/db";
 import { eq, inArray } from "drizzle-orm";
-import { createHash } from "crypto";
+import { createHash, randomUUID } from "crypto";
 
 function sha256(payload: object): string {
   return createHash("sha256").update(JSON.stringify(payload)).digest("hex");
@@ -23,6 +28,7 @@ async function seed() {
   console.log("Seeding database...");
 
   await db.delete(auditLogTable);
+  await db.delete(digitalReleaseTokensTable);
   await db.delete(settlementsTable);
   await db.delete(loansTable);
   await db.delete(financingRequestsTable);
@@ -31,10 +37,14 @@ async function seed() {
   await db.delete(auctionBidsTable);
   await db.delete(auctionsTable);
   await db.delete(spotListingsTable);
+  await db.delete(macroLotsTable);
+  await db.delete(intakeLogsTable);
+  await db.delete(coopMembersTable);
+  await db.delete(cooperativeProfilesTable);
   await db.delete(ewrsTable);
   await db.delete(usersTable);
 
-  const [producer1, producer2, offtaker, enabler, financier] = await db
+  const [producer1, producer2, offtaker, enabler, financier, cooperative] = await db
     .insert(usersTable)
     .values([
       {
@@ -82,10 +92,19 @@ async function seed() {
         kybStatus: "VERIFIED",
         company: "AgriFinance Bank Kenya",
       },
+      {
+        clerkId: "seed_cooperative_001",
+        name: "Meru Coffee Growers Cooperative",
+        email: "meru@seedcoop.wrs",
+        tier: "COOPERATIVE",
+        reputationScore: 90,
+        kybStatus: "VERIFIED",
+        company: "Meru Coffee Growers Cooperative",
+      },
     ])
     .returning();
 
-  console.log("Users seeded:", [producer1, producer2, offtaker, enabler, financier].map(u => u.name));
+  console.log("Users seeded:", [producer1, producer2, offtaker, enabler, financier, cooperative].map(u => u.name));
 
   const now = new Date();
   const avocadoExpiry = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
@@ -693,6 +712,102 @@ async function seed() {
 
     console.log("Financing seeded: 2 active loans, 1 pending request, 2 completed settlements.");
   }
+
+  // ── Cooperative seed ──────────────────────────────────────────────────────
+  const [coopProfile] = await db.insert(cooperativeProfilesTable).values({
+    userId: cooperative.id,
+    entityName: "Meru Coffee Growers Cooperative Society Ltd",
+    registrationNumber: "CO-2018-04521",
+    officeAddress: "Meru Town, Meru County",
+    adminFirstName: "James",
+    adminLastName: "Muriuki",
+    adminEmail: "jmuriuki@merucoops.ke",
+    adminPhone: "+254712345678",
+  }).returning();
+
+  const memberDefs = [
+    { fullName: "Jane Njeri Kamau",    nationalId: "12345678", farmLocation: "Imenti South", gender: "Female", acreageMt: "2.5" },
+    { fullName: "Peter Muriithi",      nationalId: "23456789", farmLocation: "Tigania West",  gender: "Male",   acreageMt: "1.8" },
+    { fullName: "Grace Wanjiku",       nationalId: "34567890", farmLocation: "Meru Central",  gender: "Female", acreageMt: "3.2" },
+    { fullName: "Samuel Njogu",        nationalId: "45678901", farmLocation: "Buuri",          gender: "Male",   acreageMt: "1.1" },
+    { fullName: "Eunice Mutua",        nationalId: "56789012", farmLocation: "Imenti North",  gender: "Female", acreageMt: "2.0" },
+  ];
+  const crypto = await import("crypto");
+  const coopMembers = await db.insert(coopMembersTable).values(
+    memberDefs.map(m => ({
+      cooperativeId: cooperative.id,
+      fullName: m.fullName,
+      nationalId: m.nationalId,
+      farmLocation: m.farmLocation,
+      gender: m.gender,
+      acreageMt: m.acreageMt,
+      memberRef: "MBR-" + crypto.createHash("sha256")
+        .update(`${cooperative.id}:${m.nationalId}`).digest("hex").slice(0, 10).toUpperCase(),
+    }))
+  ).returning();
+
+  const intakeBase = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  await db.insert(intakeLogsTable).values([
+    {
+      cooperativeId: cooperative.id,
+      memberRef: coopMembers[0].memberRef,
+      commodityType: "COFFEE",
+      grade: "AA",
+      weightMt: "12.500",
+      moisturePct: "11.2",
+      intakeAt: intakeBase,
+    },
+    {
+      cooperativeId: cooperative.id,
+      memberRef: coopMembers[1].memberRef,
+      commodityType: "COFFEE",
+      grade: "AA",
+      weightMt: "9.750",
+      moisturePct: "11.8",
+      intakeAt: new Date(intakeBase.getTime() + 2 * 24 * 60 * 60 * 1000),
+    },
+    {
+      cooperativeId: cooperative.id,
+      memberRef: coopMembers[2].memberRef,
+      commodityType: "COFFEE",
+      grade: "AB",
+      weightMt: "14.200",
+      moisturePct: "12.1",
+      intakeAt: new Date(intakeBase.getTime() + 4 * 24 * 60 * 60 * 1000),
+    },
+  ]);
+
+  const [macroLot] = await db.insert(macroLotsTable).values({
+    cooperativeId: cooperative.id,
+    commodityType: "COFFEE",
+    grade: "AA",
+    warehouseCode: "MRU-001",
+    harvestSeason: "2025A",
+    totalWeightMt: "22.250",
+    status: "FINALISED",
+  }).returning();
+
+  const [coopEwr] = await db.insert(ewrsTable).values({
+    ewrsReceiptId: "EWR-MRU-2025-C01",
+    wrscSignature: "WRSC-SIG-c00pa4b5",
+    warehouseCode: "MRU-001",
+    commodityType: "COFFEE",
+    batchType: "NON_FUNGIBLE",
+    grade: "AA",
+    weightMt: "22.250",
+    harvestSeason: "2025A",
+    isLienActive: false,
+    state: "INGESTED",
+    ownerId: cooperative.id,
+    estimatedValueUsd: "38937.50",
+    moisturePct: "11.5",
+  }).returning();
+
+  await db.update(macroLotsTable)
+    .set({ status: "EWR_ISSUED", ewrId: coopEwr.id })
+    .where(eq(macroLotsTable.id, macroLot.id));
+
+  console.log("Cooperative seeded: 1 profile, 5 members, 3 intake logs, 1 macro lot, 1 eWR.");
 
   console.log("Seed complete.");
   process.exit(0);

@@ -2,7 +2,7 @@ import { pgTable, serial, text, integer, timestamp, pgEnum } from "drizzle-orm/p
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
-export const userTierEnum = pgEnum("user_tier", ["PRODUCER", "OFF_TAKER", "ENABLER", "FINANCIER"]);
+export const userTierEnum = pgEnum("user_tier", ["PRODUCER", "OFF_TAKER", "ENABLER", "FINANCIER", "COOPERATIVE"]);
 export const kybStatusEnum = pgEnum("kyb_status", ["PENDING", "VERIFIED", "REJECTED"]);
 export const onboardingStatusEnum = pgEnum("onboarding_status", ["PENDING_KYB_APPROVAL", "WRSC_VERIFIED", "ACTIVE", "REJECTED"]);
 

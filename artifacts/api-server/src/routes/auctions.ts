@@ -96,7 +96,7 @@ async function enrichAuction(auction: typeof auctionsTable.$inferSelect) {
     .where(eq(ewrsTable.id, auction.ewrId))
     .limit(1);
 
-  return {
+  const enriched: Record<string, unknown> = {
     ...auction,
     sellerName: seller?.name ?? null,
     currentHighBidUsd: highBidRow?.maxBid ?? null,
@@ -106,6 +106,20 @@ async function enrichAuction(auction: typeof auctionsTable.$inferSelect) {
     weightMt: ewr?.weightMt ?? null,
     warehouseCode: ewr?.warehouseCode ?? null,
   };
+
+  if (seller) {
+    const [sellerFull] = await db.select({ tier: usersTable.tier })
+      .from(usersTable).where(eq(usersTable.id, auction.sellerId)).limit(1);
+    if (sellerFull?.tier === "COOPERATIVE") {
+      enriched.sellerName = null;
+      enriched.warehouseCode = typeof enriched.warehouseCode === "string"
+        ? (enriched.warehouseCode as string).slice(0, 3)
+        : null;
+      enriched._anonymous = true;
+    }
+  }
+
+  return enriched;
 }
 
 router.get("/auctions", async (req, res) => {

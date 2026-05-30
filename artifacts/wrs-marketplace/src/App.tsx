@@ -31,6 +31,11 @@ import AdminHomepage from "@/pages/AdminHomepage";
 import AuditLog from "@/pages/AuditLog";
 import Intake from "@/pages/Intake";
 import EwrApi from "@/pages/EwrApi";
+import CoopDashboard from "@/pages/CoopDashboard";
+import MemberLedger from "@/pages/MemberLedger";
+import IntakeLog from "@/pages/IntakeLog";
+import MacroLots from "@/pages/MacroLots";
+import CoopInventory from "@/pages/CoopInventory";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 const clerkPubKey = publishableKeyFromHost(window.location.hostname, import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
@@ -135,6 +140,11 @@ function ClerkProviderWithRoutes() {
             <Route path="/intake"><ProtectedRoute><Intake /></ProtectedRoute></Route>
             <Route path="/admin/ewr-api"><ProtectedRoute><EwrApi /></ProtectedRoute></Route>
             <Route path="/admin/homepage"><ProtectedRoute><AdminHomepage /></ProtectedRoute></Route>
+            <Route path="/coop"><ProtectedRoute><CoopDashboard /></ProtectedRoute></Route>
+            <Route path="/coop/members"><ProtectedRoute><MemberLedger /></ProtectedRoute></Route>
+            <Route path="/coop/intake"><ProtectedRoute><IntakeLog /></ProtectedRoute></Route>
+            <Route path="/coop/macro-lots"><ProtectedRoute><MacroLots /></ProtectedRoute></Route>
+            <Route path="/coop/inventory"><ProtectedRoute><CoopInventory /></ProtectedRoute></Route>
             <Route path="*">
               <div className="flex items-center justify-center h-screen">404 Not Found</div>
             </Route>

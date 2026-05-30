@@ -28,7 +28,10 @@ import type {
   AuditLogEntry,
   BidInput,
   CommodityStat,
+  CoopMember,
+  CooperativeProfile,
   CreateEwrRequest,
+  DigitalReleaseToken,
   DisburseInput,
   EligibleEwr,
   Ewr,
@@ -41,6 +44,7 @@ import type {
   GetRecentActivityParams,
   GetTopBiddersParams,
   HealthStatus,
+  IntakeLog,
   ListAuctionsParams,
   ListAuditLogParams,
   ListEwrsParams,
@@ -49,6 +53,7 @@ import type {
   ListOrdersParams,
   ListSpotListingsParams,
   Loan,
+  MacroLot,
   MarketSummary,
   Order,
   OrderInput,
@@ -56,9 +61,12 @@ import type {
   PlatformEarnings,
   Portfolio,
   PriceTrendItem,
+  RequestEwrForLotBody,
   ResolveDefaultBody,
   Settlement,
   SettlementInput,
+  SplitEwr201,
+  SplitEwrBody,
   SpotListing,
   SpotListingDetail,
   SpotListingInput,
@@ -3593,4 +3601,957 @@ export function useListAuditLog<TData = Awaited<ReturnType<typeof listAuditLog>>
 
 
 
+
+export const getGetCoopProfileUrl = () => {
+
+
+
+
+  return `/api/cooperatives/me/profile`
+}
+
+/**
+ * @summary Get cooperative profile
+ */
+export const getCoopProfile = async ( options?: RequestInit): Promise<CooperativeProfile> => {
+
+  return customFetch<CooperativeProfile>(getGetCoopProfileUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCoopProfileQueryKey = () => {
+    return [
+    `/api/cooperatives/me/profile`
+    ] as const;
+    }
+
+
+export const getGetCoopProfileQueryOptions = <TData = Awaited<ReturnType<typeof getCoopProfile>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCoopProfile>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCoopProfileQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCoopProfile>>> = ({ signal }) => getCoopProfile({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCoopProfile>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCoopProfileQueryResult = NonNullable<Awaited<ReturnType<typeof getCoopProfile>>>
+export type GetCoopProfileQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get cooperative profile
+ */
+
+export function useGetCoopProfile<TData = Awaited<ReturnType<typeof getCoopProfile>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCoopProfile>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCoopProfileQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getUpsertCoopProfileUrl = () => {
+
+
+
+
+  return `/api/cooperatives/me/profile`
+}
+
+/**
+ * @summary Create or update cooperative profile
+ */
+export const upsertCoopProfile = async (cooperativeProfile: CooperativeProfile, options?: RequestInit): Promise<CooperativeProfile> => {
+
+  return customFetch<CooperativeProfile>(getUpsertCoopProfileUrl(),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      cooperativeProfile,)
+  }
+);}
+
+
+
+
+export const getUpsertCoopProfileMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof upsertCoopProfile>>, TError,{data: BodyType<CooperativeProfile>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof upsertCoopProfile>>, TError,{data: BodyType<CooperativeProfile>}, TContext> => {
+
+const mutationKey = ['upsertCoopProfile'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof upsertCoopProfile>>, {data: BodyType<CooperativeProfile>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  upsertCoopProfile(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpsertCoopProfileMutationResult = NonNullable<Awaited<ReturnType<typeof upsertCoopProfile>>>
+    export type UpsertCoopProfileMutationBody = BodyType<CooperativeProfile>
+    export type UpsertCoopProfileMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Create or update cooperative profile
+ */
+export const useUpsertCoopProfile = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof upsertCoopProfile>>, TError,{data: BodyType<CooperativeProfile>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof upsertCoopProfile>>,
+        TError,
+        {data: BodyType<CooperativeProfile>},
+        TContext
+      > => {
+      return useMutation(getUpsertCoopProfileMutationOptions(options));
+    }
+
+export const getListCoopMembersUrl = () => {
+
+
+
+
+  return `/api/cooperatives/me/members`
+}
+
+/**
+ * @summary List cooperative members
+ */
+export const listCoopMembers = async ( options?: RequestInit): Promise<CoopMember[]> => {
+
+  return customFetch<CoopMember[]>(getListCoopMembersUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListCoopMembersQueryKey = () => {
+    return [
+    `/api/cooperatives/me/members`
+    ] as const;
+    }
+
+
+export const getListCoopMembersQueryOptions = <TData = Awaited<ReturnType<typeof listCoopMembers>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCoopMembers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListCoopMembersQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listCoopMembers>>> = ({ signal }) => listCoopMembers({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listCoopMembers>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListCoopMembersQueryResult = NonNullable<Awaited<ReturnType<typeof listCoopMembers>>>
+export type ListCoopMembersQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List cooperative members
+ */
+
+export function useListCoopMembers<TData = Awaited<ReturnType<typeof listCoopMembers>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCoopMembers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListCoopMembersQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getAddCoopMemberUrl = () => {
+
+
+
+
+  return `/api/cooperatives/me/members`
+}
+
+/**
+ * @summary Add a member to the cooperative
+ */
+export const addCoopMember = async (coopMember: CoopMember, options?: RequestInit): Promise<CoopMember> => {
+
+  return customFetch<CoopMember>(getAddCoopMemberUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      coopMember,)
+  }
+);}
+
+
+
+
+export const getAddCoopMemberMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addCoopMember>>, TError,{data: BodyType<CoopMember>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof addCoopMember>>, TError,{data: BodyType<CoopMember>}, TContext> => {
+
+const mutationKey = ['addCoopMember'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof addCoopMember>>, {data: BodyType<CoopMember>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  addCoopMember(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AddCoopMemberMutationResult = NonNullable<Awaited<ReturnType<typeof addCoopMember>>>
+    export type AddCoopMemberMutationBody = BodyType<CoopMember>
+    export type AddCoopMemberMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Add a member to the cooperative
+ */
+export const useAddCoopMember = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addCoopMember>>, TError,{data: BodyType<CoopMember>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof addCoopMember>>,
+        TError,
+        {data: BodyType<CoopMember>},
+        TContext
+      > => {
+      return useMutation(getAddCoopMemberMutationOptions(options));
+    }
+
+export const getListIntakeLogsUrl = () => {
+
+
+
+
+  return `/api/cooperatives/me/intake`
+}
+
+/**
+ * @summary List intake log entries
+ */
+export const listIntakeLogs = async ( options?: RequestInit): Promise<IntakeLog[]> => {
+
+  return customFetch<IntakeLog[]>(getListIntakeLogsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListIntakeLogsQueryKey = () => {
+    return [
+    `/api/cooperatives/me/intake`
+    ] as const;
+    }
+
+
+export const getListIntakeLogsQueryOptions = <TData = Awaited<ReturnType<typeof listIntakeLogs>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listIntakeLogs>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListIntakeLogsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listIntakeLogs>>> = ({ signal }) => listIntakeLogs({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listIntakeLogs>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListIntakeLogsQueryResult = NonNullable<Awaited<ReturnType<typeof listIntakeLogs>>>
+export type ListIntakeLogsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List intake log entries
+ */
+
+export function useListIntakeLogs<TData = Awaited<ReturnType<typeof listIntakeLogs>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listIntakeLogs>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListIntakeLogsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCreateIntakeLogUrl = () => {
+
+
+
+
+  return `/api/cooperatives/me/intake`
+}
+
+/**
+ * @summary Record a crop intake delivery
+ */
+export const createIntakeLog = async (intakeLog: IntakeLog, options?: RequestInit): Promise<IntakeLog> => {
+
+  return customFetch<IntakeLog>(getCreateIntakeLogUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      intakeLog,)
+  }
+);}
+
+
+
+
+export const getCreateIntakeLogMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createIntakeLog>>, TError,{data: BodyType<IntakeLog>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createIntakeLog>>, TError,{data: BodyType<IntakeLog>}, TContext> => {
+
+const mutationKey = ['createIntakeLog'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createIntakeLog>>, {data: BodyType<IntakeLog>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createIntakeLog(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateIntakeLogMutationResult = NonNullable<Awaited<ReturnType<typeof createIntakeLog>>>
+    export type CreateIntakeLogMutationBody = BodyType<IntakeLog>
+    export type CreateIntakeLogMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Record a crop intake delivery
+ */
+export const useCreateIntakeLog = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createIntakeLog>>, TError,{data: BodyType<IntakeLog>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createIntakeLog>>,
+        TError,
+        {data: BodyType<IntakeLog>},
+        TContext
+      > => {
+      return useMutation(getCreateIntakeLogMutationOptions(options));
+    }
+
+export const getListMacroLotsUrl = () => {
+
+
+
+
+  return `/api/cooperatives/me/macro-lots`
+}
+
+/**
+ * @summary List macro lots
+ */
+export const listMacroLots = async ( options?: RequestInit): Promise<MacroLot[]> => {
+
+  return customFetch<MacroLot[]>(getListMacroLotsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListMacroLotsQueryKey = () => {
+    return [
+    `/api/cooperatives/me/macro-lots`
+    ] as const;
+    }
+
+
+export const getListMacroLotsQueryOptions = <TData = Awaited<ReturnType<typeof listMacroLots>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMacroLots>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListMacroLotsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listMacroLots>>> = ({ signal }) => listMacroLots({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listMacroLots>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListMacroLotsQueryResult = NonNullable<Awaited<ReturnType<typeof listMacroLots>>>
+export type ListMacroLotsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List macro lots
+ */
+
+export function useListMacroLots<TData = Awaited<ReturnType<typeof listMacroLots>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMacroLots>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListMacroLotsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCreateMacroLotUrl = () => {
+
+
+
+
+  return `/api/cooperatives/me/macro-lots`
+}
+
+/**
+ * @summary Create a macro lot
+ */
+export const createMacroLot = async (macroLot: MacroLot, options?: RequestInit): Promise<MacroLot> => {
+
+  return customFetch<MacroLot>(getCreateMacroLotUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      macroLot,)
+  }
+);}
+
+
+
+
+export const getCreateMacroLotMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMacroLot>>, TError,{data: BodyType<MacroLot>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createMacroLot>>, TError,{data: BodyType<MacroLot>}, TContext> => {
+
+const mutationKey = ['createMacroLot'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createMacroLot>>, {data: BodyType<MacroLot>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createMacroLot(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateMacroLotMutationResult = NonNullable<Awaited<ReturnType<typeof createMacroLot>>>
+    export type CreateMacroLotMutationBody = BodyType<MacroLot>
+    export type CreateMacroLotMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Create a macro lot
+ */
+export const useCreateMacroLot = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMacroLot>>, TError,{data: BodyType<MacroLot>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createMacroLot>>,
+        TError,
+        {data: BodyType<MacroLot>},
+        TContext
+      > => {
+      return useMutation(getCreateMacroLotMutationOptions(options));
+    }
+
+export const getFinaliseMacroLotUrl = (lotId: number,) => {
+
+
+
+
+  return `/api/cooperatives/me/macro-lots/${lotId}/finalise`
+}
+
+/**
+ * @summary Finalise a macro lot (no more additions)
+ */
+export const finaliseMacroLot = async (lotId: number, options?: RequestInit): Promise<MacroLot> => {
+
+  return customFetch<MacroLot>(getFinaliseMacroLotUrl(lotId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getFinaliseMacroLotMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof finaliseMacroLot>>, TError,{lotId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof finaliseMacroLot>>, TError,{lotId: number}, TContext> => {
+
+const mutationKey = ['finaliseMacroLot'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof finaliseMacroLot>>, {lotId: number}> = (props) => {
+          const {lotId} = props ?? {};
+
+          return  finaliseMacroLot(lotId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type FinaliseMacroLotMutationResult = NonNullable<Awaited<ReturnType<typeof finaliseMacroLot>>>
+
+    export type FinaliseMacroLotMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Finalise a macro lot (no more additions)
+ */
+export const useFinaliseMacroLot = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof finaliseMacroLot>>, TError,{lotId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof finaliseMacroLot>>,
+        TError,
+        {lotId: number},
+        TContext
+      > => {
+      return useMutation(getFinaliseMacroLotMutationOptions(options));
+    }
+
+export const getRequestEwrForLotUrl = (lotId: number,) => {
+
+
+
+
+  return `/api/cooperatives/me/macro-lots/${lotId}/request-ewr`
+}
+
+/**
+ * @summary Request eWR issuance for a finalised macro lot
+ */
+export const requestEwrForLot = async (lotId: number,
+    requestEwrForLotBody: RequestEwrForLotBody, options?: RequestInit): Promise<MacroLot> => {
+
+  return customFetch<MacroLot>(getRequestEwrForLotUrl(lotId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      requestEwrForLotBody,)
+  }
+);}
+
+
+
+
+export const getRequestEwrForLotMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestEwrForLot>>, TError,{lotId: number;data: BodyType<RequestEwrForLotBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof requestEwrForLot>>, TError,{lotId: number;data: BodyType<RequestEwrForLotBody>}, TContext> => {
+
+const mutationKey = ['requestEwrForLot'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof requestEwrForLot>>, {lotId: number;data: BodyType<RequestEwrForLotBody>}> = (props) => {
+          const {lotId,data} = props ?? {};
+
+          return  requestEwrForLot(lotId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RequestEwrForLotMutationResult = NonNullable<Awaited<ReturnType<typeof requestEwrForLot>>>
+    export type RequestEwrForLotMutationBody = BodyType<RequestEwrForLotBody>
+    export type RequestEwrForLotMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Request eWR issuance for a finalised macro lot
+ */
+export const useRequestEwrForLot = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestEwrForLot>>, TError,{lotId: number;data: BodyType<RequestEwrForLotBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof requestEwrForLot>>,
+        TError,
+        {lotId: number;data: BodyType<RequestEwrForLotBody>},
+        TContext
+      > => {
+      return useMutation(getRequestEwrForLotMutationOptions(options));
+    }
+
+export const getListReleaseTokensUrl = () => {
+
+
+
+
+  return `/api/cooperatives/me/release-tokens`
+}
+
+/**
+ * @summary List digital release tokens for the cooperative buyer
+ */
+export const listReleaseTokens = async ( options?: RequestInit): Promise<DigitalReleaseToken[]> => {
+
+  return customFetch<DigitalReleaseToken[]>(getListReleaseTokensUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListReleaseTokensQueryKey = () => {
+    return [
+    `/api/cooperatives/me/release-tokens`
+    ] as const;
+    }
+
+
+export const getListReleaseTokensQueryOptions = <TData = Awaited<ReturnType<typeof listReleaseTokens>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listReleaseTokens>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListReleaseTokensQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listReleaseTokens>>> = ({ signal }) => listReleaseTokens({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listReleaseTokens>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListReleaseTokensQueryResult = NonNullable<Awaited<ReturnType<typeof listReleaseTokens>>>
+export type ListReleaseTokensQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List digital release tokens for the cooperative buyer
+ */
+
+export function useListReleaseTokens<TData = Awaited<ReturnType<typeof listReleaseTokens>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listReleaseTokens>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListReleaseTokensQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getSplitEwrUrl = (ewrId: number,) => {
+
+
+
+
+  return `/api/ewrs/${ewrId}/split`
+}
+
+/**
+ * @summary Split an eWR into two child receipts (Cooperative only)
+ */
+export const splitEwr = async (ewrId: number,
+    splitEwrBody: SplitEwrBody, options?: RequestInit): Promise<SplitEwr201> => {
+
+  return customFetch<SplitEwr201>(getSplitEwrUrl(ewrId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      splitEwrBody,)
+  }
+);}
+
+
+
+
+export const getSplitEwrMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof splitEwr>>, TError,{ewrId: number;data: BodyType<SplitEwrBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof splitEwr>>, TError,{ewrId: number;data: BodyType<SplitEwrBody>}, TContext> => {
+
+const mutationKey = ['splitEwr'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof splitEwr>>, {ewrId: number;data: BodyType<SplitEwrBody>}> = (props) => {
+          const {ewrId,data} = props ?? {};
+
+          return  splitEwr(ewrId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SplitEwrMutationResult = NonNullable<Awaited<ReturnType<typeof splitEwr>>>
+    export type SplitEwrMutationBody = BodyType<SplitEwrBody>
+    export type SplitEwrMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Split an eWR into two child receipts (Cooperative only)
+ */
+export const useSplitEwr = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof splitEwr>>, TError,{ewrId: number;data: BodyType<SplitEwrBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof splitEwr>>,
+        TError,
+        {ewrId: number;data: BodyType<SplitEwrBody>},
+        TContext
+      > => {
+      return useMutation(getSplitEwrMutationOptions(options));
+    }
+
+export const getRetireEwrUrl = (ewrId: number,) => {
+
+
+
+
+  return `/api/ewrs/${ewrId}/retire`
+}
+
+/**
+ * @summary Retire (extinguish) an eWR for physical withdrawal
+ */
+export const retireEwr = async (ewrId: number, options?: RequestInit): Promise<Ewr> => {
+
+  return customFetch<Ewr>(getRetireEwrUrl(ewrId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getRetireEwrMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof retireEwr>>, TError,{ewrId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof retireEwr>>, TError,{ewrId: number}, TContext> => {
+
+const mutationKey = ['retireEwr'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof retireEwr>>, {ewrId: number}> = (props) => {
+          const {ewrId} = props ?? {};
+
+          return  retireEwr(ewrId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RetireEwrMutationResult = NonNullable<Awaited<ReturnType<typeof retireEwr>>>
+
+    export type RetireEwrMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Retire (extinguish) an eWR for physical withdrawal
+ */
+export const useRetireEwr = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof retireEwr>>, TError,{ewrId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof retireEwr>>,
+        TError,
+        {ewrId: number},
+        TContext
+      > => {
+      return useMutation(getRetireEwrMutationOptions(options));
+    }
 

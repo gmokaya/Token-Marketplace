@@ -810,6 +810,119 @@ export interface PlatformEarnings {
   settledOrderCount: number;
 }
 
+export interface CooperativeProfile {
+  id: number;
+  userId: number;
+  entityName: string;
+  registrationNumber: string;
+  /** @nullable */
+  licenceNumber?: string | null;
+  /** @nullable */
+  kraPin?: string | null;
+  /** @nullable */
+  officeAddress?: string | null;
+  /** @nullable */
+  adminFirstName?: string | null;
+  /** @nullable */
+  adminLastName?: string | null;
+  /** @nullable */
+  adminPhone?: string | null;
+  /** @nullable */
+  adminEmail?: string | null;
+  /** @nullable */
+  bankName?: string | null;
+  /** @nullable */
+  bankAccountNumber?: string | null;
+  createdAt: string;
+}
+
+export interface CoopMember {
+  id: number;
+  cooperativeId: number;
+  memberRef: string;
+  fullName: string;
+  nationalId: string;
+  /** @nullable */
+  farmLocation?: string | null;
+  /** @nullable */
+  gender?: string | null;
+  /** @nullable */
+  acreageMt?: number | null;
+  createdAt: string;
+}
+
+export type IntakeLogCommodityType = typeof IntakeLogCommodityType[keyof typeof IntakeLogCommodityType];
+
+
+export const IntakeLogCommodityType = {
+  MAIZE: 'MAIZE',
+  RICE: 'RICE',
+  COFFEE: 'COFFEE',
+  TEA: 'TEA',
+  AVOCADO: 'AVOCADO',
+} as const;
+
+export interface IntakeLog {
+  id: number;
+  cooperativeId: number;
+  memberRef: string;
+  commodityType: IntakeLogCommodityType;
+  weightMt: number;
+  /** @nullable */
+  moisturePct?: number | null;
+  grade: string;
+  /** @nullable */
+  macroLotId?: number | null;
+  intakeAt: string;
+}
+
+export type MacroLotCommodityType = typeof MacroLotCommodityType[keyof typeof MacroLotCommodityType];
+
+
+export const MacroLotCommodityType = {
+  MAIZE: 'MAIZE',
+  RICE: 'RICE',
+  COFFEE: 'COFFEE',
+  TEA: 'TEA',
+  AVOCADO: 'AVOCADO',
+} as const;
+
+export type MacroLotStatus = typeof MacroLotStatus[keyof typeof MacroLotStatus];
+
+
+export const MacroLotStatus = {
+  OPEN: 'OPEN',
+  FINALISED: 'FINALISED',
+  EWR_REQUESTED: 'EWR_REQUESTED',
+  EWR_ISSUED: 'EWR_ISSUED',
+} as const;
+
+export interface MacroLot {
+  id: number;
+  cooperativeId: number;
+  commodityType: MacroLotCommodityType;
+  grade: string;
+  totalWeightMt: number;
+  status: MacroLotStatus;
+  /** @nullable */
+  ewrId?: number | null;
+  /** @nullable */
+  warehouseCode?: string | null;
+  /** @nullable */
+  harvestSeason?: string | null;
+  createdAt: string;
+}
+
+export interface DigitalReleaseToken {
+  id: number;
+  settlementId: number;
+  buyerId: number;
+  token: string;
+  /** @nullable */
+  usedAt?: string | null;
+  createdAt: string;
+}
+
 export interface AuditLogEntry {
   id: number;
   entityType: string;
@@ -1024,5 +1137,20 @@ export type ListAuditLogParams = {
 entityType?: string;
 entityId?: number;
 limit?: number;
+};
+
+export type RequestEwrForLotBody = {
+  warehouseCode: string;
+  harvestSeason: string;
+};
+
+export type SplitEwrBody = {
+  weightMtA: number;
+  weightMtB: number;
+};
+
+export type SplitEwr201 = {
+  ewrA?: Ewr;
+  ewrB?: Ewr;
 };
 

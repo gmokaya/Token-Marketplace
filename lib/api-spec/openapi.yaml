@@ -8,6 +8,8 @@ servers:
   - url: /api
     description: Base API path
 tags:
+  - name: cooperatives
+    description: Cooperative & Factory Module
   - name: health
     description: Health operations
   - name: users
@@ -1068,6 +1070,254 @@ paths:
                 items:
                   $ref: "#/components/schemas/AuditLogEntry"
 
+  /cooperatives/me/profile:
+    get:
+      operationId: getCoopProfile
+      tags: [cooperatives]
+      summary: Get cooperative profile
+      responses:
+        "200":
+          description: Cooperative profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CooperativeProfile"
+        "404":
+          description: Not found
+    put:
+      operationId: upsertCoopProfile
+      tags: [cooperatives]
+      summary: Create or update cooperative profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CooperativeProfile"
+      responses:
+        "200":
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CooperativeProfile"
+
+  /cooperatives/me/members:
+    get:
+      operationId: listCoopMembers
+      tags: [cooperatives]
+      summary: List cooperative members
+      responses:
+        "200":
+          description: Member roster
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CoopMember"
+    post:
+      operationId: addCoopMember
+      tags: [cooperatives]
+      summary: Add a member to the cooperative
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CoopMember"
+      responses:
+        "201":
+          description: Member added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoopMember"
+
+  /cooperatives/me/intake:
+    get:
+      operationId: listIntakeLogs
+      tags: [cooperatives]
+      summary: List intake log entries
+      responses:
+        "200":
+          description: Intake logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/IntakeLog"
+    post:
+      operationId: createIntakeLog
+      tags: [cooperatives]
+      summary: Record a crop intake delivery
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IntakeLog"
+      responses:
+        "201":
+          description: Intake log created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IntakeLog"
+
+  /cooperatives/me/macro-lots:
+    get:
+      operationId: listMacroLots
+      tags: [cooperatives]
+      summary: List macro lots
+      responses:
+        "200":
+          description: Macro lots
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MacroLot"
+    post:
+      operationId: createMacroLot
+      tags: [cooperatives]
+      summary: Create a macro lot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MacroLot"
+      responses:
+        "201":
+          description: Macro lot created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MacroLot"
+
+  /cooperatives/me/macro-lots/{lotId}/finalise:
+    post:
+      operationId: finaliseMacroLot
+      tags: [cooperatives]
+      summary: Finalise a macro lot (no more additions)
+      parameters:
+        - name: lotId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Finalised lot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MacroLot"
+
+  /cooperatives/me/macro-lots/{lotId}/request-ewr:
+    post:
+      operationId: requestEwrForLot
+      tags: [cooperatives]
+      summary: Request eWR issuance for a finalised macro lot
+      parameters:
+        - name: lotId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [warehouseCode, harvestSeason]
+              properties:
+                warehouseCode:
+                  type: string
+                harvestSeason:
+                  type: string
+      responses:
+        "201":
+          description: eWR issued
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MacroLot"
+
+  /cooperatives/me/release-tokens:
+    get:
+      operationId: listReleaseTokens
+      tags: [cooperatives]
+      summary: List digital release tokens for the cooperative buyer
+      responses:
+        "200":
+          description: Release tokens
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DigitalReleaseToken"
+
+  /ewrs/{ewrId}/split:
+    post:
+      operationId: splitEwr
+      tags: [ewrs]
+      summary: Split an eWR into two child receipts (Cooperative only)
+      parameters:
+        - name: ewrId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [weightMtA, weightMtB]
+              properties:
+                weightMtA:
+                  type: number
+                weightMtB:
+                  type: number
+      responses:
+        "201":
+          description: Two child eWRs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ewrA:
+                    $ref: "#/components/schemas/Ewr"
+                  ewrB:
+                    $ref: "#/components/schemas/Ewr"
+
+  /ewrs/{ewrId}/retire:
+    post:
+      operationId: retireEwr
+      tags: [ewrs]
+      summary: Retire (extinguish) an eWR for physical withdrawal
+      parameters:
+        - name: ewrId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Retired eWR
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ewr"
+
 components:
   schemas:
     HealthStatus:
@@ -1888,6 +2138,136 @@ components:
           type: integer
         settledOrderCount:
           type: integer
+
+    CooperativeProfile:
+      type: object
+      required: [id, userId, entityName, registrationNumber, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        entityName:
+          type: string
+        registrationNumber:
+          type: string
+        licenceNumber:
+          type: ["string", "null"]
+        kraPin:
+          type: ["string", "null"]
+        officeAddress:
+          type: ["string", "null"]
+        adminFirstName:
+          type: ["string", "null"]
+        adminLastName:
+          type: ["string", "null"]
+        adminPhone:
+          type: ["string", "null"]
+        adminEmail:
+          type: ["string", "null"]
+        bankName:
+          type: ["string", "null"]
+        bankAccountNumber:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    CoopMember:
+      type: object
+      required: [id, cooperativeId, memberRef, fullName, nationalId, createdAt]
+      properties:
+        id:
+          type: integer
+        cooperativeId:
+          type: integer
+        memberRef:
+          type: string
+        fullName:
+          type: string
+        nationalId:
+          type: string
+        farmLocation:
+          type: ["string", "null"]
+        gender:
+          type: ["string", "null"]
+        acreageMt:
+          type: ["number", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    IntakeLog:
+      type: object
+      required: [id, cooperativeId, memberRef, commodityType, weightMt, grade, intakeAt]
+      properties:
+        id:
+          type: integer
+        cooperativeId:
+          type: integer
+        memberRef:
+          type: string
+        commodityType:
+          type: string
+          enum: [MAIZE, RICE, COFFEE, TEA, AVOCADO]
+        weightMt:
+          type: number
+        moisturePct:
+          type: ["number", "null"]
+        grade:
+          type: string
+        macroLotId:
+          type: ["integer", "null"]
+        intakeAt:
+          type: string
+          format: date-time
+
+    MacroLot:
+      type: object
+      required: [id, cooperativeId, commodityType, grade, totalWeightMt, status, createdAt]
+      properties:
+        id:
+          type: integer
+        cooperativeId:
+          type: integer
+        commodityType:
+          type: string
+          enum: [MAIZE, RICE, COFFEE, TEA, AVOCADO]
+        grade:
+          type: string
+        totalWeightMt:
+          type: number
+        status:
+          type: string
+          enum: [OPEN, FINALISED, EWR_REQUESTED, EWR_ISSUED]
+        ewrId:
+          type: ["integer", "null"]
+        warehouseCode:
+          type: ["string", "null"]
+        harvestSeason:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    DigitalReleaseToken:
+      type: object
+      required: [id, settlementId, buyerId, token, createdAt]
+      properties:
+        id:
+          type: integer
+        settlementId:
+          type: integer
+        buyerId:
+          type: integer
+        token:
+          type: string
+        usedAt:
+          type: ["string", "null"]
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
 
     AuditLogEntry:
       type: object

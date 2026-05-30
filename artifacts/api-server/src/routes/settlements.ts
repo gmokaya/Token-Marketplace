@@ -14,9 +14,10 @@ import {
   auctionBidsTable,
   forwardContractsTable,
   reputationEventsTable,
+  digitalReleaseTokensTable,
 } from "@workspace/db";
 import { eq, sql, and, inArray } from "drizzle-orm";
-import { createHash } from "crypto";
+import { createHash, randomUUID } from "crypto";
 
 const router = Router();
 const PLATFORM_FEE_RATE = 0.02;
@@ -318,7 +319,12 @@ router.get("/settlements/:settlementId", async (req, res) => {
     ? (await db.select().from(loansTable).where(eq(loansTable.id, settlement.loanId)).limit(1))[0] ?? null
     : null;
 
-  return res.json({ ...settlement, loan });
+  const releaseToken = settlement.completedAt
+    ? (await db.select().from(digitalReleaseTokensTable)
+        .where(eq(digitalReleaseTokensTable.settlementId, settlement.id)).limit(1))[0] ?? null
+    : null;
+
+  return res.json({ ...settlement, loan, releaseToken });
 });
 
 router.post("/settlements/:settlementId/disburse", async (req, res) => {
@@ -482,6 +488,15 @@ router.post("/settlements/:settlementId/disburse", async (req, res) => {
         }
 
         await writeReputationEvents(tx, settlement.entityType, settlement.entityId, now);
+
+        // Digital Release Token — one-time QR token for physical warehouse outtake
+        if (buyerIdForTransfer !== null) {
+          await tx.insert(digitalReleaseTokensTable).values({
+            settlementId,
+            buyerId: buyerIdForTransfer,
+            token: randomUUID(),
+          });
+        }
 
         // Blueprint §5.2 SETTLE-P6 — eWRS-CR title change registered
         // Platform transmits final payload to eWRS-CR API: lien deleted, e-WR title → Buyer ID, Status: SETTLED

@@ -1222,3 +1222,267 @@ export const ListAuditLogResponseItem = zod.object({
 export const ListAuditLogResponse = zod.array(ListAuditLogResponseItem)
 
 
+/**
+ * @summary Get cooperative profile
+ */
+export const GetCoopProfileResponse = zod.object({
+  "id": zod.number(),
+  "userId": zod.number(),
+  "entityName": zod.string(),
+  "registrationNumber": zod.string(),
+  "licenceNumber": zod.string().nullish(),
+  "kraPin": zod.string().nullish(),
+  "officeAddress": zod.string().nullish(),
+  "adminFirstName": zod.string().nullish(),
+  "adminLastName": zod.string().nullish(),
+  "adminPhone": zod.string().nullish(),
+  "adminEmail": zod.string().nullish(),
+  "bankName": zod.string().nullish(),
+  "bankAccountNumber": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Create or update cooperative profile
+ */
+export const UpsertCoopProfileBody = zod.object({
+  "id": zod.number(),
+  "userId": zod.number(),
+  "entityName": zod.string(),
+  "registrationNumber": zod.string(),
+  "licenceNumber": zod.string().nullish(),
+  "kraPin": zod.string().nullish(),
+  "officeAddress": zod.string().nullish(),
+  "adminFirstName": zod.string().nullish(),
+  "adminLastName": zod.string().nullish(),
+  "adminPhone": zod.string().nullish(),
+  "adminEmail": zod.string().nullish(),
+  "bankName": zod.string().nullish(),
+  "bankAccountNumber": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})
+
+export const UpsertCoopProfileResponse = zod.object({
+  "id": zod.number(),
+  "userId": zod.number(),
+  "entityName": zod.string(),
+  "registrationNumber": zod.string(),
+  "licenceNumber": zod.string().nullish(),
+  "kraPin": zod.string().nullish(),
+  "officeAddress": zod.string().nullish(),
+  "adminFirstName": zod.string().nullish(),
+  "adminLastName": zod.string().nullish(),
+  "adminPhone": zod.string().nullish(),
+  "adminEmail": zod.string().nullish(),
+  "bankName": zod.string().nullish(),
+  "bankAccountNumber": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary List cooperative members
+ */
+export const ListCoopMembersResponseItem = zod.object({
+  "id": zod.number(),
+  "cooperativeId": zod.number(),
+  "memberRef": zod.string(),
+  "fullName": zod.string(),
+  "nationalId": zod.string(),
+  "farmLocation": zod.string().nullish(),
+  "gender": zod.string().nullish(),
+  "acreageMt": zod.number().nullish(),
+  "createdAt": zod.coerce.date()
+})
+export const ListCoopMembersResponse = zod.array(ListCoopMembersResponseItem)
+
+
+/**
+ * @summary Add a member to the cooperative
+ */
+export const AddCoopMemberBody = zod.object({
+  "id": zod.number(),
+  "cooperativeId": zod.number(),
+  "memberRef": zod.string(),
+  "fullName": zod.string(),
+  "nationalId": zod.string(),
+  "farmLocation": zod.string().nullish(),
+  "gender": zod.string().nullish(),
+  "acreageMt": zod.number().nullish(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary List intake log entries
+ */
+export const ListIntakeLogsResponseItem = zod.object({
+  "id": zod.number(),
+  "cooperativeId": zod.number(),
+  "memberRef": zod.string(),
+  "commodityType": zod.enum(['MAIZE', 'RICE', 'COFFEE', 'TEA', 'AVOCADO']),
+  "weightMt": zod.number(),
+  "moisturePct": zod.number().nullish(),
+  "grade": zod.string(),
+  "macroLotId": zod.number().nullish(),
+  "intakeAt": zod.coerce.date()
+})
+export const ListIntakeLogsResponse = zod.array(ListIntakeLogsResponseItem)
+
+
+/**
+ * @summary Record a crop intake delivery
+ */
+export const CreateIntakeLogBody = zod.object({
+  "id": zod.number(),
+  "cooperativeId": zod.number(),
+  "memberRef": zod.string(),
+  "commodityType": zod.enum(['MAIZE', 'RICE', 'COFFEE', 'TEA', 'AVOCADO']),
+  "weightMt": zod.number(),
+  "moisturePct": zod.number().nullish(),
+  "grade": zod.string(),
+  "macroLotId": zod.number().nullish(),
+  "intakeAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary List macro lots
+ */
+export const ListMacroLotsResponseItem = zod.object({
+  "id": zod.number(),
+  "cooperativeId": zod.number(),
+  "commodityType": zod.enum(['MAIZE', 'RICE', 'COFFEE', 'TEA', 'AVOCADO']),
+  "grade": zod.string(),
+  "totalWeightMt": zod.number(),
+  "status": zod.enum(['OPEN', 'FINALISED', 'EWR_REQUESTED', 'EWR_ISSUED']),
+  "ewrId": zod.number().nullish(),
+  "warehouseCode": zod.string().nullish(),
+  "harvestSeason": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})
+export const ListMacroLotsResponse = zod.array(ListMacroLotsResponseItem)
+
+
+/**
+ * @summary Create a macro lot
+ */
+export const CreateMacroLotBody = zod.object({
+  "id": zod.number(),
+  "cooperativeId": zod.number(),
+  "commodityType": zod.enum(['MAIZE', 'RICE', 'COFFEE', 'TEA', 'AVOCADO']),
+  "grade": zod.string(),
+  "totalWeightMt": zod.number(),
+  "status": zod.enum(['OPEN', 'FINALISED', 'EWR_REQUESTED', 'EWR_ISSUED']),
+  "ewrId": zod.number().nullish(),
+  "warehouseCode": zod.string().nullish(),
+  "harvestSeason": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Finalise a macro lot (no more additions)
+ */
+export const FinaliseMacroLotParams = zod.object({
+  "lotId": zod.coerce.number()
+})
+
+export const FinaliseMacroLotResponse = zod.object({
+  "id": zod.number(),
+  "cooperativeId": zod.number(),
+  "commodityType": zod.enum(['MAIZE', 'RICE', 'COFFEE', 'TEA', 'AVOCADO']),
+  "grade": zod.string(),
+  "totalWeightMt": zod.number(),
+  "status": zod.enum(['OPEN', 'FINALISED', 'EWR_REQUESTED', 'EWR_ISSUED']),
+  "ewrId": zod.number().nullish(),
+  "warehouseCode": zod.string().nullish(),
+  "harvestSeason": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Request eWR issuance for a finalised macro lot
+ */
+export const RequestEwrForLotParams = zod.object({
+  "lotId": zod.coerce.number()
+})
+
+export const RequestEwrForLotBody = zod.object({
+  "warehouseCode": zod.string(),
+  "harvestSeason": zod.string()
+})
+
+
+/**
+ * @summary List digital release tokens for the cooperative buyer
+ */
+export const ListReleaseTokensResponseItem = zod.object({
+  "id": zod.number(),
+  "settlementId": zod.number(),
+  "buyerId": zod.number(),
+  "token": zod.string(),
+  "usedAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date()
+})
+export const ListReleaseTokensResponse = zod.array(ListReleaseTokensResponseItem)
+
+
+/**
+ * @summary Split an eWR into two child receipts (Cooperative only)
+ */
+export const SplitEwrParams = zod.object({
+  "ewrId": zod.coerce.number()
+})
+
+export const SplitEwrBody = zod.object({
+  "weightMtA": zod.number(),
+  "weightMtB": zod.number()
+})
+
+
+/**
+ * @summary Retire (extinguish) an eWR for physical withdrawal
+ */
+export const RetireEwrParams = zod.object({
+  "ewrId": zod.coerce.number()
+})
+
+export const RetireEwrResponse = zod.object({
+  "id": zod.number(),
+  "ewrsReceiptId": zod.string(),
+  "wrscSignature": zod.string(),
+  "warehouseCode": zod.string(),
+  "commodityType": zod.enum(['MAIZE', 'RICE', 'COFFEE', 'TEA', 'AVOCADO']),
+  "batchType": zod.enum(['FUNGIBLE', 'SEMI_FUNGIBLE', 'NON_FUNGIBLE', 'TIME_DECAYING']),
+  "grade": zod.string(),
+  "weightMt": zod.number(),
+  "harvestSeason": zod.string(),
+  "isLienActive": zod.boolean(),
+  "lienHolderId": zod.number().nullish(),
+  "state": zod.enum(['INGESTED', 'MARKET_LISTED', 'AUCTION_ACTIVE', 'FORWARD_BOUND', 'LOCK_TRADING', 'SETTLED', 'ENCUMBERED']),
+  "ownerId": zod.number(),
+  "ownerName": zod.string().nullish(),
+  "expiryAt": zod.coerce.date().nullish(),
+  "issuedAt": zod.coerce.date(),
+  "estimatedValueUsd": zod.number().nullish(),
+  "lienLoanOutstandingUsd": zod.number().nullish(),
+  "moisturePct": zod.number().nullish(),
+  "foreignMatterPct": zod.number().nullish(),
+  "brokenGrainsPct": zod.number().nullish(),
+  "insectDamagedGrainsPct": zod.number().nullish(),
+  "coffeeBeanSize": zod.union([zod.literal('AA'),zod.literal('AB'),zod.literal('PB'),zod.literal('C'),zod.literal(null)]).nullish(),
+  "coffeeCuppingScore": zod.number().nullish(),
+  "teaProcessingType": zod.union([zod.literal('CTC'),zod.literal('ORTHODOX'),zod.literal(null)]).nullish(),
+  "teaLeafGrade": zod.union([zod.literal('BOP'),zod.literal('BOPF'),zod.literal('D1'),zod.literal('PF'),zod.literal(null)]).nullish(),
+  "teaInvoiceSerial": zod.string().nullish(),
+  "avocadoVariety": zod.union([zod.literal('HASS'),zod.literal('FUERTE'),zod.literal(null)]).nullish(),
+  "avocadoSizingCode": zod.number().nullish(),
+  "avocadoColdChainCompliant": zod.boolean().nullish(),
+  "avocadoDegradationCoefficient": zod.number().nullish(),
+  "poolGroupId": zod.string().nullish()
+})
+
+

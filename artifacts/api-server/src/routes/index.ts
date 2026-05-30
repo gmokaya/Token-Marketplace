@@ -15,6 +15,7 @@ import wrscRouter from "./wrsc";
 import profilesRouter from "./profiles";
 import contentRouter from "./content";
 import ewrApiRouter, { EWR_API_SECURELY_CONFIGURED } from "./ewr-api";
+import cooperativesRouter from "./cooperatives";
 
 const router: IRouter = Router();
 
@@ -56,5 +57,6 @@ router.use(settlementsRouter);
 router.use(adminRouter);
 router.use(profilesRouter);
 router.use(wrscRouter);
+router.use(cooperativesRouter);
 
 export default router;

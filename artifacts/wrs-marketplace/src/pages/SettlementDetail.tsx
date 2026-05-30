@@ -5,6 +5,7 @@ import {
   useDisburseLeg,
   useGetMe,
 } from "@workspace/api-client-react";
+import { QRCodeSVG } from "qrcode.react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -305,6 +306,44 @@ export default function SettlementDetail() {
                 <p className="text-xs text-green-700">
                   All payout legs disbursed and eWRS-CR title transfer confirmed on{" "}
                   {new Date(settlement.completedAt!).toLocaleString()}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {isComplete && (settlement as any).releaseToken && (
+          <Card className="border-[hsl(155,100%,18%)]/30 bg-[hsl(155,100%,18%)]/5">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <FileCheck2 className="w-4 h-4" style={{ color: "hsl(155 100% 18%)" }} />
+                Digital Release Token (DRT)
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+              <div className="p-2 rounded-lg border border-[hsl(155,100%,18%)]/20 bg-white shrink-0">
+                <QRCodeSVG
+                  value={(settlement as any).releaseToken.token}
+                  size={120}
+                  fgColor="hsl(155 100% 18%)"
+                />
+              </div>
+              <div className="space-y-2 flex-1 min-w-0">
+                <p className="text-sm font-medium" style={{ color: "hsl(155 100% 18%)" }}>
+                  Warehouse Release Authorisation
+                </p>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Present this QR code at the warehouse gate or share the token with the warehouse
+                  operator to authorise physical release of goods. This token is bound to this settlement
+                  and can only be used once.
+                </p>
+                <div className="bg-muted rounded px-2.5 py-1.5 flex items-center gap-2">
+                  <code className="text-xs font-mono truncate flex-1">
+                    {(settlement as any).releaseToken.token}
+                  </code>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Issued: {new Date((settlement as any).releaseToken.issuedAt).toLocaleString()}
                 </p>
               </div>
             </CardContent>

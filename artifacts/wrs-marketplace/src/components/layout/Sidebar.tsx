@@ -4,6 +4,7 @@ import {
   LayoutDashboard, Wallet, ShoppingBag, List, BarChart3,
   User, ClipboardList, Package, Gavel, FileText, Landmark,
   TrendingUp, ShieldCheck, PackagePlus, Plug, Users, LayoutTemplate,
+  Building2, Layers, Wheat, Archive,
 } from "lucide-react";
 import { formatTier } from "@/lib/formatTier";
 
@@ -19,21 +20,26 @@ export function Sidebar({ collapsed }: SidebarProps) {
 
   const allNavItems = [
     { href: "/dashboard",        label: "Dashboard",        icon: LayoutDashboard, tiers: ["PRODUCER","OFF_TAKER","ENABLER","FINANCIER"] },
+    { href: "/coop",             label: "Coop Dashboard",   icon: Building2,       tiers: ["COOPERATIVE"] },
     { href: "/intake",           label: "WMS Intake",       icon: PackagePlus,     tiers: ["PRODUCER","ENABLER"] },
     { href: "/portfolio",        label: "My Portfolio",     icon: Wallet,          tiers: ["PRODUCER"] },
     { href: "/my-listings",      label: "My Listings",      icon: Package,         tiers: ["PRODUCER"] },
-    { href: "/auctions",         label: "Auctions",         icon: Gavel,           tiers: ["PRODUCER","OFF_TAKER","ENABLER","FINANCIER"] },
+    { href: "/coop/members",     label: "Member Ledger",    icon: Users,           tiers: ["COOPERATIVE"] },
+    { href: "/coop/intake",      label: "Intake Log",       icon: Wheat,           tiers: ["COOPERATIVE"] },
+    { href: "/coop/macro-lots",  label: "Macro Lots",       icon: Layers,          tiers: ["COOPERATIVE"] },
+    { href: "/coop/inventory",   label: "e-WR Inventory",   icon: Archive,         tiers: ["COOPERATIVE"] },
+    { href: "/auctions",         label: "Auctions",         icon: Gavel,           tiers: ["PRODUCER","OFF_TAKER","ENABLER","FINANCIER","COOPERATIVE"] },
     { href: "/forwards",         label: "Forward Contracts",icon: FileText,        tiers: ["PRODUCER","OFF_TAKER","ENABLER"] },
     { href: "/marketplace",      label: "Marketplace",      icon: ShoppingBag,     tiers: ["OFF_TAKER","ENABLER","FINANCIER"] },
     { href: "/orders",           label: "My Orders",        icon: ClipboardList,   tiers: ["OFF_TAKER"] },
     { href: "/financing",        label: "Financing",        icon: Landmark,        tiers: ["PRODUCER","FINANCIER","ENABLER"] },
-    { href: "/market-stats",     label: "Market Stats",     icon: BarChart3,       tiers: ["PRODUCER","OFF_TAKER","ENABLER","FINANCIER"] },
+    { href: "/market-stats",     label: "Market Stats",     icon: BarChart3,       tiers: ["PRODUCER","OFF_TAKER","ENABLER","FINANCIER","COOPERATIVE"] },
     { href: "/admin/users",      label: "User Management",  icon: Users,           tiers: ["ENABLER","FINANCIER"] },
     { href: "/admin/earnings",   label: "Platform Earnings",icon: TrendingUp,      tiers: ["ENABLER","FINANCIER"] },
     { href: "/admin/audit",      label: "Audit Log",        icon: ShieldCheck,     tiers: ["ENABLER","FINANCIER"] },
     { href: "/admin/ewr-api",    label: "API Integration",  icon: Plug,            tiers: ["ENABLER","FINANCIER"] },
     { href: "/admin/homepage",   label: "Homepage Content", icon: LayoutTemplate,  tiers: ["ENABLER","FINANCIER"] },
-    { href: "/profile",          label: "Profile",          icon: User,            tiers: ["PRODUCER","OFF_TAKER","ENABLER","FINANCIER"] },
+    { href: "/profile",          label: "Profile",          icon: User,            tiers: ["PRODUCER","OFF_TAKER","ENABLER","FINANCIER","COOPERATIVE"] },
   ];
 
   const navItems = tier

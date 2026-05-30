@@ -10,6 +10,16 @@ const ESCROW_FEE_RATE = 0.005;
 
 const router = Router();
 
+function anonymiseForCoop(obj: Record<string, unknown>): Record<string, unknown> {
+  const { sellerName, warehouseCode, ...rest } = obj;
+  return {
+    ...rest,
+    sellerName: null,
+    warehouseCode: typeof warehouseCode === "string" ? warehouseCode.slice(0, 3) : null,
+    _anonymous: true,
+  };
+}
+
 async function enrichListing(listing: typeof spotListingsTable.$inferSelect) {
   const [ewr] = await db
     .select()
@@ -18,7 +28,7 @@ async function enrichListing(listing: typeof spotListingsTable.$inferSelect) {
     .limit(1);
 
   const [seller] = await db
-    .select({ name: usersTable.name })
+    .select({ name: usersTable.name, tier: usersTable.tier })
     .from(usersTable)
     .where(eq(usersTable.id, listing.sellerId))
     .limit(1);
@@ -29,7 +39,7 @@ async function enrichListing(listing: typeof spotListingsTable.$inferSelect) {
   const platformFeeUsd = totalValueUsd * PLATFORM_FEE_RATE;
   const escrowFeeUsd = totalValueUsd * ESCROW_FEE_RATE;
 
-  return {
+  const enriched: Record<string, unknown> = {
     ...listing,
     sellerName: seller?.name ?? null,
     commodityType: ewr?.commodityType ?? null,
@@ -42,6 +52,9 @@ async function enrichListing(listing: typeof spotListingsTable.$inferSelect) {
     platformFeeUsd: totalValueUsd > 0 ? platformFeeUsd : null,
     escrowFeeUsd: totalValueUsd > 0 ? escrowFeeUsd : null,
   };
+
+  if (seller?.tier === "COOPERATIVE") return anonymiseForCoop(enriched);
+  return enriched;
 }
 
 router.get("/listings", async (req, res) => {
@@ -73,6 +86,7 @@ router.get("/listings", async (req, res) => {
       listing: spotListingsTable,
       ewr: ewrsTable,
       sellerName: usersTable.name,
+      sellerTier: usersTable.tier,
     })
     .from(spotListingsTable)
     .leftJoin(ewrsTable, eq(spotListingsTable.ewrId, ewrsTable.id))
@@ -86,11 +100,11 @@ router.get("/listings", async (req, res) => {
       )
     );
 
-  const enriched = rows.map(({ listing, ewr, sellerName }) => {
+  const enriched = rows.map(({ listing, ewr, sellerName, sellerTier }) => {
     const weightMt = ewr ? parseFloat(ewr.weightMt) : 0;
     const pricePerMt = parseFloat(listing.pricePerMt);
     const totalValueUsd = weightMt * pricePerMt;
-    return {
+    const base: Record<string, unknown> = {
       ...listing,
       sellerName: sellerName ?? null,
       commodityType: ewr?.commodityType ?? null,
@@ -103,6 +117,8 @@ router.get("/listings", async (req, res) => {
       platformFeeUsd: totalValueUsd > 0 ? totalValueUsd * PLATFORM_FEE_RATE : null,
       escrowFeeUsd: totalValueUsd > 0 ? totalValueUsd * ESCROW_FEE_RATE : null,
     };
+    if (sellerTier === "COOPERATIVE") return anonymiseForCoop(base);
+    return base;
   });
 
   return res.json(enriched);

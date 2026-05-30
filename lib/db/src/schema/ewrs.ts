@@ -4,7 +4,7 @@ import { z } from "zod/v4";
 import { usersTable } from "./users";
 
 export const commodityTypeEnum = pgEnum("commodity_type", ["MAIZE", "RICE", "COFFEE", "TEA", "AVOCADO"]);
-export const ewrStateEnum = pgEnum("ewr_state", ["INGESTED", "MARKET_LISTED", "AUCTION_ACTIVE", "FORWARD_BOUND", "LOCK_TRADING", "SETTLED", "ENCUMBERED"]);
+export const ewrStateEnum = pgEnum("ewr_state", ["INGESTED", "MARKET_LISTED", "AUCTION_ACTIVE", "FORWARD_BOUND", "LOCK_TRADING", "SETTLED", "ENCUMBERED", "EXTINGUISHED"]);
 export const batchTypeEnum = pgEnum("batch_type", ["FUNGIBLE", "SEMI_FUNGIBLE", "NON_FUNGIBLE", "TIME_DECAYING"]);
 export const coffeeBeanSizeEnum = pgEnum("coffee_bean_size", ["AA", "AB", "PB", "C"]);
 export const teaProcessingTypeEnum = pgEnum("tea_processing_type", ["CTC", "ORTHODOX"]);
