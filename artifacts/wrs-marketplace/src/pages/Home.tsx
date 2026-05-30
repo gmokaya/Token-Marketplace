@@ -329,7 +329,7 @@ function PartnersSection() {
             </span>
           </div>
           <h2 style={{ fontSize: "clamp(1.8rem, 3vw, 40px)", fontWeight: 500, color: "#090909", margin: "0 0 16px", lineHeight: 1.15 }}>
-            Working alongside East Africa's leading agricultural institutions
+            Working alongside East Africa's leading institutions
           </h2>
           <div style={{ width: 40, height: 2, background: ACCENT, margin: "0 auto" }} />
         </div>
