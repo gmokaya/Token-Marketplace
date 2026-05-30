@@ -456,25 +456,6 @@ export default function Home() {
               backgroundImage: "radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)",
               backgroundSize: "28px 28px",
             }} />
-            {/* stat card floating in right panel */}
-            <div style={{
-              position: "absolute", top: "50%", left: "calc(55% + 48px)", transform: "translateY(-50%)",
-              zIndex: 3, display: "flex", flexDirection: "column", gap: 16,
-            }}>
-              {([
-                { v: "20+",  l: "eWRs Issued" },
-                { v: "97%",  l: "Audit Coverage" },
-                { v: "5",    l: "Commodities" },
-              ] as const).map(({ v, l }) => (
-                <div key={l} style={{
-                  background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)",
-                  backdropFilter: "blur(8px)", padding: "18px 28px", minWidth: 170,
-                }}>
-                  <div style={{ fontSize: 32, fontWeight: 300, color: "#fff", lineHeight: 1 }}>{v}</div>
-                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 4 }}>{l}</div>
-                </div>
-              ))}
-            </div>
             {/* diagonal fade from left panel into right */}
             <div style={{ position: "absolute", top: 0, bottom: 0, left: "calc(55% - 120px)", width: 180, zIndex: 4, background: "linear-gradient(to right, #161616 40%, transparent 100%)" }} />
 
