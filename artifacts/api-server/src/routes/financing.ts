@@ -15,6 +15,14 @@ const router = Router();
 const L_MAX_RATE = 0.60;
 const DEFAULT_INTEREST_RATE = 0.12;
 
+// An eWR can be financed while it is unencumbered (no active lien) and the holder
+// still owns it — i.e. freshly deposited (INGESTED) or listed for spot sale
+// (MARKET_LISTED). States that are already committed to a pending sale/settlement
+// (AUCTION_ACTIVE, FORWARD_BOUND, LOCK_TRADING), already settled, or already
+// encumbered are excluded. Lien safety is additionally enforced via isLienActive.
+const FINANCEABLE_STATES = ["INGESTED", "MARKET_LISTED"] as const;
+type FinanceableState = (typeof FINANCEABLE_STATES)[number];
+
 function sha256(payload: object): string {
   return createHash("sha256").update(JSON.stringify(payload)).digest("hex");
 }
@@ -45,7 +53,7 @@ router.get("/financing/eligible-ewrs", async (req, res) => {
   if (!user) return res.status(404).json({ error: "User not found" });
   if (!["PRODUCER", "FINANCIER", "ENABLER"].includes(user.tier)) return res.status(403).json({ error: "Forbidden" });
 
-  const conditions = [eq(ewrsTable.state, "INGESTED"), eq(ewrsTable.isLienActive, false)];
+  const conditions = [inArray(ewrsTable.state, [...FINANCEABLE_STATES]), eq(ewrsTable.isLienActive, false)];
   if (user.tier === "PRODUCER") conditions.push(eq(ewrsTable.ownerId, user.id));
 
   const ewrs = await db.select().from(ewrsTable).where(and(...conditions));
@@ -140,7 +148,7 @@ router.post("/financing", async (req, res) => {
   const [ewr] = await db.select().from(ewrsTable).where(eq(ewrsTable.id, ewrId)).limit(1);
   if (!ewr) return res.status(404).json({ error: "eWR not found" });
   if (ewr.ownerId !== user.id) return res.status(403).json({ error: "You do not own this eWR" });
-  if (ewr.state !== "INGESTED") return res.status(400).json({ error: "Only INGESTED eWRs are eligible for financing" });
+  if (!FINANCEABLE_STATES.includes(ewr.state as FinanceableState)) return res.status(400).json({ error: "Only unencumbered eWRs (deposited or listed) are eligible for financing" });
   if (ewr.isLienActive) return res.status(400).json({ error: "eWR already has an active lien" });
   if (!ewr.estimatedValueUsd) return res.status(400).json({ error: "eWR must have an estimated value" });
 
@@ -242,7 +250,7 @@ router.patch("/financing/:requestId/approve", async (req, res) => {
         .where(eq(ewrsTable.id, request.ewrId)).limit(1).for("update");
       if (!ewr) throw Object.assign(new Error("Collateral eWR not found"), { statusCode: 404 });
       if (ewr.isLienActive) throw Object.assign(new Error("eWR already has an active lien from another request"), { statusCode: 409 });
-      if (ewr.state !== "INGESTED") throw Object.assign(new Error("eWR is no longer eligible (state is not INGESTED)"), { statusCode: 409 });
+      if (!FINANCEABLE_STATES.includes(ewr.state as FinanceableState)) throw Object.assign(new Error("eWR is no longer eligible for financing"), { statusCode: 409 });
 
       const [conflicting] = await tx.select()
         .from(financingRequestsTable)

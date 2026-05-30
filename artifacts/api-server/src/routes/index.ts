@@ -12,7 +12,7 @@ import financingRouter from "./financing";
 import settlementsRouter from "./settlements";
 import adminRouter from "./admin";
 import wrscRouter from "./wrsc";
-import ewrApiRouter from "./ewr-api";
+import ewrApiRouter, { EWR_API_SECURELY_CONFIGURED } from "./ewr-api";
 
 const router: IRouter = Router();
 
@@ -27,7 +27,15 @@ function requireAuth(req: Request, res: Response, next: NextFunction): void {
 
 // eWR external API + registry-sync webhook — own auth, must come before Clerk requireAuth
 router.use(healthRouter);
-router.use(ewrApiRouter);
+// In production this pre-auth surface is only mounted when its secrets are explicitly
+// configured; otherwise it stays disabled so it can never run with default secrets.
+if (EWR_API_SECURELY_CONFIGURED) {
+  router.use(ewrApiRouter);
+} else {
+  console.warn(
+    "[routes] eWR external API disabled in production: set WRSC_SECRET, EWR_JWT_SECRET and EWR_OAUTH_CLIENTS to enable it."
+  );
+}
 
 router.use(requireAuth);
 

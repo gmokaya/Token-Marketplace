@@ -23,35 +23,52 @@ import { eq, and, desc } from "drizzle-orm";
 
 const router = Router();
 
-const WRSC_SECRET = process.env.WRSC_SECRET ?? "wrsc-dev-registry-secret-2025";
-const EWR_JWT_SECRET = process.env.EWR_JWT_SECRET ?? "ewr-jwt-secret-2025";
+const isProd = process.env.NODE_ENV === "production";
 
-// ── OAuth2 client registry (simulation of production client store) ─────────────
-const OAUTH_CLIENTS: Record<
-  string,
-  { secret: string; name: string; scope: string[] }
-> = {
-  "fi-agrifinance-01": {
-    secret: "fi-secret-2025",
-    name: "AgriFinance Bank Kenya",
-    scope: ["read", "write"],
-  },
-  "wo-nakuru-01": {
-    secret: "wo-secret-2025",
-    name: "Nakuru Warehouse Services Ltd",
-    scope: ["read", "write"],
-  },
-  "komex-platform-01": {
-    secret: "komex-secret-2025",
-    name: "KOMEX Trading Platform",
-    scope: ["read", "write"],
-  },
-  "fi-equity-02": {
-    secret: "equity-secret-2025",
-    name: "Equity Agrovet Finance",
-    scope: ["read", "write"],
-  },
+// This router is mounted BEFORE the global Clerk auth (it carries its own OAuth2/HMAC
+// auth), so it must never run in production with well-known default secrets. In
+// production it is only mounted when every secret is explicitly configured via env
+// (see EWR_API_SECURELY_CONFIGURED + index.ts); otherwise it is left unmounted so the
+// weak-auth surface is never exposed. The dev fallbacks below exist only so the local
+// demo and the EwrApi playground page work out of the box outside production.
+export const EWR_API_SECURELY_CONFIGURED =
+  !isProd ||
+  Boolean(
+    process.env.WRSC_SECRET &&
+    process.env.EWR_JWT_SECRET &&
+    process.env.EWR_OAUTH_CLIENTS
+  );
+
+const WRSC_SECRET = process.env.WRSC_SECRET || "wrsc-dev-registry-secret-2025";
+const EWR_JWT_SECRET = process.env.EWR_JWT_SECRET || "ewr-jwt-secret-2025";
+
+// ── OAuth2 client registry ────────────────────────────────────────────────────
+type OAuthClient = { secret: string; name: string; scope: string[] };
+
+// Demo clients for the local EwrApi playground only. These credentials are
+// intentionally visible in the demo UI and are NEVER used in production.
+const DEV_OAUTH_CLIENTS: Record<string, OAuthClient> = {
+  "fi-agrifinance-01": { secret: "fi-secret-2025", name: "AgriFinance Bank Kenya", scope: ["read", "write"] },
+  "wo-nakuru-01": { secret: "wo-secret-2025", name: "Nakuru Warehouse Services Ltd", scope: ["read", "write"] },
+  "komex-platform-01": { secret: "komex-secret-2025", name: "KOMEX Trading Platform", scope: ["read", "write"] },
+  "fi-equity-02": { secret: "equity-secret-2025", name: "Equity Agrovet Finance", scope: ["read", "write"] },
 };
+
+// In production the client registry MUST come from env EWR_OAUTH_CLIENTS — a JSON
+// object of { clientId: { secret, name, scope } }. No hardcoded secrets reach prod.
+function loadOAuthClients(): Record<string, OAuthClient> {
+  const raw = process.env.EWR_OAUTH_CLIENTS;
+  if (raw) {
+    try {
+      return JSON.parse(raw) as Record<string, OAuthClient>;
+    } catch {
+      throw new Error("[ewr-api] EWR_OAUTH_CLIENTS must be valid JSON");
+    }
+  }
+  return DEV_OAUTH_CLIENTS;
+}
+
+const OAUTH_CLIENTS: Record<string, OAuthClient> = loadOAuthClients();
 
 // ── Minimal HS256 JWT (no external library needed) ────────────────────────────
 

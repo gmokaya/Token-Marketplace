@@ -8,7 +8,15 @@ import { z } from "zod";
 
 const router = Router();
 
-const WRSC_SECRET = process.env.WRSC_SECRET ?? "wrsc-dev-registry-secret-2025";
+// Registry HMAC secret must be supplied via env in production; the dev fallback
+// only applies outside production so we never ship a well-known default secret.
+function loadWrscSecret(): string {
+  const v = process.env.WRSC_SECRET;
+  if (v && v.length > 0) return v;
+  if (process.env.NODE_ENV === "production") throw new Error("[wrsc] WRSC_SECRET must be set in production");
+  return "wrsc-dev-registry-secret-2025";
+}
+const WRSC_SECRET = loadWrscSecret();
 const AVOCADO_SHELF_DAYS = 30;
 
 const GRAIN_LIMITS = {
