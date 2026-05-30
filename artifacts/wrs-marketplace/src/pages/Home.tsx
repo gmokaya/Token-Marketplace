@@ -259,39 +259,30 @@ function EsgSection() {
 }
 
 /* ── Partners data types ───────────────────────────────────── */
-type Partner = { id: string; name: string; logoUrl: string; website: string };
+type Partner = { id: string; name: string; short: string; logoUrl: string; website: string };
 
 const DEFAULT_PARTNERS: Partner[] = [
-  { id: "1", name: "Kenya Cereal Board",             logoUrl: "", website: "https://kdb.go.ke" },
-  { id: "2", name: "East African Community",         logoUrl: "", website: "https://eac.int" },
-  { id: "3", name: "African Development Bank",       logoUrl: "", website: "https://afdb.org" },
-  { id: "4", name: "Equity Bank Kenya",              logoUrl: "", website: "https://equitybankgroup.com" },
-  { id: "5", name: "Kilimo Trust",                   logoUrl: "", website: "https://kilimotrust.org" },
-  { id: "6", name: "Kenya National Farmers Fed.",    logoUrl: "", website: "https://kenaff.org" },
-  { id: "7", name: "WFP East Africa",                logoUrl: "", website: "https://wfp.org" },
-  { id: "8", name: "USAID AgriLinks",                logoUrl: "", website: "https://agrilinks.org" },
+  { id: "1", name: "Kenya Cereal Board",         short: "KCB", logoUrl: "", website: "https://kdb.go.ke" },
+  { id: "2", name: "East African Community",     short: "EAC", logoUrl: "", website: "https://eac.int" },
+  { id: "3", name: "African Development Bank",   short: "ADB", logoUrl: "", website: "https://afdb.org" },
+  { id: "4", name: "Equity Bank Kenya",          short: "EBK", logoUrl: "", website: "https://equitybankgroup.com" },
+  { id: "5", name: "Kilimo Trust",               short: "KT",  logoUrl: "", website: "https://kilimotrust.org" },
+  { id: "6", name: "Kenya National Farmers Fed.",short: "KNF", logoUrl: "", website: "https://kenaff.org" },
+  { id: "7", name: "WFP East Africa",            short: "WEA", logoUrl: "", website: "https://wfp.org" },
+  { id: "8", name: "USAID AgriLinks",            short: "UA",  logoUrl: "", website: "https://agrilinks.org" },
 ];
 
 function PartnerLogo({ partner }: { partner: Partner }) {
   const [broken, setBroken] = useState(false);
-  const initials = partner.name.split(" ").map(w => w[0]).join("").slice(0, 3).toUpperCase();
-
-  const inner = !partner.logoUrl || broken ? (
+  const card = (
     <div style={{
-      width: 120, height: 52,
+      width: 100, height: 48,
       display: "flex", alignItems: "center", justifyContent: "center",
       background: "#f0f0f0", borderRadius: 6,
       fontSize: 13, fontWeight: 700, color: "#aaa", letterSpacing: "0.1em",
     }}>
-      {initials}
+      {partner.short}
     </div>
-  ) : (
-    <img
-      src={partner.logoUrl}
-      alt={partner.name}
-      onError={() => setBroken(true)}
-      style={{ height: 48, maxWidth: 120, objectFit: "contain", filter: "grayscale(1)", opacity: 0.6 }}
-    />
   );
 
   return partner.website ? (
@@ -302,13 +293,13 @@ function PartnerLogo({ partner }: { partner: Partner }) {
       onMouseEnter={e => (e.currentTarget.style.opacity = "0.75")}
       onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
     >
-      {inner}
+      {card}
       <span style={{ fontSize: 10, color: "#999", fontWeight: 500, letterSpacing: "0.06em",
                      textAlign: "center", maxWidth: 100 }}>{partner.name}</span>
     </a>
   ) : (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-      {inner}
+      {card}
       <span style={{ fontSize: 10, color: "#999", fontWeight: 500, letterSpacing: "0.06em",
                      textAlign: "center", maxWidth: 100 }}>{partner.name}</span>
     </div>
@@ -327,20 +318,20 @@ function PartnersSection() {
   }, [API]);
 
   return (
-    <section style={{ background: "#fafafa", borderTop: "1px solid #f0f0f0", borderBottom: "1px solid #f0f0f0", padding: "64px 32px" }}>
+    <section style={{ background: "#fff", borderTop: "1px solid #f0f0f0", padding: "96px 32px" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-        {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: 48 }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 9, marginBottom: 10 }}>
-            <div style={{ width: 24, height: 1, background: "#ccc" }} />
-            <span style={{ color: "#aaa", fontSize: 11, fontWeight: 600, letterSpacing: "0.22em", textTransform: "uppercase" }}>
+        {/* Header — corzo style */}
+        <div style={{ textAlign: "center", marginBottom: 64 }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
+            <div style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT }} />
+            <span style={{ color: ACCENT, fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase" }}>
               Trusted Partners
             </span>
-            <div style={{ width: 24, height: 1, background: "#ccc" }} />
           </div>
-          <p style={{ color: "#999", fontSize: 14, margin: 0 }}>
+          <h2 style={{ fontSize: "clamp(1.8rem, 3vw, 40px)", fontWeight: 500, color: "#090909", margin: "0 0 16px", lineHeight: 1.15 }}>
             Working alongside East Africa's leading agricultural institutions
-          </p>
+          </h2>
+          <div style={{ width: 40, height: 2, background: ACCENT, margin: "0 auto" }} />
         </div>
 
         {/* Logo grid */}
