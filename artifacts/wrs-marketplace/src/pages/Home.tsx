@@ -201,9 +201,8 @@ export default function Home() {
             {/* main nav */}
             <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", height: 68, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               {/* logo */}
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <img src={`${BASE}/logo.svg`} alt="WRS" style={{ width: 32, height: 32, filter: "brightness(0) invert(1)" }} />
-                <span style={{ color: "#fff", fontWeight: 600, fontSize: 17, letterSpacing: "0.01em" }}>WRS Marketplace</span>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <img src={`${BASE}/logo-tokenharvest.png`} alt="TokenHarvest" style={{ height: 38, width: "auto" }} />
               </div>
               {/* numbered links */}
               <nav style={{ display: "flex", gap: 32, alignItems: "center" }}>
@@ -494,9 +493,8 @@ export default function Home() {
             <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px" }}>
               <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 48, paddingBottom: 52, borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
                 <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 14 }}>
-                    <img src={`${BASE}/logo.svg`} alt="WRS" style={{ width: 28, filter: "brightness(0) invert(1)" }} />
-                    <span style={{ color: "#fff", fontWeight: 700, fontSize: 15 }}>WRS Marketplace</span>
+                  <div style={{ marginBottom: 14 }}>
+                    <img src={`${BASE}/logo-tokenharvest.png`} alt="TokenHarvest" style={{ height: 32, width: "auto" }} />
                   </div>
                   <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 13, lineHeight: 1.9, margin: 0 }}>
                     East Africa's premier Electronic Warehouse Receipt trading platform for agricultural commodities.

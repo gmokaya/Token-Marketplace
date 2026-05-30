@@ -14,13 +14,9 @@ export default function SignUpPage() {
       padding: "24px",
       fontFamily: "'Jost', sans-serif",
     }}>
-      {/* Logo row */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 32 }}>
-        <img src={`${basePath}/logo.svg`} alt="WRS" style={{ width: 36, height: 36 }} />
-        <div>
-          <div style={{ fontWeight: 700, fontSize: 17, color: "#111", lineHeight: 1.2 }}>WRS Marketplace</div>
-          <div style={{ fontSize: 12, color: "#888", lineHeight: 1.2 }}>Create your trading account</div>
-        </div>
+      {/* Logo */}
+      <div style={{ marginBottom: 32 }}>
+        <img src={`${basePath}/logo-tokenharvest.png`} alt="TokenHarvest" style={{ height: 52, width: "auto", filter: "brightness(0)" }} />
       </div>
 
       {/* Clerk card */}

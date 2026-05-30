@@ -57,7 +57,7 @@ export function Sidebar({ collapsed }: SidebarProps) {
 
       {collapsed && (
         <div className="flex justify-center pt-3 pb-1">
-          <img src={`${basePath}/logo.svg`} alt="WRS" className="w-6 h-6 opacity-70" />
+          <img src={`${basePath}/logo-tokenharvest.png`} alt="TokenHarvest" className="h-7 w-auto opacity-80" />
         </div>
       )}
 

@@ -64,15 +64,13 @@ export function AppHeader({ collapsed, onToggle }: AppHeaderProps) {
             : <PanelLeftClose className="w-4 h-4" />}
         </button>
 
-        <Link href="/dashboard" className="flex items-center gap-2 ml-1">
+        <Link href="/dashboard" className="flex items-center ml-1">
           <img
-            src={`${basePath}/logo.svg`}
-            alt="WRS"
-            className="w-6 h-6 shrink-0"
+            src={`${basePath}/logo-tokenharvest.png`}
+            alt="TokenHarvest"
+            className="h-8 w-auto shrink-0"
+            style={{ filter: "brightness(0)" }}
           />
-          <span className="font-bold text-sm text-foreground hidden sm:block tracking-tight">
-            WRS Trade
-          </span>
         </Link>
       </div>
 
