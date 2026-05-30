@@ -201,19 +201,37 @@ function EsgSection() {
             {
               letter: "E",
               label: "Environmental",
-              body: "Digitising grain storage and enabling direct farm-to-buyer trades cuts unnecessary commodity transit across East Africa. Fewer intermediaries means lower emissions, less spoilage, and a measurable reduction in the carbon intensity of the food supply chain.",
+              heading: "Smarter Storage. Shorter Supply Chains.",
+              body: "Digitising warehouse storage and enabling direct factory-to-buyer trades optimizes regional commodity transit. By routing volume through certified cooperative hubs, TokenHarvest systematically addresses supply chain inefficiencies to minimize post-harvest loss and associated food system emissions. The platform integrates indicators to track environmental metrics, monitor supply chain intensity, and support deforestation-free verification. This framework drives the adoption of climate-smart practices within the cooperative network and ensures traceability to provide agricultural commodities with deforestation-free verification assurance.",
+              targets: [
+                { label: "Traceability", value: "50,000+ Tonnes", desc: "of agricultural commodities digitised for verified supply chain alignment." },
+                { label: "Efficiency", value: "30-40% reduction", desc: "in post-harvest loss to establish a recognized food systems emission mitigation proxy." },
+                { label: "Adoption", value: "60%+ adoption rate", desc: "of climate-smart practices across the participant network." },
+              ],
             },
             {
               letter: "S",
               label: "Social",
-              body: "TokenHarvest connects smallholder farmers directly to verified buyers and formal financing, broadening market access and raising incomes for communities that have historically been priced out of agri-finance. Every trade on the platform is a step toward financial inclusion.",
+              heading: "Grassroots Financial & Market Inclusion.",
+              body: "TokenHarvest connects rural cooperative networks with formal trading markets. By aggregating smallholder production, the platform builds institutional-grade commercial volumes that attract verified buyers and broaden market access. This direct commercial integration improves rural livelihoods and raises incomes for agricultural communities. Every transaction supports scalable financial inclusion by capturing demographic data to track equity, income parity, and first-time formal credit access across the network.",
+              targets: [
+                { label: "Onboarding", value: "5,000 to 15,000 farmers", desc: "structurally integrated through cooperative networks." },
+                { label: "Livelihood", value: "20-35% net income increase", desc: "positioning the pipeline for gender-lens and impact investment criteria." },
+                { label: "Inclusion", value: "70% first-time finance access", desc: "achieved via targeted capital routing." },
+              ],
             },
             {
               letter: "G",
               label: "Governance",
-              body: "Every eWR transaction is sealed with a SHA-256 audit hash and governed by a §6.1 state-machine lifecycle. The result is an immutable record that satisfies lender covenants, regulatory requirements, and investor reporting standards without additional reconciliation work.",
+              heading: "Secured Transaction Lifecycles. Zero Operational Friction.",
+              body: "Every transaction on TokenHarvest is processed through a secure state-machine lifecycle, protected by advanced cryptographic hashing, and synchronized with the state-backed Central Registry. This proprietary data framework ensures absolute transaction integrity, completely eliminating standard collateral risks. The platform applies composite ESG scoring at the borrower and transaction levels, incorporating regulatory compliance, operational quality indexes, and risk exposure data to provide unprecedented financial transparency.",
+              targets: [
+                { label: "Capital", value: "$8M to $12M", desc: "in asset-backed green credit unlocked through automated bank escrow structures." },
+                { label: "Compliance", value: "100% compliance", desc: "across national agriculture, banking, and market authority requirements met on time." },
+                { label: "Logistics", value: "100% certification", desc: "ensuring all warehouse and supplier partners maintain active compliance with operating and ESG standards." },
+              ],
             },
-          ] as const).map(({ letter, label, body }, i) => (
+          ] as const).map(({ letter, label, heading, body, targets }, i) => (
             <div key={label} style={{
               background: "#f7f7f7",
               borderLeft: i === 0 ? "none" : "1px solid #ebebeb",
@@ -232,14 +250,36 @@ function EsgSection() {
               <h3 style={{
                 fontSize: 11, fontWeight: 700, color: ACCENT,
                 letterSpacing: "0.2em", textTransform: "uppercase",
-                margin: "0 0 16px",
+                margin: "0 0 12px",
               }}>
                 {label}
               </h3>
+              <h4 style={{
+                fontSize: 14, fontWeight: 600, color: "#222",
+                margin: "0 0 16px", lineHeight: 1.4,
+              }}>
+                {heading}
+              </h4>
               <p style={{ fontSize: 15, color: "#666", lineHeight: 1.85, margin: 0, flex: 1 }}>
                 {body}
               </p>
-              <div style={{ width: 28, height: 2, background: ACCENT, marginTop: 32 }} />
+              {/* Targets */}
+              <div style={{ marginTop: 28, paddingTop: 24, borderTop: "1px solid #e2e2e2" }}>
+                {targets.map(({ label, value, desc }) => (
+                  <div key={label} style={{ marginBottom: 14 }}>
+                    <div style={{ fontSize: 11, color: "#999", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 3 }}>
+                      {label}
+                    </div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: ACCENT, lineHeight: 1.3 }}>
+                      {value}
+                    </div>
+                    <div style={{ fontSize: 12, color: "#888", lineHeight: 1.4, marginTop: 1 }}>
+                      {desc}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ width: 28, height: 2, background: ACCENT, marginTop: 20 }} />
             </div>
           ))}
         </div>
