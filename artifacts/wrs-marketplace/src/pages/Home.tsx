@@ -85,10 +85,13 @@ function MarketCard({ num, name, grade, desc, photo }: (typeof MARKET_CARDS)[num
         position: "relative",
         overflow: "hidden",
         cursor: "pointer",
-        transition: "flex 0.45s cubic-bezier(0.4,0,0.2,1)",
+        transition: "flex 0.45s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s ease",
         backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.93) 30%, rgba(0,0,0,${hover ? "0.62" : "0.48"}) 100%), url(${photo})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
+        boxShadow: hover
+          ? "0 8px 16px rgba(0,0,0,0.12), 0 24px 48px rgba(0,0,0,0.08), 0 48px 80px rgba(0,0,0,0.04)"
+          : "0 2px 4px rgba(0,0,0,0.08), 0 8px 16px rgba(0,0,0,0.06)",
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
@@ -223,6 +226,17 @@ function EsgSection() {
               padding: "48px 40px 52px",
               display: "flex",
               flexDirection: "column",
+              borderRadius: 8,
+              boxShadow: "0 1px 2px rgba(0,0,0,0.04), 0 4px 8px rgba(0,0,0,0.04), 0 12px 24px rgba(0,0,0,0.03)",
+              transition: "transform 0.3s ease, box-shadow 0.3s ease",
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLDivElement).style.transform = "translateY(-4px)";
+              (e.currentTarget as HTMLDivElement).style.boxShadow = "0 4px 8px rgba(0,0,0,0.06), 0 12px 24px rgba(0,0,0,0.06), 0 24px 48px rgba(0,0,0,0.04)";
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
+              (e.currentTarget as HTMLDivElement).style.boxShadow = "0 1px 2px rgba(0,0,0,0.04), 0 4px 8px rgba(0,0,0,0.04), 0 12px 24px rgba(0,0,0,0.03)";
             }}>
               {/* Large letter watermark */}
               <div style={{
@@ -527,6 +541,20 @@ export default function Home() {
                   <div key={title} style={{
                     padding: "64px 40px 52px",
                     borderRight: i < 2 ? "1px solid #f0f0f0" : undefined,
+                    transition: "box-shadow 0.3s ease, transform 0.3s ease",
+                    boxShadow: "inset 0 0 0 transparent",
+                    position: "relative",
+                    zIndex: 1,
+                  }}
+                  onMouseEnter={e => {
+                    (e.currentTarget as HTMLDivElement).style.transform = "translateY(-4px) scale(1.02)";
+                    (e.currentTarget as HTMLDivElement).style.boxShadow = "0 12px 32px rgba(0,0,0,0.12), 0 32px 64px rgba(0,0,0,0.08)";
+                    (e.currentTarget as HTMLDivElement).style.zIndex = "10";
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLDivElement).style.transform = "translateY(0) scale(1)";
+                    (e.currentTarget as HTMLDivElement).style.boxShadow = "inset 0 0 0 transparent";
+                    (e.currentTarget as HTMLDivElement).style.zIndex = "1";
                   }}>
                     <img src={img(icon)} alt={title} style={{ width: 44, marginBottom: 20 }} />
                     <h3 style={{ fontSize: 24, fontWeight: 600, color: "#232323", margin: "0 0 2px", display: "flex", alignItems: "center", gap: 9 }}>
