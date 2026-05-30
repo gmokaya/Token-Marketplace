@@ -8,7 +8,8 @@ const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const img = (name: string) => `${BASE}/theme/${name}`;
 const photo = (name: string) => `${BASE}/photos/${name}`;
 
-const ACCENT = "hsl(155 100% 18%)";   // WRS green
+const ACCENT       = "hsl(155 100% 18%)";   // WRS green (on light bg)
+const ACCENT_LIGHT = "hsl(155 72% 42%)";    // WRS green (on dark bg)
 
 /* ── smooth scroll helper ─────────────────────────────────── */
 function scrollTo(id: string) {
@@ -31,6 +32,126 @@ function Counter({ target, suffix = "", active }: { target: number; suffix?: str
     requestAnimationFrame(tick);
   }, [target, active]);
   return <>{n.toLocaleString()}{suffix}</>;
+}
+
+/* ── Available-Markets photo card ─────────────────────── */
+const MARKET_CARDS = [
+  {
+    num: "01", name: "Maize",   grade: "Grade A–C",
+    desc: "White & Yellow varieties with 90-day certified storage, fully backed by registered warehouses.",
+    photo: "https://picsum.photos/seed/maize-field/400/640",
+  },
+  {
+    num: "02", name: "Rice",    grade: "Grade A–B",
+    desc: "Milled & paddy rice from certified storage facilities across East Africa.",
+    photo: "https://picsum.photos/seed/rice-paddy/400/640",
+  },
+  {
+    num: "03", name: "Coffee",  grade: "AA / AB / PB",
+    desc: "Washed & natural-process beans, export-ready and auction-listed at the Nairobi Coffee Exchange.",
+    photo: "https://picsum.photos/seed/coffee-beans/400/640",
+  },
+  {
+    num: "04", name: "Tea",     grade: "BOPI / FNDC",
+    desc: "Orthodox & CTC grades, Mombasa auction listed with full provenance traceability.",
+    photo: "https://picsum.photos/seed/tea-plantation/400/640",
+  },
+  {
+    num: "05", name: "Avocado", grade: "Hass Export",
+    desc: "Cold-chain certified Hass avocados meeting EU/UK market phytosanitary standards.",
+    photo: "https://picsum.photos/seed/avocado-farm/400/640",
+  },
+  {
+    num: "06", name: "Sorghum", grade: "Grade A",
+    desc: "Food & feed-grade sorghum with extended shelf life, ideal for long-tenor forward contracts.",
+    photo: "https://picsum.photos/seed/sorghum-grain/400/640",
+  },
+] as const;
+
+function MarketCard({ num, name, grade, desc, photo }: (typeof MARKET_CARDS)[number]) {
+  const [hover, setHover] = useState(false);
+  return (
+    <div
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        flex: hover ? "1.8 1 0" : "1 1 0",
+        minWidth: 0,
+        position: "relative",
+        overflow: "hidden",
+        cursor: "pointer",
+        transition: "flex 0.45s cubic-bezier(0.4,0,0.2,1)",
+        backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.93) 30%, rgba(0,0,0,${hover ? "0.62" : "0.48"}) 100%), url(${photo})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        padding: "28px 24px",
+      }}
+    >
+      {/* card number */}
+      <div style={{
+        color: "rgba(255,255,255,0.22)",
+        fontSize: 12,
+        fontWeight: 500,
+        letterSpacing: "0.12em",
+        fontVariantNumeric: "tabular-nums",
+      }}>
+        {num}
+      </div>
+
+      {/* bottom block */}
+      <div>
+        {/* description + link — only on hover */}
+        <div style={{
+          overflow: "hidden",
+          maxHeight: hover ? 140 : 0,
+          opacity: hover ? 1 : 0,
+          transition: "max-height 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.35s ease",
+          marginBottom: hover ? 16 : 0,
+        }}>
+          <p style={{
+            color: "rgba(255,255,255,0.6)",
+            fontSize: 12.5,
+            lineHeight: 1.75,
+            margin: "0 0 14px",
+          }}>{desc}</p>
+          <Link
+            href="/sign-in"
+            style={{
+              color: ACCENT_LIGHT,
+              textDecoration: "none",
+              fontSize: 13,
+              fontWeight: 600,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 5,
+            }}
+          >
+            Learn More <ArrowRight size={13} />
+          </Link>
+        </div>
+
+        {/* title */}
+        <div style={{
+          fontSize: "clamp(1rem, 1.4vw, 19px)",
+          fontWeight: 700,
+          color: "#fff",
+          marginBottom: 10,
+          lineHeight: 1.2,
+          whiteSpace: hover ? "normal" : "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+        }}>
+          {name}
+        </div>
+
+        {/* accent underline */}
+        <div style={{ width: 28, height: 2, background: ACCENT_LIGHT, transition: "width 0.35s ease", ...(hover ? { width: 44 } : {}) }} />
+      </div>
+    </div>
+  );
 }
 
 export default function Home() {
@@ -315,41 +436,25 @@ export default function Home() {
             </div>
           </section>
 
-          {/* ══ COMMODITIES GRID ─────────────────────────────────── */}
-          <section style={{ background: "#f5f5f5", padding: "96px 0" }}>
-            <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px" }}>
-              <div style={{ marginBottom: 52, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 10 }}>
-                    <div style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT }} />
-                    <span style={{ color: ACCENT, fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase" }}>Traded Commodities</span>
-                  </div>
-                  <h2 style={{ fontSize: "clamp(1.8rem, 3vw, 36px)", fontWeight: 500, color: "#232323", margin: 0 }}>Available Markets</h2>
-                </div>
-                <Link href="/sign-up" style={{ color: ACCENT, textDecoration: "none", fontSize: 14, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 7 }}>
-                  View All <ArrowRight size={14} />
-                </Link>
+          {/* ══ AVAILABLE MARKETS ────────────────────────────────── */}
+          <section style={{ background: "#fff" }}>
+
+            {/* Section header — centred, constrained */}
+            <div style={{ textAlign: "center", padding: "96px 32px 64px", maxWidth: 1200, margin: "0 auto" }}>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 9, marginBottom: 14 }}>
+                <div style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT }} />
+                <span style={{ color: ACCENT, fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase" }}>Traded Commodities</span>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 2 }}>
-                {([
-                  { e: "🌽", name: "Maize",   grade: "Grade A–C",    desc: "White & Yellow, 90-day storage backed" },
-                  { e: "🌾", name: "Rice",    grade: "Grade A–B",    desc: "Milled & paddy, certified warehouses" },
-                  { e: "☕", name: "Coffee",  grade: "AA / AB / PB", desc: "Washed & natural process, export ready" },
-                  { e: "🍵", name: "Tea",     grade: "BOPI / FNDC",  desc: "Orthodox & CTC, Mombasa auction listed" },
-                  { e: "🥑", name: "Avocado", grade: "Hass Export",  desc: "Cold-chain certified, EU/UK market grade" },
-                  { e: "🌿", name: "Sorghum", grade: "Grade A",      desc: "Food & feed grade, long shelf life" },
-                ] as const).map(({ e, name, grade, desc }) => (
-                  <div key={name} style={{ background: "#fff", padding: "28px 28px 24px", borderLeft: `3px solid ${ACCENT}`, transition: "box-shadow 0.2s" }}
-                    onMouseEnter={e2 => (e2.currentTarget.style.boxShadow = "0 4px 20px rgba(0,0,0,0.09)")}
-                    onMouseLeave={e2 => (e2.currentTarget.style.boxShadow = "none")}>
-                    <div style={{ fontSize: 28, marginBottom: 8 }}>{e}</div>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: "#232323", marginBottom: 2 }}>{name}</div>
-                    <div style={{ fontSize: 11, color: ACCENT, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 8 }}>{grade}</div>
-                    <div style={{ fontSize: 13, color: "#888", lineHeight: 1.6 }}>{desc}</div>
-                  </div>
-                ))}
-              </div>
+              <h2 style={{ fontSize: "clamp(1.8rem, 3vw, 40px)", fontWeight: 400, color: "#1a1a1a", margin: 0 }}>
+                Available Markets
+              </h2>
             </div>
+
+            {/* Full-bleed photo card strip */}
+            <div style={{ display: "flex", height: 500 }}>
+              {MARKET_CARDS.map(card => <MarketCard key={card.name} {...card} />)}
+            </div>
+
           </section>
 
           {/* ══ CTA ─────────────────────────────────────────────── */}
