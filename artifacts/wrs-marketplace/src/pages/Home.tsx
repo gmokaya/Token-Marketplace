@@ -161,41 +161,34 @@ function MarketCard({ num, name, grade, desc, photo }: (typeof MARKET_CARDS)[num
 
 function EsgSection() {
   return (
-    <section id="esg" style={{ background: "#080e09", padding: "96px 0 112px", position: "relative", overflow: "hidden" }}>
-      {/* dot-grid texture */}
-      <div style={{
-        position: "absolute", inset: 0,
-        backgroundImage: "radial-gradient(rgba(255,255,255,0.028) 1px, transparent 1px)",
-        backgroundSize: "32px 32px",
-        pointerEvents: "none",
-      }} />
+    <section id="esg" style={{ background: "#fff", padding: "96px 0 112px", position: "relative", overflow: "hidden" }}>
 
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", position: "relative", zIndex: 1 }}>
 
-        {/* ─ Top layout: statement left, quote right ─ */}
+        {/* ─ Top layout: statement left, paragraph right ─ */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "end", marginBottom: 80 }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 16 }}>
-              <div style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT_LIGHT }} />
-              <span style={{ color: ACCENT_LIGHT, fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase" }}>
+              <div style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT }} />
+              <span style={{ color: ACCENT, fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase" }}>
                 Our Commitment
               </span>
             </div>
             <h2 style={{
               fontSize: "clamp(2rem, 3.5vw, 46px)", fontWeight: 300,
-              color: "#fff", margin: "0 0 8px", lineHeight: 1.12,
+              color: "#090909", margin: "0 0 8px", lineHeight: 1.12,
             }}>
               ESG is not<br />
               <strong style={{ fontWeight: 700 }}>a checkbox.</strong>
             </h2>
-            <div style={{ width: 40, height: 2, background: ACCENT_LIGHT, marginTop: 24 }} />
+            <div style={{ width: 40, height: 2, background: ACCENT, marginTop: 24 }} />
           </div>
 
           <div>
-            <p style={{ fontSize: 17, color: "rgba(255,255,255,0.45)", lineHeight: 1.9, margin: 0 }}>
+            <p style={{ fontSize: 17, color: "#666", lineHeight: 1.9, margin: 0 }}>
               Agricultural commodity trading sits at the intersection of climate, livelihoods,
               and financial inclusion. We built TokenHarvest around the conviction that a
-              transparent, digitised supply chain is inherently a more responsible one — and
+              transparent, digitised supply chain is inherently a more responsible one, and
               that ESG outcomes should be an unavoidable consequence of doing business
               on the platform, not an afterthought.
             </p>
@@ -213,7 +206,7 @@ function EsgSection() {
             {
               letter: "S",
               label: "Social",
-              body: "TokenHarvest connects smallholder farmers directly to verified buyers and formal financing — broadening market access and raising incomes for communities that have historically been priced out of agri-finance. Every trade on the platform is a step toward financial inclusion.",
+              body: "TokenHarvest connects smallholder farmers directly to verified buyers and formal financing, broadening market access and raising incomes for communities that have historically been priced out of agri-finance. Every trade on the platform is a step toward financial inclusion.",
             },
             {
               letter: "G",
@@ -222,8 +215,8 @@ function EsgSection() {
             },
           ] as const).map(({ letter, label, body }, i) => (
             <div key={label} style={{
-              background: "rgba(255,255,255,0.03)",
-              borderLeft: i === 0 ? "none" : "1px solid rgba(255,255,255,0.06)",
+              background: "#f7f7f7",
+              borderLeft: i === 0 ? "none" : "1px solid #ebebeb",
               padding: "48px 40px 52px",
               display: "flex",
               flexDirection: "column",
@@ -231,22 +224,22 @@ function EsgSection() {
               {/* Large letter watermark */}
               <div style={{
                 fontSize: 80, fontWeight: 800, lineHeight: 1,
-                color: ACCENT_LIGHT, opacity: 0.18,
+                color: ACCENT, opacity: 0.12,
                 marginBottom: 20, letterSpacing: "-0.04em",
               }}>
                 {letter}
               </div>
               <h3 style={{
-                fontSize: 11, fontWeight: 700, color: ACCENT_LIGHT,
+                fontSize: 11, fontWeight: 700, color: ACCENT,
                 letterSpacing: "0.2em", textTransform: "uppercase",
                 margin: "0 0 16px",
               }}>
                 {label}
               </h3>
-              <p style={{ fontSize: 15, color: "rgba(255,255,255,0.48)", lineHeight: 1.85, margin: 0, flex: 1 }}>
+              <p style={{ fontSize: 15, color: "#666", lineHeight: 1.85, margin: 0, flex: 1 }}>
                 {body}
               </p>
-              <div style={{ width: 28, height: 2, background: ACCENT_LIGHT, opacity: 0.4, marginTop: 32 }} />
+              <div style={{ width: 28, height: 2, background: ACCENT, marginTop: 32 }} />
             </div>
           ))}
         </div>
@@ -564,7 +557,7 @@ export default function Home() {
                   East Africa's Leading<br />eWR Marketplace
                 </h2>
                 <p style={{ fontSize: 17, color: "#555", lineHeight: 1.8, marginBottom: 28 }}>
-                  WRS Marketplace connects producers, off-takers, and financiers in a single, fully auditable trading environment — backed by licensed warehouses and an immutable transaction ledger.
+                  WRS Marketplace connects producers, off-takers, and financiers in a single, fully auditable trading environment, backed by licensed warehouses and an immutable transaction ledger.
                 </p>
                 <ul style={{ listStyle: "none", padding: 0, margin: "0 0 28px", display: "flex", flexDirection: "column", gap: 11 }}>
                   {[
