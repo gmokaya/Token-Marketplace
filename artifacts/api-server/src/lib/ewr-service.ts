@@ -10,13 +10,12 @@ import { ewrsTable, auditLogTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { auditEntry } from "./audit";
 
-function loadWrscSecret(): string {
+function getWrscSecret(): string {
   const v = process.env.WRSC_SECRET;
   if (v && v.length > 0) return v;
   if (process.env.NODE_ENV === "production") throw new Error("[wrsc] WRSC_SECRET must be set in production");
   return "wrsc-dev-registry-secret-2025";
 }
-const WRSC_SECRET = loadWrscSecret();
 
 /**
  * WRSC HMAC-SHA256 signature.  All eWR issuance — whether via PRODUCER
@@ -24,7 +23,7 @@ const WRSC_SECRET = loadWrscSecret();
  * function so signatures can be verified with the same WRSC_SECRET.
  */
 export function signEwr(payload: object): string {
-  return createHmac("sha256", WRSC_SECRET).update(JSON.stringify(payload)).digest("hex");
+  return createHmac("sha256", getWrscSecret()).update(JSON.stringify(payload)).digest("hex");
 }
 
 /** Generates a WRSC-format receipt ID (e.g. WRSC-CR-20260530-A1B2C3D4). */
