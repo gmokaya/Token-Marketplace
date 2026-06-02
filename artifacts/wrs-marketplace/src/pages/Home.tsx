@@ -470,7 +470,7 @@ export default function Home() {
                 {/* heading */}
                 <h1 style={{ color: "#fff", fontWeight: 300, lineHeight: 1.02, margin: "0 0 24px", fontSize: "clamp(3rem, 6.5vw, 6.2rem)" }}>
                   Agricultural
-                  <br />Advisory
+                  <br />Marketplace
                 </h1>
                 {/* accent line */}
                 <div style={{ width: 45, height: 2, background: ACCENT, marginBottom: 24 }} />
