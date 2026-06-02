@@ -70,6 +70,24 @@ const financierSchema = z.object({
   maxLiquidityPoolUsd: z.string().optional(),
 });
 
+const cooperativeSchema = z.object({
+  entityName: z.string().min(2),
+  registrationNumber: z.string().min(4),
+  licenceNumber: z.string().optional(),
+  kraPin: z.string().optional(),
+  officeAddress: z.string().optional(),
+  adminFirstName: z.string().optional(),
+  adminLastName: z.string().optional(),
+  adminNationalId: z.string().optional(),
+  adminPhone: z.string().optional(),
+  adminEmail: z.string().optional(),
+  bankName: z.string().optional(),
+  bankBranch: z.string().optional(),
+  bankSwiftCode: z.string().optional(),
+  bankAccountNumber: z.string().optional(),
+  mobileMoneyPaybill: z.string().optional(),
+});
+
 type Step = "tier" | "user" | "profile" | "done";
 
 export function Onboarding() {
@@ -92,6 +110,7 @@ export function Onboarding() {
     [UserUpdateTier.OFF_TAKER]: buyerSchema,
     [UserUpdateTier.ENABLER]: warehouseSchema,
     [UserUpdateTier.FINANCIER]: financierSchema,
+    [UserUpdateTier.COOPERATIVE]: cooperativeSchema,
   };
 
   const profileForm = useForm<any>({
@@ -104,6 +123,7 @@ export function Onboarding() {
     [UserUpdateTier.OFF_TAKER]: { label: "Off-Taker", desc: "Exporters, millers & buyers — bid on auctions and co-sign forward contracts" },
     [UserUpdateTier.ENABLER]: { label: "Warehouse Operator", desc: "Licensed warehouses — issue, grade and secure eWR collateral" },
     [UserUpdateTier.FINANCIER]: { label: "Financier", desc: "Banks & lenders — provide warehouse financing and pre-sale advances" },
+    [UserUpdateTier.COOPERATIVE]: { label: "Cooperative", desc: "Agricultural cooperatives — manage members, track intake, and trade collectively" },
   };
 
   function handleUserSubmit(values: z.infer<typeof userSchema>) {
@@ -147,7 +167,8 @@ export function Onboarding() {
       queryClient.setQueryData(getGetMeQueryKey(), data.user);
       toast({ title: "Profile submitted", description: "Your onboarding is now under KYB review." });
       setStep("done");
-      setTimeout(() => navigate("/dashboard"), 800);
+      const destination = userData.tier === "COOPERATIVE" ? "/coop" : "/dashboard";
+      setTimeout(() => navigate(destination), 800);
     } catch (err: any) {
       const msg = err?.message || "Failed to submit profile. Please try again.";
       toast({ title: "Submission failed", description: msg, variant: "destructive" });
@@ -464,6 +485,115 @@ export function Onboarding() {
                     <FormItem>
                       <FormLabel>Insurance Policy Number</FormLabel>
                       <FormControl><Input placeholder="POL-2024-ABC" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                </>
+              )}
+              {tier === "COOPERATIVE" && (
+                <>
+                  <FormField control={profileForm.control} name="entityName" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Cooperative Entity Name</FormLabel>
+                      <FormControl><Input placeholder="Nyeri Coffee Farmers Co-op Ltd" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={profileForm.control} name="registrationNumber" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Registration / Incorporation Number</FormLabel>
+                      <FormControl><Input placeholder="C123456" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={profileForm.control} name="licenceNumber" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Licence Number (optional)</FormLabel>
+                      <FormControl><Input placeholder="LIC-2024-001" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={profileForm.control} name="kraPin" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>KRA PIN</FormLabel>
+                      <FormControl><Input placeholder="A123456789B" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={profileForm.control} name="officeAddress" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Registered Office Address</FormLabel>
+                      <FormControl><Input placeholder="Nyeri County, Kenya" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={profileForm.control} name="adminFirstName" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Admin First Name</FormLabel>
+                      <FormControl><Input placeholder="John" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={profileForm.control} name="adminLastName" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Admin Last Name</FormLabel>
+                      <FormControl><Input placeholder="Kamau" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={profileForm.control} name="adminNationalId" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Admin National ID</FormLabel>
+                      <FormControl><Input placeholder="12345678" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={profileForm.control} name="adminPhone" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Admin Phone</FormLabel>
+                      <FormControl><Input placeholder="+254 712 345 678" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={profileForm.control} name="adminEmail" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Admin Email</FormLabel>
+                      <FormControl><Input placeholder="admin@coop.co.ke" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={profileForm.control} name="bankName" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Bank Name</FormLabel>
+                      <FormControl><Input placeholder="Co-operative Bank" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={profileForm.control} name="bankBranch" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Bank Branch</FormLabel>
+                      <FormControl><Input placeholder="Nyeri Branch" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={profileForm.control} name="bankSwiftCode" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>SWIFT Code</FormLabel>
+                      <FormControl><Input placeholder="KCOOKENA" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={profileForm.control} name="bankAccountNumber" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Bank Account Number</FormLabel>
+                      <FormControl><Input placeholder="0123456789" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={profileForm.control} name="mobileMoneyPaybill" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mobile Money Paybill</FormLabel>
+                      <FormControl><Input placeholder="522522" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />

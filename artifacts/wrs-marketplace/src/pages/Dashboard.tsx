@@ -612,6 +612,13 @@ export default function Dashboard() {
       {user?.tier === "OFF_TAKER" && <OffTakerDashboard />}
       {user?.tier === "ENABLER" && <EnablerDashboard />}
       {user?.tier === "FINANCIER" && <FinancierDashboard />}
+      {user?.tier === "COOPERATIVE" && (
+        <div className="space-y-6">
+          <h1 className="text-3xl font-bold tracking-tight">Cooperative Dashboard</h1>
+          <p className="text-muted-foreground">Redirecting to your cooperative workspace...</p>
+          <Link href="/coop"><Button>Go to Coop Dashboard</Button></Link>
+        </div>
+      )}
       {!user?.tier && (
         <div className="space-y-6">
           <Skeleton className="h-10 w-48" />

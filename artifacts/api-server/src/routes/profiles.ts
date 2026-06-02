@@ -7,6 +7,7 @@ import {
   buyerProfilesTable,
   warehouseProfilesTable,
   financierProfilesTable,
+  cooperativeProfilesTable,
 } from "@workspace/db";
 import { eq } from "drizzle-orm";
 
@@ -54,6 +55,15 @@ router.get("/profiles/me", async (req, res) => {
         .select()
         .from(financierProfilesTable)
         .where(eq(financierProfilesTable.userId, user.id))
+        .limit(1);
+      tierProfile = profile ?? null;
+      break;
+    }
+    case "COOPERATIVE": {
+      const [profile] = await db
+        .select()
+        .from(cooperativeProfilesTable)
+        .where(eq(cooperativeProfilesTable.userId, user.id))
         .limit(1);
       tierProfile = profile ?? null;
       break;
@@ -204,6 +214,43 @@ router.post("/profiles/me", async (req, res) => {
           .returning();
       } else {
         [tierProfile] = await db.insert(warehouseProfilesTable).values({ ...data, createdAt: now }).returning();
+      }
+      break;
+    }
+    case "COOPERATIVE": {
+      const existing = await db
+        .select()
+        .from(cooperativeProfilesTable)
+        .where(eq(cooperativeProfilesTable.userId, user.id))
+        .limit(1);
+      const data = {
+        userId: user.id,
+        entityName: profileData.entityName as string,
+        registrationNumber: profileData.registrationNumber as string,
+        licenceNumber: (profileData.licenceNumber as string) ?? null,
+        kraPin: (profileData.kraPin as string) ?? null,
+        officeAddress: (profileData.officeAddress as string) ?? null,
+        gpsLatitude: (profileData.gpsLatitude as string) ?? null,
+        gpsLongitude: (profileData.gpsLongitude as string) ?? null,
+        adminFirstName: (profileData.adminFirstName as string) ?? null,
+        adminLastName: (profileData.adminLastName as string) ?? null,
+        adminNationalId: (profileData.adminNationalId as string) ?? null,
+        adminPhone: (profileData.adminPhone as string) ?? null,
+        adminEmail: (profileData.adminEmail as string) ?? null,
+        bankName: (profileData.bankName as string) ?? null,
+        bankBranch: (profileData.bankBranch as string) ?? null,
+        bankSwiftCode: (profileData.bankSwiftCode as string) ?? null,
+        bankAccountNumber: (profileData.bankAccountNumber as string) ?? null,
+        mobileMoneyPaybill: (profileData.mobileMoneyPaybill as string) ?? null,
+        updatedAt: now,
+      };
+      if (existing.length > 0) {
+        [tierProfile] = await db.update(cooperativeProfilesTable)
+          .set(data)
+          .where(eq(cooperativeProfilesTable.userId, user.id))
+          .returning();
+      } else {
+        [tierProfile] = await db.insert(cooperativeProfilesTable).values({ ...data, createdAt: now }).returning();
       }
       break;
     }

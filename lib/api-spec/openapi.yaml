@@ -1384,7 +1384,7 @@ components:
           type: string
         tier:
           type: string
-          enum: [PRODUCER, OFF_TAKER, ENABLER, FINANCIER]
+          enum: [PRODUCER, OFF_TAKER, ENABLER, FINANCIER, COOPERATIVE]
         reputationScore:
           type: integer
         kybStatus:
@@ -1405,7 +1405,7 @@ components:
           type: string
         tier:
           type: string
-          enum: [PRODUCER, OFF_TAKER, ENABLER, FINANCIER]
+          enum: [PRODUCER, OFF_TAKER, ENABLER, FINANCIER, COOPERATIVE]
 
     CreateEwrRequest:
       type: object
