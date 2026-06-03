@@ -68,6 +68,11 @@ router.get("/profiles/me", async (req, res) => {
       tierProfile = profile ?? null;
       break;
     }
+    case "ADMIN": {
+      // Admin has no separate tier profile; full access is managed by tier guard
+      tierProfile = null;
+      break;
+    }
   }
 
   return res.json({ user, tierProfile });

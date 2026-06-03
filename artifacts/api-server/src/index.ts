@@ -9,6 +9,7 @@ import { startAvocadoDegradationWorker } from "./routes/ewrs";
 import { startForwardMaturityWorker } from "./routes/forwards";
 import { startAuctionPubSubSubscriber, setAuctionEventHandler, setReconnectHandler } from "./lib/pg-pubsub";
 import { applyDbConstraints } from "@workspace/db/migrate";
+import { ensureAdminUser } from "./lib/ensure-admin";
 
 const rawPort = process.env["PORT"];
 
@@ -37,6 +38,12 @@ const server: Server = app.listen(port, async (err) => {
     logger.info("DB constraints applied");
   } catch (constraintErr) {
     logger.warn({ err: constraintErr }, "Could not apply DB constraints — continuing");
+  }
+
+  try {
+    await ensureAdminUser();
+  } catch (adminErr) {
+    logger.warn({ err: adminErr }, "Could not ensure admin user — continuing");
   }
 
   startOrderExpiryWorker();

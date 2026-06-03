@@ -619,6 +619,38 @@ export default function Dashboard() {
           <Link href="/coop"><Button>Go to Coop Dashboard</Button></Link>
         </div>
       )}
+      {user?.tier === "ADMIN" && (
+        <div className="space-y-6">
+          <h1 className="text-3xl font-bold tracking-tight">Exchange Administrator Dashboard</h1>
+          <p className="text-muted-foreground">Manage user KYB approvals and platform oversight.</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">User Management</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Link href="/admin/users"><Button>Manage Users</Button></Link>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Platform Earnings</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Link href="/admin/earnings"><Button>View Earnings</Button></Link>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Audit Log</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Link href="/admin/audit"><Button>View Audit</Button></Link>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      )}
       {!user?.tier && (
         <div className="space-y-6">
           <Skeleton className="h-10 w-48" />

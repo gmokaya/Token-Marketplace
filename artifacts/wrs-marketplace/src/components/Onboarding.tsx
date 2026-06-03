@@ -105,12 +105,15 @@ export function Onboarding() {
     defaultValues: { name: "", company: "", phone: "", nationalId: "", tier: UserUpdateTier.PRODUCER },
   });
 
+  const adminSchema = z.object({});
+
   const profileSchemas: Record<UserUpdateTier, z.ZodTypeAny> = {
     [UserUpdateTier.PRODUCER]: producerSchema,
     [UserUpdateTier.OFF_TAKER]: buyerSchema,
     [UserUpdateTier.ENABLER]: warehouseSchema,
     [UserUpdateTier.FINANCIER]: financierSchema,
     [UserUpdateTier.COOPERATIVE]: cooperativeSchema,
+    [UserUpdateTier.ADMIN]: adminSchema,
   };
 
   const profileForm = useForm<any>({
@@ -124,6 +127,7 @@ export function Onboarding() {
     [UserUpdateTier.ENABLER]: { label: "Warehouse Operator", desc: "Licensed warehouses — issue, grade and secure eWR collateral" },
     [UserUpdateTier.FINANCIER]: { label: "Financier", desc: "Banks & lenders — provide warehouse financing and pre-sale advances" },
     [UserUpdateTier.COOPERATIVE]: { label: "Cooperative", desc: "Agricultural cooperatives — manage members, track intake, and trade collectively" },
+    [UserUpdateTier.ADMIN]: { label: "Exchange Administrator", desc: "Platform oversight — manage user approvals and system settings" },
   };
 
   function handleUserSubmit(values: z.infer<typeof userSchema>) {

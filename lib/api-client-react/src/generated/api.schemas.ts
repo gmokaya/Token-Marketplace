@@ -34,6 +34,7 @@ export const UserTier = {
   ENABLER: 'ENABLER',
   FINANCIER: 'FINANCIER',
   COOPERATIVE: 'COOPERATIVE',
+  ADMIN: 'ADMIN',
 } as const;
 
 export type UserKybStatus = typeof UserKybStatus[keyof typeof UserKybStatus];
@@ -67,6 +68,7 @@ export const UserUpdateTier = {
   ENABLER: 'ENABLER',
   FINANCIER: 'FINANCIER',
   COOPERATIVE: 'COOPERATIVE',
+  ADMIN: 'ADMIN',
 } as const;
 
 export interface UserUpdate {

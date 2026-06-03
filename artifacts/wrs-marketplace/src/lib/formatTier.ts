@@ -4,6 +4,7 @@ const TIER_LABELS: Record<string, string> = {
   ENABLER: "Warehouse Operator",
   FINANCIER: "Financier",
   COOPERATIVE: "Cooperative",
+  ADMIN: "Exchange Administrator",
 };
 
 export function formatTier(tier: string | null | undefined): string {

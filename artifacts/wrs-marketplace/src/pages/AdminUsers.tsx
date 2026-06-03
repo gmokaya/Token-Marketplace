@@ -17,13 +17,13 @@ type AdminUser = {
   name: string;
   email: string;
   company: string | null;
-  tier: "PRODUCER" | "OFF_TAKER" | "ENABLER" | "FINANCIER";
+  tier: "PRODUCER" | "OFF_TAKER" | "ENABLER" | "FINANCIER" | "COOPERATIVE" | "ADMIN";
   kybStatus: "PENDING" | "APPROVED" | "REJECTED";
   reputationScore: string | number | null;
   createdAt: string;
 };
 
-const TIER_OPTIONS = ["ALL", "PRODUCER", "OFF_TAKER", "ENABLER", "FINANCIER"] as const;
+const TIER_OPTIONS = ["ALL", "PRODUCER", "OFF_TAKER", "ENABLER", "FINANCIER", "COOPERATIVE", "ADMIN"] as const;
 const KYB_OPTIONS  = ["PENDING", "APPROVED", "REJECTED"] as const;
 
 const TIER_COLORS: Record<string, string> = {
@@ -31,6 +31,8 @@ const TIER_COLORS: Record<string, string> = {
   OFF_TAKER: "bg-blue-100 text-blue-800",
   ENABLER:   "bg-purple-100 text-purple-800",
   FINANCIER: "bg-amber-100 text-amber-800",
+  COOPERATIVE: "bg-cyan-100 text-cyan-800",
+  ADMIN:     "bg-red-100 text-red-800",
 };
 
 const KYB_COLORS: Record<string, string> = {
@@ -117,8 +119,8 @@ export default function AdminUsers() {
         </div>
 
         {/* tier summary cards */}
-        <div className="grid grid-cols-4 gap-4">
-          {(["PRODUCER","OFF_TAKER","ENABLER","FINANCIER"] as const).map(t => (
+        <div className="grid grid-cols-6 gap-4">
+          {(["PRODUCER","OFF_TAKER","ENABLER","FINANCIER","COOPERATIVE","ADMIN"] as const).map(t => (
             <Card key={t} className="cursor-pointer hover:border-primary/50 transition-colors"
               onClick={() => setTierFilter(t === tierFilter as any ? "ALL" : t)}>
               <CardContent className="pt-4 pb-4">

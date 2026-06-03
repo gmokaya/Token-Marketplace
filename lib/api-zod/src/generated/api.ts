@@ -29,7 +29,7 @@ export const GetMeResponse = zod.object({
   "clerkId": zod.string(),
   "name": zod.string(),
   "email": zod.string(),
-  "tier": zod.enum(['PRODUCER', 'OFF_TAKER', 'ENABLER', 'FINANCIER', 'COOPERATIVE']),
+  "tier": zod.enum(['PRODUCER', 'OFF_TAKER', 'ENABLER', 'FINANCIER', 'COOPERATIVE', 'ADMIN']),
   "reputationScore": zod.number(),
   "kybStatus": zod.enum(['PENDING', 'VERIFIED', 'REJECTED']),
   "company": zod.string().nullish(),
@@ -43,7 +43,7 @@ export const GetMeResponse = zod.object({
 export const UpdateMeBody = zod.object({
   "name": zod.string().optional(),
   "company": zod.string().optional(),
-  "tier": zod.enum(['PRODUCER', 'OFF_TAKER', 'ENABLER', 'FINANCIER', 'COOPERATIVE']).optional()
+  "tier": zod.enum(['PRODUCER', 'OFF_TAKER', 'ENABLER', 'FINANCIER', 'COOPERATIVE', 'ADMIN']).optional()
 })
 
 export const UpdateMeResponse = zod.object({
@@ -51,7 +51,7 @@ export const UpdateMeResponse = zod.object({
   "clerkId": zod.string(),
   "name": zod.string(),
   "email": zod.string(),
-  "tier": zod.enum(['PRODUCER', 'OFF_TAKER', 'ENABLER', 'FINANCIER', 'COOPERATIVE']),
+  "tier": zod.enum(['PRODUCER', 'OFF_TAKER', 'ENABLER', 'FINANCIER', 'COOPERATIVE', 'ADMIN']),
   "reputationScore": zod.number(),
   "kybStatus": zod.enum(['PENDING', 'VERIFIED', 'REJECTED']),
   "company": zod.string().nullish(),
@@ -71,7 +71,7 @@ export const GetUserResponse = zod.object({
   "clerkId": zod.string(),
   "name": zod.string(),
   "email": zod.string(),
-  "tier": zod.enum(['PRODUCER', 'OFF_TAKER', 'ENABLER', 'FINANCIER', 'COOPERATIVE']),
+  "tier": zod.enum(['PRODUCER', 'OFF_TAKER', 'ENABLER', 'FINANCIER', 'COOPERATIVE', 'ADMIN']),
   "reputationScore": zod.number(),
   "kybStatus": zod.enum(['PENDING', 'VERIFIED', 'REJECTED']),
   "company": zod.string().nullish(),

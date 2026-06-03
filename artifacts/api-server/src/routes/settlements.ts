@@ -142,7 +142,7 @@ router.post("/settlements", async (req, res) => {
   try {
     const { vTotalUsd, sellerId, buyerId } = await deriveEntityValue(entityType, entityId);
 
-    const isAdmin = ["ENABLER", "FINANCIER"].includes(user.tier);
+    const isAdmin = ["ENABLER", "FINANCIER", "ADMIN"].includes(user.tier);
     const isParty = user.id === sellerId || (buyerId !== null && user.id === buyerId);
     if (!isAdmin && !isParty) {
       return res.status(403).json({ error: "Only transaction parties or platform admins can initiate settlement" });
@@ -336,7 +336,7 @@ router.post("/settlements/:settlementId/disburse", async (req, res) => {
 
   const [user] = await db.select().from(usersTable).where(eq(usersTable.clerkId, clerkId)).limit(1);
   if (!user) return res.status(404).json({ error: "User not found" });
-  if (!["ENABLER", "FINANCIER"].includes(user.tier)) return res.status(403).json({ error: "Enabler or Financier role required" });
+  if (!["ENABLER", "FINANCIER", "ADMIN"].includes(user.tier)) return res.status(403).json({ error: "Enabler or Financier role required" });
 
   const { leg } = req.body as { leg: "bank" | "platform" | "producer" };
   if (!["bank", "platform", "producer"].includes(leg)) {

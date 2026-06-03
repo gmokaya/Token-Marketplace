@@ -34,12 +34,13 @@ export function Sidebar({ collapsed }: SidebarProps) {
     { href: "/orders",           label: "My Orders",        icon: ClipboardList,   tiers: ["OFF_TAKER"] },
     { href: "/financing",        label: "Financing",        icon: Landmark,        tiers: ["PRODUCER","FINANCIER","ENABLER"] },
     { href: "/market-stats",     label: "Market Stats",     icon: BarChart3,       tiers: ["PRODUCER","OFF_TAKER","ENABLER","FINANCIER","COOPERATIVE"] },
-    { href: "/admin/users",      label: "User Management",  icon: Users,           tiers: ["ENABLER","FINANCIER"] },
-    { href: "/admin/earnings",   label: "Platform Earnings",icon: TrendingUp,      tiers: ["ENABLER","FINANCIER"] },
-    { href: "/admin/audit",      label: "Audit Log",        icon: ShieldCheck,     tiers: ["ENABLER","FINANCIER"] },
-    { href: "/admin/ewr-api",    label: "API Integration",  icon: Plug,            tiers: ["ENABLER","FINANCIER"] },
-    { href: "/admin/homepage",   label: "Homepage Content", icon: LayoutTemplate,  tiers: ["ENABLER","FINANCIER"] },
-    { href: "/profile",          label: "Profile",          icon: User,            tiers: ["PRODUCER","OFF_TAKER","ENABLER","FINANCIER","COOPERATIVE"] },
+    { href: "/admin/users",      label: "User Management",  icon: Users,           tiers: ["ENABLER","FINANCIER","ADMIN"] },
+    { href: "/admin/earnings",   label: "Platform Earnings",icon: TrendingUp,      tiers: ["ENABLER","FINANCIER","ADMIN"] },
+    { href: "/admin/audit",      label: "Audit Log",        icon: ShieldCheck,     tiers: ["ENABLER","FINANCIER","ADMIN"] },
+    { href: "/admin/ewr-api",    label: "API Integration",  icon: Plug,            tiers: ["ENABLER","FINANCIER","ADMIN"] },
+    { href: "/admin/homepage",   label: "Homepage Content", icon: LayoutTemplate,  tiers: ["ENABLER","FINANCIER","ADMIN"] },
+    { href: "/profile",          label: "Profile",          icon: User,            tiers: ["PRODUCER","OFF_TAKER","ENABLER","FINANCIER","COOPERATIVE","ADMIN"] },
+    { href: "/dashboard",        label: "Dashboard",        icon: LayoutDashboard, tiers: ["ADMIN"] },
   ];
 
   const navItems = tier

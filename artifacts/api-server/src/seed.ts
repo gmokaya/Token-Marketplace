@@ -44,7 +44,7 @@ async function seed() {
   await db.delete(ewrsTable);
   await db.delete(usersTable);
 
-  const [producer1, producer2, offtaker, enabler, financier, cooperative] = await db
+  const [producer1, producer2, offtaker, enabler, financier, cooperative, admin] = await db
     .insert(usersTable)
     .values([
       {
@@ -101,10 +101,19 @@ async function seed() {
         kybStatus: "VERIFIED",
         company: "Meru Coffee Growers Cooperative",
       },
+      {
+        clerkId: "admin_trevitagroup_001",
+        name: "George Nyakundi",
+        email: "gnyakundi@trevitagroup.com",
+        tier: "ADMIN",
+        reputationScore: 100,
+        kybStatus: "VERIFIED",
+        company: "Trevita Group",
+      },
     ])
     .returning();
 
-  console.log("Users seeded:", [producer1, producer2, offtaker, enabler, financier, cooperative].map(u => u.name));
+  console.log("Users seeded:", [producer1, producer2, offtaker, enabler, financier, cooperative, admin].map(u => u.name));
 
   const now = new Date();
   const avocadoExpiry = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);

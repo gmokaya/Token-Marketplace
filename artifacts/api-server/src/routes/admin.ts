@@ -18,7 +18,7 @@ router.get("/admin/earnings", async (req, res) => {
 
   const [user] = await db.select().from(usersTable).where(eq(usersTable.clerkId, clerkId)).limit(1);
   if (!user) return res.status(404).json({ error: "User not found" });
-  if (!["ENABLER", "FINANCIER"].includes(user.tier)) return res.status(403).json({ error: "Admin access required" });
+  if (!["ENABLER", "FINANCIER", "ADMIN"].includes(user.tier)) return res.status(403).json({ error: "Admin access required" });
 
   const { period = "30d" } = req.query as { period?: string };
 
@@ -77,7 +77,7 @@ router.get("/audit", async (req, res) => {
 
   const [user] = await db.select().from(usersTable).where(eq(usersTable.clerkId, clerkId)).limit(1);
   if (!user) return res.status(404).json({ error: "User not found" });
-  if (!["ENABLER", "FINANCIER"].includes(user.tier)) return res.status(403).json({ error: "Admin access required" });
+  if (!["ENABLER", "FINANCIER", "ADMIN"].includes(user.tier)) return res.status(403).json({ error: "Admin access required" });
 
   const { entityType, entityId, limit = "50" } = req.query as { entityType?: string; entityId?: string; limit?: string };
 
@@ -103,7 +103,7 @@ router.get("/admin/users", async (req, res) => {
   if (!clerkId) return res.status(401).json({ error: "Unauthorized" });
 
   const [me] = await db.select().from(usersTable).where(eq(usersTable.clerkId, clerkId)).limit(1);
-  if (!me || !["ENABLER", "FINANCIER"].includes(me.tier))
+  if (!me || !["ENABLER", "FINANCIER", "ADMIN"].includes(me.tier))
     return res.status(403).json({ error: "Admin access required" });
 
   const { tier, search } = req.query as { tier?: string; search?: string };
@@ -144,7 +144,7 @@ router.patch("/admin/users/:id", async (req, res) => {
   if (!clerkId) return res.status(401).json({ error: "Unauthorized" });
 
   const [me] = await db.select().from(usersTable).where(eq(usersTable.clerkId, clerkId)).limit(1);
-  if (!me || !["ENABLER", "FINANCIER"].includes(me.tier))
+  if (!me || !["ENABLER", "FINANCIER", "ADMIN"].includes(me.tier))
     return res.status(403).json({ error: "Admin access required" });
 
   const targetId = parseInt(req.params.id);
@@ -152,7 +152,7 @@ router.patch("/admin/users/:id", async (req, res) => {
 
   const { tier, kybStatus } = req.body as { tier?: string; kybStatus?: string };
 
-  const VALID_TIERS = ["PRODUCER", "OFF_TAKER", "ENABLER", "FINANCIER"];
+  const VALID_TIERS = ["PRODUCER", "OFF_TAKER", "ENABLER", "FINANCIER", "COOPERATIVE", "ADMIN"];
   const VALID_KYB   = ["PENDING", "APPROVED", "REJECTED"];
 
   const updateData: Partial<typeof usersTable.$inferInsert> = {};

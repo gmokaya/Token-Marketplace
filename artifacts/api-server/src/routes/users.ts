@@ -30,7 +30,7 @@ router.patch("/users/me", async (req, res) => {
       clerkId,
       name,
       email: req.body.email ?? `${clerkId}@placeholder.wrs`,
-      tier: tier as "PRODUCER" | "OFF_TAKER" | "ENABLER" | "FINANCIER" | "COOPERATIVE",
+      tier: tier as "PRODUCER" | "OFF_TAKER" | "ENABLER" | "FINANCIER" | "COOPERATIVE" | "ADMIN",
       company: company ?? null,
     }).returning();
     return res.json(created);
