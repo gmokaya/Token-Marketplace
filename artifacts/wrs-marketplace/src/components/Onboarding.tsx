@@ -191,7 +191,7 @@ export function Onboarding() {
             <p className="text-muted-foreground mt-2">This determines your marketplace access and compliance requirements</p>
           </div>
           <div className="grid grid-cols-1 gap-4">
-            {(Object.keys(UserUpdateTier) as UserUpdateTier[]).map((t) => {
+            {(Object.keys(UserUpdateTier) as UserUpdateTier[]).filter((t) => t !== UserUpdateTier.ADMIN).map((t) => {
               const { label, desc } = tierLabels[t];
               return (
                 <button
@@ -212,7 +212,7 @@ export function Onboarding() {
           </div>
           <div className="mt-8 text-center">
             <button
-              onClick={() => navigate("/")}
+              onClick={() => { window.location.href = basePath || "/"; }}
               className="text-sm text-muted-foreground hover:text-primary underline underline-offset-4 transition-colors"
             >
               Back to home page

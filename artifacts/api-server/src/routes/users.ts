@@ -1,8 +1,10 @@
 import { Router } from "express";
-import { getAuth } from "@clerk/express";
+import { getAuth, clerkClient } from "@clerk/express";
 import { db } from "@workspace/db";
 import { usersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
+
+const ADMIN_EMAIL = "gnyakundi@trevitagroup.com";
 
 const router = Router();
 
@@ -11,9 +13,31 @@ router.get("/users/me", async (req, res) => {
   if (!clerkId) return res.status(401).json({ error: "Unauthorized" });
 
   const [user] = await db.select().from(usersTable).where(eq(usersTable.clerkId, clerkId)).limit(1);
-  if (!user) return res.status(404).json({ error: "User not found" });
+  if (user) return res.json(user);
 
-  return res.json(user);
+  // Not found by clerkId — check if this is the admin signing in for the first time
+  // (admin DB row has a placeholder clerkId; link it to the real Clerk user ID)
+  try {
+    const clerkUser = await clerkClient.users.getUser(clerkId);
+    const email = clerkUser.emailAddresses.find((e) => e.id === clerkUser.primaryEmailAddressId)?.emailAddress
+      ?? clerkUser.emailAddresses[0]?.emailAddress;
+
+    if (email === ADMIN_EMAIL) {
+      const [adminRow] = await db.select().from(usersTable).where(eq(usersTable.email, ADMIN_EMAIL)).limit(1);
+      if (adminRow) {
+        const [linked] = await db
+          .update(usersTable)
+          .set({ clerkId })
+          .where(eq(usersTable.email, ADMIN_EMAIL))
+          .returning();
+        return res.json(linked);
+      }
+    }
+  } catch {
+    // Clerk lookup failed — fall through to 404
+  }
+
+  return res.status(404).json({ error: "User not found" });
 });
 
 router.patch("/users/me", async (req, res) => {
