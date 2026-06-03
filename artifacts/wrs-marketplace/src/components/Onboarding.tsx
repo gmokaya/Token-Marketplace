@@ -206,6 +206,14 @@ export function Onboarding() {
               );
             })}
           </div>
+          <div className="mt-8 text-center">
+            <button
+              onClick={() => navigate("/")}
+              className="text-sm text-muted-foreground hover:text-primary underline underline-offset-4 transition-colors"
+            >
+              Back to home page
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -262,6 +270,15 @@ export function Onboarding() {
               <div className="flex gap-3 pt-2">
                 <Button type="button" variant="outline" className="flex-1" onClick={() => setStep("tier")}>Back</Button>
                 <Button type="submit" className="flex-1">Continue</Button>
+              </div>
+              <div className="text-center pt-1">
+                <button
+                  type="button"
+                  onClick={() => navigate("/")}
+                  className="text-xs text-muted-foreground hover:text-primary underline underline-offset-4 transition-colors"
+                >
+                  Cancel and return to home page
+                </button>
               </div>
             </form>
           </Form>
@@ -651,9 +668,18 @@ export function Onboarding() {
                   {isSubmitting ? "Submitting..." : "Submit Profile"}
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground text-center">
-                By submitting, you agree to our KYB verification process. Your profile will be reviewed before activation.
-              </p>
+              <div className="text-center space-y-2">
+                <p className="text-xs text-muted-foreground">
+                  By submitting, you agree to our KYB verification process. Your profile will be reviewed before activation.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => navigate("/")}
+                  className="text-xs text-muted-foreground hover:text-primary underline underline-offset-4 transition-colors"
+                >
+                  Cancel and return to home page
+                </button>
+              </div>
             </form>
           </Form>
         </div>
