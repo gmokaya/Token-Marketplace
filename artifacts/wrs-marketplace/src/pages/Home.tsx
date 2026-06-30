@@ -117,7 +117,7 @@ function MarketCard({ num, name, grade, desc, photo, link }: MarketCardData) {
         overflow: "hidden",
         cursor: "pointer",
         transition: "flex 0.45s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s ease",
-        backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.93) 30%, rgba(0,0,0,${hover ? "0.62" : "0.48"}) 100%), url(${photo})`,
+        backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.95) 30%, rgba(0,0,0,${hover ? "0.78" : "0.68"}) 100%), url(${photo})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         boxShadow: hover
