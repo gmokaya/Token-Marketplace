@@ -1,4 +1,4 @@
-import { Moon, Sun, PanelLeftClose, PanelLeftOpen, LogOut } from "lucide-react";
+import { Moon, Sun, PanelLeftClose, PanelLeftOpen, LogOut, Home } from "lucide-react";
 import { useClerk, useUser } from "@clerk/react";
 import { useGetMe } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
@@ -70,6 +70,16 @@ export function AppHeader({ collapsed, onToggle }: AppHeaderProps) {
             alt="TokenHarvest"
             className="h-9 w-auto shrink-0"
           />
+        </Link>
+
+        <Link href="/">
+          <button
+            title="View public site"
+            className="flex items-center gap-1.5 h-8 px-2.5 rounded-md text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          >
+            <Home className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">View site</span>
+          </button>
         </Link>
       </div>
 

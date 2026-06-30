@@ -1,4 +1,4 @@
-import { Show } from "@clerk/react";
+import { Show, useAuth } from "@clerk/react";
 import { Redirect, Link } from "wouter";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, ChevronRight } from "lucide-react";
@@ -396,6 +396,7 @@ function PartnersSection() {
 }
 
 export default function Home() {
+  const { isSignedIn } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [statsOn, setStatsOn]   = useState(false);
   const statsRef = useRef<HTMLDivElement>(null);
@@ -473,13 +474,22 @@ export default function Home() {
               </nav>
               {/* auth buttons */}
               <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-                <Link href="/sign-in" style={{ color: "rgba(255,255,255,0.75)", textDecoration: "none", fontSize: 14, fontWeight: 500 }}>
-                  Sign In
-                </Link>
-                <Link href="/sign-up"
-                  style={{ background: ACCENT, color: "#fff", padding: "10px 22px", textDecoration: "none", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 7 }}>
-                  Get Started <ArrowRight size={15} />
-                </Link>
+                {isSignedIn ? (
+                  <Link href="/dashboard"
+                    style={{ background: ACCENT, color: "#fff", padding: "10px 22px", textDecoration: "none", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 7 }}>
+                    Go to Dashboard <ArrowRight size={15} />
+                  </Link>
+                ) : (
+                  <>
+                    <Link href="/sign-in" style={{ color: "rgba(255,255,255,0.75)", textDecoration: "none", fontSize: 14, fontWeight: 500 }}>
+                      Sign In
+                    </Link>
+                    <Link href="/sign-up"
+                      style={{ background: ACCENT, color: "#fff", padding: "10px 22px", textDecoration: "none", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 7 }}>
+                      Get Started <ArrowRight size={15} />
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </header>
