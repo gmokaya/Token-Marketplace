@@ -11,6 +11,60 @@ const photo = (name: string) => `${BASE}/photos/${name}`;
 const ACCENT       = "hsl(180 62% 10%)";   // WRS teal (on light bg)
 const ACCENT_LIGHT = "hsl(180 50% 42%)";    // WRS teal (on dark bg)
 
+const HP_API = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
+
+/* ── Homepage CMS defaults (overridden by /api/content/homepage) ── */
+type HpHero    = { badge: string; headline: string; subheadline: string; cta1: string; cta2: string };
+type HpService = { icon: string; title: string; sub: string; desc: string };
+type HpAbout   = { badge: string; heading: string; body: string; bullets: string[] };
+type HpStep    = { num: string; title: string; desc: string };
+type HpStat    = { target: number; suffix: string; label: string };
+type HpCta     = { heading: string; subheadline: string; cta1: string; cta2: string };
+type HpContent = { hero: HpHero; services: HpService[]; about: HpAbout; howItWorks: HpStep[]; stats: HpStat[]; cta: HpCta };
+
+const DEF_HERO: HpHero = {
+  badge: "WRS Marketplace",
+  headline: "Agricultural\nMarketplace",
+  subheadline: "Trade Electronic Warehouse Receipts securely. Live auctions, forward contracts, and warehouse financing across East Africa.",
+  cta1: "Join the Marketplace",
+  cta2: "Our Services",
+};
+const DEF_SERVICES: HpService[] = [
+  { icon: "icon-tax.png",        title: "Spot Market",       sub: "For Producers",  desc: "List your eWRs on the live marketplace. Access transparent pricing and verified buyers instantly." },
+  { icon: "icon-money-1.png",    title: "Live Auctions",     sub: "For Off-Takers", desc: "Compete in real-time sealed-bid auctions with automatic anti-snipe protection and fair price discovery." },
+  { icon: "icon-financial-1.png",title: "Forward Contracts", sub: "For Financiers", desc: "Lock in future delivery prices with performance-bond escrow and immutable audit trails." },
+];
+const DEF_ABOUT: HpAbout = {
+  badge: "The Platform",
+  heading: "East Africa's Leading\neWR Marketplace",
+  body: "WRS Marketplace connects producers, off-takers, and financiers in a single, fully auditable trading environment, backed by licensed warehouses and an immutable transaction ledger.",
+  bullets: [
+    "§6.1 state-machine enforced eWR lifecycle",
+    "Real-time auctions with anti-snipe window",
+    "Forward contracts with performance bond escrow",
+    "Warehouse financing up to 60% of market value",
+    "SHA-256 audit log on every transaction",
+  ],
+};
+const DEF_STEPS: HpStep[] = [
+  { num: "01", title: "Intake & Grading",    desc: "Commodity arrives at a licensed warehouse. WMS staff grade, weigh, and issue a digital eWR linked to physical stock." },
+  { num: "02", title: "List or Auction",     desc: "Producer posts to the spot marketplace, creates a timed auction, or locks in a forward contract with a buyer." },
+  { num: "03", title: "Trade Executes",      desc: "Bids clear or orders match. The state machine transitions the eWR through MARKET_LISTED → SOLD automatically." },
+  { num: "04", title: "Settlement & Payout", desc: "Platform fee withheld, bank lien cleared, producer receives net proceeds. Full audit trail immutably recorded." },
+];
+const DEF_STATS: HpStat[] = [
+  { target: 20,   suffix: "+", label: "eWRs Issued" },
+  { target: 5,    suffix: "",  label: "Commodities" },
+  { target: 97,   suffix: "%", label: "Audit Coverage" },
+  { target: 1200, suffix: "+", label: "Transactions" },
+];
+const DEF_CTA: HpCta = {
+  heading: "Ready to Trade\nwith Confidence?",
+  subheadline: "Join producers, off-takers, and financiers already using WRS Marketplace to trade East African commodities with full transparency.",
+  cta1: "Create Your Account",
+  cta2: "Sign In",
+};
+
 /* ── smooth scroll helper ─────────────────────────────────── */
 function scrollTo(id: string) {
   const el = document.getElementById(id);
@@ -367,6 +421,21 @@ export default function Home() {
   const [statsOn, setStatsOn]   = useState(false);
   const statsRef = useRef<HTMLDivElement>(null);
 
+  const [hp, setHp] = useState<Partial<HpContent>>({});
+  const hero     = hp.hero        ?? DEF_HERO;
+  const services = hp.services    ?? DEF_SERVICES;
+  const about    = hp.about       ?? DEF_ABOUT;
+  const steps    = hp.howItWorks  ?? DEF_STEPS;
+  const hpStats  = hp.stats       ?? DEF_STATS;
+  const cta      = hp.cta         ?? DEF_CTA;
+
+  useEffect(() => {
+    fetch(`${HP_API}/api/content/homepage`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.value) setHp(d.value); })
+      .catch(() => {});
+  }, []);
+
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 60);
     window.addEventListener("scroll", fn);
@@ -465,28 +534,27 @@ export default function Home() {
                 {/* brand label */}
                 <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 24 }}>
                   <div style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT }} />
-                  <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, fontWeight: 500, letterSpacing: "0.22em", textTransform: "uppercase" }}>WRS Marketplace</span>
+                  <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, fontWeight: 500, letterSpacing: "0.22em", textTransform: "uppercase" }}>{hero.badge}</span>
                 </div>
                 {/* heading */}
-                <h1 style={{ color: "#fff", fontWeight: 300, lineHeight: 1.02, margin: "0 0 24px", fontSize: "clamp(3rem, 6.5vw, 6.2rem)" }}>
-                  Agricultural
-                  <br />Marketplace
+                <h1 style={{ color: "#fff", fontWeight: 300, lineHeight: 1.02, margin: "0 0 24px", fontSize: "clamp(3rem, 6.5vw, 6.2rem)", whiteSpace: "pre-line" }}>
+                  {hero.headline}
                 </h1>
                 {/* accent line */}
                 <div style={{ width: 45, height: 2, background: ACCENT, marginBottom: 24 }} />
                 {/* sub */}
                 <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 18, fontWeight: 300, lineHeight: 1.75, margin: "0 0 36px" }}>
-                  Trade Electronic Warehouse Receipts securely. Live auctions, forward contracts, and warehouse financing across East Africa.
+                  {hero.subheadline}
                 </p>
                 {/* CTAs */}
                 <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
                   <Link href="/sign-up"
                     style={{ background: ACCENT, color: "#fff", padding: "16px 28px", textDecoration: "none", fontSize: 15, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 8 }}>
-                    Join the Marketplace <ArrowRight size={16} />
+                    {hero.cta1} <ArrowRight size={16} />
                   </Link>
                   <button onClick={() => scrollTo("services")}
                     style={{ background: "#323232", color: "#fff", padding: "16px 28px", border: "none", cursor: "pointer", fontSize: 15, fontWeight: 500, fontFamily: "'Jost',sans-serif", display: "inline-flex", alignItems: "center", gap: 8 }}>
-                    Our Services <ArrowRight size={16} />
+                    {hero.cta2} <ArrowRight size={16} />
                   </button>
                 </div>
               </div>
@@ -514,11 +582,7 @@ export default function Home() {
                 background: "#fff", position: "relative", zIndex: 10,
                 boxShadow: "0 8px 40px rgba(0,0,0,0.10)",
               }}>
-                {([
-                  { icon: "icon-tax.png",        title: "Spot Market",       sub: "For Producers",  desc: "List your eWRs on the live marketplace. Access transparent pricing and verified buyers instantly." },
-                  { icon: "icon-money-1.png",     title: "Live Auctions",     sub: "For Off-Takers", desc: "Compete in real-time sealed-bid auctions with automatic anti-snipe protection and fair price discovery." },
-                  { icon: "icon-financial-1.png", title: "Forward Contracts", sub: "For Financiers", desc: "Lock in future delivery prices with performance-bond escrow and immutable audit trails." },
-                ] as const).map(({ icon, title, sub, desc }, i) => (
+                {services.map(({ icon, title, sub, desc }, i) => (
                   <div key={title} style={{
                     padding: "64px 40px 52px",
                     borderRight: i < 2 ? "1px solid #f0f0f0" : undefined,
@@ -560,22 +624,16 @@ export default function Home() {
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
                   <div style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT }} />
-                  <span style={{ color: ACCENT, fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase" }}>The Platform</span>
+                  <span style={{ color: ACCENT, fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase" }}>{about.badge}</span>
                 </div>
-                <h2 style={{ fontSize: "clamp(1.8rem, 3vw, 40px)", fontWeight: 500, color: "#090909", lineHeight: 1.18, margin: "0 0 20px" }}>
-                  East Africa's Leading<br />eWR Marketplace
+                <h2 style={{ fontSize: "clamp(1.8rem, 3vw, 40px)", fontWeight: 500, color: "#090909", lineHeight: 1.18, margin: "0 0 20px", whiteSpace: "pre-line" }}>
+                  {about.heading}
                 </h2>
                 <p style={{ fontSize: 17, color: "#555", lineHeight: 1.8, marginBottom: 28 }}>
-                  WRS Marketplace connects producers, off-takers, and financiers in a single, fully auditable trading environment, backed by licensed warehouses and an immutable transaction ledger.
+                  {about.body}
                 </p>
                 <ul style={{ listStyle: "none", padding: 0, margin: "0 0 28px", display: "flex", flexDirection: "column", gap: 11 }}>
-                  {[
-                    "§6.1 state-machine enforced eWR lifecycle",
-                    "Real-time auctions with anti-snipe window",
-                    "Forward contracts with performance bond escrow",
-                    "Warehouse financing up to 60% of market value",
-                    "SHA-256 audit log on every transaction",
-                  ].map(item => (
+                  {about.bullets.map(item => (
                     <li key={item} style={{ display: "flex", alignItems: "flex-start", gap: 10, fontSize: 15, color: "#555" }}>
                       <ChevronRight size={16} style={{ color: ACCENT, marginTop: 3, flexShrink: 0 }} />
                       {item}
@@ -604,13 +662,8 @@ export default function Home() {
                 </h2>
               </div>
               {/* 4-step grid */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 0 }}>
-                {([
-                  ["01", "Intake & Grading",     "Commodity arrives at a licensed warehouse. WMS staff grade, weigh, and issue a digital eWR linked to physical stock."],
-                  ["02", "List or Auction",       "Producer posts to the spot marketplace, creates a timed auction, or locks in a forward contract with a buyer."],
-                  ["03", "Trade Executes",        "Bids clear or orders match. The state machine transitions the eWR through MARKET_LISTED → SOLD automatically."],
-                  ["04", "Settlement & Payout",   "Platform fee withheld, bank lien cleared, producer receives net proceeds. Full audit trail immutably recorded."],
-                ] as const).map(([num, title, desc], i) => (
+              <div style={{ display: "grid", gridTemplateColumns: `repeat(${steps.length},1fr)`, gap: 0 }}>
+                {steps.map(({ num, title, desc }, i) => (
                   <div key={num} style={{ padding: "40px 36px 40px", borderLeft: i > 0 ? "1px solid #f0f0f0" : undefined, position: "relative" }}>
                     <div style={{ fontSize: 52, fontWeight: 300, color: "rgba(0,0,0,0.06)", lineHeight: 1, marginBottom: 12 }}>{num}</div>
                     <div style={{ width: 28, height: 2, background: ACCENT, marginBottom: 14 }} />
@@ -630,13 +683,8 @@ export default function Home() {
           }}>
             <div style={{ position: "absolute", inset: 0, background: "rgba(12,12,12,0.82)" }} />
             <div style={{ position: "relative", zIndex: 1, maxWidth: 1200, margin: "0 auto", padding: "0 32px" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 40, textAlign: "center" }}>
-                {([
-                  { target: 20,   suffix: "+", label: "eWRs Issued" },
-                  { target: 5,    suffix: "",  label: "Commodities" },
-                  { target: 97,   suffix: "%", label: "Audit Coverage" },
-                  { target: 1200, suffix: "+", label: "Transactions" },
-                ] as const).map(({ target, suffix, label }) => (
+              <div style={{ display: "grid", gridTemplateColumns: `repeat(${hpStats.length},1fr)`, gap: 40, textAlign: "center" }}>
+                {hpStats.map(({ target, suffix, label }) => (
                   <div key={label}>
                     <div style={{ fontSize: "clamp(2.4rem,4.5vw,4rem)", fontWeight: 300, color: "#fff", lineHeight: 1, marginBottom: 4 }}>
                       <Counter target={target} suffix={suffix} active={statsOn} />
@@ -741,20 +789,20 @@ export default function Home() {
                 <div style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT }} />
                 <span style={{ color: ACCENT, fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase" }}>Get Started</span>
               </div>
-              <h2 style={{ fontSize: "clamp(2rem, 4.5vw, 48px)", fontWeight: 300, color: "#fff", lineHeight: 1.1, margin: "0 0 20px" }}>
-                Ready to Trade<br /><strong style={{ fontWeight: 700 }}>with Confidence?</strong>
+              <h2 style={{ fontSize: "clamp(2rem, 4.5vw, 48px)", fontWeight: 300, color: "#fff", lineHeight: 1.1, margin: "0 0 20px", whiteSpace: "pre-line" }}>
+                {cta.heading}
               </h2>
               <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 17, fontWeight: 300, maxWidth: 520, margin: "0 auto 40px", lineHeight: 1.8 }}>
-                Join producers, off-takers, and financiers already using WRS Marketplace to trade East African commodities with full transparency.
+                {cta.subheadline}
               </p>
               <div style={{ display: "flex", justifyContent: "center", gap: 14, flexWrap: "wrap" }}>
                 <Link href="/sign-up"
                   style={{ background: ACCENT, color: "#fff", padding: "17px 32px", textDecoration: "none", fontSize: 15, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 8 }}>
-                  Create Your Account <ArrowRight size={16} />
+                  {cta.cta1} <ArrowRight size={16} />
                 </Link>
                 <Link href="/sign-in"
                   style={{ background: "#2a2a2a", color: "#fff", padding: "17px 32px", textDecoration: "none", fontSize: 15, fontWeight: 500, display: "inline-flex", alignItems: "center", gap: 8 }}>
-                  Sign In
+                  {cta.cta2}
                 </Link>
               </div>
             </div>
