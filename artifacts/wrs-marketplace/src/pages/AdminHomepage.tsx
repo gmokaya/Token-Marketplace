@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import {
   Plus, Trash2, GripVertical, Globe, Save, ImageOff,
-  LayoutTemplate, Layers, Info, ListOrdered, BarChart3, Users, Megaphone,
+  LayoutTemplate, Layers, Info, ListOrdered, BarChart3, Users, Megaphone, Image,
 } from "lucide-react";
 
 const API = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
@@ -24,6 +24,7 @@ type AboutContent = { badge: string; heading: string; body: string; bullets: str
 type HowItWorksStep = { num: string; title: string; desc: string };
 type StatCounter = { target: number; suffix: string; label: string };
 type CtaContent = { heading: string; subheadline: string; cta1: string; cta2: string };
+type MarketCard = { num: string; name: string; grade: string; desc: string; photo: string; link: string };
 
 type HomepageContent = {
   hero: HeroContent;
@@ -32,6 +33,7 @@ type HomepageContent = {
   howItWorks: HowItWorksStep[];
   stats: StatCounter[];
   cta: CtaContent;
+  markets: MarketCard[];
 };
 
 /* ── Defaults ───────────────────────────────────────────── */
@@ -84,6 +86,15 @@ const DEFAULT_CTA: CtaContent = {
   cta2: "Sign In",
 };
 
+const DEFAULT_MARKETS: MarketCard[] = [
+  { num: "01", name: "Maize",   grade: "Grade A–C",    link: "/sign-in", desc: "White & Yellow varieties with 90-day certified storage, fully backed by registered warehouses.", photo: "https://picsum.photos/seed/maize-field/400/640" },
+  { num: "02", name: "Rice",    grade: "Grade A–B",    link: "/sign-in", desc: "Milled & paddy rice from certified storage facilities across East Africa.", photo: "https://picsum.photos/seed/rice-paddy/400/640" },
+  { num: "03", name: "Coffee",  grade: "AA / AB / PB", link: "/sign-in", desc: "Washed & natural-process beans, export-ready and auction-listed at the Nairobi Coffee Exchange.", photo: "https://picsum.photos/seed/coffee-beans/400/640" },
+  { num: "04", name: "Tea",     grade: "BOPI / FNDC",  link: "/sign-in", desc: "Orthodox & CTC grades, Mombasa auction listed with full provenance traceability.", photo: "https://picsum.photos/seed/tea-plantation/400/640" },
+  { num: "05", name: "Avocado", grade: "Hass Export",  link: "/sign-in", desc: "Cold-chain certified Hass avocados meeting EU/UK market phytosanitary standards.", photo: "https://picsum.photos/seed/avocado-farm/400/640" },
+  { num: "06", name: "Sorghum", grade: "Grade A",      link: "/sign-in", desc: "Food & feed-grade sorghum with extended shelf life, ideal for long-tenor forward contracts.", photo: "https://picsum.photos/seed/sorghum-grain/400/640" },
+];
+
 const DEFAULT_PARTNERS: Partner[] = [
   { id: "1", name: "Kenya Cereal Board",          short: "KCB", logoUrl: "", website: "https://kdb.go.ke" },
   { id: "2", name: "East African Community",      short: "EAC", logoUrl: "", website: "https://eac.int" },
@@ -118,13 +129,14 @@ function LogoPreview({ logoUrl, name }: { logoUrl: string; name: string }) {
 /* ── Tab definitions ─────────────────────────────────────── */
 
 const TABS = [
-  { id: "hero",         label: "Hero",          Icon: LayoutTemplate },
-  { id: "services",     label: "Services",      Icon: Layers },
-  { id: "about",        label: "About",         Icon: Info },
-  { id: "how-it-works", label: "How It Works",  Icon: ListOrdered },
-  { id: "stats",        label: "Stats",         Icon: BarChart3 },
-  { id: "cta",          label: "CTA",           Icon: Megaphone },
-  { id: "partners",     label: "Partners",      Icon: Users },
+  { id: "hero",         label: "Hero",             Icon: LayoutTemplate },
+  { id: "services",     label: "Services",         Icon: Layers },
+  { id: "about",        label: "About",            Icon: Info },
+  { id: "how-it-works", label: "How It Works",     Icon: ListOrdered },
+  { id: "stats",        label: "Stats",            Icon: BarChart3 },
+  { id: "cta",          label: "CTA",              Icon: Megaphone },
+  { id: "markets",      label: "Available Markets",Icon: Image },
+  { id: "partners",     label: "Partners",         Icon: Users },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -143,6 +155,7 @@ export default function AdminHomepage() {
   const [howItWorks, setHowItWorks] = useState<HowItWorksStep[]>(DEFAULT_HOW_IT_WORKS);
   const [stats, setStats] = useState<StatCounter[]>(DEFAULT_STATS);
   const [cta, setCta] = useState<CtaContent>(DEFAULT_CTA);
+  const [markets, setMarkets] = useState<MarketCard[]>(DEFAULT_MARKETS);
   const [partners, setPartners] = useState<Partner[]>(DEFAULT_PARTNERS);
 
   useEffect(() => {
@@ -158,6 +171,7 @@ export default function AdminHomepage() {
         if (v.howItWorks?.length) setHowItWorks(v.howItWorks);
         if (v.stats?.length)      setStats(v.stats);
         if (v.cta)        setCta(v.cta);
+        if (v.markets?.length) setMarkets(v.markets);
       }
       if (ptRes.status === "fulfilled" && ptRes.value?.value?.partners?.length) {
         setPartners(ptRes.value.value.partners);
@@ -168,7 +182,7 @@ export default function AdminHomepage() {
   const save = useCallback(async () => {
     setSaving(true);
     try {
-      const body: HomepageContent = { hero, services, about, howItWorks, stats, cta };
+      const body: HomepageContent = { hero, services, about, howItWorks, stats, cta, markets };
       const [hpRes, ptRes] = await Promise.all([
         fetch(`${API}/api/content/homepage`, {
           method: "PUT",
@@ -190,7 +204,7 @@ export default function AdminHomepage() {
     } finally {
       setSaving(false);
     }
-  }, [hero, services, about, howItWorks, stats, cta, partners, toast]);
+  }, [hero, services, about, howItWorks, stats, cta, markets, partners, toast]);
 
   return (
     <Layout>
@@ -251,6 +265,9 @@ export default function AdminHomepage() {
             )}
             {activeTab === "cta" && (
               <CtaTab cta={cta} setCta={setCta} />
+            )}
+            {activeTab === "markets" && (
+              <MarketsTab markets={markets} setMarkets={setMarkets} />
             )}
             {activeTab === "partners" && (
               <PartnersTab partners={partners} setPartners={setPartners} />
@@ -619,6 +636,68 @@ function Field({
             style={{ minHeight: rows ? `${rows * 40}px` : "80px" }} />
         : <Input value={value} onChange={e => onChange(e.target.value)} className="h-9 text-sm" />
       }
+    </div>
+  );
+}
+
+/* ── Available Markets ─────────────────────────────────── */
+
+function MarketsTab({ markets, setMarkets }: { markets: MarketCard[]; setMarkets: React.Dispatch<React.SetStateAction<MarketCard[]>> }) {
+  const update = (i: number, field: keyof MarketCard, value: string) =>
+    setMarkets(prev => prev.map((m, idx) => idx === i ? { ...m, [field]: value } : m));
+
+  const addCard = () =>
+    setMarkets(prev => [
+      ...prev,
+      { num: String(prev.length + 1).padStart(2, "0"), name: "New Commodity", grade: "Grade A", desc: "", photo: "", link: "/sign-in" },
+    ]);
+
+  const removeCard = (i: number) =>
+    setMarkets(prev => prev.filter((_, idx) => idx !== i));
+
+  return (
+    <div className="space-y-4">
+      <SectionCard
+        title="Available Markets"
+        desc="Each card appears in the full-bleed photo strip on the homepage."
+        action={
+          <Button size="sm" variant="outline" onClick={addCard} className="gap-1.5 shrink-0">
+            <Plus className="w-3.5 h-3.5" /> Add Market
+          </Button>
+        }
+      >
+        <div className="space-y-6">
+          {markets.map((m, i) => (
+            <div key={i} className="border rounded-lg p-4 space-y-3 bg-muted/30 relative">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Card {m.num}</span>
+                <Button
+                  size="icon" variant="ghost"
+                  className="h-7 w-7 text-destructive hover:bg-destructive/10"
+                  onClick={() => removeCard(i)}
+                  disabled={markets.length <= 1}
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Commodity Name" value={m.name} onChange={v => update(i, "name", v)} />
+                <Field label="Grade / Tag" value={m.grade} onChange={v => update(i, "grade", v)} />
+              </div>
+              <Field label="Description" value={m.desc} onChange={v => update(i, "desc", v)} textarea rows={2} />
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Photo URL" value={m.photo} onChange={v => update(i, "photo", v)} />
+                <Field label="Link (CTA href)" value={m.link} onChange={v => update(i, "link", v)} />
+              </div>
+              {m.photo && (
+                <div className="mt-1 h-28 rounded overflow-hidden border">
+                  <img src={m.photo} alt={m.name} className="w-full h-full object-cover" />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </SectionCard>
     </div>
   );
 }

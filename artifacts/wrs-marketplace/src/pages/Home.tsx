@@ -20,7 +20,7 @@ type HpAbout   = { badge: string; heading: string; body: string; bullets: string
 type HpStep    = { num: string; title: string; desc: string };
 type HpStat    = { target: number; suffix: string; label: string };
 type HpCta     = { heading: string; subheadline: string; cta1: string; cta2: string };
-type HpContent = { hero: HpHero; services: HpService[]; about: HpAbout; howItWorks: HpStep[]; stats: HpStat[]; cta: HpCta };
+type HpContent = { hero: HpHero; services: HpService[]; about: HpAbout; howItWorks: HpStep[]; stats: HpStat[]; cta: HpCta; markets: MarketCardData[] };
 
 const DEF_HERO: HpHero = {
   badge: "WRS Marketplace",
@@ -64,6 +64,14 @@ const DEF_CTA: HpCta = {
   cta1: "Create Your Account",
   cta2: "Sign In",
 };
+const DEF_MARKETS: MarketCardData[] = [
+  { num: "01", name: "Maize",   grade: "Grade A–C",    link: "/sign-in", desc: "White & Yellow varieties with 90-day certified storage, fully backed by registered warehouses.", photo: "https://picsum.photos/seed/maize-field/400/640" },
+  { num: "02", name: "Rice",    grade: "Grade A–B",    link: "/sign-in", desc: "Milled & paddy rice from certified storage facilities across East Africa.", photo: "https://picsum.photos/seed/rice-paddy/400/640" },
+  { num: "03", name: "Coffee",  grade: "AA / AB / PB", link: "/sign-in", desc: "Washed & natural-process beans, export-ready and auction-listed at the Nairobi Coffee Exchange.", photo: "https://picsum.photos/seed/coffee-beans/400/640" },
+  { num: "04", name: "Tea",     grade: "BOPI / FNDC",  link: "/sign-in", desc: "Orthodox & CTC grades, Mombasa auction listed with full provenance traceability.", photo: "https://picsum.photos/seed/tea-plantation/400/640" },
+  { num: "05", name: "Avocado", grade: "Hass Export",  link: "/sign-in", desc: "Cold-chain certified Hass avocados meeting EU/UK market phytosanitary standards.", photo: "https://picsum.photos/seed/avocado-farm/400/640" },
+  { num: "06", name: "Sorghum", grade: "Grade A",      link: "/sign-in", desc: "Food & feed-grade sorghum with extended shelf life, ideal for long-tenor forward contracts.", photo: "https://picsum.photos/seed/sorghum-grain/400/640" },
+];
 
 /* ── smooth scroll helper ─────────────────────────────────── */
 function scrollTo(id: string) {
@@ -94,40 +102,9 @@ function Counter({ target, suffix = "", active }: { target: number; suffix?: str
 }
 
 /* ── Available-Markets photo card ─────────────────────── */
-const MARKET_CARDS = [
-  {
-    num: "01", name: "Maize",   grade: "Grade A–C",
-    desc: "White & Yellow varieties with 90-day certified storage, fully backed by registered warehouses.",
-    photo: "https://picsum.photos/seed/maize-field/400/640",
-  },
-  {
-    num: "02", name: "Rice",    grade: "Grade A–B",
-    desc: "Milled & paddy rice from certified storage facilities across East Africa.",
-    photo: "https://picsum.photos/seed/rice-paddy/400/640",
-  },
-  {
-    num: "03", name: "Coffee",  grade: "AA / AB / PB",
-    desc: "Washed & natural-process beans, export-ready and auction-listed at the Nairobi Coffee Exchange.",
-    photo: "https://picsum.photos/seed/coffee-beans/400/640",
-  },
-  {
-    num: "04", name: "Tea",     grade: "BOPI / FNDC",
-    desc: "Orthodox & CTC grades, Mombasa auction listed with full provenance traceability.",
-    photo: "https://picsum.photos/seed/tea-plantation/400/640",
-  },
-  {
-    num: "05", name: "Avocado", grade: "Hass Export",
-    desc: "Cold-chain certified Hass avocados meeting EU/UK market phytosanitary standards.",
-    photo: "https://picsum.photos/seed/avocado-farm/400/640",
-  },
-  {
-    num: "06", name: "Sorghum", grade: "Grade A",
-    desc: "Food & feed-grade sorghum with extended shelf life, ideal for long-tenor forward contracts.",
-    photo: "https://picsum.photos/seed/sorghum-grain/400/640",
-  },
-] as const;
+type MarketCardData = { num: string; name: string; grade: string; desc: string; photo: string; link: string };
 
-function MarketCard({ num, name, grade, desc, photo }: (typeof MARKET_CARDS)[number]) {
+function MarketCard({ num, name, grade, desc, photo, link }: MarketCardData) {
   const [hover, setHover] = useState(false);
   return (
     <div
@@ -179,20 +156,22 @@ function MarketCard({ num, name, grade, desc, photo }: (typeof MARKET_CARDS)[num
             lineHeight: 1.75,
             margin: "0 0 14px",
           }}>{desc}</p>
-          <Link
-            href="/sign-in"
-            style={{
-              color: ACCENT_LIGHT,
-              textDecoration: "none",
-              fontSize: 13,
-              fontWeight: 600,
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 5,
-            }}
-          >
-            Learn More <ArrowRight size={13} />
-          </Link>
+          {link && (
+            <a
+              href={link}
+              style={{
+                color: ACCENT_LIGHT,
+                textDecoration: "none",
+                fontSize: 13,
+                fontWeight: 600,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
+              }}
+            >
+              Learn More <ArrowRight size={13} />
+            </a>
+          )}
         </div>
 
         {/* title */}
@@ -428,6 +407,7 @@ export default function Home() {
   const steps    = hp.howItWorks  ?? DEF_STEPS;
   const hpStats  = hp.stats       ?? DEF_STATS;
   const cta      = hp.cta         ?? DEF_CTA;
+  const markets  = hp.markets     ?? DEF_MARKETS;
 
   useEffect(() => {
     fetch(`${HP_API}/api/content/homepage`)
@@ -713,7 +693,7 @@ export default function Home() {
 
             {/* Full-bleed photo card strip */}
             <div style={{ display: "flex", height: 500 }}>
-              {MARKET_CARDS.map(card => <MarketCard key={card.name} {...card} />)}
+              {markets.map(card => <MarketCard key={card.num} {...card} />)}
             </div>
 
           </section>
