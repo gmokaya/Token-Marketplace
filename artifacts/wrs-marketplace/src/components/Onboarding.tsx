@@ -4,29 +4,32 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
-  Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage,
+  Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useUpdateMe, UserUpdateTier } from "@workspace/api-client-react";
+import { useUpdateMe, UserUpdateTier, getGetMeQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { getGetMeQueryKey } from "@workspace/api-client-react";
 import { customFetch } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
+import {
+  Sprout, ShoppingBag, Warehouse, Landmark, Users, Check,
+  CheckCircle2, Clock, ArrowRight, Info,
+} from "lucide-react";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 const userSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  company: z.string().min(2, "Company name is required"),
-  phone: z.string().min(8, "Valid phone number required"),
-  nationalId: z.string().min(4, "National ID / Passport required"),
+  name: z.string().min(2, "Full name must be at least 2 characters"),
+  company: z.string().min(2, "Company / entity name is required"),
+  phone: z.string().min(8, "A valid phone number is required"),
+  nationalId: z.string().min(4, "National ID or passport number is required"),
   tier: z.nativeEnum(UserUpdateTier),
 });
 
 const producerSchema = z.object({
-  entityName: z.string().min(2),
-  registrationNumber: z.string().min(4),
+  entityName: z.string().min(2, "Required"),
+  registrationNumber: z.string().min(4, "Required"),
   kraPin: z.string().optional(),
   officeAddress: z.string().optional(),
   adminFirstName: z.string().optional(),
@@ -38,8 +41,8 @@ const producerSchema = z.object({
 });
 
 const buyerSchema = z.object({
-  companyLegalName: z.string().min(2),
-  registrationNumber: z.string().min(4),
+  companyLegalName: z.string().min(2, "Required"),
+  registrationNumber: z.string().min(4, "Required"),
   kraPin: z.string().optional(),
   officeAddress: z.string().optional(),
   bankName: z.string().optional(),
@@ -51,8 +54,8 @@ const buyerSchema = z.object({
 });
 
 const warehouseSchema = z.object({
-  operatorName: z.string().min(2),
-  wrscLicenseNumber: z.string().min(4),
+  operatorName: z.string().min(2, "Required"),
+  wrscLicenseNumber: z.string().min(4, "Required"),
   capacityMt: z.string().optional(),
   warehouseInChargeName: z.string().optional(),
   warehouseInChargePhone: z.string().optional(),
@@ -62,8 +65,8 @@ const warehouseSchema = z.object({
 });
 
 const financierSchema = z.object({
-  institutionName: z.string().min(2),
-  centralBankLicenseCode: z.string().min(4),
+  institutionName: z.string().min(2, "Required"),
+  centralBankLicenseCode: z.string().min(4, "Required"),
   departmentDesignation: z.string().optional(),
   creditApproverName: z.string().optional(),
   creditApproverEmail: z.string().optional(),
@@ -71,8 +74,8 @@ const financierSchema = z.object({
 });
 
 const cooperativeSchema = z.object({
-  entityName: z.string().min(2),
-  registrationNumber: z.string().min(4),
+  entityName: z.string().min(2, "Required"),
+  registrationNumber: z.string().min(4, "Required"),
   licenceNumber: z.string().optional(),
   kraPin: z.string().optional(),
   officeAddress: z.string().optional(),
@@ -90,6 +93,83 @@ const cooperativeSchema = z.object({
 
 type Step = "tier" | "user" | "profile" | "done";
 
+const STEP_LABELS = ["Role", "Details", "Compliance", "Done"];
+const STEP_KEYS: Step[] = ["tier", "user", "profile", "done"];
+
+function StepIndicator({ current }: { current: Step }) {
+  const idx = STEP_KEYS.indexOf(current);
+  return (
+    <div className="flex items-center justify-center mb-8">
+      {STEP_LABELS.map((label, i) => {
+        const done = i < idx;
+        const active = i === idx;
+        return (
+          <div key={label} className="flex items-center">
+            <div className="flex flex-col items-center">
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all
+                  ${done ? "bg-primary text-white" : active ? "bg-primary text-white ring-4 ring-primary/20" : "bg-gray-100 text-gray-400"}`}
+              >
+                {done ? <Check className="w-4 h-4" /> : i + 1}
+              </div>
+              <span className={`text-[11px] mt-1 font-medium ${active ? "text-primary" : done ? "text-primary/60" : "text-gray-400"}`}>
+                {label}
+              </span>
+            </div>
+            {i < STEP_LABELS.length - 1 && (
+              <div className={`w-10 h-0.5 mb-5 mx-1 transition-colors ${i < idx ? "bg-primary" : "bg-gray-200"}`} />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+const ROLE_META: Record<UserUpdateTier, {
+  label: string;
+  subtitle: string;
+  icon: React.ElementType;
+  needs: string[];
+}> = {
+  [UserUpdateTier.PRODUCER]: {
+    label: "Producer",
+    subtitle: "Cooperatives, factories & farmers",
+    icon: Sprout,
+    needs: ["Registration / incorporation number", "KRA PIN", "Bank account details"],
+  },
+  [UserUpdateTier.OFF_TAKER]: {
+    label: "Off-Taker",
+    subtitle: "Exporters, millers & commodity buyers",
+    icon: ShoppingBag,
+    needs: ["Company registration number", "KRA PIN", "Authorized buyer details"],
+  },
+  [UserUpdateTier.ENABLER]: {
+    label: "Warehouse Operator",
+    subtitle: "Licensed warehouses — issue & secure eWRs",
+    icon: Warehouse,
+    needs: ["WRSC licence number", "Insurance policy details", "Facility capacity"],
+  },
+  [UserUpdateTier.FINANCIER]: {
+    label: "Financier",
+    subtitle: "Banks & lenders providing trade finance",
+    icon: Landmark,
+    needs: ["Central Bank licence code", "Credit approver name & email", "Liquidity pool limit (optional)"],
+  },
+  [UserUpdateTier.COOPERATIVE]: {
+    label: "Cooperative",
+    subtitle: "Agricultural cooperatives & farmer groups",
+    icon: Users,
+    needs: ["Co-op registration number", "KRA PIN", "Bank account details"],
+  },
+  [UserUpdateTier.ADMIN]: {
+    label: "Exchange Administrator",
+    subtitle: "Platform oversight",
+    icon: Check,
+    needs: [],
+  },
+};
+
 export function Onboarding() {
   const [step, setStep] = useState<Step>("tier");
   const [tier, setTier] = useState<UserUpdateTier | null>(null);
@@ -99,14 +179,9 @@ export function Onboarding() {
   const { toast } = useToast();
   const [, navigate] = useLocation();
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const userForm = useForm<z.infer<typeof userSchema>>({
-    resolver: zodResolver(userSchema),
-    defaultValues: { name: "", company: "", phone: "", nationalId: "", tier: UserUpdateTier.PRODUCER },
-  });
+  const [skipped, setSkipped] = useState(false);
 
   const adminSchema = z.object({});
-
   const profileSchemas: Record<UserUpdateTier, z.ZodTypeAny> = {
     [UserUpdateTier.PRODUCER]: producerSchema,
     [UserUpdateTier.OFF_TAKER]: buyerSchema,
@@ -116,41 +191,65 @@ export function Onboarding() {
     [UserUpdateTier.ADMIN]: adminSchema,
   };
 
+  const userForm = useForm<z.infer<typeof userSchema>>({
+    resolver: zodResolver(userSchema),
+    defaultValues: { name: "", company: "", phone: "", nationalId: "", tier: UserUpdateTier.PRODUCER },
+  });
+
   const profileForm = useForm<any>({
     resolver: zodResolver(tier ? profileSchemas[tier] : producerSchema),
     defaultValues: {},
   });
 
-  const tierLabels: Record<UserUpdateTier, { label: string; desc: string }> = {
-    [UserUpdateTier.PRODUCER]: { label: "Producer", desc: "Cooperatives, factories & farmers — list eWRs and run auctions" },
-    [UserUpdateTier.OFF_TAKER]: { label: "Off-Taker", desc: "Exporters, millers & buyers — bid on auctions and co-sign forward contracts" },
-    [UserUpdateTier.ENABLER]: { label: "Warehouse Operator", desc: "Licensed warehouses — issue, grade and secure eWR collateral" },
-    [UserUpdateTier.FINANCIER]: { label: "Financier", desc: "Banks & lenders — provide warehouse financing and pre-sale advances" },
-    [UserUpdateTier.COOPERATIVE]: { label: "Cooperative", desc: "Agricultural cooperatives — manage members, track intake, and trade collectively" },
-    [UserUpdateTier.ADMIN]: { label: "Exchange Administrator", desc: "Platform oversight — manage user approvals and system settings" },
-  };
+  async function handleUserSubmit(values: z.infer<typeof userSchema>) {
+    setIsSubmitting(true);
+    try {
+      const result = await updateMe.mutateAsync({
+        data: { name: values.name, company: values.company, tier: values.tier },
+      });
+      queryClient.setQueryData(getGetMeQueryKey(), result);
+      setUserData(values);
+      setTier(values.tier);
+      profileForm.reset();
+      setStep("profile");
+    } catch (err: any) {
+      toast({
+        title: "Could not save details",
+        description: err?.message ?? "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
-  function handleUserSubmit(values: z.infer<typeof userSchema>) {
-    setUserData(values);
-    setTier(values.tier);
-    setStep("profile");
-    profileForm.reset();
+  async function handleSkip() {
+    if (!userData) return;
+    setIsSubmitting(true);
+    try {
+      await customFetch(`${basePath}/api/profiles/me`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user: { phone: userData.phone, nationalId: userData.nationalId },
+        }),
+      });
+    } catch {
+      // Non-fatal — user can update contact details from profile page
+    } finally {
+      setIsSubmitting(false);
+    }
+    setSkipped(true);
+    setStep("done");
+    toast({ title: "You're in!", description: "Complete your compliance profile anytime from your Profile page." });
+    const destination = userData.tier === "COOPERATIVE" ? "/coop" : "/dashboard";
+    setTimeout(() => navigate(destination), 1400);
   }
 
   async function handleProfileSubmit(profileValues: any) {
     if (!userData) return;
     setIsSubmitting(true);
     try {
-      // 1. Update user (name, company, tier)
-      await updateMe.mutateAsync({
-        data: {
-          name: userData.name,
-          company: userData.company,
-          tier: userData.tier,
-        },
-      });
-
-      // 2. Submit profile
       const payload = {
         user: {
           name: userData.name,
@@ -169,48 +268,71 @@ export function Onboarding() {
 
       const data = await res.json() as { user: any; tierProfile: any };
       queryClient.setQueryData(getGetMeQueryKey(), data.user);
-      toast({ title: "Profile submitted", description: "Your onboarding is now under KYB review." });
+      toast({ title: "Profile submitted!", description: "Your compliance profile is now under KYB review." });
+      setSkipped(false);
       setStep("done");
-      const destination = userData.tier === "COOPERATIVE" ? "/coop" : "/dashboard";
-      setTimeout(() => navigate(destination), 800);
     } catch (err: any) {
-      const msg = err?.message || "Failed to submit profile. Please try again.";
-      toast({ title: "Submission failed", description: msg, variant: "destructive" });
+      toast({ title: "Submission failed", description: err?.message ?? "Please try again.", variant: "destructive" });
     } finally {
       setIsSubmitting(false);
     }
   }
 
+  function handleDoneNavigate() {
+    const destination = userData?.tier === "COOPERATIVE" ? "/coop" : "/dashboard";
+    navigate(destination);
+  }
+
   if (step === "tier") {
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6">
-        <div className="max-w-xl w-full">
-          <div className="text-center mb-10">
+      <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-6">
+        <div className="max-w-2xl w-full">
+          <div className="text-center mb-8">
             <img src={`${basePath}/logo-dark.png`} alt="TokenHarvest" className="h-10 w-auto mx-auto mb-6" />
+            <StepIndicator current="tier" />
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">Choose your role</h1>
-            <p className="text-muted-foreground mt-2">This determines your marketplace access and compliance requirements</p>
+            <p className="text-muted-foreground mt-2 text-sm">
+              Select the role that best describes how you'll use the marketplace.
+            </p>
           </div>
-          <div className="grid grid-cols-1 gap-4">
-            {(Object.keys(UserUpdateTier) as UserUpdateTier[]).filter((t) => t !== UserUpdateTier.ADMIN).map((t) => {
-              const { label, desc } = tierLabels[t];
-              return (
-                <button
-                  key={t}
-                  onClick={() => { setTier(t); userForm.setValue("tier", t); setStep("user"); }}
-                  className="flex items-start gap-4 p-5 rounded-xl border border-gray-200 hover:border-primary hover:shadow-md transition-all text-left bg-white"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                    <span className="text-primary font-bold text-sm">{t[0]}</span>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">{label}</h3>
-                    <p className="text-sm text-muted-foreground mt-0.5">{desc}</p>
-                  </div>
-                </button>
-              );
-            })}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {(Object.keys(UserUpdateTier) as UserUpdateTier[])
+              .filter((t) => t !== UserUpdateTier.ADMIN)
+              .map((t) => {
+                const { label, subtitle, icon: Icon, needs } = ROLE_META[t];
+                return (
+                  <button
+                    key={t}
+                    onClick={() => {
+                      setTier(t);
+                      userForm.setValue("tier", t);
+                      setStep("user");
+                    }}
+                    className="flex items-start gap-4 p-5 rounded-xl border border-gray-200 hover:border-primary hover:shadow-md transition-all text-left bg-white group"
+                  >
+                    <div className="w-11 h-11 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-primary/15 transition-colors">
+                      <Icon className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="font-semibold text-gray-900">{label}</h3>
+                      <p className="text-xs text-muted-foreground mt-0.5 mb-2">{subtitle}</p>
+                      <div className="space-y-0.5">
+                        {needs.map((n) => (
+                          <p key={n} className="text-[11px] text-gray-400 flex items-center gap-1">
+                            <span className="w-1 h-1 rounded-full bg-gray-300 shrink-0" />
+                            {n}
+                          </p>
+                        ))}
+                      </div>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-primary shrink-0 mt-1 ml-auto transition-colors" />
+                  </button>
+                );
+              })}
           </div>
-          <div className="mt-8 text-center">
+
+          <div className="mt-6 text-center">
             <button
               onClick={() => { window.location.href = basePath || "/"; }}
               className="text-sm text-muted-foreground hover:text-primary underline underline-offset-4 transition-colors"
@@ -224,58 +346,64 @@ export function Onboarding() {
   }
 
   if (step === "user") {
+    const selectedTier = userForm.getValues("tier") || tier;
+    const meta = selectedTier ? ROLE_META[selectedTier] : null;
+    const Icon = meta?.icon;
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6">
+      <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-6">
         <div className="max-w-md w-full">
-          <div className="text-center mb-8">
-            <img src={`${basePath}/logo-dark.png`} alt="TokenHarvest" className="h-9 w-auto mx-auto mb-4" />
+          <div className="text-center mb-6">
+            <img src={`${basePath}/logo-dark.png`} alt="TokenHarvest" className="h-9 w-auto mx-auto mb-5" />
+            <StepIndicator current="user" />
+            {meta && Icon && (
+              <div className="flex items-center justify-center gap-2 mb-3">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Icon className="w-4 h-4 text-primary" />
+                </div>
+                <span className="text-sm font-semibold text-primary">{meta.label}</span>
+              </div>
+            )}
             <h1 className="text-2xl font-bold">Your details</h1>
-            <p className="text-muted-foreground text-sm mt-1">General identity for all tiers</p>
+            <p className="text-muted-foreground text-sm mt-1">These fields are required to create your account.</p>
           </div>
+
           <Form {...userForm}>
             <form onSubmit={userForm.handleSubmit(handleUserSubmit)} className="space-y-4">
               <FormField control={userForm.control} name="name" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Full Name</FormLabel>
-                  <FormControl><Input placeholder="Jane Doe" {...field} /></FormControl>
+                  <FormLabel>Full Name <span className="text-destructive">*</span></FormLabel>
+                  <FormControl><Input placeholder="e.g. Jane Kamau" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
               <FormField control={userForm.control} name="company" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Company / Entity Name</FormLabel>
-                  <FormControl><Input placeholder="Nyeri Coffee Co-op" {...field} /></FormControl>
+                  <FormLabel>Company / Entity Name <span className="text-destructive">*</span></FormLabel>
+                  <FormControl><Input placeholder="e.g. Nyeri Coffee Co-op" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
               <FormField control={userForm.control} name="phone" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone Number</FormLabel>
+                  <FormLabel>Phone Number <span className="text-destructive">*</span></FormLabel>
                   <FormControl><Input placeholder="+254 712 345 678" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
               <FormField control={userForm.control} name="nationalId" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>National ID / Passport</FormLabel>
+                  <FormLabel>National ID / Passport <span className="text-destructive">*</span></FormLabel>
                   <FormControl><Input placeholder="12345678" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
-              <FormField control={userForm.control} name="tier" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Role</FormLabel>
-                  <FormControl>
-                    <Input value={tierLabels[field.value as UserUpdateTier].label} disabled className="bg-muted" />
-                  </FormControl>
-                  <FormDescription>Role cannot be changed after submission</FormDescription>
-                </FormItem>
-              )} />
               <div className="flex gap-3 pt-2">
                 <Button type="button" variant="outline" className="flex-1" onClick={() => setStep("tier")}>Back</Button>
-                <Button type="submit" className="flex-1">Continue</Button>
+                <Button type="submit" className="flex-1" disabled={isSubmitting}>
+                  {isSubmitting ? "Saving..." : "Continue"}
+                </Button>
               </div>
-              <div className="text-center pt-1">
+              <div className="text-center">
                 <button
                   type="button"
                   onClick={() => navigate("/")}
@@ -292,33 +420,46 @@ export function Onboarding() {
   }
 
   if (step === "profile") {
-    const tierName = tier ? tierLabels[tier].label : "";
+    const tierName = tier ? ROLE_META[tier].label : "";
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6">
+      <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-6">
         <div className="max-w-md w-full">
-          <div className="text-center mb-8">
-            <img src={`${basePath}/logo-dark.png`} alt="TokenHarvest" className="h-9 w-auto mx-auto mb-4" />
-            <h1 className="text-2xl font-bold">{tierName} Profile</h1>
-            <p className="text-muted-foreground text-sm mt-1">KYB verification details</p>
+          <div className="text-center mb-6">
+            <img src={`${basePath}/logo-dark.png`} alt="TokenHarvest" className="h-9 w-auto mx-auto mb-5" />
+            <StepIndicator current="profile" />
+            <h1 className="text-2xl font-bold">{tierName} Compliance Profile</h1>
+            <p className="text-muted-foreground text-sm mt-1">
+              Required for KYB verification — you can also skip and complete this later.
+            </p>
           </div>
+
+          <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 mb-5 flex items-start gap-3">
+            <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <p className="text-xs text-amber-700">
+              <strong>Not ready yet?</strong> Skip this step to access your dashboard immediately. You can submit these details from your <strong>Profile</strong> page anytime — they're needed before you can trade.
+            </p>
+          </div>
+
           <Form {...profileForm}>
             <form onSubmit={profileForm.handleSubmit(handleProfileSubmit)} className="space-y-4">
               {tier === UserUpdateTier.PRODUCER && (
                 <>
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider pt-1">Required</div>
                   <FormField control={profileForm.control} name="entityName" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Registered Entity Name</FormLabel>
+                      <FormLabel>Registered Entity Name <span className="text-destructive">*</span></FormLabel>
                       <FormControl><Input placeholder="Nyeri Coffee Farmers Co-op Ltd" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
                   <FormField control={profileForm.control} name="registrationNumber" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Registration / Incorporation Number</FormLabel>
+                      <FormLabel>Registration / Incorporation Number <span className="text-destructive">*</span></FormLabel>
                       <FormControl><Input placeholder="C123456" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider pt-2">Optional — complete later</div>
                   <FormField control={profileForm.control} name="kraPin" render={({ field }) => (
                     <FormItem>
                       <FormLabel>KRA PIN</FormLabel>
@@ -377,22 +518,25 @@ export function Onboarding() {
                   )} />
                 </>
               )}
+
               {tier === UserUpdateTier.OFF_TAKER && (
                 <>
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider pt-1">Required</div>
                   <FormField control={profileForm.control} name="companyLegalName" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Company Legal Name</FormLabel>
+                      <FormLabel>Company Legal Name <span className="text-destructive">*</span></FormLabel>
                       <FormControl><Input placeholder="Mombasa Tea Exporters Ltd" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
                   <FormField control={profileForm.control} name="registrationNumber" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Registration Number</FormLabel>
+                      <FormLabel>Registration Number <span className="text-destructive">*</span></FormLabel>
                       <FormControl><Input placeholder="C987654" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider pt-2">Optional — complete later</div>
                   <FormField control={profileForm.control} name="kraPin" render={({ field }) => (
                     <FormItem>
                       <FormLabel>KRA PIN</FormLabel>
@@ -451,22 +595,25 @@ export function Onboarding() {
                   )} />
                 </>
               )}
+
               {tier === UserUpdateTier.ENABLER && (
                 <>
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider pt-1">Required</div>
                   <FormField control={profileForm.control} name="operatorName" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Operator Company Name</FormLabel>
+                      <FormLabel>Operator Company Name <span className="text-destructive">*</span></FormLabel>
                       <FormControl><Input placeholder="AgriBora Certified Silos" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
                   <FormField control={profileForm.control} name="wrscLicenseNumber" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>WRSC License Number</FormLabel>
+                      <FormLabel>WRSC Licence Number <span className="text-destructive">*</span></FormLabel>
                       <FormControl><Input placeholder="WRSC-2024-001" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider pt-2">Optional — complete later</div>
                   <FormField control={profileForm.control} name="capacityMt" render={({ field }) => (
                     <FormItem>
                       <FormLabel>Capacity (Metric Tons)</FormLabel>
@@ -511,25 +658,77 @@ export function Onboarding() {
                   )} />
                 </>
               )}
-              {tier === "COOPERATIVE" && (
+
+              {tier === UserUpdateTier.FINANCIER && (
                 <>
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider pt-1">Required</div>
+                  <FormField control={profileForm.control} name="institutionName" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Financial Institution Name <span className="text-destructive">*</span></FormLabel>
+                      <FormControl><Input placeholder="Equity Bank Kenya" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={profileForm.control} name="centralBankLicenseCode" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Central Bank Licence Code <span className="text-destructive">*</span></FormLabel>
+                      <FormControl><Input placeholder="CBK-001" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider pt-2">Optional — complete later</div>
+                  <FormField control={profileForm.control} name="departmentDesignation" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Department Designation</FormLabel>
+                      <FormControl><Input placeholder="Agribusiness Trade Finance Division" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={profileForm.control} name="creditApproverName" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Credit Approver Name</FormLabel>
+                      <FormControl><Input placeholder="James Otieno" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={profileForm.control} name="creditApproverEmail" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Credit Approver Email</FormLabel>
+                      <FormControl><Input placeholder="approver@equity.co.ke" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={profileForm.control} name="maxLiquidityPoolUsd" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Max Liquidity Pool (USD)</FormLabel>
+                      <FormControl><Input placeholder="1,000,000" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                </>
+              )}
+
+              {tier === UserUpdateTier.COOPERATIVE && (
+                <>
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider pt-1">Required</div>
                   <FormField control={profileForm.control} name="entityName" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Cooperative Entity Name</FormLabel>
+                      <FormLabel>Cooperative Entity Name <span className="text-destructive">*</span></FormLabel>
                       <FormControl><Input placeholder="Nyeri Coffee Farmers Co-op Ltd" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
                   <FormField control={profileForm.control} name="registrationNumber" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Registration / Incorporation Number</FormLabel>
+                      <FormLabel>Registration / Incorporation Number <span className="text-destructive">*</span></FormLabel>
                       <FormControl><Input placeholder="C123456" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider pt-2">Optional — complete later</div>
                   <FormField control={profileForm.control} name="licenceNumber" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Licence Number (optional)</FormLabel>
+                      <FormLabel>Licence Number</FormLabel>
                       <FormControl><Input placeholder="LIC-2024-001" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
@@ -562,13 +761,6 @@ export function Onboarding() {
                       <FormMessage />
                     </FormItem>
                   )} />
-                  <FormField control={profileForm.control} name="adminNationalId" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Admin National ID</FormLabel>
-                      <FormControl><Input placeholder="12345678" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
                   <FormField control={profileForm.control} name="adminPhone" render={({ field }) => (
                     <FormItem>
                       <FormLabel>Admin Phone</FormLabel>
@@ -597,13 +789,6 @@ export function Onboarding() {
                       <FormMessage />
                     </FormItem>
                   )} />
-                  <FormField control={profileForm.control} name="bankSwiftCode" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>SWIFT Code</FormLabel>
-                      <FormControl><Input placeholder="KCOOKENA" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
                   <FormField control={profileForm.control} name="bankAccountNumber" render={({ field }) => (
                     <FormItem>
                       <FormLabel>Bank Account Number</FormLabel>
@@ -620,70 +805,22 @@ export function Onboarding() {
                   )} />
                 </>
               )}
-              {tier === UserUpdateTier.FINANCIER && (
-                <>
-                  <FormField control={profileForm.control} name="institutionName" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Financial Institution Name</FormLabel>
-                      <FormControl><Input placeholder="Equity Bank Kenya" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                  <FormField control={profileForm.control} name="centralBankLicenseCode" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Central Bank License Code</FormLabel>
-                      <FormControl><Input placeholder="CBK-001" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                  <FormField control={profileForm.control} name="departmentDesignation" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Department Designation</FormLabel>
-                      <FormControl><Input placeholder="Agribusiness Trade Finance Division" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                  <FormField control={profileForm.control} name="creditApproverName" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Credit Approver Name</FormLabel>
-                      <FormControl><Input placeholder="James Otieno" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                  <FormField control={profileForm.control} name="creditApproverEmail" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Credit Approver Email</FormLabel>
-                      <FormControl><Input placeholder="approver@equity.co.ke" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                  <FormField control={profileForm.control} name="maxLiquidityPoolUsd" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Max Liquidity Pool (USD)</FormLabel>
-                      <FormControl><Input placeholder="1,000,000" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                </>
-              )}
+
               <div className="flex gap-3 pt-2">
                 <Button type="button" variant="outline" className="flex-1" onClick={() => setStep("user")}>Back</Button>
                 <Button type="submit" className="flex-1" disabled={isSubmitting}>
                   {isSubmitting ? "Submitting..." : "Submit Profile"}
                 </Button>
               </div>
-              <div className="text-center space-y-2">
-                <p className="text-xs text-muted-foreground">
-                  By submitting, you agree to our KYB verification process. Your profile will be reviewed before activation.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => navigate("/")}
-                  className="text-xs text-muted-foreground hover:text-primary underline underline-offset-4 transition-colors"
-                >
-                  Cancel and return to home page
-                </button>
-              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full text-muted-foreground hover:text-foreground"
+                onClick={handleSkip}
+                disabled={isSubmitting}
+              >
+                Skip for now — complete later from Profile
+              </Button>
             </form>
           </Form>
         </div>
@@ -692,11 +829,66 @@ export function Onboarding() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6">
-      <div className="text-center">
-        <img src={`${basePath}/logo-dark.png`} alt="TokenHarvest" className="h-9 w-auto mx-auto mb-4" />
-        <h1 className="text-2xl font-bold mb-2">All set!</h1>
-        <p className="text-muted-foreground">Your profile is under review. Redirecting to dashboard...</p>
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-6">
+      <div className="max-w-sm w-full text-center">
+        <img src={`${basePath}/logo-dark.png`} alt="TokenHarvest" className="h-9 w-auto mx-auto mb-6" />
+        <StepIndicator current="done" />
+
+        {skipped ? (
+          <>
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+              <CheckCircle2 className="w-8 h-8 text-primary" />
+            </div>
+            <h1 className="text-2xl font-bold mb-2">You're in!</h1>
+            <p className="text-muted-foreground text-sm mb-6">
+              Your account is ready. Complete your compliance profile from your Profile page to unlock full trading access.
+            </p>
+            <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-left mb-6">
+              <p className="text-xs font-semibold text-amber-800 mb-2">What happens next</p>
+              <div className="space-y-2">
+                <div className="flex items-start gap-2 text-xs text-amber-700">
+                  <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 text-primary shrink-0" />
+                  <span>Dashboard access — available now</span>
+                </div>
+                <div className="flex items-start gap-2 text-xs text-amber-700">
+                  <Clock className="w-3.5 h-3.5 mt-0.5 text-amber-500 shrink-0" />
+                  <span>Full trading access — after KYB profile submission & review (1–2 days)</span>
+                </div>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+              <CheckCircle2 className="w-8 h-8 text-primary" />
+            </div>
+            <h1 className="text-2xl font-bold mb-2">Profile submitted!</h1>
+            <p className="text-muted-foreground text-sm mb-6">
+              Your compliance profile is under KYB review. You'll get full access once it's approved.
+            </p>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-left mb-6">
+              <p className="text-xs font-semibold text-gray-700 mb-2">What happens next</p>
+              <div className="space-y-2">
+                <div className="flex items-start gap-2 text-xs text-gray-600">
+                  <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 text-primary shrink-0" />
+                  <span>Submission received</span>
+                </div>
+                <div className="flex items-start gap-2 text-xs text-gray-600">
+                  <Clock className="w-3.5 h-3.5 mt-0.5 text-amber-500 shrink-0" />
+                  <span>KYB review — 1–2 business days</span>
+                </div>
+                <div className="flex items-start gap-2 text-xs text-gray-600">
+                  <Clock className="w-3.5 h-3.5 mt-0.5 text-gray-400 shrink-0" />
+                  <span>Dashboard & trading access unlocked</span>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        <Button className="w-full" onClick={handleDoneNavigate}>
+          Go to Dashboard <ArrowRight className="w-4 h-4 ml-1" />
+        </Button>
       </div>
     </div>
   );

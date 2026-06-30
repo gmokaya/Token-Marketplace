@@ -1,11 +1,19 @@
 import { Layout } from "@/components/layout/Layout";
-import { useGetMe } from "@workspace/api-client-react";
+import { useGetMe, getGetMeQueryKey } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useState, useEffect } from "react";
 import { customFetch } from "@workspace/api-client-react";
-import { Building2, Phone, CreditCard, Shield, CheckCircle2, Clock, AlertCircle } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Building2, Phone, CreditCard, Shield, CheckCircle2, Clock, AlertCircle, ClipboardList, ChevronDown, ChevronUp } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -23,10 +31,324 @@ const ONBOARDING_ICONS: Record<string, React.ReactNode> = {
   REJECTED: <AlertCircle className="w-3 h-3" />,
 };
 
+const producerSchema = z.object({
+  entityName: z.string().min(2, "Required"),
+  registrationNumber: z.string().min(4, "Required"),
+  kraPin: z.string().optional(),
+  officeAddress: z.string().optional(),
+  adminFirstName: z.string().optional(),
+  adminLastName: z.string().optional(),
+  adminPhone: z.string().optional(),
+  adminEmail: z.string().optional(),
+  bankName: z.string().optional(),
+  bankAccountNumber: z.string().optional(),
+});
+
+const buyerSchema = z.object({
+  companyLegalName: z.string().min(2, "Required"),
+  registrationNumber: z.string().min(4, "Required"),
+  kraPin: z.string().optional(),
+  officeAddress: z.string().optional(),
+  bankName: z.string().optional(),
+  bankAccountNumber: z.string().optional(),
+  buyerPersonnelName: z.string().optional(),
+  buyerPersonnelPhone: z.string().optional(),
+  buyerPersonnelEmail: z.string().optional(),
+  purchasingLimitUsd: z.string().optional(),
+});
+
+const warehouseSchema = z.object({
+  operatorName: z.string().min(2, "Required"),
+  wrscLicenseNumber: z.string().min(4, "Required"),
+  capacityMt: z.string().optional(),
+  warehouseInChargeName: z.string().optional(),
+  warehouseInChargePhone: z.string().optional(),
+  warehouseInChargeEmail: z.string().optional(),
+  insurerName: z.string().optional(),
+  insurancePolicyNumber: z.string().optional(),
+});
+
+const financierSchema = z.object({
+  institutionName: z.string().min(2, "Required"),
+  centralBankLicenseCode: z.string().min(4, "Required"),
+  departmentDesignation: z.string().optional(),
+  creditApproverName: z.string().optional(),
+  creditApproverEmail: z.string().optional(),
+  maxLiquidityPoolUsd: z.string().optional(),
+});
+
+const cooperativeSchema = z.object({
+  entityName: z.string().min(2, "Required"),
+  registrationNumber: z.string().min(4, "Required"),
+  licenceNumber: z.string().optional(),
+  kraPin: z.string().optional(),
+  officeAddress: z.string().optional(),
+  adminFirstName: z.string().optional(),
+  adminLastName: z.string().optional(),
+  adminPhone: z.string().optional(),
+  adminEmail: z.string().optional(),
+  bankName: z.string().optional(),
+  bankBranch: z.string().optional(),
+  bankAccountNumber: z.string().optional(),
+  mobileMoneyPaybill: z.string().optional(),
+});
+
+const schemaForTier = (tier: string) => {
+  switch (tier) {
+    case "PRODUCER": return producerSchema;
+    case "OFF_TAKER": return buyerSchema;
+    case "ENABLER": return warehouseSchema;
+    case "FINANCIER": return financierSchema;
+    case "COOPERATIVE": return cooperativeSchema;
+    default: return z.object({});
+  }
+};
+
+function KybForm({ tier, existingProfile, onSuccess }: { tier: string; existingProfile?: any; onSuccess: () => void }) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [submitting, setSubmitting] = useState(false);
+
+  const form = useForm<any>({
+    resolver: zodResolver(schemaForTier(tier)),
+    defaultValues: existingProfile ?? {},
+  });
+
+  async function onSubmit(profileValues: any) {
+    setSubmitting(true);
+    try {
+      const res = await customFetch(`${basePath}/api/profiles/me`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ profile: profileValues }),
+      }) as Response;
+      const data = await res.json() as { user: any; tierProfile: any };
+      queryClient.setQueryData(getGetMeQueryKey(), data.user);
+      toast({ title: "Profile saved!", description: "Your compliance profile has been submitted for KYB review." });
+      onSuccess();
+    } catch (err: any) {
+      toast({ title: "Save failed", description: err?.message ?? "Please try again.", variant: "destructive" });
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {tier === "PRODUCER" && (
+          <>
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Required</div>
+            <FormField control={form.control} name="entityName" render={({ field }) => (
+              <FormItem><FormLabel>Registered Entity Name <span className="text-destructive">*</span></FormLabel>
+                <FormControl><Input placeholder="Nyeri Coffee Farmers Co-op Ltd" {...field} /></FormControl>
+                <FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="registrationNumber" render={({ field }) => (
+              <FormItem><FormLabel>Registration / Incorporation Number <span className="text-destructive">*</span></FormLabel>
+                <FormControl><Input placeholder="C123456" {...field} /></FormControl>
+                <FormMessage /></FormItem>
+            )} />
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider pt-2">Optional</div>
+            <FormField control={form.control} name="kraPin" render={({ field }) => (
+              <FormItem><FormLabel>KRA PIN</FormLabel><FormControl><Input placeholder="A123456789B" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="officeAddress" render={({ field }) => (
+              <FormItem><FormLabel>Registered Office Address</FormLabel><FormControl><Input placeholder="Nyeri County, Kenya" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="adminFirstName" render={({ field }) => (
+              <FormItem><FormLabel>Admin First Name</FormLabel><FormControl><Input placeholder="John" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="adminLastName" render={({ field }) => (
+              <FormItem><FormLabel>Admin Last Name</FormLabel><FormControl><Input placeholder="Kamau" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="adminPhone" render={({ field }) => (
+              <FormItem><FormLabel>Admin Phone</FormLabel><FormControl><Input placeholder="+254 712 345 678" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="adminEmail" render={({ field }) => (
+              <FormItem><FormLabel>Admin Email</FormLabel><FormControl><Input placeholder="admin@coop.co.ke" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="bankName" render={({ field }) => (
+              <FormItem><FormLabel>Bank Name</FormLabel><FormControl><Input placeholder="Co-operative Bank" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="bankAccountNumber" render={({ field }) => (
+              <FormItem><FormLabel>Bank Account Number</FormLabel><FormControl><Input placeholder="0123456789" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+          </>
+        )}
+
+        {tier === "OFF_TAKER" && (
+          <>
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Required</div>
+            <FormField control={form.control} name="companyLegalName" render={({ field }) => (
+              <FormItem><FormLabel>Company Legal Name <span className="text-destructive">*</span></FormLabel>
+                <FormControl><Input placeholder="Mombasa Tea Exporters Ltd" {...field} /></FormControl>
+                <FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="registrationNumber" render={({ field }) => (
+              <FormItem><FormLabel>Registration Number <span className="text-destructive">*</span></FormLabel>
+                <FormControl><Input placeholder="C987654" {...field} /></FormControl>
+                <FormMessage /></FormItem>
+            )} />
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider pt-2">Optional</div>
+            <FormField control={form.control} name="kraPin" render={({ field }) => (
+              <FormItem><FormLabel>KRA PIN</FormLabel><FormControl><Input placeholder="A987654321B" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="officeAddress" render={({ field }) => (
+              <FormItem><FormLabel>Office Address</FormLabel><FormControl><Input placeholder="Mombasa, Kenya" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="bankName" render={({ field }) => (
+              <FormItem><FormLabel>Bank Name</FormLabel><FormControl><Input placeholder="Equity Bank" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="bankAccountNumber" render={({ field }) => (
+              <FormItem><FormLabel>Bank Account Number</FormLabel><FormControl><Input placeholder="0123456789" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="buyerPersonnelName" render={({ field }) => (
+              <FormItem><FormLabel>Authorized Buyer Name</FormLabel><FormControl><Input placeholder="Sarah Ochieng" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="buyerPersonnelPhone" render={({ field }) => (
+              <FormItem><FormLabel>Authorized Buyer Phone</FormLabel><FormControl><Input placeholder="+254 722 345 678" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="buyerPersonnelEmail" render={({ field }) => (
+              <FormItem><FormLabel>Authorized Buyer Email</FormLabel><FormControl><Input placeholder="buyer@exporter.co.ke" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="purchasingLimitUsd" render={({ field }) => (
+              <FormItem><FormLabel>Purchasing Limit (USD)</FormLabel><FormControl><Input placeholder="50000" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+          </>
+        )}
+
+        {tier === "ENABLER" && (
+          <>
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Required</div>
+            <FormField control={form.control} name="operatorName" render={({ field }) => (
+              <FormItem><FormLabel>Operator Company Name <span className="text-destructive">*</span></FormLabel>
+                <FormControl><Input placeholder="AgriBora Certified Silos" {...field} /></FormControl>
+                <FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="wrscLicenseNumber" render={({ field }) => (
+              <FormItem><FormLabel>WRSC Licence Number <span className="text-destructive">*</span></FormLabel>
+                <FormControl><Input placeholder="WRSC-2024-001" {...field} /></FormControl>
+                <FormMessage /></FormItem>
+            )} />
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider pt-2">Optional</div>
+            <FormField control={form.control} name="capacityMt" render={({ field }) => (
+              <FormItem><FormLabel>Capacity (MT)</FormLabel><FormControl><Input placeholder="10,000" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="warehouseInChargeName" render={({ field }) => (
+              <FormItem><FormLabel>Warehouse In-Charge Name</FormLabel><FormControl><Input placeholder="Peter Mwangi" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="warehouseInChargePhone" render={({ field }) => (
+              <FormItem><FormLabel>Warehouse In-Charge Phone</FormLabel><FormControl><Input placeholder="+254 733 456 789" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="warehouseInChargeEmail" render={({ field }) => (
+              <FormItem><FormLabel>Warehouse In-Charge Email</FormLabel><FormControl><Input placeholder="manager@agribora.co.ke" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="insurerName" render={({ field }) => (
+              <FormItem><FormLabel>Insurer Name</FormLabel><FormControl><Input placeholder="Jubilee Insurance" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="insurancePolicyNumber" render={({ field }) => (
+              <FormItem><FormLabel>Insurance Policy Number</FormLabel><FormControl><Input placeholder="POL-2024-ABC" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+          </>
+        )}
+
+        {tier === "FINANCIER" && (
+          <>
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Required</div>
+            <FormField control={form.control} name="institutionName" render={({ field }) => (
+              <FormItem><FormLabel>Financial Institution Name <span className="text-destructive">*</span></FormLabel>
+                <FormControl><Input placeholder="Equity Bank Kenya" {...field} /></FormControl>
+                <FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="centralBankLicenseCode" render={({ field }) => (
+              <FormItem><FormLabel>Central Bank Licence Code <span className="text-destructive">*</span></FormLabel>
+                <FormControl><Input placeholder="CBK-001" {...field} /></FormControl>
+                <FormMessage /></FormItem>
+            )} />
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider pt-2">Optional</div>
+            <FormField control={form.control} name="departmentDesignation" render={({ field }) => (
+              <FormItem><FormLabel>Department Designation</FormLabel><FormControl><Input placeholder="Agribusiness Trade Finance" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="creditApproverName" render={({ field }) => (
+              <FormItem><FormLabel>Credit Approver Name</FormLabel><FormControl><Input placeholder="James Otieno" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="creditApproverEmail" render={({ field }) => (
+              <FormItem><FormLabel>Credit Approver Email</FormLabel><FormControl><Input placeholder="approver@equity.co.ke" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="maxLiquidityPoolUsd" render={({ field }) => (
+              <FormItem><FormLabel>Max Liquidity Pool (USD)</FormLabel><FormControl><Input placeholder="1,000,000" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+          </>
+        )}
+
+        {tier === "COOPERATIVE" && (
+          <>
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Required</div>
+            <FormField control={form.control} name="entityName" render={({ field }) => (
+              <FormItem><FormLabel>Cooperative Entity Name <span className="text-destructive">*</span></FormLabel>
+                <FormControl><Input placeholder="Nyeri Coffee Farmers Co-op Ltd" {...field} /></FormControl>
+                <FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="registrationNumber" render={({ field }) => (
+              <FormItem><FormLabel>Registration / Incorporation Number <span className="text-destructive">*</span></FormLabel>
+                <FormControl><Input placeholder="C123456" {...field} /></FormControl>
+                <FormMessage /></FormItem>
+            )} />
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider pt-2">Optional</div>
+            <FormField control={form.control} name="licenceNumber" render={({ field }) => (
+              <FormItem><FormLabel>Licence Number</FormLabel><FormControl><Input placeholder="LIC-2024-001" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="kraPin" render={({ field }) => (
+              <FormItem><FormLabel>KRA PIN</FormLabel><FormControl><Input placeholder="A123456789B" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="officeAddress" render={({ field }) => (
+              <FormItem><FormLabel>Office Address</FormLabel><FormControl><Input placeholder="Nyeri County, Kenya" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="adminFirstName" render={({ field }) => (
+              <FormItem><FormLabel>Admin First Name</FormLabel><FormControl><Input placeholder="John" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="adminLastName" render={({ field }) => (
+              <FormItem><FormLabel>Admin Last Name</FormLabel><FormControl><Input placeholder="Kamau" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="adminPhone" render={({ field }) => (
+              <FormItem><FormLabel>Admin Phone</FormLabel><FormControl><Input placeholder="+254 712 345 678" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="adminEmail" render={({ field }) => (
+              <FormItem><FormLabel>Admin Email</FormLabel><FormControl><Input placeholder="admin@coop.co.ke" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="bankName" render={({ field }) => (
+              <FormItem><FormLabel>Bank Name</FormLabel><FormControl><Input placeholder="Co-operative Bank" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="bankBranch" render={({ field }) => (
+              <FormItem><FormLabel>Bank Branch</FormLabel><FormControl><Input placeholder="Nyeri Branch" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="bankAccountNumber" render={({ field }) => (
+              <FormItem><FormLabel>Bank Account Number</FormLabel><FormControl><Input placeholder="0123456789" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="mobileMoneyPaybill" render={({ field }) => (
+              <FormItem><FormLabel>Mobile Money Paybill</FormLabel><FormControl><Input placeholder="522522" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+          </>
+        )}
+
+        <div className="pt-2">
+          <Button type="submit" className="w-full" disabled={submitting}>
+            {submitting ? "Saving..." : "Submit Compliance Profile"}
+          </Button>
+        </div>
+      </form>
+    </Form>
+  );
+}
+
 export default function Profile() {
   const { data: user, isLoading: userLoading } = useGetMe();
   const [profile, setProfile] = useState<any>(null);
   const [profileLoading, setProfileLoading] = useState(true);
+  const [kybOpen, setKybOpen] = useState(false);
+
+  const u = user as any;
 
   useEffect(() => {
     if (!user) return;
@@ -42,8 +364,15 @@ export default function Profile() {
   const isLoading = userLoading || profileLoading;
   const tierProfile = profile?.tierProfile;
 
-  // Extended user type for fields not yet in generated API client
-  const u = user as any;
+  function handleKybSuccess() {
+    setKybOpen(false);
+    setProfileLoading(true);
+    if (!user) return;
+    customFetch(`${basePath}/api/profiles/me`)
+      .then((r) => (r as Response).json())
+      .then((data) => { setProfile(data); setProfileLoading(false); })
+      .catch(() => setProfileLoading(false));
+  }
 
   if (isLoading) {
     return (
@@ -70,7 +399,6 @@ export default function Profile() {
           </Badge>
         </div>
 
-        {/* General Identity */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-sm">
@@ -122,8 +450,43 @@ export default function Profile() {
           </CardContent>
         </Card>
 
-        {/* Tier Profile */}
-        {tierProfile && user?.tier === "PRODUCER" && (
+        {!tierProfile && u?.tier && u.tier !== "ADMIN" && (
+          <Card className="border-amber-200">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2 text-sm">
+                  <ClipboardList className="w-4 h-4 text-amber-500" />
+                  Compliance Profile — Incomplete
+                </CardTitle>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setKybOpen((v) => !v)}
+                  className="text-xs"
+                >
+                  {kybOpen ? (
+                    <><ChevronUp className="w-3 h-3 mr-1" />Hide form</>
+                  ) : (
+                    <><ChevronDown className="w-3 h-3 mr-1" />Complete now</>
+                  )}
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Your KYB compliance profile is required before you can place bids, list eWRs, or access financing. It will be reviewed within 1–2 business days.
+              </p>
+              {kybOpen && (
+                <KybForm
+                  tier={u.tier}
+                  onSuccess={handleKybSuccess}
+                />
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {tierProfile && u?.tier === "PRODUCER" && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-sm">
@@ -148,7 +511,7 @@ export default function Profile() {
           </Card>
         )}
 
-        {tierProfile && user?.tier === "OFF_TAKER" && (
+        {tierProfile && u?.tier === "OFF_TAKER" && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-sm">
@@ -173,7 +536,7 @@ export default function Profile() {
           </Card>
         )}
 
-        {tierProfile && user?.tier === "ENABLER" && (
+        {tierProfile && u?.tier === "ENABLER" && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-sm">
@@ -196,7 +559,7 @@ export default function Profile() {
           </Card>
         )}
 
-        {tierProfile && user?.tier === "FINANCIER" && (
+        {tierProfile && u?.tier === "FINANCIER" && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-sm">
@@ -217,15 +580,27 @@ export default function Profile() {
           </Card>
         )}
 
-        {!tierProfile && (
-          <Card className="border-amber-200 bg-amber-50">
-            <CardContent className="py-6 text-center">
-              <p className="text-sm text-amber-800 font-medium">
-                Your tier-specific profile is not yet submitted.
-              </p>
-              <p className="text-xs text-amber-600 mt-1">
-                Complete onboarding to unlock full marketplace features.
-              </p>
+        {tierProfile && u?.tier === "COOPERATIVE" && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-sm">
+                <Building2 className="w-4 h-4 text-primary" />
+                Cooperative Profile
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-y-4 gap-x-6">
+                <div><p className="text-sm text-muted-foreground">Entity Name</p><p className="font-medium">{tierProfile.entityName}</p></div>
+                <div><p className="text-sm text-muted-foreground">Registration Number</p><p className="font-medium">{tierProfile.registrationNumber}</p></div>
+                <div><p className="text-sm text-muted-foreground">Licence Number</p><p className="font-medium">{tierProfile.licenceNumber || "N/A"}</p></div>
+                <div><p className="text-sm text-muted-foreground">KRA PIN</p><p className="font-medium">{tierProfile.kraPin || "N/A"}</p></div>
+                <div><p className="text-sm text-muted-foreground">Office Address</p><p className="font-medium">{tierProfile.officeAddress || "N/A"}</p></div>
+                <div><p className="text-sm text-muted-foreground">Admin Name</p><p className="font-medium">{tierProfile.adminFirstName} {tierProfile.adminLastName}</p></div>
+                <div><p className="text-sm text-muted-foreground">Admin Phone</p><p className="font-medium">{tierProfile.adminPhone || "N/A"}</p></div>
+                <div><p className="text-sm text-muted-foreground">Admin Email</p><p className="font-medium">{tierProfile.adminEmail || "N/A"}</p></div>
+                <div><p className="text-sm text-muted-foreground">Bank Name</p><p className="font-medium">{tierProfile.bankName || "N/A"}</p></div>
+                <div><p className="text-sm text-muted-foreground">Bank Account</p><p className="font-medium">{tierProfile.bankAccountNumber || "N/A"}</p></div>
+              </div>
             </CardContent>
           </Card>
         )}
