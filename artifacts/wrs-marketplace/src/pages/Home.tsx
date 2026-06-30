@@ -8,8 +8,8 @@ const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const img = (name: string) => `${BASE}/theme/${name}`;
 const photo = (name: string) => `${BASE}/photos/${name}`;
 
-const ACCENT       = "hsl(155 100% 18%)";   // WRS green (on light bg)
-const ACCENT_LIGHT = "hsl(155 72% 42%)";    // WRS green (on dark bg)
+const ACCENT       = "hsl(180 62% 10%)";   // WRS teal (on light bg)
+const ACCENT_LIGHT = "hsl(180 50% 42%)";    // WRS teal (on dark bg)
 
 /* ── smooth scroll helper ─────────────────────────────────── */
 function scrollTo(id: string) {
@@ -448,7 +448,7 @@ export default function Home() {
             {/* WRS brand green overlay over the photo for cohesion + legibility */}
             <div style={{
               position: "absolute", inset: 0, left: "55%", zIndex: 1,
-              background: "linear-gradient(145deg, hsl(155 80% 10% / 0.36) 0%, hsl(155 100% 6% / 0.44) 60%, hsl(130 60% 8% / 0.36) 100%)",
+              background: "linear-gradient(145deg, hsl(180 62% 10% / 0.36) 0%, hsl(180 62% 6% / 0.44) 60%, hsl(180 50% 8% / 0.36) 100%)",
             }} />
             {/* subtle dot-grid pattern overlay */}
             <div style={{

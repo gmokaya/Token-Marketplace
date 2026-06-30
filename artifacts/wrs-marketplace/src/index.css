@@ -97,25 +97,25 @@
   --popover-foreground: 155 100% 12%;
   --popover-border: 155 20% 85%;
 
-  --primary: 155 100% 18%;
+  --primary: 180 62% 10%;
   --primary-foreground: 40 20% 97%;
 
   --secondary: 40 30% 90%;
-  --secondary-foreground: 155 100% 12%;
+  --secondary-foreground: 180 62% 8%;
 
   --muted: 40 20% 92%;
-  --muted-foreground: 155 20% 40%;
+  --muted-foreground: 180 20% 40%;
 
-  --accent: 155 100% 25%;
+  --accent: 180 62% 14%;
   --accent-foreground: 40 20% 97%;
 
   --destructive: 0 84% 40%;
   --destructive-foreground: 0 0% 100%;
 
-  --input: 155 20% 85%;
-  --ring: 155 100% 18%;
+  --input: 180 20% 85%;
+  --ring: 180 62% 10%;
 
-  --chart-1: 155 100% 18%;
+  --chart-1: 180 62% 10%;
   --chart-2: 40 80% 40%;
   --chart-3: 200 80% 40%;
   --chart-4: 300 80% 40%;
@@ -135,47 +135,47 @@
   --elevate-1: rgba(255,255,255, .04);
   --elevate-2: rgba(255,255,255, .09);
 
-  --background: 155 100% 8%;
+  --background: 180 62% 5%;
   --foreground: 40 20% 97%;
-  --border: 155 50% 15%;
+  --border: 180 40% 10%;
 
-  --card: 155 100% 10%;
+  --card: 180 62% 6%;
   --card-foreground: 40 20% 97%;
-  --card-border: 155 50% 15%;
+  --card-border: 180 40% 10%;
 
-  --sidebar: 155 100% 6%;
+  --sidebar: 180 62% 4%;
   --sidebar-foreground: 40 20% 97%;
-  --sidebar-border: 155 50% 15%;
-  --sidebar-primary: 155 100% 25%;
+  --sidebar-border: 180 40% 10%;
+  --sidebar-primary: 180 62% 14%;
   --sidebar-primary-foreground: 40 20% 97%;
-  --sidebar-accent: 155 100% 12%;
+  --sidebar-accent: 180 62% 8%;
   --sidebar-accent-foreground: 40 20% 97%;
   --sidebar-ring: 40 20% 97%;
 
-  --popover: 155 100% 10%;
+  --popover: 180 62% 6%;
   --popover-foreground: 40 20% 97%;
-  --popover-border: 155 50% 15%;
+  --popover-border: 180 40% 10%;
 
   --primary: 40 20% 97%;
-  --primary-foreground: 155 100% 12%;
+  --primary-foreground: 180 62% 8%;
 
-  --secondary: 155 100% 15%;
+  --secondary: 180 62% 9%;
   --secondary-foreground: 40 20% 97%;
 
-  --muted: 155 100% 12%;
+  --muted: 180 62% 8%;
   --muted-foreground: 40 10% 60%;
 
-  --accent: 155 100% 25%;
+  --accent: 180 62% 14%;
   --accent-foreground: 40 20% 97%;
 
   --destructive: 0 60% 40%;
   --destructive-foreground: 0 0% 100%;
 
-  --input: 155 50% 15%;
+  --input: 180 40% 10%;
   --ring: 40 20% 97%;
 
   --chart-1: 40 80% 60%;
-  --chart-2: 155 80% 60%;
+  --chart-2: 180 50% 40%;
   --chart-3: 200 80% 60%;
   --chart-4: 300 80% 60%;
   --chart-5: 0 80% 60%;
@@ -192,10 +192,10 @@
   .bg-auth-gradient {
     background: linear-gradient(
       135deg,
-      hsl(155 100% 6%) 0%,
-      hsl(155 100% 10%) 30%,
-      hsl(155 80% 14%) 60%,
-      hsl(155 60% 18%) 100%
+      hsl(180 62% 6%) 0%,
+      hsl(180 62% 10%) 30%,
+      hsl(180 50% 14%) 60%,
+      hsl(180 40% 18%) 100%
     );
   }
 

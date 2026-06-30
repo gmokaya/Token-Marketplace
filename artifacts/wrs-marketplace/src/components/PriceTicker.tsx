@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const ACCENT = "hsl(155 100% 18%)";
+const ACCENT = "hsl(180 62% 10%)";
 
 type Quote = {
   e: string;
@@ -108,7 +108,7 @@ export function PriceTicker() {
               const change = q.price - q.open;
               const pct = (change / q.open) * 100;
               const up = change >= 0;
-              const color = up ? "hsl(155 70% 55%)" : "hsl(0 75% 62%)";
+              const color = up ? "hsl(180 50% 55%)" : "hsl(0 75% 62%)";
               return (
                 <div key={i} style={{
                   display: "inline-flex", alignItems: "center", gap: 9,

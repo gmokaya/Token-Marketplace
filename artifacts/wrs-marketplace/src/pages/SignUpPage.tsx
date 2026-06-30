@@ -2,7 +2,7 @@ import { SignUp } from "@clerk/react";
 
 const clerkAppearance = {
   variables: {
-    colorPrimary: "#1a5f3e",
+    colorPrimary: "#0a2a2a",
     colorForeground: "#111827",
     colorMutedForeground: "#6b7280",
     colorBackground: "#ffffff",
@@ -52,7 +52,7 @@ export default function SignUpPage() {
           alt=""
           className="absolute inset-0 w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0d3320]/90 via-[#0d3320]/70 to-[#1a5f3e]/50" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0a2a2a]/90 via-[#0d3d3d]/70 to-[#0a2a2a]/50" />
 
         <div className="relative z-10 flex flex-col h-full p-10 xl:p-14">
           <div>

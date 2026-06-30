@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { Package, Scissors, Flame, ArrowRightLeft, ShoppingBag } from "lucide-react";
 
-const ACCENT = "hsl(155 100% 18%)";
+const ACCENT = "hsl(180 62% 10%)";
 
 const STATE_COLORS: Record<string, string> = {
   INGESTED: "bg-green-100 text-green-800",

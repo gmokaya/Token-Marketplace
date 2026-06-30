@@ -16,7 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { Plus, Layers, CheckCircle2, FileText } from "lucide-react";
 
-const ACCENT = "hsl(155 100% 18%)";
+const ACCENT = "hsl(180 62% 10%)";
 const COMMODITIES = ["MAIZE", "RICE", "COFFEE", "TEA", "AVOCADO"];
 
 const STATUS_COLORS: Record<string, string> = {

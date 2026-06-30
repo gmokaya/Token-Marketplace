@@ -7,13 +7,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "wouter";
 import { Package, Wheat, ArrowRight, Users, ClipboardList, Layers, BarChart3 } from "lucide-react";
 
-const ACCENT = "hsl(155 100% 18%)";
+const ACCENT = "hsl(180 62% 10%)";
 
 function StatCard({ label, value, sub, icon: Icon }: { label: string; value: string | number; sub?: string; icon: React.ElementType }) {
   return (
     <Card>
       <CardContent className="p-5 flex items-start gap-4">
-        <div className="p-2 rounded-lg" style={{ background: "hsl(155 100% 18% / 0.08)" }}>
+        <div className="p-2 rounded-lg" style={{ background: "hsl(180 62% 10% / 0.08)" }}>
           <Icon className="w-5 h-5" style={{ color: ACCENT }} />
         </div>
         <div>

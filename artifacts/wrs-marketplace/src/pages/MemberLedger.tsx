@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { UserPlus, Search, Lock, Eye } from "lucide-react";
 
-const ACCENT = "hsl(155 100% 18%)";
+const ACCENT = "hsl(180 62% 10%)";
 
 export default function MemberLedger() {
   const { data: members, isLoading } = useListCoopMembers();

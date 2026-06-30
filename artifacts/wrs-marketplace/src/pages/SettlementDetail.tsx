@@ -313,23 +313,23 @@ export default function SettlementDetail() {
         )}
 
         {isComplete && (settlement as any).releaseToken && (
-          <Card className="border-[hsl(155,100%,18%)]/30 bg-[hsl(155,100%,18%)]/5">
+          <Card className="border-[hsl(180,62%,10%)]/30 bg-[hsl(180,62%,10%)]/5">
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
-                <FileCheck2 className="w-4 h-4" style={{ color: "hsl(155 100% 18%)" }} />
+                <FileCheck2 className="w-4 h-4" style={{ color: "hsl(180 62% 10%)" }} />
                 Digital Release Token (DRT)
               </CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
-              <div className="p-2 rounded-lg border border-[hsl(155,100%,18%)]/20 bg-white shrink-0">
+              <div className="p-2 rounded-lg border border-[hsl(180,62%,10%)]/20 bg-white shrink-0">
                 <QRCodeSVG
                   value={(settlement as any).releaseToken.token}
                   size={120}
-                  fgColor="hsl(155 100% 18%)"
+                  fgColor="hsl(180 62% 10%)"
                 />
               </div>
               <div className="space-y-2 flex-1 min-w-0">
-                <p className="text-sm font-medium" style={{ color: "hsl(155 100% 18%)" }}>
+                <p className="text-sm font-medium" style={{ color: "hsl(180 62% 10%)" }}>
                   Warehouse Release Authorisation
                 </p>
                 <p className="text-xs text-muted-foreground leading-relaxed">
