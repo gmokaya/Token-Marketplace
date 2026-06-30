@@ -1,4 +1,4 @@
-import { useGetMe, useGetMarketSummary, useGetRecentActivity, useGetMyPortfolio, useListOrders, customFetch } from "@workspace/api-client-react";
+import { useGetMe, useGetMarketSummary, useGetRecentActivity, useGetMyPortfolio, useListOrders, useGetPlatformEarnings, useListAuctions, customFetch } from "@workspace/api-client-react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { OnboardingBanner } from "@/components/OnboardingBanner";
+import { formatTier } from "@/lib/formatTier";
+import { Users, ShieldCheck, Gavel, DollarSign } from "lucide-react";
 
 function ProducerDashboard() {
   const { data: user } = useGetMe();
@@ -588,6 +590,237 @@ function EnablerDashboard() {
   );
 }
 
+type AdminUserRow = {
+  id: number;
+  name: string;
+  email: string;
+  company: string | null;
+  tier: "PRODUCER" | "OFF_TAKER" | "ENABLER" | "FINANCIER" | "COOPERATIVE" | "ADMIN";
+  kybStatus: "PENDING" | "APPROVED" | "REJECTED";
+  reputationScore: string | number | null;
+  createdAt: string;
+};
+
+const ADMIN_TIERS = ["PRODUCER", "OFF_TAKER", "ENABLER", "FINANCIER", "COOPERATIVE", "ADMIN"] as const;
+
+const TIER_BADGE: Record<string, string> = {
+  PRODUCER: "bg-green-100 text-green-800",
+  OFF_TAKER: "bg-blue-100 text-blue-800",
+  ENABLER: "bg-purple-100 text-purple-800",
+  FINANCIER: "bg-amber-100 text-amber-800",
+  COOPERATIVE: "bg-cyan-100 text-cyan-800",
+  ADMIN: "bg-red-100 text-red-800",
+};
+
+const KYB_BADGE: Record<string, string> = {
+  PENDING: "bg-yellow-100 text-yellow-800",
+  APPROVED: "bg-green-100 text-green-800",
+  REJECTED: "bg-red-100 text-red-800",
+};
+
+function AdminStatCard({ title, value, sub, icon: Icon, color = "text-primary" }: { title: string; value: string; sub?: string; icon: any; color?: string }) {
+  return (
+    <Card>
+      <CardContent className="p-5 flex items-start gap-4">
+        <div className="p-2 rounded-lg bg-muted">
+          <Icon className={`w-5 h-5 ${color}`} />
+        </div>
+        <div className="min-w-0">
+          <p className="text-2xl font-bold truncate">{value}</p>
+          <p className="text-sm font-medium text-foreground/80">{title}</p>
+          {sub && <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function SuperAdminDashboard() {
+  const { data: user } = useGetMe();
+
+  const { data: users = [], isLoading: usersLoading } = useQuery<AdminUserRow[]>({
+    queryKey: ["admin-users", "ALL", ""],
+    queryFn: () => customFetch<AdminUserRow[]>("/api/admin/users"),
+    staleTime: 30_000,
+  });
+
+  const { data: earnings, isLoading: earningsLoading } = useGetPlatformEarnings({ period: "7d" });
+
+  const { data: openAuctions = [], isLoading: auctionsLoading } = useListAuctions({ status: "OPEN" });
+
+  const tierCounts = ADMIN_TIERS.reduce<Record<string, number>>((acc, t) => {
+    acc[t] = users.filter(u => u.tier === t).length;
+    return acc;
+  }, {});
+
+  const kybCounts = {
+    PENDING: users.filter(u => u.kybStatus === "PENDING").length,
+    APPROVED: users.filter(u => u.kybStatus === "APPROVED").length,
+    REJECTED: users.filter(u => u.kybStatus === "REJECTED").length,
+  };
+  const kybDecided = kybCounts.APPROVED + kybCounts.REJECTED;
+  const approvalRate = kybDecided > 0 ? Math.round((kybCounts.APPROVED / kybDecided) * 100) : 0;
+
+  const platformEarnings7d = earnings
+    ? (earnings.totalPlatformFeesUsd ?? 0) + (earnings.totalEscrowFeesUsd ?? 0) + (earnings.financingFacilitationFeesUsd ?? 0)
+    : 0;
+
+  const recentSignups = [...users]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 10);
+
+  return (
+    <div className="space-y-8">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Platform Overview</h1>
+          <p className="text-muted-foreground mt-1">Platform-wide health, KYB funnel, and recent activity</p>
+        </div>
+        <Badge variant="outline" className="px-3 py-1 text-sm font-medium border-primary/30 text-primary">
+          {user?.company || "Exchange Administrator"}
+        </Badge>
+      </div>
+
+      {(usersLoading || earningsLoading || auctionsLoading) ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+          {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-28" />)}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+          <AdminStatCard
+            title="Total Users"
+            value={users.length.toLocaleString()}
+            sub={`${tierCounts.PRODUCER} producers · ${tierCounts.OFF_TAKER} off-takers`}
+            icon={Users}
+          />
+          <AdminStatCard
+            title="KYB Approval Rate"
+            value={`${approvalRate}%`}
+            sub={`${kybCounts.PENDING} pending · ${kybCounts.APPROVED} approved · ${kybCounts.REJECTED} rejected`}
+            icon={ShieldCheck}
+            color="text-green-600"
+          />
+          <AdminStatCard
+            title="Active Auctions"
+            value={openAuctions.length.toLocaleString()}
+            sub="Currently open for bidding"
+            icon={Gavel}
+            color="text-blue-500"
+          />
+          <AdminStatCard
+            title="Platform Earnings (7d)"
+            value={`$${platformEarnings7d.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
+            sub="Marketplace + escrow + financing fees"
+            icon={DollarSign}
+            color="text-primary"
+          />
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-1">
+          <CardHeader>
+            <CardTitle className="text-base">Users by Tier</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {usersLoading ? (
+              <div className="space-y-2">{Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-8" />)}</div>
+            ) : (
+              <div className="space-y-2">
+                {ADMIN_TIERS.map(t => (
+                  <div key={t} className="flex items-center justify-between text-sm">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${TIER_BADGE[t]}`}>
+                      {formatTier(t)}
+                    </span>
+                    <span className="font-semibold tabular-nums">{tierCounts[t] ?? 0}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-2">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-base">Recent Sign-ups</CardTitle>
+            <Button asChild variant="outline" size="sm"><Link href="/admin/users">Manage Users</Link></Button>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b bg-muted/40">
+                    <th className="text-left px-5 py-3 font-medium text-muted-foreground">User</th>
+                    <th className="text-left px-4 py-3 font-medium text-muted-foreground">Tier</th>
+                    <th className="text-left px-4 py-3 font-medium text-muted-foreground">KYB</th>
+                    <th className="text-right px-5 py-3 font-medium text-muted-foreground">Joined</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {usersLoading && (
+                    <tr><td colSpan={4} className="text-center py-12 text-muted-foreground">Loading users…</td></tr>
+                  )}
+                  {!usersLoading && recentSignups.length === 0 && (
+                    <tr><td colSpan={4} className="text-center py-12 text-muted-foreground">No users yet</td></tr>
+                  )}
+                  {recentSignups.map(u => (
+                    <tr key={u.id} className="border-b last:border-0 hover:bg-muted/20 transition-colors">
+                      <td className="px-5 py-3">
+                        <div className="font-medium">{u.name}</div>
+                        <div className="text-xs text-muted-foreground">{u.email}</div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${TIER_BADGE[u.tier]}`}>
+                          {formatTier(u.tier)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${KYB_BADGE[u.kybStatus]}`}>
+                          {u.kybStatus}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3 text-right text-muted-foreground text-xs">
+                        {new Date(u.createdAt).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">User Management</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Link href="/admin/users"><Button>Manage Users</Button></Link>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Platform Earnings</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Link href="/admin/earnings"><Button>View Earnings</Button></Link>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Audit Log</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Link href="/admin/audit"><Button>View Audit</Button></Link>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const { data: user, isLoading } = useGetMe();
 
@@ -619,38 +852,7 @@ export default function Dashboard() {
           <Link href="/coop"><Button>Go to Coop Dashboard</Button></Link>
         </div>
       )}
-      {user?.tier === "ADMIN" && (
-        <div className="space-y-6">
-          <h1 className="text-3xl font-bold tracking-tight">Exchange Administrator Dashboard</h1>
-          <p className="text-muted-foreground">Manage user KYB approvals and platform oversight.</p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">User Management</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Link href="/admin/users"><Button>Manage Users</Button></Link>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Platform Earnings</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Link href="/admin/earnings"><Button>View Earnings</Button></Link>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Audit Log</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Link href="/admin/audit"><Button>View Audit</Button></Link>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      )}
+      {user?.tier === "ADMIN" && <SuperAdminDashboard />}
       {!user?.tier && (
         <div className="space-y-6">
           <Skeleton className="h-10 w-48" />
