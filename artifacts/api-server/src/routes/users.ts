@@ -44,7 +44,9 @@ router.patch("/users/me", async (req, res) => {
   const { userId: clerkId } = getAuth(req);
   if (!clerkId) return res.status(401).json({ error: "Unauthorized" });
 
-  const { name, company, tier } = req.body as { name?: string; company?: string; tier?: string };
+  const { name, company, tier, phone, nationalId } = req.body as {
+    name?: string; company?: string; tier?: string; phone?: string; nationalId?: string;
+  };
 
   const [existing] = await db.select().from(usersTable).where(eq(usersTable.clerkId, clerkId)).limit(1);
 
@@ -56,6 +58,8 @@ router.patch("/users/me", async (req, res) => {
       email: req.body.email ?? `${clerkId}@placeholder.wrs`,
       tier: tier as "PRODUCER" | "OFF_TAKER" | "ENABLER" | "FINANCIER" | "COOPERATIVE" | "ADMIN",
       company: company ?? null,
+      phone: phone ?? null,
+      nationalId: nationalId ?? null,
     }).returning();
     return res.json(created);
   }
@@ -63,6 +67,8 @@ router.patch("/users/me", async (req, res) => {
   const updateData: Partial<typeof usersTable.$inferInsert> = {};
   if (name !== undefined) updateData.name = name;
   if (company !== undefined) updateData.company = company;
+  if (phone !== undefined) updateData.phone = phone;
+  if (nationalId !== undefined) updateData.nationalId = nationalId;
   if (tier !== undefined) {
     return res.status(403).json({ error: "Tier cannot be changed after initial registration" });
   }

@@ -12,7 +12,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Building2, Phone, CreditCard, Shield, CheckCircle2, Clock, AlertCircle, ClipboardList, ChevronDown, ChevronUp } from "lucide-react";
+import { Building2, Phone, CreditCard, Shield, CheckCircle2, Clock, AlertCircle, ClipboardList, ChevronDown, ChevronUp, Pencil, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -91,6 +91,13 @@ const cooperativeSchema = z.object({
   bankBranch: z.string().optional(),
   bankAccountNumber: z.string().optional(),
   mobileMoneyPaybill: z.string().optional(),
+});
+
+const identitySchema = z.object({
+  name: z.string().min(2, "Full name must be at least 2 characters"),
+  company: z.string().min(2, "Company / entity name is required"),
+  phone: z.string().min(8, "A valid phone number is required"),
+  nationalId: z.string().min(4, "National ID or passport number is required"),
 });
 
 const schemaForTier = (tier: string) => {
@@ -347,8 +354,27 @@ export default function Profile() {
   const [profile, setProfile] = useState<any>(null);
   const [profileLoading, setProfileLoading] = useState(true);
   const [kybOpen, setKybOpen] = useState(false);
+  const [editIdentity, setEditIdentity] = useState(false);
+  const [savingIdentity, setSavingIdentity] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const u = user as any;
+
+  const identityForm = useForm<z.infer<typeof identitySchema>>({
+    resolver: zodResolver(identitySchema),
+    defaultValues: { name: "", company: "", phone: "", nationalId: "" },
+  });
+
+  useEffect(() => {
+    if (!u) return;
+    identityForm.reset({
+      name: u.name ?? "",
+      company: u.company ?? "",
+      phone: u.phone ?? "",
+      nationalId: u.nationalId ?? "",
+    });
+  }, [u?.id]);
 
   useEffect(() => {
     if (!user) return;
@@ -360,6 +386,25 @@ export default function Profile() {
       })
       .catch(() => setProfileLoading(false));
   }, [user]);
+
+  async function handleIdentitySubmit(values: z.infer<typeof identitySchema>) {
+    setSavingIdentity(true);
+    try {
+      const res = await customFetch(`${basePath}/api/users/me`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      }) as Response;
+      const data = await res.json();
+      queryClient.setQueryData(getGetMeQueryKey(), data);
+      toast({ title: "Details updated", description: "Your account details have been saved." });
+      setEditIdentity(false);
+    } catch (err: any) {
+      toast({ title: "Update failed", description: err?.message ?? "Please try again.", variant: "destructive" });
+    } finally {
+      setSavingIdentity(false);
+    }
+  }
 
   const isLoading = userLoading || profileLoading;
   const tierProfile = profile?.tierProfile;
@@ -401,37 +446,136 @@ export default function Profile() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-sm">
-              <Shield className="w-4 h-4 text-primary" />
-              General Identity
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-sm">
+                <Shield className="w-4 h-4 text-primary" />
+                General Identity
+              </CardTitle>
+              {!editIdentity ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs h-7 px-2.5 gap-1.5"
+                  onClick={() => setEditIdentity(true)}
+                >
+                  <Pencil className="w-3 h-3" /> Edit
+                </Button>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs h-7 px-2.5 gap-1.5 text-muted-foreground"
+                  onClick={() => {
+                    identityForm.reset({
+                      name: u?.name ?? "",
+                      company: u?.company ?? "",
+                      phone: u?.phone ?? "",
+                      nationalId: u?.nationalId ?? "",
+                    });
+                    setEditIdentity(false);
+                  }}
+                >
+                  <X className="w-3 h-3" /> Cancel
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-y-4 gap-x-6">
-              <div>
-                <p className="text-sm text-muted-foreground">Name</p>
-                <p className="font-medium text-lg">{u?.name}</p>
+            {editIdentity ? (
+              <Form {...identityForm}>
+                <form onSubmit={identityForm.handleSubmit(handleIdentitySubmit)} className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <FormField control={identityForm.control} name="name" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Full Name <span className="text-destructive">*</span></FormLabel>
+                        <FormControl><Input placeholder="e.g. Jane Kamau" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <div>
+                      <p className="text-sm font-medium leading-none mb-2">Email</p>
+                      <p className="text-sm text-muted-foreground py-2">{u?.email}</p>
+                    </div>
+                    <FormField control={identityForm.control} name="company" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Company / Entity Name <span className="text-destructive">*</span></FormLabel>
+                        <FormControl><Input placeholder="e.g. Nyeri Coffee Co-op" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <div>
+                      <p className="text-sm font-medium leading-none mb-2">Role</p>
+                      <p className="text-sm text-muted-foreground py-2">{u?.tier} <span className="text-xs">(cannot be changed)</span></p>
+                    </div>
+                    <FormField control={identityForm.control} name="phone" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phone Number <span className="text-destructive">*</span></FormLabel>
+                        <FormControl><Input placeholder="+254 712 345 678" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={identityForm.control} name="nationalId" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>National ID / Passport <span className="text-destructive">*</span></FormLabel>
+                        <FormControl><Input placeholder="12345678" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                  </div>
+                  <div className="flex gap-3 pt-1">
+                    <Button type="submit" size="sm" disabled={savingIdentity} className="gap-1.5">
+                      {savingIdentity ? "Saving..." : "Save changes"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        identityForm.reset({
+                          name: u?.name ?? "",
+                          company: u?.company ?? "",
+                          phone: u?.phone ?? "",
+                          nationalId: u?.nationalId ?? "",
+                        });
+                        setEditIdentity(false);
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            ) : (
+              <div className="grid grid-cols-2 gap-y-4 gap-x-6">
+                <div>
+                  <p className="text-sm text-muted-foreground">Name</p>
+                  <p className="font-medium text-lg">{u?.name}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Email</p>
+                  <p className="font-medium text-lg">{u?.email}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Company</p>
+                  <p className="font-medium text-lg">{u?.company || "N/A"}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Role</p>
+                  <p className="font-medium text-lg">{u?.tier}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Phone</p>
+                  <p className="font-medium text-lg">{u?.phone || "N/A"}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">National ID</p>
+                  <p className="font-medium text-lg">{u?.nationalId || "N/A"}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Email</p>
-                <p className="font-medium text-lg">{u?.email}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Company</p>
-                <p className="font-medium text-lg">{u?.company || "N/A"}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Role</p>
-                <p className="font-medium text-lg">{u?.tier}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Phone</p>
-                <p className="font-medium text-lg">{u?.phone || "N/A"}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">National ID</p>
-                <p className="font-medium text-lg">{u?.nationalId || "N/A"}</p>
-              </div>
+            )}
+
+            {/* Always-visible read-only fields */}
+            <div className={`grid grid-cols-2 gap-y-4 gap-x-6 ${editIdentity ? "pt-2 border-t" : ""}`}>
               <div>
                 <p className="text-sm text-muted-foreground">Reputation Score</p>
                 <div className="flex items-center gap-2 mt-1">
