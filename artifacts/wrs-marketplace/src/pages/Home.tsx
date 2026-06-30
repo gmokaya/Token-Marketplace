@@ -1,5 +1,5 @@
-import { Show, useAuth } from "@clerk/react";
-import { Redirect, Link } from "wouter";
+import { useAuth } from "@clerk/react";
+import { Link } from "wouter";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, ChevronRight } from "lucide-react";
 import { PriceTicker } from "@/components/PriceTicker";
@@ -431,9 +431,7 @@ export default function Home() {
 
   return (
     <>
-      <Show when="signed-in"><Redirect to="/dashboard" /></Show>
-      <Show when="signed-out">
-        <div style={{ fontFamily: "'Jost', sans-serif", color: "#353535" }}>
+      <div style={{ fontFamily: "'Jost', sans-serif", color: "#353535" }}>
 
           {/* ══ NAVBAR ══════════════════════════════════════════════ */}
           <header style={{
@@ -841,7 +839,6 @@ export default function Home() {
           <PriceTicker />
 
         </div>
-      </Show>
     </>
   );
 }
