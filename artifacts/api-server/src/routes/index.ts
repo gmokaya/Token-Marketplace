@@ -1,6 +1,7 @@
 import { Router, type IRouter, type Request, type Response, type NextFunction } from "express";
 import { getAuth } from "@clerk/express";
 import healthRouter from "./health";
+import storageRouter from "./storage";
 import usersRouter from "./users";
 import ewrsRouter from "./ewrs";
 import listingsRouter from "./listings";
@@ -30,6 +31,9 @@ function requireAuth(req: Request, res: Response, next: NextFunction): void {
 
 // Public content endpoint — no auth needed
 router.use(contentRouter);
+
+// Object storage — upload URL request is auth-gated inline; serving is public
+router.use(storageRouter);
 
 // eWR external API + registry-sync webhook — own auth, must come before Clerk requireAuth
 router.use(healthRouter);

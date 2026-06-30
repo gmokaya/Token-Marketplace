@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Plus, Trash2, GripVertical, Globe, Save, ImageOff,
   LayoutTemplate, Layers, Info, ListOrdered, BarChart3, Users, Megaphone, Image,
+  Upload, Loader2,
 } from "lucide-react";
 
 const API = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
@@ -559,8 +560,7 @@ function PartnersTab({ partners, setPartners }: { partners: Partner[]; setPartne
                 <Input value={p.short} onChange={e => update(p.id, "short", e.target.value)} placeholder="KCB" className="h-8 text-sm" />
               </div>
               <div>
-                <Label className="text-xs text-muted-foreground mb-1 block">Logo URL</Label>
-                <Input value={p.logoUrl} onChange={e => update(p.id, "logoUrl", e.target.value)} placeholder="https://…/logo.png" className="h-8 text-sm" />
+                <ImageUploadField label="Logo" value={p.logoUrl} onChange={v => update(p.id, "logoUrl", v)} />
               </div>
               <div>
                 <Label className="text-xs text-muted-foreground mb-1 block">Website</Label>
@@ -640,6 +640,74 @@ function Field({
   );
 }
 
+/* ── Image Upload Field ─────────────────────────────────── */
+
+function ImageUploadField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  async function handleFile(file: File) {
+    setUploading(true);
+    setUploadError(null);
+    try {
+      const res = await fetch(`${API}/api/storage/uploads/request-url`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ name: file.name, size: file.size, contentType: file.type || "application/octet-stream" }),
+      });
+      if (!res.ok) throw new Error("Failed to get upload URL");
+      const { uploadURL, objectPath } = await res.json();
+      const put = await fetch(uploadURL, {
+        method: "PUT",
+        body: file,
+        headers: { "Content-Type": file.type || "application/octet-stream" },
+      });
+      if (!put.ok) throw new Error("Upload failed");
+      const wildcardPath = objectPath.replace(/^\/objects\//, "");
+      onChange(`${API}/api/storage/objects/${wildcardPath}`);
+    } catch (e: any) {
+      setUploadError(e.message ?? "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  return (
+    <div>
+      <Label className="text-xs text-muted-foreground mb-1.5 block">{label}</Label>
+      <div className="flex gap-2">
+        <Input
+          value={value}
+          onChange={e => { onChange(e.target.value); setUploadError(null); }}
+          placeholder="https://… or upload →"
+          className="h-9 text-sm flex-1"
+        />
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          className="gap-1.5 shrink-0 h-9"
+          disabled={uploading}
+          onClick={() => inputRef.current?.click()}
+        >
+          {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
+          {uploading ? "Uploading…" : "Upload"}
+        </Button>
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ""; }}
+        />
+      </div>
+      {uploadError && <p className="text-xs text-destructive mt-1">{uploadError}</p>}
+    </div>
+  );
+}
+
 /* ── Available Markets ─────────────────────────────────── */
 
 function MarketsTab({ markets, setMarkets }: { markets: MarketCard[]; setMarkets: React.Dispatch<React.SetStateAction<MarketCard[]>> }) {
@@ -686,7 +754,7 @@ function MarketsTab({ markets, setMarkets }: { markets: MarketCard[]; setMarkets
               </div>
               <Field label="Description" value={m.desc} onChange={v => update(i, "desc", v)} textarea rows={2} />
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Photo URL" value={m.photo} onChange={v => update(i, "photo", v)} />
+                <ImageUploadField label="Photo" value={m.photo} onChange={v => update(i, "photo", v)} />
                 <Field label="Link (CTA href)" value={m.link} onChange={v => update(i, "link", v)} />
               </div>
               {m.photo && (
