@@ -85,12 +85,11 @@ export default function Home() {
         <h1 className="text-5xl md:text-7xl font-bold text-white leading-[1.0] tracking-tight max-w-3xl">
           Where premium teas
           <br />
-          <span className="text-emerald-300">meet global buyers.</span>
+          <span className="text-[#0a2a2a]">meet global buyers.</span>
         </h1>
 
-        <p className="mt-5 text-white/55 text-base md:text-lg leading-relaxed max-w-md">
-          Direct trade from origin factories — live auctions, fixed-price lots,
-          and transparent settlement in one platform.
+        <p className="mt-5 text-white/55 text-base md:text-lg leading-relaxed max-w-xl">
+          Every exceptional tea begins with its origin. TokenHarvest is the trusted marketplace for GI-protected and specialty teas, commercial teas empowering producers and buyers with verified provenance, Digital Tea Passports, embedded Trade Finance, and frictionless cross-border trade.
         </p>
 
         <div className="mt-8 flex items-center gap-4">
