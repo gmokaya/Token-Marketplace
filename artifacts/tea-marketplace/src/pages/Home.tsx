@@ -85,7 +85,7 @@ export default function Home() {
         <h1 className="text-5xl md:text-7xl font-bold text-white leading-[1.0] tracking-tight max-w-3xl">
           Where premium teas
           <br />
-          <span className="text-[#0a2a2a]">meet global buyers.</span>
+          <span className="text-white">meet global buyers.</span>
         </h1>
 
         <p className="mt-5 text-white/55 text-base md:text-lg leading-relaxed max-w-xl">
