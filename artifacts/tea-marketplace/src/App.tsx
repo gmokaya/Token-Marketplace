@@ -67,9 +67,20 @@ function ClerkQueryClientCacheInvalidator() {
 const clerkAppearance = {
   theme: shadcn,
   cssLayerName: "clerk",
+  options: {
+    logoPlacement: "inside" as const,
+    logoLinkUrl: basePath || "/",
+    logoImageUrl: `${window.location.origin}${basePath}/logo.svg`,
+  },
   variables: {
     colorPrimary: "#0a2a2a",
     colorForeground: "hsl(150 20% 15%)",
+    colorMutedForeground: "hsl(150 5% 40%)",
+    colorDanger: "hsl(0 70% 50%)",
+    colorBackground: "hsl(0 0% 100%)",
+    colorInput: "hsl(150 10% 96%)",
+    colorInputForeground: "hsl(150 20% 15%)",
+    colorNeutral: "hsl(150 10% 92%)",
     fontFamily: "'Jost', sans-serif",
     borderRadius: "0rem",
   },
