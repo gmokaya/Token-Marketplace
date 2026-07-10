@@ -4,3 +4,5 @@
 - [Forward settlement flow](forward-settlement-flow.md) — maturity only marks MATURED; never set eWR SETTLED (terminal); /settlements is the sole finalizer. Forward encumbrance reuses isLienActive but isn't a loan
 - [Transaction retry under load](concurrency-retry.md) — wrap money/inventory db.transaction in lib/db's withTxRetry (retries 40001/40P01); keep side effects outside the retried closure
 - [Financing eligibility & pre-auth API surface](financing-and-preauth-surface.md) — financeable = unencumbered (INGESTED/MARKET_LISTED + no lien); ewr-api/wrsc pre-Clerk surface must never run on default secrets in prod
+- [Font declared in CSS but not loaded](font-loading-vs-css-declaration.md) — --app-font-* token falls back silently unless index.html also loads that Google Font; match both when cloning styling
+- [Sub-path artifact Clerk redirects](subpath-artifact-clerk-redirect.md) — non-root artifact needs signInFallbackRedirectUrl=basePath + redirectToSignIn({redirectUrl}) or auth bounces to the root app
