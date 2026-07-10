@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { ClerkProvider, SignIn, SignUp, Show, useClerk } from '@clerk/react';
+import { useAutoLogout } from "@/lib/useAutoLogout";
 import { publishableKeyFromHost } from '@clerk/react/internal';
 import { shadcn } from '@clerk/themes';
 import { Switch, Route, useLocation, Router as WouterRouter, Redirect } from 'wouter';
@@ -114,6 +115,7 @@ function ClerkProviderWithRoutes() {
     >
       <QueryClientProvider client={queryClient}>
         <ClerkQueryClientCacheInvalidator />
+        <AutoLogout />
         <TooltipProvider>
           <Switch>
             <Route path="/" component={Home} />
@@ -153,6 +155,11 @@ function ClerkProviderWithRoutes() {
       </QueryClientProvider>
     </ClerkProvider>
   );
+}
+
+function AutoLogout() {
+  useAutoLogout();
+  return null;
 }
 
 function App() {
