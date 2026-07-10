@@ -1,4 +1,5 @@
 import { SignIn } from "@clerk/react";
+import { Link } from "wouter";
 
 const clerkAppearance = {
   variables: {
@@ -60,11 +61,13 @@ export default function SignInPage() {
 
       {/* Logo — top left */}
       <div className="absolute top-8 left-8 md:left-12 z-20">
-        <img
-          src={`${basePath}/logo-white.png`}
-          alt="TokenHarvest"
-          className="h-7 w-auto"
-        />
+        <Link href="/">
+          <img
+            src={`${basePath}/logo-white.png`}
+            alt="TokenHarvest"
+            className="h-7 w-auto cursor-pointer"
+          />
+        </Link>
       </div>
 
       {/* Form panel — right-side float */}

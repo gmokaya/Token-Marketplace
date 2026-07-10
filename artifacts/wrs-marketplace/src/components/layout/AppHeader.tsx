@@ -64,7 +64,7 @@ export function AppHeader({ collapsed, onToggle }: AppHeaderProps) {
             : <PanelLeftClose className="w-4 h-4" />}
         </button>
 
-        <Link href="/dashboard" className="flex items-center ml-1">
+        <Link href="/" className="flex items-center ml-1">
           <img
             src={`${basePath}/logo-dark.png`}
             alt="TokenHarvest"

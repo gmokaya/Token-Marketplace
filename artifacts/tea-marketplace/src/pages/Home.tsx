@@ -29,11 +29,13 @@ export default function Home() {
 
       {/* ── Top nav ── */}
       <nav className="relative z-10 flex items-center justify-between px-8 md:px-14 pt-8">
-        <img
-          src={`${basePath}/logo-white.png`}
-          alt="TokenHarvest"
-          className="h-7 w-auto"
-        />
+        <Link href="/">
+          <img
+            src={`${basePath}/logo-white.png`}
+            alt="TokenHarvest"
+            className="h-7 w-auto cursor-pointer"
+          />
+        </Link>
         <div className="flex items-center gap-3">
           <Link href="/sign-in">
             <button className="text-sm font-medium text-white/80 hover:text-white transition-colors px-4 py-2">

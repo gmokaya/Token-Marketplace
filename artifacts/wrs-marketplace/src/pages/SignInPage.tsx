@@ -1,4 +1,5 @@
 import { SignIn } from "@clerk/react";
+import { Link } from "wouter";
 
 const clerkAppearance = {
   variables: {
@@ -60,7 +61,9 @@ export default function SignInPage() {
         <div className="relative z-10 flex flex-col h-full p-10 xl:p-14">
           {/* Logo */}
           <div>
-            <img src={`${basePath}/logo-white.png`} alt="TokenHarvest" className="h-8 w-auto" />
+            <Link href="/">
+              <img src={`${basePath}/logo-white.png`} alt="TokenHarvest" className="h-8 w-auto cursor-pointer" />
+            </Link>
           </div>
 
           {/* Middle copy */}
@@ -99,7 +102,9 @@ export default function SignInPage() {
       <div className="flex-1 flex flex-col bg-white">
         {/* Top bar — mobile logo */}
         <div className="flex items-center justify-between px-6 py-5 lg:hidden border-b border-gray-100">
-          <img src={`${basePath}/logo-dark.png`} alt="TokenHarvest" className="h-7 w-auto" />
+          <Link href="/">
+            <img src={`${basePath}/logo-dark.png`} alt="TokenHarvest" className="h-7 w-auto cursor-pointer" />
+          </Link>
         </div>
 
         {/* Centered form */}
