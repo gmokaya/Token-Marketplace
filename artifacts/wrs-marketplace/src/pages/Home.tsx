@@ -20,7 +20,7 @@ type HpAbout   = { badge: string; heading: string; body: string; bullets: string
 type HpStep    = { num: string; title: string; desc: string };
 type HpStat    = { target: number; suffix: string; label: string };
 type HpCta     = { heading: string; subheadline: string; cta1: string; cta2: string };
-type HpContent = { hero: HpHero; services: HpService[]; about: HpAbout; howItWorks: HpStep[]; stats: HpStat[]; cta: HpCta; markets: MarketCardData[] };
+type HpContent = { hero: HpHero; services: HpService[]; about: HpAbout; howItWorks: HpStep[]; stats: HpStat[]; statsBg?: string; cta: HpCta; markets: MarketCardData[] };
 
 const DEF_HERO: HpHero = {
   badge: "WRS Marketplace",
@@ -407,6 +407,7 @@ export default function Home() {
   const about    = hp.about       ?? DEF_ABOUT;
   const steps    = hp.howItWorks  ?? DEF_STEPS;
   const hpStats  = hp.stats       ?? DEF_STATS;
+  const statsBg  = hp.statsBg?.trim() || img("bg-counter.jpg");
   const cta      = hp.cta         ?? DEF_CTA;
   const markets  = hp.markets     ?? DEF_MARKETS;
 
@@ -666,7 +667,7 @@ export default function Home() {
           {/* ══ COUNTERS ─────────────────────────────────────────── */}
           <section ref={statsRef} style={{
             position: "relative", padding: "80px 0",
-            backgroundImage: `url(${img("bg-counter.jpg")})`,
+            backgroundImage: `url(${statsBg})`,
             backgroundSize: "cover", backgroundPosition: "center",
           }}>
             <div style={{ position: "absolute", inset: 0, background: "rgba(12,12,12,0.82)" }} />

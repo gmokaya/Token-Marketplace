@@ -33,6 +33,7 @@ type HomepageContent = {
   about: AboutContent;
   howItWorks: HowItWorksStep[];
   stats: StatCounter[];
+  statsBg: string;
   cta: CtaContent;
   markets: MarketCard[];
 };
@@ -155,6 +156,7 @@ export default function AdminHomepage() {
   const [about, setAbout] = useState<AboutContent>(DEFAULT_ABOUT);
   const [howItWorks, setHowItWorks] = useState<HowItWorksStep[]>(DEFAULT_HOW_IT_WORKS);
   const [stats, setStats] = useState<StatCounter[]>(DEFAULT_STATS);
+  const [statsBg, setStatsBg] = useState<string>("");
   const [cta, setCta] = useState<CtaContent>(DEFAULT_CTA);
   const [markets, setMarkets] = useState<MarketCard[]>(DEFAULT_MARKETS);
   const [partners, setPartners] = useState<Partner[]>(DEFAULT_PARTNERS);
@@ -171,6 +173,7 @@ export default function AdminHomepage() {
         if (v.about)      setAbout(v.about);
         if (v.howItWorks?.length) setHowItWorks(v.howItWorks);
         if (v.stats?.length)      setStats(v.stats);
+        if (typeof v.statsBg === "string") setStatsBg(v.statsBg);
         if (v.cta)        setCta(v.cta);
         if (v.markets?.length) setMarkets(v.markets);
       }
@@ -183,7 +186,7 @@ export default function AdminHomepage() {
   const save = useCallback(async () => {
     setSaving(true);
     try {
-      const body: HomepageContent = { hero, services, about, howItWorks, stats, cta, markets };
+      const body: HomepageContent = { hero, services, about, howItWorks, stats, statsBg, cta, markets };
       const [hpRes, ptRes] = await Promise.all([
         fetch(`${API}/api/content/homepage`, {
           method: "PUT",
@@ -205,7 +208,7 @@ export default function AdminHomepage() {
     } finally {
       setSaving(false);
     }
-  }, [hero, services, about, howItWorks, stats, cta, markets, partners, toast]);
+  }, [hero, services, about, howItWorks, stats, statsBg, cta, markets, partners, toast]);
 
   return (
     <Layout>
@@ -262,7 +265,7 @@ export default function AdminHomepage() {
               <HowItWorksTab steps={howItWorks} setSteps={setHowItWorks} />
             )}
             {activeTab === "stats" && (
-              <StatsTab stats={stats} setStats={setStats} />
+              <StatsTab stats={stats} setStats={setStats} bgImage={statsBg} setBgImage={setStatsBg} />
             )}
             {activeTab === "cta" && (
               <CtaTab cta={cta} setCta={setCta} />
@@ -444,7 +447,12 @@ function HowItWorksTab({ steps, setSteps }: { steps: HowItWorksStep[]; setSteps:
 }
 
 /* ── Stats ─────────────────────────────────────────────── */
-function StatsTab({ stats, setStats }: { stats: StatCounter[]; setStats: (s: StatCounter[]) => void }) {
+function StatsTab({ stats, setStats, bgImage, setBgImage }: {
+  stats: StatCounter[];
+  setStats: (s: StatCounter[]) => void;
+  bgImage: string;
+  setBgImage: (v: string) => void;
+}) {
   const update = (i: number, k: keyof StatCounter, v: string | number) =>
     setStats(stats.map((s, idx) => idx === i ? { ...s, [k]: v } : s));
   const add = () => setStats([...stats, { target: 0, suffix: "", label: "" }]);
@@ -453,6 +461,7 @@ function StatsTab({ stats, setStats }: { stats: StatCounter[]; setStats: (s: Sta
     <div className="grid gap-4">
       <SectionCard title="Stats / Counters" desc="The animated numbers shown over the dark banner photo."
         action={<Button variant="outline" size="sm" className="gap-1.5" onClick={add}><Plus className="w-4 h-4" />Add Stat</Button>}>
+        <ImageUploadField label="Section background image" value={bgImage} onChange={setBgImage} />
         {stats.map((s, i) => (
           <div key={i} className="flex gap-3 items-center p-3 border border-gray-100 rounded-lg bg-gray-50/50">
             <GripVertical className="w-4 h-4 text-gray-300 shrink-0" />

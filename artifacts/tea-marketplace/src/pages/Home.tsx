@@ -1,7 +1,4 @@
-import { useGetMe, getGetMeQueryKey } from "@workspace/api-client-react";
-import { useClerk } from "@clerk/react";
-import { Link, Redirect } from "wouter";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Link } from "wouter";
 import { ArrowRight } from "lucide-react";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -13,31 +10,7 @@ const stats = [
 ];
 
 export default function Home() {
-  const { user } = useClerk();
-  const { data: me, isLoading } = useGetMe({
-    query: {
-      enabled: !!user,
-      queryKey: getGetMeQueryKey(),
-    },
-  });
-
-  /* ── Authenticated: redirect by role ── */
-  if (user && isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-background">
-        <Skeleton className="w-32 h-8" />
-      </div>
-    );
-  }
-
-  if (me) {
-    if (me.tier === "ENABLER")   return <Redirect to="/broker" />;
-    if (me.tier === "OFF_TAKER") return <Redirect to="/market" />;
-    if (me.tier === "ADMIN")     return <Redirect to="/admin/auctions" />;
-    if (me.tier === "PRODUCER")  return <Redirect to="/mandates" />;
-  }
-
-  /* ── Unauthenticated: full-screen hero ── */
+  /* ── Full-screen hero — visible to all visitors ── */
   return (
     <div className="relative w-screen h-screen overflow-hidden flex flex-col select-none">
 
