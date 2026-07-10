@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/tea/"
+title = "Tea Marketplace"
+version = "1.0.0"
+id = "artifacts/tea-marketplace"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/tea/" ]
+localPort = 25073
+
+[services.development]
+run = "pnpm --filter @workspace/tea-marketplace run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/tea-marketplace", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/tea-marketplace/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25073"
+BASE_PATH = "/tea/"
