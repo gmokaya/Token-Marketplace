@@ -17,6 +17,9 @@ import profilesRouter from "./profiles";
 import contentRouter from "./content";
 import ewrApiRouter, { EWR_API_SECURELY_CONFIGURED } from "./ewr-api";
 import cooperativesRouter from "./cooperatives";
+import teaLotsRouter from "./tea-lots";
+import brokerMandatesRouter from "./broker-mandates";
+import teaAuctionsRouter from "./tea-auctions";
 
 const router: IRouter = Router();
 
@@ -62,5 +65,8 @@ router.use(adminRouter);
 router.use(profilesRouter);
 router.use(wrscRouter);
 router.use(cooperativesRouter);
+router.use(teaLotsRouter);
+router.use(brokerMandatesRouter);
+router.use(teaAuctionsRouter);
 
 export default router;

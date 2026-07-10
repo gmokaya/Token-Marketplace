@@ -1570,3 +1570,584 @@ export const TransferEwrResponse = zod.object({
 })
 
 
+/**
+ * @summary Broker or admin creates a tea auction session linking multiple catalogued lots
+ */
+
+
+
+export const CreateTeaAuctionSessionBody = zod.object({
+  "auctionDate": zod.coerce.date().describe('Planned date of the auction session (YYYY-MM-DD)'),
+  "lotIds": zod.array(zod.number()).min(1).describe('Ordered list of tea lot IDs in catalogue sequence')
+})
+
+
+/**
+ * @summary Get session detail with ordered lot list, current bids, and countdown timers
+ */
+export const GetTeaAuctionSessionParams = zod.object({
+  "sessionId": zod.coerce.number()
+})
+
+export const GetTeaAuctionSessionResponse = zod.object({
+  "id": zod.number(),
+  "createdByBrokerId": zod.number(),
+  "brokerName": zod.string().nullish(),
+  "auctionDate": zod.coerce.date(),
+  "catalogueOrder": zod.array(zod.number()),
+  "currentLotId": zod.number().nullish(),
+  "status": zod.enum(['SCHEDULED', 'LIVE', 'CLOSED', 'COMPLETED']),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+}).and(zod.object({
+  "lots": zod.array(zod.object({
+
+}).passthrough().describe('TeaLot enriched with currentHighBidUsd, bidCount, secsRemaining, minNextBidUsd')).optional()
+}))
+
+
+/**
+ * @summary Start the session — moves the first lot to LIVE
+ */
+export const StartTeaAuctionSessionParams = zod.object({
+  "sessionId": zod.coerce.number()
+})
+
+export const startTeaAuctionSessionBodyDurationMinsDefault = 7;
+
+export const StartTeaAuctionSessionBody = zod.object({
+  "durationMins": zod.number().default(startTeaAuctionSessionBodyDurationMinsDefault).describe('Minutes each lot runs before closing')
+})
+
+export const StartTeaAuctionSessionResponse = zod.object({
+  "sessionId": zod.number().optional(),
+  "currentLotId": zod.number().optional(),
+  "auctionEndAt": zod.coerce.date().optional()
+})
+
+
+/**
+ * @summary Place a bid on a LIVE tea lot (OFF_TAKER only). Enforces tiered tick sizes and anti-snipe extension.
+ */
+export const PlaceTeaLotBidParams = zod.object({
+  "lotId": zod.coerce.number()
+})
+
+export const placeTeaLotBidBodyAmountUsdExclusiveMin = 0;
+
+
+
+export const PlaceTeaLotBidBody = zod.object({
+  "amountUsd": zod.number().gt(placeTeaLotBidBodyAmountUsdExclusiveMin)
+})
+
+
+/**
+ * @summary Broker withdraws a RESERVE_NOT_MET lot
+ */
+export const TeaLotTakeOutParams = zod.object({
+  "lotId": zod.coerce.number()
+})
+
+export const teaLotTakeOutResponseAntiSnipeConfigWindowSecsDefault = 180;
+export const teaLotTakeOutResponseAntiSnipeConfigExtensionSecsDefault = 180;
+export const teaLotTakeOutResponseAntiSnipeConfigMaxExtensionSecsDefault = 1800;
+
+export const TeaLotTakeOutResponse = zod.object({
+  "id": zod.number(),
+  "ewrId": zod.number(),
+  "ownerId": zod.number(),
+  "brokerId": zod.number(),
+  "grade": zod.string(),
+  "gradeMark": zod.string(),
+  "giOrigin": zod.string(),
+  "grossWeightKg": zod.number(),
+  "netWeightKg": zod.number(),
+  "tareWeightKg": zod.number(),
+  "packageType": zod.string(),
+  "packingWeightKg": zod.number().nullish(),
+  "tasterRemarks": zod.string().nullish(),
+  "certifications": zod.array(zod.string()),
+  "storageStatus": zod.string().nullish(),
+  "listingType": zod.enum(['AUCTION', 'FIXED_PRICE']),
+  "catalogueType": zod.enum(['WITH_VALUATION', 'WITHOUT_VALUATION']),
+  "reservePriceUsd": zod.number().nullish(),
+  "brokerValuationUsd": zod.number().nullish(),
+  "fixedPricePerKgUsd": zod.number().nullish(),
+  "commissionRate": zod.number(),
+  "tickTiers": zod.array(zod.object({
+  "upToUsd": zod.number().nullish().describe('Upper bound of this tier (null \/ absent means \"above all others\")'),
+  "above": zod.boolean().nullish().describe('True for the catch-all top tier'),
+  "incrementPct": zod.number().describe('Minimum bid increment as a percentage within this tier')
+})),
+  "antiSnipeConfig": zod.object({
+  "windowSecs": zod.number().default(teaLotTakeOutResponseAntiSnipeConfigWindowSecsDefault).describe('Seconds before lot end that triggers extension'),
+  "extensionSecs": zod.number().default(teaLotTakeOutResponseAntiSnipeConfigExtensionSecsDefault).describe('Seconds added per late bid'),
+  "maxExtensionSecs": zod.number().default(teaLotTakeOutResponseAntiSnipeConfigMaxExtensionSecsDefault).describe('Maximum total extension (30 min cap)')
+}),
+  "bidSecurityPct": zod.number(),
+  "status": zod.enum(['DRAFT', 'CATALOGUED', 'DISPATCHED', 'LIVE', 'SOLD', 'UNSOLD', 'WITHDRAWN', 'RESERVE_NOT_MET']),
+  "publishedAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Broker accepts the highest bid even though it is below reserve
+ */
+export const AcceptTeaLotBelowReserveParams = zod.object({
+  "lotId": zod.coerce.number()
+})
+
+export const AcceptTeaLotBelowReserveResponse = zod.object({
+  "lotId": zod.number().optional(),
+  "status": zod.string().optional(),
+  "acceptedBelowReserve": zod.boolean().optional(),
+  "grossAmountUsd": zod.number().optional(),
+  "promptDate": zod.coerce.date().optional()
+})
+
+
+/**
+ * @summary Admin confirms payment received; marks delivery order as ISSUABLE
+ */
+export const ConfirmTeaLotPaymentParams = zod.object({
+  "lotId": zod.coerce.number()
+})
+
+export const ConfirmTeaLotPaymentResponse = zod.object({
+  "id": zod.number(),
+  "lotId": zod.number(),
+  "sessionId": zod.number(),
+  "winningBidId": zod.number(),
+  "buyerId": zod.number(),
+  "buyerName": zod.string().nullish(),
+  "grossAmountUsd": zod.number(),
+  "platformFeeUsd": zod.number(),
+  "brokerCommissionUsd": zod.number(),
+  "netProducerAmountUsd": zod.number(),
+  "promptDate": zod.coerce.date().describe('Payment due date (10 working days, Kenyan calendar)'),
+  "paymentStatus": zod.enum(['PENDING', 'PAID', 'DEFAULTED']),
+  "deliveryOrderStatus": zod.enum(['NOT_ISSUABLE', 'ISSUABLE', 'ISSUED']),
+  "acceptedBelowReserve": zod.number().optional().describe('1 if broker accepted below reserve, 0 otherwise'),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Get settlement detail for a lot including prompt date and delivery order status
+ */
+export const GetTeaLotSettlementParams = zod.object({
+  "lotId": zod.coerce.number()
+})
+
+export const GetTeaLotSettlementResponse = zod.object({
+  "id": zod.number(),
+  "lotId": zod.number(),
+  "sessionId": zod.number(),
+  "winningBidId": zod.number(),
+  "buyerId": zod.number(),
+  "buyerName": zod.string().nullish(),
+  "grossAmountUsd": zod.number(),
+  "platformFeeUsd": zod.number(),
+  "brokerCommissionUsd": zod.number(),
+  "netProducerAmountUsd": zod.number(),
+  "promptDate": zod.coerce.date().describe('Payment due date (10 working days, Kenyan calendar)'),
+  "paymentStatus": zod.enum(['PENDING', 'PAID', 'DEFAULTED']),
+  "deliveryOrderStatus": zod.enum(['NOT_ISSUABLE', 'ISSUABLE', 'ISSUED']),
+  "acceptedBelowReserve": zod.number().optional().describe('1 if broker accepted below reserve, 0 otherwise'),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary List tea lots (filterable by grade, GI origin, certification, listing type, status)
+ */
+export const ListTeaLotsQueryParams = zod.object({
+  "grade": zod.coerce.string().optional(),
+  "giOrigin": zod.coerce.string().optional(),
+  "certification": zod.coerce.string().optional(),
+  "listingType": zod.enum(['AUCTION', 'FIXED_PRICE']).optional(),
+  "status": zod.enum(['DRAFT', 'CATALOGUED', 'DISPATCHED', 'LIVE', 'SOLD', 'UNSOLD', 'WITHDRAWN', 'RESERVE_NOT_MET']).optional(),
+  "brokerId": zod.coerce.number().optional(),
+  "ownerId": zod.coerce.number().optional()
+})
+
+export const listTeaLotsResponseAntiSnipeConfigWindowSecsDefault = 180;
+export const listTeaLotsResponseAntiSnipeConfigExtensionSecsDefault = 180;
+export const listTeaLotsResponseAntiSnipeConfigMaxExtensionSecsDefault = 1800;
+
+export const ListTeaLotsResponseItem = zod.object({
+  "id": zod.number(),
+  "ewrId": zod.number(),
+  "ownerId": zod.number(),
+  "brokerId": zod.number(),
+  "grade": zod.string(),
+  "gradeMark": zod.string(),
+  "giOrigin": zod.string(),
+  "grossWeightKg": zod.number(),
+  "netWeightKg": zod.number(),
+  "tareWeightKg": zod.number(),
+  "packageType": zod.string(),
+  "packingWeightKg": zod.number().nullish(),
+  "tasterRemarks": zod.string().nullish(),
+  "certifications": zod.array(zod.string()),
+  "storageStatus": zod.string().nullish(),
+  "listingType": zod.enum(['AUCTION', 'FIXED_PRICE']),
+  "catalogueType": zod.enum(['WITH_VALUATION', 'WITHOUT_VALUATION']),
+  "reservePriceUsd": zod.number().nullish(),
+  "brokerValuationUsd": zod.number().nullish(),
+  "fixedPricePerKgUsd": zod.number().nullish(),
+  "commissionRate": zod.number(),
+  "tickTiers": zod.array(zod.object({
+  "upToUsd": zod.number().nullish().describe('Upper bound of this tier (null \/ absent means \"above all others\")'),
+  "above": zod.boolean().nullish().describe('True for the catch-all top tier'),
+  "incrementPct": zod.number().describe('Minimum bid increment as a percentage within this tier')
+})),
+  "antiSnipeConfig": zod.object({
+  "windowSecs": zod.number().default(listTeaLotsResponseAntiSnipeConfigWindowSecsDefault).describe('Seconds before lot end that triggers extension'),
+  "extensionSecs": zod.number().default(listTeaLotsResponseAntiSnipeConfigExtensionSecsDefault).describe('Seconds added per late bid'),
+  "maxExtensionSecs": zod.number().default(listTeaLotsResponseAntiSnipeConfigMaxExtensionSecsDefault).describe('Maximum total extension (30 min cap)')
+}),
+  "bidSecurityPct": zod.number(),
+  "status": zod.enum(['DRAFT', 'CATALOGUED', 'DISPATCHED', 'LIVE', 'SOLD', 'UNSOLD', 'WITHDRAWN', 'RESERVE_NOT_MET']),
+  "publishedAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+export const ListTeaLotsResponse = zod.array(ListTeaLotsResponseItem)
+
+
+/**
+ * @summary Broker creates a tea lot catalogue entry (active mandate required)
+ */
+
+
+
+export const createTeaLotBodyGrossWeightKgExclusiveMin = 0;
+
+export const createTeaLotBodyNetWeightKgExclusiveMin = 0;
+
+export const createTeaLotBodyTareWeightKgMin = 0;
+
+
+export const createTeaLotBodyCertificationsDefault = [];
+export const createTeaLotBodyListingTypeDefault = `AUCTION`;
+export const createTeaLotBodyCatalogueTypeDefault = `WITHOUT_VALUATION`;
+export const createTeaLotBodyCommissionRateDefault = 0.01;
+export const createTeaLotBodyCommissionRateMin = 0;
+export const createTeaLotBodyCommissionRateMax = 1;
+
+export const createTeaLotBodyTickTiersDefault = [];
+export const createTeaLotBodyAntiSnipeConfigWindowSecsDefault = 180;
+export const createTeaLotBodyAntiSnipeConfigExtensionSecsDefault = 180;
+export const createTeaLotBodyAntiSnipeConfigMaxExtensionSecsDefault = 1800;
+export const createTeaLotBodyBidSecurityPctDefault = 0.1;
+export const createTeaLotBodyBidSecurityPctMin = 0;
+export const createTeaLotBodyBidSecurityPctMax = 1;
+
+
+
+export const CreateTeaLotBody = zod.object({
+  "ewrId": zod.number(),
+  "grade": zod.string().min(1),
+  "gradeMark": zod.string().min(1),
+  "giOrigin": zod.string().min(1),
+  "grossWeightKg": zod.number().gt(createTeaLotBodyGrossWeightKgExclusiveMin),
+  "netWeightKg": zod.number().gt(createTeaLotBodyNetWeightKgExclusiveMin),
+  "tareWeightKg": zod.number().min(createTeaLotBodyTareWeightKgMin),
+  "packageType": zod.string().min(1),
+  "packingWeightKg": zod.number().optional(),
+  "tasterRemarks": zod.string().optional(),
+  "certifications": zod.array(zod.string()).default(createTeaLotBodyCertificationsDefault),
+  "storageStatus": zod.string().optional(),
+  "listingType": zod.enum(['AUCTION', 'FIXED_PRICE']).default(createTeaLotBodyListingTypeDefault),
+  "catalogueType": zod.enum(['WITH_VALUATION', 'WITHOUT_VALUATION']).default(createTeaLotBodyCatalogueTypeDefault),
+  "reservePriceUsd": zod.number().optional().describe('Required for AUCTION lots'),
+  "brokerValuationUsd": zod.number().optional(),
+  "fixedPricePerKgUsd": zod.number().optional().describe('Required for FIXED_PRICE lots'),
+  "commissionRate": zod.number().min(createTeaLotBodyCommissionRateMin).max(createTeaLotBodyCommissionRateMax).default(createTeaLotBodyCommissionRateDefault),
+  "tickTiers": zod.array(zod.object({
+  "upToUsd": zod.number().nullish().describe('Upper bound of this tier (null \/ absent means \"above all others\")'),
+  "above": zod.boolean().nullish().describe('True for the catch-all top tier'),
+  "incrementPct": zod.number().describe('Minimum bid increment as a percentage within this tier')
+})).default(createTeaLotBodyTickTiersDefault),
+  "antiSnipeConfig": zod.object({
+  "windowSecs": zod.number().default(createTeaLotBodyAntiSnipeConfigWindowSecsDefault).describe('Seconds before lot end that triggers extension'),
+  "extensionSecs": zod.number().default(createTeaLotBodyAntiSnipeConfigExtensionSecsDefault).describe('Seconds added per late bid'),
+  "maxExtensionSecs": zod.number().default(createTeaLotBodyAntiSnipeConfigMaxExtensionSecsDefault).describe('Maximum total extension (30 min cap)')
+}).optional(),
+  "bidSecurityPct": zod.number().min(createTeaLotBodyBidSecurityPctMin).max(createTeaLotBodyBidSecurityPctMax).default(createTeaLotBodyBidSecurityPctDefault)
+})
+
+
+/**
+ * @summary Get full tea lot detail including eWR summary
+ */
+export const GetTeaLotParams = zod.object({
+  "lotId": zod.coerce.number()
+})
+
+export const getTeaLotResponseOneAntiSnipeConfigWindowSecsDefault = 180;
+export const getTeaLotResponseOneAntiSnipeConfigExtensionSecsDefault = 180;
+export const getTeaLotResponseOneAntiSnipeConfigMaxExtensionSecsDefault = 1800;
+
+export const GetTeaLotResponse = zod.object({
+  "id": zod.number(),
+  "ewrId": zod.number(),
+  "ownerId": zod.number(),
+  "brokerId": zod.number(),
+  "grade": zod.string(),
+  "gradeMark": zod.string(),
+  "giOrigin": zod.string(),
+  "grossWeightKg": zod.number(),
+  "netWeightKg": zod.number(),
+  "tareWeightKg": zod.number(),
+  "packageType": zod.string(),
+  "packingWeightKg": zod.number().nullish(),
+  "tasterRemarks": zod.string().nullish(),
+  "certifications": zod.array(zod.string()),
+  "storageStatus": zod.string().nullish(),
+  "listingType": zod.enum(['AUCTION', 'FIXED_PRICE']),
+  "catalogueType": zod.enum(['WITH_VALUATION', 'WITHOUT_VALUATION']),
+  "reservePriceUsd": zod.number().nullish(),
+  "brokerValuationUsd": zod.number().nullish(),
+  "fixedPricePerKgUsd": zod.number().nullish(),
+  "commissionRate": zod.number(),
+  "tickTiers": zod.array(zod.object({
+  "upToUsd": zod.number().nullish().describe('Upper bound of this tier (null \/ absent means \"above all others\")'),
+  "above": zod.boolean().nullish().describe('True for the catch-all top tier'),
+  "incrementPct": zod.number().describe('Minimum bid increment as a percentage within this tier')
+})),
+  "antiSnipeConfig": zod.object({
+  "windowSecs": zod.number().default(getTeaLotResponseOneAntiSnipeConfigWindowSecsDefault).describe('Seconds before lot end that triggers extension'),
+  "extensionSecs": zod.number().default(getTeaLotResponseOneAntiSnipeConfigExtensionSecsDefault).describe('Seconds added per late bid'),
+  "maxExtensionSecs": zod.number().default(getTeaLotResponseOneAntiSnipeConfigMaxExtensionSecsDefault).describe('Maximum total extension (30 min cap)')
+}),
+  "bidSecurityPct": zod.number(),
+  "status": zod.enum(['DRAFT', 'CATALOGUED', 'DISPATCHED', 'LIVE', 'SOLD', 'UNSOLD', 'WITHDRAWN', 'RESERVE_NOT_MET']),
+  "publishedAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+}).and(zod.object({
+  "ownerName": zod.string().nullish(),
+  "brokerName": zod.string().nullish(),
+  "ewr": zod.object({
+  "ewrsReceiptId": zod.string().optional(),
+  "commodityType": zod.string().optional(),
+  "weightMt": zod.number().optional(),
+  "harvestSeason": zod.string().optional(),
+  "state": zod.string().optional(),
+  "teaProcessingType": zod.string().nullish(),
+  "teaLeafGrade": zod.string().nullish(),
+  "teaInvoiceSerial": zod.string().nullish()
+}).nullish()
+}))
+
+
+/**
+ * @summary Broker or owner updates a DRAFT/CATALOGUED lot
+ */
+export const UpdateTeaLotParams = zod.object({
+  "lotId": zod.coerce.number()
+})
+
+export const updateTeaLotBodyAntiSnipeConfigWindowSecsDefault = 180;
+export const updateTeaLotBodyAntiSnipeConfigExtensionSecsDefault = 180;
+export const updateTeaLotBodyAntiSnipeConfigMaxExtensionSecsDefault = 1800;
+
+export const UpdateTeaLotBody = zod.object({
+  "grade": zod.string().optional(),
+  "gradeMark": zod.string().optional(),
+  "giOrigin": zod.string().optional(),
+  "grossWeightKg": zod.number().optional(),
+  "netWeightKg": zod.number().optional(),
+  "tareWeightKg": zod.number().optional(),
+  "packageType": zod.string().optional(),
+  "packingWeightKg": zod.number().optional(),
+  "tasterRemarks": zod.string().optional(),
+  "certifications": zod.array(zod.string()).optional(),
+  "storageStatus": zod.string().optional(),
+  "listingType": zod.enum(['AUCTION', 'FIXED_PRICE']).optional(),
+  "catalogueType": zod.enum(['WITH_VALUATION', 'WITHOUT_VALUATION']).optional(),
+  "reservePriceUsd": zod.number().optional(),
+  "brokerValuationUsd": zod.number().optional(),
+  "fixedPricePerKgUsd": zod.number().optional(),
+  "commissionRate": zod.number().optional(),
+  "tickTiers": zod.array(zod.object({
+  "upToUsd": zod.number().nullish().describe('Upper bound of this tier (null \/ absent means \"above all others\")'),
+  "above": zod.boolean().nullish().describe('True for the catch-all top tier'),
+  "incrementPct": zod.number().describe('Minimum bid increment as a percentage within this tier')
+})).optional(),
+  "antiSnipeConfig": zod.object({
+  "windowSecs": zod.number().default(updateTeaLotBodyAntiSnipeConfigWindowSecsDefault).describe('Seconds before lot end that triggers extension'),
+  "extensionSecs": zod.number().default(updateTeaLotBodyAntiSnipeConfigExtensionSecsDefault).describe('Seconds added per late bid'),
+  "maxExtensionSecs": zod.number().default(updateTeaLotBodyAntiSnipeConfigMaxExtensionSecsDefault).describe('Maximum total extension (30 min cap)')
+}).optional(),
+  "bidSecurityPct": zod.number().optional()
+}).describe('All fields are optional; only the provided fields are updated')
+
+export const updateTeaLotResponseAntiSnipeConfigWindowSecsDefault = 180;
+export const updateTeaLotResponseAntiSnipeConfigExtensionSecsDefault = 180;
+export const updateTeaLotResponseAntiSnipeConfigMaxExtensionSecsDefault = 1800;
+
+export const UpdateTeaLotResponse = zod.object({
+  "id": zod.number(),
+  "ewrId": zod.number(),
+  "ownerId": zod.number(),
+  "brokerId": zod.number(),
+  "grade": zod.string(),
+  "gradeMark": zod.string(),
+  "giOrigin": zod.string(),
+  "grossWeightKg": zod.number(),
+  "netWeightKg": zod.number(),
+  "tareWeightKg": zod.number(),
+  "packageType": zod.string(),
+  "packingWeightKg": zod.number().nullish(),
+  "tasterRemarks": zod.string().nullish(),
+  "certifications": zod.array(zod.string()),
+  "storageStatus": zod.string().nullish(),
+  "listingType": zod.enum(['AUCTION', 'FIXED_PRICE']),
+  "catalogueType": zod.enum(['WITH_VALUATION', 'WITHOUT_VALUATION']),
+  "reservePriceUsd": zod.number().nullish(),
+  "brokerValuationUsd": zod.number().nullish(),
+  "fixedPricePerKgUsd": zod.number().nullish(),
+  "commissionRate": zod.number(),
+  "tickTiers": zod.array(zod.object({
+  "upToUsd": zod.number().nullish().describe('Upper bound of this tier (null \/ absent means \"above all others\")'),
+  "above": zod.boolean().nullish().describe('True for the catch-all top tier'),
+  "incrementPct": zod.number().describe('Minimum bid increment as a percentage within this tier')
+})),
+  "antiSnipeConfig": zod.object({
+  "windowSecs": zod.number().default(updateTeaLotResponseAntiSnipeConfigWindowSecsDefault).describe('Seconds before lot end that triggers extension'),
+  "extensionSecs": zod.number().default(updateTeaLotResponseAntiSnipeConfigExtensionSecsDefault).describe('Seconds added per late bid'),
+  "maxExtensionSecs": zod.number().default(updateTeaLotResponseAntiSnipeConfigMaxExtensionSecsDefault).describe('Maximum total extension (30 min cap)')
+}),
+  "bidSecurityPct": zod.number(),
+  "status": zod.enum(['DRAFT', 'CATALOGUED', 'DISPATCHED', 'LIVE', 'SOLD', 'UNSOLD', 'WITHDRAWN', 'RESERVE_NOT_MET']),
+  "publishedAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Retrieve dispatch documents for a tea lot
+ */
+export const GetTeaLotDispatchDocsParams = zod.object({
+  "lotId": zod.coerce.number()
+})
+
+export const GetTeaLotDispatchDocsResponseItem = zod.object({
+  "id": zod.number(),
+  "lotId": zod.number(),
+  "docType": zod.enum(['PRE_AUCTION_DISPATCH', 'WEIGHMENT_REPORT', 'DELIVERY_ORDER']),
+  "submittedBy": zod.number(),
+  "submitterName": zod.string().nullish(),
+  "docData": zod.record(zod.string(), zod.unknown()),
+  "createdAt": zod.coerce.date()
+})
+export const GetTeaLotDispatchDocsResponse = zod.array(GetTeaLotDispatchDocsResponseItem)
+
+
+/**
+ * @summary Attach a dispatch document (pre-auction dispatch, weighment report, or delivery order)
+ */
+export const AttachTeaDispatchDocParams = zod.object({
+  "lotId": zod.coerce.number()
+})
+
+export const attachTeaDispatchDocBodyDocDataDefault = {  };
+
+export const AttachTeaDispatchDocBody = zod.object({
+  "docType": zod.enum(['PRE_AUCTION_DISPATCH', 'WEIGHMENT_REPORT', 'DELIVERY_ORDER']),
+  "docData": zod.record(zod.string(), zod.unknown()).default(attachTeaDispatchDocBodyDocDataDefault)
+})
+
+
+/**
+ * @summary Owner grants a broker mandate (PRODUCER or COOPERATIVE only)
+ */
+export const createBrokerMandateBodyPermissionsDefault = [`list`, `accept_bids`, `negotiate`, `set_reserve`];
+export const createBrokerMandateBodyCommissionRateOverrideMin = 0;
+export const createBrokerMandateBodyCommissionRateOverrideMax = 1;
+
+
+
+export const CreateBrokerMandateBody = zod.object({
+  "brokerId": zod.number().describe('User ID of the ENABLER-tier broker'),
+  "commodityType": zod.enum(['MAIZE', 'RICE', 'COFFEE', 'TEA', 'AVOCADO']),
+  "permissions": zod.array(zod.string()).default(createBrokerMandateBodyPermissionsDefault),
+  "commissionRateOverride": zod.number().min(createBrokerMandateBodyCommissionRateOverrideMin).max(createBrokerMandateBodyCommissionRateOverrideMax).optional(),
+  "validFrom": zod.coerce.date().optional(),
+  "validTo": zod.coerce.date().optional()
+})
+
+
+/**
+ * @summary Broker retrieves mandates granted to them
+ */
+export const GetMyMandatesResponseItem = zod.object({
+  "id": zod.number(),
+  "ownerId": zod.number(),
+  "ownerName": zod.string().nullish(),
+  "brokerId": zod.number(),
+  "brokerName": zod.string().nullish(),
+  "commodityType": zod.enum(['MAIZE', 'RICE', 'COFFEE', 'TEA', 'AVOCADO']),
+  "permissions": zod.array(zod.string()),
+  "commissionRateOverride": zod.number().nullish(),
+  "validFrom": zod.coerce.date(),
+  "validTo": zod.coerce.date().nullish(),
+  "revoked": zod.boolean(),
+  "revokedAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date()
+})
+export const GetMyMandatesResponse = zod.array(GetMyMandatesResponseItem)
+
+
+/**
+ * @summary Owner retrieves mandates they have granted
+ */
+export const GetMandatesGivenResponseItem = zod.object({
+  "id": zod.number(),
+  "ownerId": zod.number(),
+  "ownerName": zod.string().nullish(),
+  "brokerId": zod.number(),
+  "brokerName": zod.string().nullish(),
+  "commodityType": zod.enum(['MAIZE', 'RICE', 'COFFEE', 'TEA', 'AVOCADO']),
+  "permissions": zod.array(zod.string()),
+  "commissionRateOverride": zod.number().nullish(),
+  "validFrom": zod.coerce.date(),
+  "validTo": zod.coerce.date().nullish(),
+  "revoked": zod.boolean(),
+  "revokedAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date()
+})
+export const GetMandatesGivenResponse = zod.array(GetMandatesGivenResponseItem)
+
+
+/**
+ * @summary Owner revokes a mandate
+ */
+export const RevokeBrokerMandateParams = zod.object({
+  "mandateId": zod.coerce.number()
+})
+
+export const RevokeBrokerMandateResponse = zod.object({
+  "id": zod.number(),
+  "ownerId": zod.number(),
+  "ownerName": zod.string().nullish(),
+  "brokerId": zod.number(),
+  "brokerName": zod.string().nullish(),
+  "commodityType": zod.enum(['MAIZE', 'RICE', 'COFFEE', 'TEA', 'AVOCADO']),
+  "permissions": zod.array(zod.string()),
+  "commissionRateOverride": zod.number().nullish(),
+  "validFrom": zod.coerce.date(),
+  "validTo": zod.coerce.date().nullish(),
+  "revoked": zod.boolean(),
+  "revokedAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date()
+})
+
+

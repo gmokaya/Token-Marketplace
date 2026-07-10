@@ -5,6 +5,7 @@ import { pool } from "@workspace/db";
 import { logger } from "./lib/logger";
 import { startOrderExpiryWorker } from "./routes/orders";
 import { startAuctionExpiryWorker, broadcastSseEvent, broadcastReconnectHint } from "./routes/auctions";
+import { startTeaAuctionWorker } from "./lib/tea-auction-worker";
 import { startAvocadoDegradationWorker } from "./routes/ewrs";
 import { startForwardMaturityWorker } from "./routes/forwards";
 import { startAuctionPubSubSubscriber, setAuctionEventHandler, setReconnectHandler } from "./lib/pg-pubsub";
@@ -50,6 +51,7 @@ const server: Server = app.listen(port, async (err) => {
   startAuctionExpiryWorker();
   startAvocadoDegradationWorker();
   startForwardMaturityWorker();
+  startTeaAuctionWorker();
 
   // Wire pg LISTEN/NOTIFY so every instance fans out SSE events received from any instance
   setAuctionEventHandler((payload) => {

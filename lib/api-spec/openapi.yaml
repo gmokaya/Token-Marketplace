@@ -36,6 +36,10 @@ tags:
     description: Platform administration and earnings
   - name: audit
     description: Compliance audit trail
+  - name: tea
+    description: Tea lot catalogue and dispatch documents
+  - name: broker-mandates
+    description: Broker mandate grants and revocations
 
 paths:
   /storage/uploads/request-url:
@@ -1431,6 +1435,603 @@ paths:
               schema:
                 $ref: "#/components/schemas/Ewr"
 
+  /tea/auctions:
+    post:
+      operationId: createTeaAuctionSession
+      tags: [tea]
+      summary: Broker or admin creates a tea auction session linking multiple catalogued lots
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTeaAuctionSessionRequest"
+      responses:
+        "201":
+          description: Session created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeaAuctionSession"
+        "400":
+          description: Lots not in eligible status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: Not a broker or admin, or lot belongs to another broker
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /tea/auctions/{sessionId}:
+    get:
+      operationId: getTeaAuctionSession
+      tags: [tea]
+      summary: Get session detail with ordered lot list, current bids, and countdown timers
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Session detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeaAuctionSessionDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /tea/auctions/{sessionId}/start:
+    post:
+      operationId: startTeaAuctionSession
+      tags: [tea]
+      summary: Start the session — moves the first lot to LIVE
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                durationMins:
+                  type: integer
+                  default: 7
+                  description: Minutes each lot runs before closing
+      responses:
+        "200":
+          description: Session started; first lot is LIVE
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessionId:
+                    type: integer
+                  currentLotId:
+                    type: integer
+                  auctionEndAt:
+                    type: string
+                    format: date-time
+        "400":
+          description: Session not in SCHEDULED status or no lots
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: Not the creating broker or admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /tea/lots/{lotId}/bids:
+    post:
+      operationId: placeTeaLotBid
+      tags: [tea]
+      summary: Place a bid on a LIVE tea lot (OFF_TAKER only). Enforces tiered tick sizes and anti-snipe extension.
+      parameters:
+        - name: lotId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TeaLotBidInput"
+      responses:
+        "201":
+          description: Bid placed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeaLotBidResult"
+        "400":
+          description: Bid below minimum, lot not LIVE, or lot has ended
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: Not an OFF_TAKER or owner bidding on own lot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /tea/lots/{lotId}/take-out:
+    post:
+      operationId: teaLotTakeOut
+      tags: [tea]
+      summary: Broker withdraws a RESERVE_NOT_MET lot
+      parameters:
+        - name: lotId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Lot withdrawn
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeaLot"
+        "400":
+          description: Lot not in RESERVE_NOT_MET status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: Not the mandate broker or admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /tea/lots/{lotId}/accept-below-reserve:
+    post:
+      operationId: acceptTeaLotBelowReserve
+      tags: [tea]
+      summary: Broker accepts the highest bid even though it is below reserve
+      parameters:
+        - name: lotId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Below-reserve sale accepted; settlement record created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  lotId:
+                    type: integer
+                  status:
+                    type: string
+                  acceptedBelowReserve:
+                    type: boolean
+                  grossAmountUsd:
+                    type: number
+                  promptDate:
+                    type: string
+                    format: date
+        "400":
+          description: Lot not in RESERVE_NOT_MET status or no bids
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: Not the mandate broker or admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /tea/lots/{lotId}/settle:
+    post:
+      operationId: confirmTeaLotPayment
+      tags: [tea]
+      summary: Admin confirms payment received; marks delivery order as ISSUABLE
+      parameters:
+        - name: lotId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Settlement updated; delivery order now issuable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeaLotSettlement"
+        "400":
+          description: Payment not in PENDING status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: Not admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: No settlement record for this lot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /tea/lots/{lotId}/settlement:
+    get:
+      operationId: getTeaLotSettlement
+      tags: [tea]
+      summary: Get settlement detail for a lot including prompt date and delivery order status
+      parameters:
+        - name: lotId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Settlement detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeaLotSettlement"
+        "404":
+          description: No settlement record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /tea/lots:
+    get:
+      operationId: listTeaLots
+      tags: [tea]
+      summary: List tea lots (filterable by grade, GI origin, certification, listing type, status)
+      parameters:
+        - name: grade
+          in: query
+          schema:
+            type: string
+        - name: giOrigin
+          in: query
+          schema:
+            type: string
+        - name: certification
+          in: query
+          schema:
+            type: string
+        - name: listingType
+          in: query
+          schema:
+            type: string
+            enum: [AUCTION, FIXED_PRICE]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [DRAFT, CATALOGUED, DISPATCHED, LIVE, SOLD, UNSOLD, WITHDRAWN, RESERVE_NOT_MET]
+        - name: brokerId
+          in: query
+          schema:
+            type: integer
+        - name: ownerId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of tea lots
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TeaLot"
+    post:
+      operationId: createTeaLot
+      tags: [tea]
+      summary: Broker creates a tea lot catalogue entry (active mandate required)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTeaLotRequest"
+      responses:
+        "201":
+          description: Tea lot created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeaLot"
+        "400":
+          description: Validation error or AUCTION lot missing reserve price
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: No active mandate or not an ENABLER account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: eWR not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /tea/lots/{lotId}:
+    get:
+      operationId: getTeaLot
+      tags: [tea]
+      summary: Get full tea lot detail including eWR summary
+      parameters:
+        - name: lotId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Tea lot detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeaLotDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+    patch:
+      operationId: updateTeaLot
+      tags: [tea]
+      summary: Broker or owner updates a DRAFT/CATALOGUED lot
+      parameters:
+        - name: lotId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTeaLotRequest"
+      responses:
+        "200":
+          description: Updated tea lot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeaLot"
+        "400":
+          description: Lot not in updatable status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: Not the mandate broker or owner
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /tea/lots/{lotId}/dispatch:
+    get:
+      operationId: getTeaLotDispatchDocs
+      tags: [tea]
+      summary: Retrieve dispatch documents for a tea lot
+      parameters:
+        - name: lotId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Dispatch documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TeaDispatchDoc"
+        "404":
+          description: Lot not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+    post:
+      operationId: attachTeaDispatchDoc
+      tags: [tea]
+      summary: Attach a dispatch document (pre-auction dispatch, weighment report, or delivery order)
+      parameters:
+        - name: lotId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AttachDispatchDocRequest"
+      responses:
+        "201":
+          description: Document attached
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeaDispatchDoc"
+        "400":
+          description: Delivery order only allowed on SOLD lots
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: Not the mandate broker or owner
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: Lot not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /broker-mandates:
+    post:
+      operationId: createBrokerMandate
+      tags: [broker-mandates]
+      summary: Owner grants a broker mandate (PRODUCER or COOPERATIVE only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBrokerMandateRequest"
+      responses:
+        "201":
+          description: Mandate created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BrokerMandate"
+        "400":
+          description: Target user is not an ENABLER, or validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: Caller is not a PRODUCER or COOPERATIVE
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: Active mandate already exists for this broker and commodity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /broker-mandates/my:
+    get:
+      operationId: getMyMandates
+      tags: [broker-mandates]
+      summary: Broker retrieves mandates granted to them
+      responses:
+        "200":
+          description: List of mandates received by this broker
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BrokerMandate"
+
+  /broker-mandates/given:
+    get:
+      operationId: getMandatesGiven
+      tags: [broker-mandates]
+      summary: Owner retrieves mandates they have granted
+      responses:
+        "200":
+          description: List of mandates granted by this owner
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BrokerMandate"
+
+  /broker-mandates/{mandateId}:
+    delete:
+      operationId: revokeBrokerMandate
+      tags: [broker-mandates]
+      summary: Owner revokes a mandate
+      parameters:
+        - name: mandateId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Mandate revoked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BrokerMandate"
+        "400":
+          description: Already revoked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: Not the mandate owner
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: Mandate not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
 components:
   schemas:
     ErrorEnvelope:
@@ -2522,5 +3123,529 @@ components:
         metadata:
           type: ["string", "null"]
         createdAt:
+          type: string
+          format: date-time
+
+    # ── Tea Auction Engine ─────────────────────────────────────────────────
+
+    CreateTeaAuctionSessionRequest:
+      type: object
+      required: [auctionDate, lotIds]
+      properties:
+        auctionDate:
+          type: string
+          format: date
+          description: Planned date of the auction session (YYYY-MM-DD)
+        lotIds:
+          type: array
+          items:
+            type: integer
+          minItems: 1
+          description: Ordered list of tea lot IDs in catalogue sequence
+
+    TeaAuctionSession:
+      type: object
+      required: [id, createdByBrokerId, auctionDate, catalogueOrder, status, createdAt, updatedAt]
+      properties:
+        id:
+          type: integer
+        createdByBrokerId:
+          type: integer
+        brokerName:
+          type: ["string", "null"]
+        auctionDate:
+          type: string
+          format: date
+        catalogueOrder:
+          type: array
+          items:
+            type: integer
+        currentLotId:
+          type: ["integer", "null"]
+        status:
+          type: string
+          enum: [SCHEDULED, LIVE, CLOSED, COMPLETED]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    TeaAuctionSessionDetail:
+      allOf:
+        - $ref: "#/components/schemas/TeaAuctionSession"
+        - type: object
+          properties:
+            lots:
+              type: array
+              items:
+                type: object
+                description: TeaLot enriched with currentHighBidUsd, bidCount, secsRemaining, minNextBidUsd
+
+    TeaLotBidInput:
+      type: object
+      required: [amountUsd]
+      properties:
+        amountUsd:
+          type: number
+          minimum: 0
+          exclusiveMinimum: true
+
+    TeaLotBid:
+      type: object
+      required: [id, lotId, sessionId, bidderId, amountUsd, isWinning, placedAt]
+      properties:
+        id:
+          type: integer
+        lotId:
+          type: integer
+        sessionId:
+          type: integer
+        bidderId:
+          type: integer
+        amountUsd:
+          type: number
+        isWinning:
+          type: boolean
+        placedAt:
+          type: string
+          format: date-time
+
+    TeaLotBidResult:
+      type: object
+      required: [bid, antiSnipeTriggered, bidSecurityHeldUsd]
+      properties:
+        bid:
+          $ref: "#/components/schemas/TeaLotBid"
+        antiSnipeTriggered:
+          type: boolean
+        newEndAt:
+          type: ["string", "null"]
+          format: date-time
+          description: Updated lot close time if anti-snipe was triggered
+        bidSecurityHeldUsd:
+          type: number
+          description: Amount locked as bid security for this bid
+
+    TeaLotSettlement:
+      type: object
+      required: [id, lotId, sessionId, winningBidId, buyerId, grossAmountUsd, platformFeeUsd, brokerCommissionUsd, netProducerAmountUsd, promptDate, paymentStatus, deliveryOrderStatus, createdAt]
+      properties:
+        id:
+          type: integer
+        lotId:
+          type: integer
+        sessionId:
+          type: integer
+        winningBidId:
+          type: integer
+        buyerId:
+          type: integer
+        buyerName:
+          type: ["string", "null"]
+        grossAmountUsd:
+          type: number
+        platformFeeUsd:
+          type: number
+        brokerCommissionUsd:
+          type: number
+        netProducerAmountUsd:
+          type: number
+        promptDate:
+          type: string
+          format: date
+          description: Payment due date (10 working days, Kenyan calendar)
+        paymentStatus:
+          type: string
+          enum: [PENDING, PAID, DEFAULTED]
+        deliveryOrderStatus:
+          type: string
+          enum: [NOT_ISSUABLE, ISSUABLE, ISSUED]
+        acceptedBelowReserve:
+          type: integer
+          description: "1 if broker accepted below reserve, 0 otherwise"
+        createdAt:
+          type: string
+          format: date-time
+
+    BidSecurityHold:
+      type: object
+      required: [id, lotId, bidId, bidderId, amountUsd, status, createdAt]
+      properties:
+        id:
+          type: integer
+        lotId:
+          type: integer
+        bidId:
+          type: integer
+        bidderId:
+          type: integer
+        amountUsd:
+          type: number
+        status:
+          type: string
+          enum: [HELD, RELEASED, FORFEITED]
+        createdAt:
+          type: string
+          format: date-time
+        resolvedAt:
+          type: ["string", "null"]
+          format: date-time
+
+    # ── Tea Lot catalogue ──────────────────────────────────────────────────
+
+    TickTier:
+      type: object
+      required: [incrementPct]
+      properties:
+        upToUsd:
+          type: ["number", "null"]
+          description: Upper bound of this tier (null / absent means "above all others")
+        above:
+          type: ["boolean", "null"]
+          description: True for the catch-all top tier
+        incrementPct:
+          type: number
+          description: Minimum bid increment as a percentage within this tier
+
+    AntiSnipeConfig:
+      type: object
+      properties:
+        windowSecs:
+          type: integer
+          default: 180
+          description: Seconds before lot end that triggers extension
+        extensionSecs:
+          type: integer
+          default: 180
+          description: Seconds added per late bid
+        maxExtensionSecs:
+          type: integer
+          default: 1800
+          description: Maximum total extension (30 min cap)
+
+    TeaLot:
+      type: object
+      required: [id, ewrId, ownerId, brokerId, grade, gradeMark, giOrigin, grossWeightKg, netWeightKg, tareWeightKg, packageType, certifications, listingType, catalogueType, commissionRate, tickTiers, antiSnipeConfig, bidSecurityPct, status, createdAt, updatedAt]
+      properties:
+        id:
+          type: integer
+        ewrId:
+          type: integer
+        ownerId:
+          type: integer
+        brokerId:
+          type: integer
+        grade:
+          type: string
+        gradeMark:
+          type: string
+        giOrigin:
+          type: string
+        grossWeightKg:
+          type: number
+        netWeightKg:
+          type: number
+        tareWeightKg:
+          type: number
+        packageType:
+          type: string
+        packingWeightKg:
+          type: ["number", "null"]
+        tasterRemarks:
+          type: ["string", "null"]
+        certifications:
+          type: array
+          items:
+            type: string
+        storageStatus:
+          type: ["string", "null"]
+        listingType:
+          type: string
+          enum: [AUCTION, FIXED_PRICE]
+        catalogueType:
+          type: string
+          enum: [WITH_VALUATION, WITHOUT_VALUATION]
+        reservePriceUsd:
+          type: ["number", "null"]
+        brokerValuationUsd:
+          type: ["number", "null"]
+        fixedPricePerKgUsd:
+          type: ["number", "null"]
+        commissionRate:
+          type: number
+        tickTiers:
+          type: array
+          items:
+            $ref: "#/components/schemas/TickTier"
+        antiSnipeConfig:
+          $ref: "#/components/schemas/AntiSnipeConfig"
+        bidSecurityPct:
+          type: number
+        status:
+          type: string
+          enum: [DRAFT, CATALOGUED, DISPATCHED, LIVE, SOLD, UNSOLD, WITHDRAWN, RESERVE_NOT_MET]
+        publishedAt:
+          type: ["string", "null"]
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    TeaLotDetail:
+      allOf:
+        - $ref: "#/components/schemas/TeaLot"
+        - type: object
+          properties:
+            ownerName:
+              type: ["string", "null"]
+            brokerName:
+              type: ["string", "null"]
+            ewr:
+              type: ["object", "null"]
+              properties:
+                ewrsReceiptId:
+                  type: string
+                commodityType:
+                  type: string
+                weightMt:
+                  type: number
+                harvestSeason:
+                  type: string
+                state:
+                  type: string
+                teaProcessingType:
+                  type: ["string", "null"]
+                teaLeafGrade:
+                  type: ["string", "null"]
+                teaInvoiceSerial:
+                  type: ["string", "null"]
+
+    CreateTeaLotRequest:
+      type: object
+      required: [ewrId, grade, gradeMark, giOrigin, grossWeightKg, netWeightKg, tareWeightKg, packageType]
+      properties:
+        ewrId:
+          type: integer
+        grade:
+          type: string
+          minLength: 1
+        gradeMark:
+          type: string
+          minLength: 1
+        giOrigin:
+          type: string
+          minLength: 1
+        grossWeightKg:
+          type: number
+          minimum: 0
+          exclusiveMinimum: true
+        netWeightKg:
+          type: number
+          minimum: 0
+          exclusiveMinimum: true
+        tareWeightKg:
+          type: number
+          minimum: 0
+        packageType:
+          type: string
+          minLength: 1
+        packingWeightKg:
+          type: number
+        tasterRemarks:
+          type: string
+        certifications:
+          type: array
+          items:
+            type: string
+          default: []
+        storageStatus:
+          type: string
+        listingType:
+          type: string
+          enum: [AUCTION, FIXED_PRICE]
+          default: AUCTION
+        catalogueType:
+          type: string
+          enum: [WITH_VALUATION, WITHOUT_VALUATION]
+          default: WITHOUT_VALUATION
+        reservePriceUsd:
+          type: number
+          description: Required for AUCTION lots
+        brokerValuationUsd:
+          type: number
+        fixedPricePerKgUsd:
+          type: number
+          description: Required for FIXED_PRICE lots
+        commissionRate:
+          type: number
+          minimum: 0
+          maximum: 1
+          default: 0.01
+        tickTiers:
+          type: array
+          items:
+            $ref: "#/components/schemas/TickTier"
+          default: []
+        antiSnipeConfig:
+          $ref: "#/components/schemas/AntiSnipeConfig"
+        bidSecurityPct:
+          type: number
+          minimum: 0
+          maximum: 1
+          default: 0.1
+
+    UpdateTeaLotRequest:
+      type: object
+      description: All fields are optional; only the provided fields are updated
+      properties:
+        grade:
+          type: string
+        gradeMark:
+          type: string
+        giOrigin:
+          type: string
+        grossWeightKg:
+          type: number
+        netWeightKg:
+          type: number
+        tareWeightKg:
+          type: number
+        packageType:
+          type: string
+        packingWeightKg:
+          type: number
+        tasterRemarks:
+          type: string
+        certifications:
+          type: array
+          items:
+            type: string
+        storageStatus:
+          type: string
+        listingType:
+          type: string
+          enum: [AUCTION, FIXED_PRICE]
+        catalogueType:
+          type: string
+          enum: [WITH_VALUATION, WITHOUT_VALUATION]
+        reservePriceUsd:
+          type: number
+        brokerValuationUsd:
+          type: number
+        fixedPricePerKgUsd:
+          type: number
+        commissionRate:
+          type: number
+        tickTiers:
+          type: array
+          items:
+            $ref: "#/components/schemas/TickTier"
+        antiSnipeConfig:
+          $ref: "#/components/schemas/AntiSnipeConfig"
+        bidSecurityPct:
+          type: number
+
+    TeaDispatchDoc:
+      type: object
+      required: [id, lotId, docType, submittedBy, docData, createdAt]
+      properties:
+        id:
+          type: integer
+        lotId:
+          type: integer
+        docType:
+          type: string
+          enum: [PRE_AUCTION_DISPATCH, WEIGHMENT_REPORT, DELIVERY_ORDER]
+        submittedBy:
+          type: integer
+        submitterName:
+          type: ["string", "null"]
+        docData:
+          type: object
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
+
+    AttachDispatchDocRequest:
+      type: object
+      required: [docType]
+      properties:
+        docType:
+          type: string
+          enum: [PRE_AUCTION_DISPATCH, WEIGHMENT_REPORT, DELIVERY_ORDER]
+        docData:
+          type: object
+          additionalProperties: true
+          default: {}
+
+    # ── Broker Mandates ────────────────────────────────────────────────────
+
+    BrokerMandate:
+      type: object
+      required: [id, ownerId, brokerId, commodityType, permissions, validFrom, revoked, createdAt]
+      properties:
+        id:
+          type: integer
+        ownerId:
+          type: integer
+        ownerName:
+          type: ["string", "null"]
+        brokerId:
+          type: integer
+        brokerName:
+          type: ["string", "null"]
+        commodityType:
+          type: string
+          enum: [MAIZE, RICE, COFFEE, TEA, AVOCADO]
+        permissions:
+          type: array
+          items:
+            type: string
+        commissionRateOverride:
+          type: ["number", "null"]
+        validFrom:
+          type: string
+          format: date-time
+        validTo:
+          type: ["string", "null"]
+          format: date-time
+        revoked:
+          type: boolean
+        revokedAt:
+          type: ["string", "null"]
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    CreateBrokerMandateRequest:
+      type: object
+      required: [brokerId, commodityType]
+      properties:
+        brokerId:
+          type: integer
+          description: User ID of the ENABLER-tier broker
+        commodityType:
+          type: string
+          enum: [MAIZE, RICE, COFFEE, TEA, AVOCADO]
+        permissions:
+          type: array
+          items:
+            type: string
+          default: ["list", "accept_bids", "negotiate", "set_reserve"]
+        commissionRateOverride:
+          type: number
+          minimum: 0
+          maximum: 1
+        validFrom:
+          type: string
+          format: date-time
+        validTo:
           type: string
           format: date-time

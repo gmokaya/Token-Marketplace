@@ -1051,6 +1051,457 @@ export interface AuditLogEntry {
   createdAt: string;
 }
 
+export interface CreateTeaAuctionSessionRequest {
+  /** Planned date of the auction session (YYYY-MM-DD) */
+  auctionDate: string;
+  /**
+     * Ordered list of tea lot IDs in catalogue sequence
+     * @minItems 1
+     */
+  lotIds: number[];
+}
+
+export type TeaAuctionSessionStatus = typeof TeaAuctionSessionStatus[keyof typeof TeaAuctionSessionStatus];
+
+
+export const TeaAuctionSessionStatus = {
+  SCHEDULED: 'SCHEDULED',
+  LIVE: 'LIVE',
+  CLOSED: 'CLOSED',
+  COMPLETED: 'COMPLETED',
+} as const;
+
+export interface TeaAuctionSession {
+  id: number;
+  createdByBrokerId: number;
+  /** @nullable */
+  brokerName?: string | null;
+  auctionDate: string;
+  catalogueOrder: number[];
+  /** @nullable */
+  currentLotId?: number | null;
+  status: TeaAuctionSessionStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * TeaLot enriched with currentHighBidUsd, bidCount, secsRemaining, minNextBidUsd
+ */
+export type TeaAuctionSessionDetailLotsItem = { [key: string]: unknown };
+
+export type TeaAuctionSessionDetail = TeaAuctionSession & {
+  lots?: TeaAuctionSessionDetailLotsItem[];
+};
+
+export interface TeaLotBidInput {
+  /**
+     * @minimum 0
+     * @exclusiveMinimum true
+     */
+  amountUsd: number;
+}
+
+export interface TeaLotBid {
+  id: number;
+  lotId: number;
+  sessionId: number;
+  bidderId: number;
+  amountUsd: number;
+  isWinning: boolean;
+  placedAt: string;
+}
+
+export interface TeaLotBidResult {
+  bid: TeaLotBid;
+  antiSnipeTriggered: boolean;
+  /**
+     * Updated lot close time if anti-snipe was triggered
+     * @nullable
+     */
+  newEndAt?: string | null;
+  /** Amount locked as bid security for this bid */
+  bidSecurityHeldUsd: number;
+}
+
+export type TeaLotSettlementPaymentStatus = typeof TeaLotSettlementPaymentStatus[keyof typeof TeaLotSettlementPaymentStatus];
+
+
+export const TeaLotSettlementPaymentStatus = {
+  PENDING: 'PENDING',
+  PAID: 'PAID',
+  DEFAULTED: 'DEFAULTED',
+} as const;
+
+export type TeaLotSettlementDeliveryOrderStatus = typeof TeaLotSettlementDeliveryOrderStatus[keyof typeof TeaLotSettlementDeliveryOrderStatus];
+
+
+export const TeaLotSettlementDeliveryOrderStatus = {
+  NOT_ISSUABLE: 'NOT_ISSUABLE',
+  ISSUABLE: 'ISSUABLE',
+  ISSUED: 'ISSUED',
+} as const;
+
+export interface TeaLotSettlement {
+  id: number;
+  lotId: number;
+  sessionId: number;
+  winningBidId: number;
+  buyerId: number;
+  /** @nullable */
+  buyerName?: string | null;
+  grossAmountUsd: number;
+  platformFeeUsd: number;
+  brokerCommissionUsd: number;
+  netProducerAmountUsd: number;
+  /** Payment due date (10 working days, Kenyan calendar) */
+  promptDate: string;
+  paymentStatus: TeaLotSettlementPaymentStatus;
+  deliveryOrderStatus: TeaLotSettlementDeliveryOrderStatus;
+  /** 1 if broker accepted below reserve, 0 otherwise */
+  acceptedBelowReserve?: number;
+  createdAt: string;
+}
+
+export type BidSecurityHoldStatus = typeof BidSecurityHoldStatus[keyof typeof BidSecurityHoldStatus];
+
+
+export const BidSecurityHoldStatus = {
+  HELD: 'HELD',
+  RELEASED: 'RELEASED',
+  FORFEITED: 'FORFEITED',
+} as const;
+
+export interface BidSecurityHold {
+  id: number;
+  lotId: number;
+  bidId: number;
+  bidderId: number;
+  amountUsd: number;
+  status: BidSecurityHoldStatus;
+  createdAt: string;
+  /** @nullable */
+  resolvedAt?: string | null;
+}
+
+export interface TickTier {
+  /**
+     * Upper bound of this tier (null / absent means "above all others")
+     * @nullable
+     */
+  upToUsd?: number | null;
+  /**
+     * True for the catch-all top tier
+     * @nullable
+     */
+  above?: boolean | null;
+  /** Minimum bid increment as a percentage within this tier */
+  incrementPct: number;
+}
+
+export interface AntiSnipeConfig {
+  /** Seconds before lot end that triggers extension */
+  windowSecs?: number;
+  /** Seconds added per late bid */
+  extensionSecs?: number;
+  /** Maximum total extension (30 min cap) */
+  maxExtensionSecs?: number;
+}
+
+export type TeaLotListingType = typeof TeaLotListingType[keyof typeof TeaLotListingType];
+
+
+export const TeaLotListingType = {
+  AUCTION: 'AUCTION',
+  FIXED_PRICE: 'FIXED_PRICE',
+} as const;
+
+export type TeaLotCatalogueType = typeof TeaLotCatalogueType[keyof typeof TeaLotCatalogueType];
+
+
+export const TeaLotCatalogueType = {
+  WITH_VALUATION: 'WITH_VALUATION',
+  WITHOUT_VALUATION: 'WITHOUT_VALUATION',
+} as const;
+
+export type TeaLotStatus = typeof TeaLotStatus[keyof typeof TeaLotStatus];
+
+
+export const TeaLotStatus = {
+  DRAFT: 'DRAFT',
+  CATALOGUED: 'CATALOGUED',
+  DISPATCHED: 'DISPATCHED',
+  LIVE: 'LIVE',
+  SOLD: 'SOLD',
+  UNSOLD: 'UNSOLD',
+  WITHDRAWN: 'WITHDRAWN',
+  RESERVE_NOT_MET: 'RESERVE_NOT_MET',
+} as const;
+
+export interface TeaLot {
+  id: number;
+  ewrId: number;
+  ownerId: number;
+  brokerId: number;
+  grade: string;
+  gradeMark: string;
+  giOrigin: string;
+  grossWeightKg: number;
+  netWeightKg: number;
+  tareWeightKg: number;
+  packageType: string;
+  /** @nullable */
+  packingWeightKg?: number | null;
+  /** @nullable */
+  tasterRemarks?: string | null;
+  certifications: string[];
+  /** @nullable */
+  storageStatus?: string | null;
+  listingType: TeaLotListingType;
+  catalogueType: TeaLotCatalogueType;
+  /** @nullable */
+  reservePriceUsd?: number | null;
+  /** @nullable */
+  brokerValuationUsd?: number | null;
+  /** @nullable */
+  fixedPricePerKgUsd?: number | null;
+  commissionRate: number;
+  tickTiers: TickTier[];
+  antiSnipeConfig: AntiSnipeConfig;
+  bidSecurityPct: number;
+  status: TeaLotStatus;
+  /** @nullable */
+  publishedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * @nullable
+ */
+export type TeaLotDetailEwr = {
+  ewrsReceiptId?: string;
+  commodityType?: string;
+  weightMt?: number;
+  harvestSeason?: string;
+  state?: string;
+  /** @nullable */
+  teaProcessingType?: string | null;
+  /** @nullable */
+  teaLeafGrade?: string | null;
+  /** @nullable */
+  teaInvoiceSerial?: string | null;
+} | null;
+
+export type TeaLotDetail = TeaLot & ({
+  /** @nullable */
+  ownerName?: string | null;
+  /** @nullable */
+  brokerName?: string | null;
+  /** @nullable */
+  ewr?: TeaLotDetailEwr;
+});
+
+export type CreateTeaLotRequestListingType = typeof CreateTeaLotRequestListingType[keyof typeof CreateTeaLotRequestListingType];
+
+
+export const CreateTeaLotRequestListingType = {
+  AUCTION: 'AUCTION',
+  FIXED_PRICE: 'FIXED_PRICE',
+} as const;
+
+export type CreateTeaLotRequestCatalogueType = typeof CreateTeaLotRequestCatalogueType[keyof typeof CreateTeaLotRequestCatalogueType];
+
+
+export const CreateTeaLotRequestCatalogueType = {
+  WITH_VALUATION: 'WITH_VALUATION',
+  WITHOUT_VALUATION: 'WITHOUT_VALUATION',
+} as const;
+
+export interface CreateTeaLotRequest {
+  ewrId: number;
+  /** @minLength 1 */
+  grade: string;
+  /** @minLength 1 */
+  gradeMark: string;
+  /** @minLength 1 */
+  giOrigin: string;
+  /**
+     * @minimum 0
+     * @exclusiveMinimum true
+     */
+  grossWeightKg: number;
+  /**
+     * @minimum 0
+     * @exclusiveMinimum true
+     */
+  netWeightKg: number;
+  /** @minimum 0 */
+  tareWeightKg: number;
+  /** @minLength 1 */
+  packageType: string;
+  packingWeightKg?: number;
+  tasterRemarks?: string;
+  certifications?: string[];
+  storageStatus?: string;
+  listingType?: CreateTeaLotRequestListingType;
+  catalogueType?: CreateTeaLotRequestCatalogueType;
+  /** Required for AUCTION lots */
+  reservePriceUsd?: number;
+  brokerValuationUsd?: number;
+  /** Required for FIXED_PRICE lots */
+  fixedPricePerKgUsd?: number;
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  commissionRate?: number;
+  tickTiers?: TickTier[];
+  antiSnipeConfig?: AntiSnipeConfig;
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  bidSecurityPct?: number;
+}
+
+export type UpdateTeaLotRequestListingType = typeof UpdateTeaLotRequestListingType[keyof typeof UpdateTeaLotRequestListingType];
+
+
+export const UpdateTeaLotRequestListingType = {
+  AUCTION: 'AUCTION',
+  FIXED_PRICE: 'FIXED_PRICE',
+} as const;
+
+export type UpdateTeaLotRequestCatalogueType = typeof UpdateTeaLotRequestCatalogueType[keyof typeof UpdateTeaLotRequestCatalogueType];
+
+
+export const UpdateTeaLotRequestCatalogueType = {
+  WITH_VALUATION: 'WITH_VALUATION',
+  WITHOUT_VALUATION: 'WITHOUT_VALUATION',
+} as const;
+
+/**
+ * All fields are optional; only the provided fields are updated
+ */
+export interface UpdateTeaLotRequest {
+  grade?: string;
+  gradeMark?: string;
+  giOrigin?: string;
+  grossWeightKg?: number;
+  netWeightKg?: number;
+  tareWeightKg?: number;
+  packageType?: string;
+  packingWeightKg?: number;
+  tasterRemarks?: string;
+  certifications?: string[];
+  storageStatus?: string;
+  listingType?: UpdateTeaLotRequestListingType;
+  catalogueType?: UpdateTeaLotRequestCatalogueType;
+  reservePriceUsd?: number;
+  brokerValuationUsd?: number;
+  fixedPricePerKgUsd?: number;
+  commissionRate?: number;
+  tickTiers?: TickTier[];
+  antiSnipeConfig?: AntiSnipeConfig;
+  bidSecurityPct?: number;
+}
+
+export type TeaDispatchDocDocType = typeof TeaDispatchDocDocType[keyof typeof TeaDispatchDocDocType];
+
+
+export const TeaDispatchDocDocType = {
+  PRE_AUCTION_DISPATCH: 'PRE_AUCTION_DISPATCH',
+  WEIGHMENT_REPORT: 'WEIGHMENT_REPORT',
+  DELIVERY_ORDER: 'DELIVERY_ORDER',
+} as const;
+
+export type TeaDispatchDocDocData = { [key: string]: unknown };
+
+export interface TeaDispatchDoc {
+  id: number;
+  lotId: number;
+  docType: TeaDispatchDocDocType;
+  submittedBy: number;
+  /** @nullable */
+  submitterName?: string | null;
+  docData: TeaDispatchDocDocData;
+  createdAt: string;
+}
+
+export type AttachDispatchDocRequestDocType = typeof AttachDispatchDocRequestDocType[keyof typeof AttachDispatchDocRequestDocType];
+
+
+export const AttachDispatchDocRequestDocType = {
+  PRE_AUCTION_DISPATCH: 'PRE_AUCTION_DISPATCH',
+  WEIGHMENT_REPORT: 'WEIGHMENT_REPORT',
+  DELIVERY_ORDER: 'DELIVERY_ORDER',
+} as const;
+
+export type AttachDispatchDocRequestDocData = { [key: string]: unknown };
+
+export interface AttachDispatchDocRequest {
+  docType: AttachDispatchDocRequestDocType;
+  docData?: AttachDispatchDocRequestDocData;
+}
+
+export type BrokerMandateCommodityType = typeof BrokerMandateCommodityType[keyof typeof BrokerMandateCommodityType];
+
+
+export const BrokerMandateCommodityType = {
+  MAIZE: 'MAIZE',
+  RICE: 'RICE',
+  COFFEE: 'COFFEE',
+  TEA: 'TEA',
+  AVOCADO: 'AVOCADO',
+} as const;
+
+export interface BrokerMandate {
+  id: number;
+  ownerId: number;
+  /** @nullable */
+  ownerName?: string | null;
+  brokerId: number;
+  /** @nullable */
+  brokerName?: string | null;
+  commodityType: BrokerMandateCommodityType;
+  permissions: string[];
+  /** @nullable */
+  commissionRateOverride?: number | null;
+  validFrom: string;
+  /** @nullable */
+  validTo?: string | null;
+  revoked: boolean;
+  /** @nullable */
+  revokedAt?: string | null;
+  createdAt: string;
+}
+
+export type CreateBrokerMandateRequestCommodityType = typeof CreateBrokerMandateRequestCommodityType[keyof typeof CreateBrokerMandateRequestCommodityType];
+
+
+export const CreateBrokerMandateRequestCommodityType = {
+  MAIZE: 'MAIZE',
+  RICE: 'RICE',
+  COFFEE: 'COFFEE',
+  TEA: 'TEA',
+  AVOCADO: 'AVOCADO',
+} as const;
+
+export interface CreateBrokerMandateRequest {
+  /** User ID of the ENABLER-tier broker */
+  brokerId: number;
+  commodityType: CreateBrokerMandateRequestCommodityType;
+  permissions?: string[];
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  commissionRateOverride?: number;
+  validFrom?: string;
+  validTo?: string;
+}
+
 export type ListEwrsParams = {
 ownerId?: number;
 state?: ListEwrsState;
@@ -1272,4 +1723,55 @@ export type TransferEwrBody = {
   /** ID of the recipient user */
   toUserId: number;
 };
+
+export type StartTeaAuctionSessionBody = {
+  /** Minutes each lot runs before closing */
+  durationMins?: number;
+};
+
+export type StartTeaAuctionSession200 = {
+  sessionId?: number;
+  currentLotId?: number;
+  auctionEndAt?: string;
+};
+
+export type AcceptTeaLotBelowReserve200 = {
+  lotId?: number;
+  status?: string;
+  acceptedBelowReserve?: boolean;
+  grossAmountUsd?: number;
+  promptDate?: string;
+};
+
+export type ListTeaLotsParams = {
+grade?: string;
+giOrigin?: string;
+certification?: string;
+listingType?: ListTeaLotsListingType;
+status?: ListTeaLotsStatus;
+brokerId?: number;
+ownerId?: number;
+};
+
+export type ListTeaLotsListingType = typeof ListTeaLotsListingType[keyof typeof ListTeaLotsListingType];
+
+
+export const ListTeaLotsListingType = {
+  AUCTION: 'AUCTION',
+  FIXED_PRICE: 'FIXED_PRICE',
+} as const;
+
+export type ListTeaLotsStatus = typeof ListTeaLotsStatus[keyof typeof ListTeaLotsStatus];
+
+
+export const ListTeaLotsStatus = {
+  DRAFT: 'DRAFT',
+  CATALOGUED: 'CATALOGUED',
+  DISPATCHED: 'DISPATCHED',
+  LIVE: 'LIVE',
+  SOLD: 'SOLD',
+  UNSOLD: 'UNSOLD',
+  WITHDRAWN: 'WITHDRAWN',
+  RESERVE_NOT_MET: 'RESERVE_NOT_MET',
+} as const;
 
