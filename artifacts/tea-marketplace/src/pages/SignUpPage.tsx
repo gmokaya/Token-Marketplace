@@ -30,7 +30,6 @@ const clerkAppearance = {
     formButtonPrimary:
       "!bg-gray-900 !text-white !font-semibold !h-11 !rounded-lg !shadow-none hover:!bg-gray-800 transition-colors !mt-1",
     footer: "!hidden",
-    footerActionText: "!text-gray-500 !text-sm",
     footerActionLink: "!text-green-800 !font-semibold hover:!text-green-700",
     identityPreviewText: "!text-gray-700",
     identityPreviewEditButton: "!text-green-800",
@@ -44,92 +43,68 @@ export default function SignUpPage() {
   const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
   return (
-    <div className="min-h-[100dvh] flex">
-      {/* ── Left brand panel ── */}
-      <div className="hidden lg:flex lg:w-[52%] xl:w-[55%] relative flex-col overflow-hidden">
+    <div className="relative w-screen h-screen overflow-hidden flex items-center justify-end">
+
+      {/* Full-screen portrait background */}
+      <img
+        src={`${basePath}/photos/tea-portrait.jpg`}
+        alt=""
+        className="absolute inset-0 w-full h-full object-cover object-center"
+        fetchPriority="high"
+      />
+
+      {/* Gradients */}
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-black/20 to-black/60" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/40" />
+
+      {/* Logo — top left */}
+      <div className="absolute top-8 left-8 md:left-12 z-20">
         <img
-          src={`${basePath}/photos/hero-tea-farmer.jpg`}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover"
+          src={`${basePath}/logo-white.png`}
+          alt="TokenHarvest"
+          className="h-7 w-auto"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0a2a2a]/90 via-[#0d3d3d]/70 to-[#0a2a2a]/50" />
+      </div>
 
-        <div className="relative z-10 flex flex-col h-full p-10 xl:p-14">
-          <div>
-            <img src={`${basePath}/logo-white.png`} alt="TokenHarvest" className="h-8 w-auto" />
-          </div>
-
-          <div className="flex-1 flex flex-col justify-center max-w-sm">
-            <div className="inline-flex items-center gap-2 bg-white/10 text-white/80 text-xs font-medium px-3 py-1.5 rounded-full mb-6 w-fit backdrop-blur-sm border border-white/10">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              B2B Tea Marketplace
-            </div>
-            <h1 className="text-3xl xl:text-4xl font-bold text-white leading-tight tracking-tight">
-              Join the next era of
-              <br />
-              <span className="text-emerald-300">tea trading.</span>
+      {/* Form panel — right-side float */}
+      <div className="relative z-10 w-full max-w-[440px] mr-8 md:mr-20 xl:mr-28">
+        <div className="bg-white/97 backdrop-blur-md shadow-2xl p-10 overflow-y-auto max-h-screen">
+          <div className="mb-7">
+            <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">
+              Create your account
             </h1>
-            <p className="mt-4 text-white/60 text-sm leading-relaxed">
-              Access premium tea lots straight from origin factories — place bids, manage broker mandates, and settle trades on the leading digital tea marketplace.
+            <p className="text-sm text-gray-500 mt-1.5">
+              Join the TokenHarvest Tea marketplace today.
             </p>
           </div>
 
-          <div className="flex gap-8 border-t border-white/10 pt-6">
-            {[
-              { value: "150+", label: "Tea factories" },
-              { value: "Real-time", label: "Auction engine" },
-              { value: "Direct", label: "Factory to buyer" },
-            ].map((s) => (
-              <div key={s.label}>
-                <p className="text-white font-semibold text-sm">{s.value}</p>
-                <p className="text-white/50 text-xs mt-0.5">{s.label}</p>
-              </div>
-            ))}
-          </div>
+          <SignUp
+            routing="path"
+            path={`${basePath}/sign-up`}
+            signInUrl={`${basePath}/sign-in`}
+            appearance={clerkAppearance}
+          />
+
+          <p className="mt-6 text-center text-sm text-gray-500">
+            Already have an account?{" "}
+            <a
+              href={`${basePath}/sign-in`}
+              className="font-semibold text-green-800 hover:text-green-700 transition-colors"
+            >
+              Sign in
+            </a>
+          </p>
         </div>
       </div>
 
-      {/* ── Right form panel ── */}
-      <div className="flex-1 flex flex-col bg-white">
-        <div className="flex items-center justify-between px-6 py-5 lg:hidden border-b border-gray-100">
-          <img src={`${basePath}/logo-dark.png`} alt="TokenHarvest" className="h-7 w-auto" />
-        </div>
-
-        <div className="flex-1 flex flex-col items-center justify-center px-8 py-12">
-          <div className="w-full max-w-[380px]">
-            {/* Custom heading */}
-            <div className="mb-6">
-              <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">Create your account</h1>
-              <p className="text-sm text-gray-500 mt-1">Join the TokenHarvest Tea marketplace today.</p>
-            </div>
-
-            <SignUp
-              routing="path"
-              path={`${basePath}/sign-up`}
-              signInUrl={`${basePath}/sign-in`}
-              appearance={clerkAppearance}
-            />
-
-            <p className="mt-6 text-center text-sm text-gray-500">
-              Already have an account?{" "}
-              <a
-                href={`${basePath}/sign-in`}
-                className="font-semibold text-green-800 hover:text-green-700 transition-colors"
-              >
-                Sign in
-              </a>
-            </p>
-          </div>
-        </div>
-
-        <div className="px-8 pb-8 text-center">
-          <a
-            href={basePath || "/"}
-            className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            ← Back to home
-          </a>
-        </div>
+      {/* Back link */}
+      <div className="absolute bottom-7 left-0 right-0 text-center z-20">
+        <a
+          href={basePath || "/"}
+          className="text-xs text-white/40 hover:text-white/70 transition-colors"
+        >
+          ← Back to home
+        </a>
       </div>
     </div>
   );

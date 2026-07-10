@@ -1,11 +1,16 @@
 import { useGetMe, getGetMeQueryKey } from "@workspace/api-client-react";
 import { useClerk } from "@clerk/react";
 import { Link, Redirect } from "wouter";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight } from "lucide-react";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+const stats = [
+  { value: "150+", label: "Tea Factories" },
+  { value: "40+",  label: "Countries"    },
+  { value: "$2B+", label: "Annual Volume" },
+];
 
 export default function Home() {
   const { user } = useClerk();
@@ -13,90 +18,104 @@ export default function Home() {
     query: {
       enabled: !!user,
       queryKey: getGetMeQueryKey(),
-    }
+    },
   });
 
-  if (!user) {
+  /* ── Authenticated: redirect by role ── */
+  if (user && isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[70vh] max-w-2xl mx-auto text-center">
-        <Link href="/" className="mb-8">
-          <img
-            src={`${basePath}/logo-dark.png`}
-            alt="TokenHarvest Tea"
-            className="h-12 w-auto dark:hidden"
-          />
-          <img
-            src={`${basePath}/logo-white.png`}
-            alt="TokenHarvest Tea"
-            className="h-12 w-auto hidden dark:block"
-          />
-        </Link>
-
-        <h1 className="text-4xl font-bold tracking-tight mb-3">
-          TokenHarvest Tea
-        </h1>
-        <p className="text-xl text-muted-foreground font-medium mb-4">
-          Global B2B Digital Tea Marketplace
-        </p>
-        <p className="text-base text-muted-foreground mb-10 max-w-xl">
-          The professional exchange platform where tea factories list and market their teas directly
-          to international buyers. Transparent discovery, direct engagement, and streamlined
-          cross-border transactions.
-        </p>
-
-        <div className="flex items-center gap-4">
-          <Link href="/sign-in">
-            <Button size="lg" className="gap-2">
-              Sign In to Terminal <ArrowRight className="w-4 h-4" />
-            </Button>
-          </Link>
-          <Link href="/sign-up">
-            <Button size="lg" variant="outline" className="gap-2">
-              Create Account
-            </Button>
-          </Link>
-        </div>
-
-        <div className="mt-16 grid grid-cols-3 gap-8 text-center w-full max-w-xl">
-          <div>
-            <p className="text-2xl font-bold text-primary">150+</p>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">Tea Factories</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-primary">40+</p>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">Countries</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-primary">$2B+</p>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">Annual Volume</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-[50vh]">
+      <div className="flex items-center justify-center h-screen bg-background">
         <Skeleton className="w-32 h-8" />
       </div>
     );
   }
 
   if (me) {
-    if (me.tier === "ENABLER")  return <Redirect to="/broker" />;
+    if (me.tier === "ENABLER")   return <Redirect to="/broker" />;
     if (me.tier === "OFF_TAKER") return <Redirect to="/market" />;
-    if (me.tier === "ADMIN")    return <Redirect to="/admin/auctions" />;
-    if (me.tier === "PRODUCER") return <Redirect to="/mandates" />;
+    if (me.tier === "ADMIN")     return <Redirect to="/admin/auctions" />;
+    if (me.tier === "PRODUCER")  return <Redirect to="/mandates" />;
   }
 
+  /* ── Unauthenticated: full-screen hero ── */
   return (
-    <div className="p-8 max-w-2xl">
-      <h1 className="text-3xl font-bold mb-4">Welcome back, {me?.name || "Trader"}</h1>
-      <p className="text-muted-foreground mb-8">
-        Your account is currently set to tier <strong>{me?.tier || "UNKNOWN"}</strong>.
-        Select a section from the sidebar to continue.
-      </p>
+    <div className="relative w-screen h-screen overflow-hidden flex flex-col select-none">
+
+      {/* Background — landscape tea plantation */}
+      <img
+        src={`${basePath}/photos/tea-plantation.jpg`}
+        alt=""
+        className="absolute inset-0 w-full h-full object-cover object-center"
+        fetchPriority="high"
+      />
+
+      {/* Layered gradient: dark vignette at top + heavy bottom fade */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/15 to-black/80" />
+      {/* Subtle left-to-right fade for depth */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-transparent" />
+
+      {/* ── Top nav ── */}
+      <nav className="relative z-10 flex items-center justify-between px-8 md:px-14 pt-8">
+        <img
+          src={`${basePath}/logo-white.png`}
+          alt="TokenHarvest"
+          className="h-7 w-auto"
+        />
+        <div className="flex items-center gap-3">
+          <Link href="/sign-in">
+            <button className="text-sm font-medium text-white/80 hover:text-white transition-colors px-4 py-2">
+              Sign In
+            </button>
+          </Link>
+          <Link href="/sign-up">
+            <button className="text-sm font-semibold bg-white text-[#0a2a2a] hover:bg-white/90 transition-colors px-5 py-2.5 flex items-center gap-2">
+              Get Started <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </Link>
+        </div>
+      </nav>
+
+      {/* ── Hero copy — bottom-left anchored ── */}
+      <div className="relative z-10 flex-1 flex flex-col justify-end px-8 md:px-14 pb-28">
+        <div className="inline-flex items-center gap-2 bg-white/10 text-white/75 text-xs font-medium px-3 py-1.5 rounded-full mb-7 w-fit backdrop-blur-sm border border-white/15">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          B2B Tea Marketplace
+        </div>
+
+        <h1 className="text-5xl md:text-7xl font-bold text-white leading-[1.0] tracking-tight max-w-3xl">
+          Where premium teas
+          <br />
+          <span className="text-emerald-300">meet global buyers.</span>
+        </h1>
+
+        <p className="mt-5 text-white/55 text-base md:text-lg leading-relaxed max-w-md">
+          Direct trade from origin factories — live auctions, fixed-price lots,
+          and transparent settlement in one platform.
+        </p>
+
+        <div className="mt-8 flex items-center gap-4">
+          <Link href="/sign-in">
+            <button className="text-sm font-semibold bg-white text-[#0a2a2a] hover:bg-white/90 transition-colors px-7 py-3.5 flex items-center gap-2">
+              Sign in to Terminal <ArrowRight className="w-4 h-4" />
+            </button>
+          </Link>
+          <Link href="/sign-up">
+            <button className="text-sm font-medium text-white/80 hover:text-white border border-white/20 hover:border-white/40 transition-colors px-7 py-3.5 backdrop-blur-sm">
+              Create Account
+            </button>
+          </Link>
+        </div>
+      </div>
+
+      {/* ── Stats bar — bottom ── */}
+      <div className="relative z-10 flex items-center gap-12 md:gap-20 px-8 md:px-14 pb-10 pt-5 border-t border-white/10">
+        {stats.map((s) => (
+          <div key={s.label}>
+            <p className="text-xl font-bold text-white">{s.value}</p>
+            <p className="text-white/40 text-xs tracking-widest uppercase mt-0.5">{s.label}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

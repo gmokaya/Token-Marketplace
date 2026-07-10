@@ -29,8 +29,8 @@ const clerkPubKey = publishableKeyFromHost(window.location.hostname, import.meta
 const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL;
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-function stripBase(path: string) { 
-  return basePath && path.startsWith(basePath) ? path.slice(basePath.length) || "/" : path; 
+function stripBase(path: string) {
+  return basePath && path.startsWith(basePath) ? path.slice(basePath.length) || "/" : path;
 }
 
 const queryClient = new QueryClient({
@@ -50,10 +50,7 @@ function ClerkQueryClientCacheInvalidator() {
   useEffect(() => {
     const unsubscribe = addListener(({ user }) => {
       const userId = user?.id ?? null;
-      if (
-        prevUserIdRef.current !== undefined &&
-        prevUserIdRef.current !== userId
-      ) {
+      if (prevUserIdRef.current !== undefined && prevUserIdRef.current !== userId) {
         queryClient.clear();
       }
       prevUserIdRef.current = userId;
@@ -110,35 +107,42 @@ function ClerkProviderWithRoutes() {
       <QueryClientProvider client={queryClient}>
         <ClerkQueryClientCacheInvalidator />
         <TooltipProvider>
-          <Layout>
-            <Switch>
-              <Route path="/" component={Home} />
-              <Route path="/sign-in/*?" component={SignInPage} />
-              <Route path="/sign-up/*?" component={SignUpPage} />
-              <Route path="/profile"><ProtectedRoute><Profile /></ProtectedRoute></Route>
-              
-              <Route path="/broker"><ProtectedRoute><BrokerDashboard /></ProtectedRoute></Route>
-              <Route path="/broker/lots/new"><ProtectedRoute><NewTeaLot /></ProtectedRoute></Route>
-              <Route path="/broker/lots/:lotId/edit"><ProtectedRoute><EditTeaLot /></ProtectedRoute></Route>
-              
-              <Route path="/auction/:sessionId"><ProtectedRoute><LiveAuction /></ProtectedRoute></Route>
-              <Route path="/market"><ProtectedRoute><Market /></ProtectedRoute></Route>
-              
-              <Route path="/lots/:lotId"><ProtectedRoute><LotDetail /></ProtectedRoute></Route>
-              <Route path="/lots/:lotId/settlement"><ProtectedRoute><LotSettlement /></ProtectedRoute></Route>
-              
-              <Route path="/mandates"><ProtectedRoute><Mandates /></ProtectedRoute></Route>
-              
-              <Route path="/admin/auctions"><ProtectedRoute><AdminAuctions /></ProtectedRoute></Route>
-              <Route path="/admin/auctions/new"><ProtectedRoute><NewAuction /></ProtectedRoute></Route>
-              
-              <Route path="*">
-                <div className="flex items-center justify-center h-[50vh] text-muted-foreground">
-                  404 Not Found
-                </div>
-              </Route>
-            </Switch>
-          </Layout>
+          <Switch>
+            {/* ── Full-screen pages — no Layout wrapper ── */}
+            <Route path="/" component={Home} />
+            <Route path="/sign-in/*?" component={SignInPage} />
+            <Route path="/sign-up/*?" component={SignUpPage} />
+
+            {/* ── App pages — wrapped in Layout ── */}
+            <Route>
+              <Layout>
+                <Switch>
+                  <Route path="/profile"><ProtectedRoute><Profile /></ProtectedRoute></Route>
+
+                  <Route path="/broker"><ProtectedRoute><BrokerDashboard /></ProtectedRoute></Route>
+                  <Route path="/broker/lots/new"><ProtectedRoute><NewTeaLot /></ProtectedRoute></Route>
+                  <Route path="/broker/lots/:lotId/edit"><ProtectedRoute><EditTeaLot /></ProtectedRoute></Route>
+
+                  <Route path="/auction/:sessionId"><ProtectedRoute><LiveAuction /></ProtectedRoute></Route>
+                  <Route path="/market"><ProtectedRoute><Market /></ProtectedRoute></Route>
+
+                  <Route path="/lots/:lotId"><ProtectedRoute><LotDetail /></ProtectedRoute></Route>
+                  <Route path="/lots/:lotId/settlement"><ProtectedRoute><LotSettlement /></ProtectedRoute></Route>
+
+                  <Route path="/mandates"><ProtectedRoute><Mandates /></ProtectedRoute></Route>
+
+                  <Route path="/admin/auctions"><ProtectedRoute><AdminAuctions /></ProtectedRoute></Route>
+                  <Route path="/admin/auctions/new"><ProtectedRoute><NewAuction /></ProtectedRoute></Route>
+
+                  <Route>
+                    <div className="flex items-center justify-center h-[50vh] text-muted-foreground">
+                      404 Not Found
+                    </div>
+                  </Route>
+                </Switch>
+              </Layout>
+            </Route>
+          </Switch>
         </TooltipProvider>
       </QueryClientProvider>
     </ClerkProvider>
