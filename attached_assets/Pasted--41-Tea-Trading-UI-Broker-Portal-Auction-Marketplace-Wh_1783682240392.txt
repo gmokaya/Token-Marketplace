@@ -1,0 +1,61 @@
+#41 - Tea Trading UI — Broker Portal, Auction & Marketplace
+What & Why
+Build all user-facing screens for the tea trading system: the broker catalogue management portal, the live tea auction dashboard with real-time bidding, the tea direct sales marketplace for buyers, and the farmer traceability/social impact viewer. These screens are the product the Executive Summary describes and serve four distinct user roles: Brokers (listing and managing lots), Buyers (bidding and purchasing), Producers/Owners (monitoring sales and income), and platform Admins (oversight). The UI must be integrated into the existing wrs-marketplace React/Vite app alongside the existing spot and auction dashboards, respecting the existing design system (dark teal primary colour, Jost/Inter fonts, shadcn/ui components, TanStack Query for data fetching).
+
+Done looks like
+Broker Portal (/tea/broker)
+
+A broker who holds at least one active mandate sees a dashboard of their lots grouped by status: DRAFT, CATALOGUED, LIVE (in auction), SOLD, UNSOLD/WITHDRAWN.
+"New Lot" button opens a multi-step catalogue entry form with all Table 2 fields: grade, grade mark, GI, weight, package type, taster remarks, certifications (multi-select), tick tier editor (visual table with up-to/above rows and increment %), anti-snipe config, reserve price, broker valuation toggle (with/without valuation catalogue type), bid security %, and dispatch form attachment.
+Broker sees their commission earned per lot and session totals.
+Lot take-out action is available on RESERVE_NOT_MET lots; accept-below-reserve is also an option.
+Dispatch form can be generated and printed/downloaded as a PDF per lot.
+Live Tea Auction Dashboard (/tea/auction/:sessionId)
+
+Shows the current live lot's full catalogue detail (grade, GI, certifications, taster remarks, weight, warehouse).
+Real-time countdown timer (anti-snipe extension reflected immediately via SSE).
+Current high bid and minimum next bid (tick-enforced) displayed prominently.
+Bid entry input (pre-filled with minimum next bid) with a single-click confirm action. Bid submission shows optimistic UI then confirms or shows rejection reason.
+Lot order list on the side panel (upcoming lots greyed, past lots with SOLD/UNSOLD badge and final price).
+Traceability summary chip on the lot card: "27 farmers · Organic · Nyeri-ABK".
+Buyer identities are anonymised (shown as "Buyer A", "Buyer B" etc. in the bid history).
+Session-level impact banner at the top (after at least one lot is settled): "X kg traded · Y farmers benefited · Est. $Z community income".
+Tea Direct Sales Marketplace (/tea/market)
+
+Filterable grid of active tea listings: grade, GI origin (multi-select), certification badges (Organic, Fairtrade etc.), price range slider, minimum quantity.
+Each listing card shows: grade, GI, certifications as badges, quantity available, price/kg, expiry countdown, and the traceability summary chip.
+Listing detail modal/page: full catalogue fields, offer history (anonymised), "Buy Now" button (quantity selector + price × quantity = total confirmation), and "Make an Offer" form (price/kg + quantity + message).
+Offer negotiation thread visible to the buyer (own offers + seller responses); sellers see all offers sorted by price.
+Purchase confirmation shows invoice summary, Prompt Date, and escrow payment instruction.
+Farmer Traceability Viewer (embedded in lot detail and as standalone /tea/lots/:id/trace)
+
+Visual chain diagram: Cooperative → Farmers (with anonymous count or named if consented) → Macro Lot → eWR → Tea Lot → Auction/Listing → Buyer (anonymised).
+Per-farmer certification icons (leaf for Organic, globe for Fairtrade, etc.) and weight contributed.
+Social impact panel: total farmer count, average payout/kg estimate, region map pin for GI origin.
+Producer Dashboard (additions to existing /dashboard)
+
+Tea section showing: lots under broker mandate, current auction session status, historical sales with settlement breakdown (gross, broker commission, platform fee, net received), and the farmer impact ledger for their cooperative lots.
+Out of scope
+Mobile app (separate task #5)
+Direct farmer mobile money disbursement UI
+Admin KYC/AML screens (existing onboarding flow covers this)
+Coffee and Avocado commodity-specific UIs (same shell will be reused later)
+Steps
+Routing & navigation — Add /tea, /tea/broker, /tea/auction/:sessionId, /tea/market, and /tea/lots/:id/trace routes to App.tsx. Add a "Tea Exchange" entry to the main nav. Protect broker routes with a role check (ENABLER tier).
+Broker portal shell and lot list — Build the broker dashboard page with lot status tabs. Wire to GET /api/tea/lots filtered by broker's mandated owner lots.
+Catalogue entry form — Build the multi-step New Lot form with all Table 2 fields. Include a visual tick tier editor (add/remove rows with upTo/above and increment %) and certifications multi-select. Submit to POST /api/tea/lots. Validate with Zod on the client.
+Live auction dashboard — Build the real-time auction page. Use the existing SSE hook (or TanStack Query + SSE) to receive bid events tagged commodity: "TEA". Render the anti-snipe countdown extension in real time. Build the bid entry widget with minimum bid pre-fill and optimistic update.
+Direct sales marketplace browse — Build the filterable listing grid. Implement the Buy-It-Now flow (quantity selector → price confirmation → payment instruction). Implement the Make Offer flow with the negotiation thread.
+Traceability viewer — Build the provenance chain visualisation component. Fetch from GET /api/tea/lots/:id/traceability. Use a simple vertical step/chain layout with icons for each actor (farmer, coop, warehouse, platform, buyer). Embed the compact version (traceability_summary chip) on listing cards and auction lot cards.
+Impact metrics panel — Build the session-level social impact banner for the auction dashboard, pulling from GET /api/tea/auctions/:id/impact. Add the farmer impact ledger table to the Producer dashboard.
+Dispatch form and delivery order — Add a "Generate Dispatch Form" action in the broker portal that renders a printable/downloadable summary of the lot dispatch details. Add a "Delivery Order" download link to the settlement page once the lot is settled and paid.
+Relevant files
+artifacts/wrs-marketplace/src/App.tsx
+artifacts/wrs-marketplace/src/pages/dashboard/
+artifacts/wrs-marketplace/src/components/layout/AppHeader.tsx
+artifacts/wrs-marketplace/src/hooks/
+artifacts/wrs-marketplace/src/lib/
+Dependencies
+Tea auction engine (backend)
+Tea direct sales marketplace (backend)
+Farmer traceability & social impact layer

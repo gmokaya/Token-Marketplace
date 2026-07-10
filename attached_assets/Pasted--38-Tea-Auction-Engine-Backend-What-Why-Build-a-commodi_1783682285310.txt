@@ -1,0 +1,36 @@
+#38 - Tea Auction Engine (Backend)
+What & Why
+Build a commodity-specific auction runner for tea lots. While the existing auctions table and /api/auctions routes handle a generic bid-accept loop, the tea auction standard (Mombasa/EATTA/Colombo) requires: tiered tick sizes (e.g. 1.5% for lots < KES 500k, 1.0% above), an anti-sniping soft-close (3-min extension per late bid, 30-min total cap), broker-only lot take-out when reserve is not met, bid security deposit locking and forfeiture, a 10-working-day Prompt Date payment deadline, and a post-auction settlement that splits proceeds among broker, platform, and producer before transferring eWR ownership and issuing a Delivery Order.
+
+Done looks like
+An admin or broker can create a tea auction session (POST /api/tea/auctions) linking multiple tea_lots in a defined catalogue order.
+When a lot goes live, buyers see the starting price, current high bid, tick increment (calculated from the tiered schedule), and a live countdown timer.
+Bid validation enforces the tier-based minimum increment: a bid below current_high × (1 + tier_pct) is rejected with a clear error and the minimum valid amount.
+A server-side timer worker handles lot state transitions (PENDING → LIVE → CLOSING). If any bid arrives within 3 minutes of scheduled close, the close time is extended by 3 minutes (up to a 30-minute total cap); the updated close time is broadcast over SSE to all connected clients.
+When a lot closes with highest bid ≥ reserve, it is marked SOLD and the winning bid record is created. When highest bid < reserve, the broker receives a take-out prompt and can mark the lot WITHDRAWN.
+Bid security: when a buyer places a bid, the system checks that they have (or their wallet holds) bid_security_pct × bid_amount reserved; placing the bid locks that amount. If they are outbid, the lock is released. If the winning buyer fails to pay by Prompt Date, the locked amount is forfeited and the buyer's account is flagged.
+The Prompt Date is set as current date + 10 working days (excluding weekends and Kenyan public holidays) and stored on the tea_lot_settlements record.
+Post-auction settlement: winning buyer pays into escrow; the settlement engine deducts platform fee (configurable, default 0.5%), broker commission (per mandate rate, default 1.0%), credits net proceeds to the producer, transfers eWR ownership in the ewrs table to the buyer, and marks a Delivery Order as issuable.
+All bid events are broadcast over the existing SSE pub/sub channel, labelled by commodity type so clients can subscribe to tea events only.
+Out of scope
+Direct sales marketplace (Task 3)
+Farmer traceability (Task 4)
+UI (Task 5)
+Avocado and coffee commodity engines (future; the engine is architected to be commodity-discriminated so they can be added without restructuring)
+Steps
+Tea auction session model — Add a tea_auction_sessions table (session ID, auction date, catalogue order array of lot IDs, status, created_by_broker). Add tea_lot_settlements (lot_id, winning_bid_id, buyer_id, gross_amount, platform_fee, broker_commission, net_producer_amount, prompt_date, payment_status, delivery_order_status).
+Tiered tick calculator — Implement a pure function calcMinBid(currentHigh, tickTiers) that evaluates the JSONB tick tier schedule from the lot and returns the minimum valid next bid. Wire this into the bid placement route.
+Bid security lock/unlock — On bid placement, reserve bid_security_pct × amount from the buyer's wallet (or a bid_security_holds table if wallet is not yet implemented). Release on outbid; forfeit on Prompt Date default.
+Anti-sniping timer worker — Extend the existing auction timer worker pattern (from Tasks #2, #15) to handle per-lot soft-close logic: when a bid arrives within 180 seconds of scheduled_end, compute new_end = MAX(current scheduled_end, now + 180) capped at original_end + 1800 and update the lot record; publish the updated end time over SSE.
+Reserve evaluation & take-out — On lot close, compare highest bid to reserve_price. If below, set status to RESERVE_NOT_MET and notify the broker via their session view. The broker can then call POST /api/tea/lots/:id/take-out to withdraw the lot (status → WITHDRAWN) or POST /api/tea/lots/:id/accept-below-reserve to accept anyway.
+Prompt Date calculator — Implement a working-day calculator that adds 10 business days from today, skipping Saturdays, Sundays, and a configurable list of Kenyan public holidays. Store result as prompt_date on the settlement record.
+Post-auction settlement splitter — On payment confirmation, call the existing settlements engine with tea-specific fee parameters: deduct platform fee and broker commission (from mandate record), credit producer, update ewrs table owner_id to the buyer, set delivery_order_status = ISSUABLE.
+Tea auction API routes — POST /api/tea/auctions (create session), GET /api/tea/auctions/:id (session + lot list + current lot state), POST /api/tea/auctions/:id/start (admin/broker triggers), POST /api/tea/lots/:id/bids (place bid with tick + security validation), POST /api/tea/lots/:id/take-out (broker withdraws lot), GET /api/tea/lots/:id/settlement (settlement detail).
+SSE integration — Tag all tea auction events with commodity: "TEA" on the existing pub/sub channel so the frontend can filter by commodity.
+Relevant files
+lib/db/src/schema.ts
+artifacts/api-server/src/routes/auctions.ts
+artifacts/api-server/src/workers/auctionTimer.ts
+artifacts/api-server/src/routes/settlements.ts
+artifacts/api-server/src/routes/ewrs.ts
+artifacts/api-server/src/lib/pubsub.ts

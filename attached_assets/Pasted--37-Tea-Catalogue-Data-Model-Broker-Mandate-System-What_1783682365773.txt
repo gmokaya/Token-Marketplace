@@ -1,0 +1,31 @@
+#37 - Tea Catalogue Data Model & Broker Mandate System
+What & Why
+Extend the database schema and API to support the tea-specific lot catalogue (Table 2 from the Executive Summary) and the broker mandate system. All subsequent tea auction and marketplace features depend on these foundations. The existing generic auctions and ewrs tables lack tea-specific fields: grade marks, Geographic Indication (GI) origins, taster remarks, certifications, tiered tick schedules, anti-snipe configuration, bid security, broker valuation, and pre-auction dispatch documentation. A broker_mandates table is also needed so the platform can enforce that only the owner-authorised broker can list and manage a given lot.
+
+Done looks like
+A tea_lots table exists with all catalogue fields from Table 2: lot ID, eWR reference, grade, grade mark, GI/origin, gross/net/tare weights, package type, packing weight, taster remarks, certifications (array), storage status, financing status, listing type (Auction | FixedPrice), reserve price, broker valuation (optional — "with valuation" vs "without valuation" catalogue types), commission rate, tick tier schedule (JSONB), anti-snipe config (JSONB), bid security %, prompt date rule, and visibility.
+A broker_mandates table exists: owner user ID, broker user ID, authorised commodity, permissions (list, accept_bids, negotiate, set_reserve), commission rate override, valid from/to dates, revoked flag.
+A tea_dispatch_docs table exists: pre-auction dispatch form records and warehouse weighment report records, linked to lots and auctions.
+REST API endpoints exist: POST /api/tea/lots (create catalogue entry, broker-authed), GET /api/tea/lots (list with filters: grade, GI, certification, listing type), GET /api/tea/lots/:id (full detail), PATCH /api/tea/lots/:id (broker update pre-auction), POST /api/broker-mandates (owner grants mandate), GET /api/broker-mandates/my (broker views their active mandates), DELETE /api/broker-mandates/:id (owner revokes), POST /api/tea/lots/:id/dispatch (submit dispatch form), GET /api/tea/lots/:id/dispatch (retrieve dispatch docs).
+All endpoints enforce role rules: only owners can grant/revoke mandates; only the mandate-holding broker for a lot can create or modify it.
+Drizzle migrations are written and run.
+Out of scope
+Auction engine logic (Task 2)
+Direct sales marketplace logic (Task 3)
+Farmer traceability linkage (Task 4)
+UI (Task 5)
+Steps
+Schema: tea_lots table — Create a Drizzle table tea_lots with all Table 2 fields. Use JSONB for tick_tiers, anti_snipe, and certifications. Add a catalogue_type enum (WITH_VALUATION | WITHOUT_VALUATION). Add a lot_status enum (DRAFT | CATALOGUED | DISPATCHED | LIVE | SOLD | UNSOLD | WITHDRAWN). Link to ewrs and users tables.
+Schema: broker_mandates table — Create broker_mandates with owner_id, broker_id, commodity_type, permissions (JSONB array), commission_rate_override (numeric), valid_from, valid_to, revoked (bool), created_at.
+Schema: tea_dispatch_docs table — Create tea_dispatch_docs with lot_id, doc_type (PRE_AUCTION_DISPATCH | WEIGHMENT_REPORT | DELIVERY_ORDER), submitted_by, doc_data (JSONB), created_at.
+API: broker mandate endpoints — Owner-only routes to grant, list, and revoke mandates. Validate that the targeted broker has a BROKER or ENABLER tier on the users table.
+API: tea lot catalogue endpoints — Broker-authed create/update/list/get routes. On create, validate that the requesting broker holds an active mandate from the lot's declared owner for the TEA commodity. Enforce uniqueness: one active broker mandate per lot.
+API: dispatch document endpoints — Allow broker/owner to attach a dispatch form pre-auction; warehouse to attach a weighment report; broker to issue a delivery order post-settlement.
+Validation and tests — Add Zod schemas for all request bodies. Add at least smoke-test route coverage for mandate create, lot create, and the no-mandate-rejection case.
+Relevant files
+lib/db/src/schema.ts
+lib/db/src/index.ts
+artifacts/api-server/src/routes/auctions.ts
+artifacts/api-server/src/routes/ewrs.ts
+artifacts/api-server/src/index.ts
+lib/api-spec/openapi.yaml
