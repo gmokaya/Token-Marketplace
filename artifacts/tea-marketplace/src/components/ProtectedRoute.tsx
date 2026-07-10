@@ -1,6 +1,5 @@
-import { Show } from "@clerk/react";
-import { Redirect } from "wouter";
-import { ReactNode } from "react";
+import { Show, useClerk } from "@clerk/react";
+import { ReactNode, useEffect } from "react";
 import { useGetMe, getGetMeQueryKey } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -8,13 +7,23 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   return (
     <>
       <Show when="signed-out">
-        <Redirect to="/sign-in" />
+        <RedirectToSignIn />
       </Show>
       <Show when="signed-in">
         <EnsureProfile>{children}</EnsureProfile>
       </Show>
     </>
   );
+}
+
+/** Redirect imperatively so we can carry the current full URL as redirect_url.
+ *  After sign-in Clerk will return the user to the exact page they requested. */
+function RedirectToSignIn() {
+  const { redirectToSignIn } = useClerk();
+  useEffect(() => {
+    redirectToSignIn({ redirectUrl: window.location.href });
+  }, [redirectToSignIn]);
+  return null;
 }
 
 function EnsureProfile({ children }: { children: ReactNode }) {
