@@ -1,15 +1,23 @@
-# [Project name]
+# TokenHarvest — WRS Marketplace
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+East Africa's electronic warehouse receipt (eWR) trading platform for agricultural commodities: live auctions, forward contracts, spot trading, and warehouse financing.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+Workflows are managed by Replit. The three services start automatically:
+- **`artifacts/api-server: API Server`** — Express API on port 8080 (`/api`)
+- **`artifacts/wrs-marketplace: web`** — React/Vite frontend on port 26227 (`/`)
+- **`artifacts/mockup-sandbox: Component Preview Server`** — Design canvas on port 8081 (`/__mockup`)
+
+One-off commands:
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+
+Required env (runtime-managed by Replit — do not set manually):
+- `DATABASE_URL` — Postgres connection string
+- `CLERK_SECRET_KEY`, `CLERK_PUBLISHABLE_KEY`, `VITE_CLERK_PUBLISHABLE_KEY` — Replit-managed Clerk auth
 
 ## Stack
 
