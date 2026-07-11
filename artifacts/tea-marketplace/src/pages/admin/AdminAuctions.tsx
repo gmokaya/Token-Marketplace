@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Play, Gavel, FileText } from "lucide-react";
 import { format } from "date-fns";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default function AdminAuctions() {
   const { data: auctions, isLoading, isError } = useListAuctions(
@@ -45,15 +46,15 @@ export default function AdminAuctions() {
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Auctions Management</h1>
-          <p className="text-muted-foreground mt-1">Manage and start tea auction sessions.</p>
-        </div>
-        <Link href="/admin/auctions/new">
-          <Button className="rounded-none gap-2 h-11 font-semibold"><Gavel className="w-4 h-4" /> Create Session</Button>
-        </Link>
-      </div>
+      <PageHeader
+        title="Auctions Management"
+        description="Manage and start tea auction sessions."
+        actions={
+          <Link href="/admin/auctions/new">
+            <Button className="rounded-none gap-2 h-11 font-semibold"><Gavel className="w-4 h-4" /> Create Session</Button>
+          </Link>
+        }
+      />
 
       <div className="grid gap-6">
         {auctions?.length === 0 ? (

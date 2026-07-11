@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "wouter";
 import { Filter, Search } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default function Market() {
   const [grade, setGrade] = useState("");
@@ -31,12 +32,10 @@ export default function Market() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Spot Market</h1>
-          <p className="text-muted-foreground mt-1">Fixed-price tea lots available for immediate purchase.</p>
-        </div>
-      </div>
+      <PageHeader
+        title="Spot Market"
+        description="Fixed-price tea lots available for immediate purchase."
+      />
 
       <Card className="rounded-none shadow-sm border border-border bg-card">
         <CardContent className="p-5 flex flex-col md:flex-row gap-4 items-end bg-muted/5">

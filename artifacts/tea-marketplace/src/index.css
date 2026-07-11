@@ -6,6 +6,94 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@font-face {
+  font-family: 'Futura';
+  src: url('/tea/fonts/Futura_Light_font_1783759911952.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Futura';
+  src: url('/tea/fonts/Futura_Light_Italic_font_1783759911952.ttf') format('truetype');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Futura';
+  src: url('/tea/fonts/Futura_Book_font_1783759911949.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Futura';
+  src: url('/tea/fonts/Futura_Book_Italic_font_1783759911949.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Futura';
+  src: url('/tea/fonts/futura_medium_bt_1783759911953.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Futura';
+  src: url('/tea/fonts/Futura_Medium_Italic_font_1783759911955.ttf') format('truetype');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Futura';
+  src: url('/tea/fonts/Futura_Bold_font_1783759911958.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Futura';
+  src: url('/tea/fonts/Futura_Bold_Italic_font_1783759911958.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Futura';
+  src: url('/tea/fonts/Futura_Heavy_font_1783759911950.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Futura';
+  src: url('/tea/fonts/Futura_Heavy_Italic_font_1783759911951.ttf') format('truetype');
+  font-weight: 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Futura';
+  src: url('/tea/fonts/Futura_Extra_Black_font_1783759911950.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme inline {
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
@@ -121,7 +209,7 @@
   --chart-4: 300 80% 40%;
   --chart-5: 0 80% 40%;
 
-  --app-font-sans: 'Montserrat', sans-serif;
+  --app-font-sans: 'Futura', sans-serif;
   --app-font-serif: Georgia, serif;
   --app-font-mono: 'JetBrains Mono', monospace;
   --radius: 0rem;

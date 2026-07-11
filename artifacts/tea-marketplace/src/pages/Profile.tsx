@@ -1,6 +1,7 @@
 import { useGetMe } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default function Profile() {
   const { data: user } = useGetMe();
@@ -9,10 +10,10 @@ export default function Profile() {
 
   return (
     <div className="max-w-3xl space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Profile</h1>
-        <p className="text-muted-foreground mt-1">Manage your account information and preferences.</p>
-      </div>
+      <PageHeader
+        title="Profile"
+        description="Manage your account information and preferences."
+      />
       
       <Card className="rounded-none shadow-sm border border-border">
         <CardHeader className="border-b bg-muted/5 p-6">

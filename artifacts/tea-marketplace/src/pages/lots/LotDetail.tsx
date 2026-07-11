@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { FileText, Download, Scale, MapPin, Package, ArrowRight } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default function LotDetail() {
   const params = useParams();
@@ -38,21 +39,23 @@ export default function LotDetail() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-3xl font-bold tracking-tight">Lot #{lot.id}</h1>
+      <PageHeader
+        title={
+          <span className="flex items-center gap-3">
+            Lot #{lot.id}
             <Badge variant="outline" className="rounded-none text-xs tracking-wider px-3 py-1 uppercase bg-muted/5">{lot.status}</Badge>
             <Badge className="rounded-none text-xs tracking-wider px-3 py-1 uppercase">{lot.listingType}</Badge>
-          </div>
-          <p className="text-muted-foreground font-medium">{lot.grade} • {lot.gradeMark}</p>
-        </div>
-        {settlement && (
-          <Link href={`/lots/${lot.id}/settlement`}>
-            <Button className="rounded-none gap-2 h-11 font-semibold">View Settlement <ArrowRight className="w-4 h-4" /></Button>
-          </Link>
-        )}
-      </div>
+          </span>
+        }
+        description={`${lot.grade} • ${lot.gradeMark}`}
+        actions={
+          settlement && (
+            <Link href={`/lots/${lot.id}/settlement`}>
+              <Button className="rounded-none gap-2 h-11 font-semibold">View Settlement <ArrowRight className="w-4 h-4" /></Button>
+            </Link>
+          )
+        }
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-8">

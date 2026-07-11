@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import { PageHeader } from "@/components/ui/page-header";
 
 const schema = z.object({
   auctionDate: z.string().min(1, "Date is required"),
@@ -64,10 +65,10 @@ export default function NewAuction() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Create Auction Session</h1>
-        <p className="text-muted-foreground mt-1">Select lots and arrange the catalogue.</p>
-      </div>
+      <PageHeader
+        title="Create Auction Session"
+        description="Select lots and arrange the catalogue."
+      />
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">

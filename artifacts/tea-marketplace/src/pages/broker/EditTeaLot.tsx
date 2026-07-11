@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/ui/page-header";
 
 const updateLotSchema = z.object({
   grade: z.string().min(1),
@@ -95,10 +96,14 @@ export default function EditTeaLot() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Edit Tea Lot</h1>
-        <p className="text-muted-foreground mt-1">Lot #{lot.id} — Status: <span className="font-semibold text-foreground uppercase">{lot.status}</span></p>
-      </div>
+      <PageHeader
+        title="Edit Tea Lot"
+        description={
+          <>
+            Lot #{lot.id} — Status: <span className="font-semibold text-foreground uppercase">{lot.status}</span>
+          </>
+        }
+      />
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">

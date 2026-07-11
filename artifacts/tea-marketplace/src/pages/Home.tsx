@@ -66,7 +66,7 @@ export default function Home() {
           B2B Tea Marketplace
         </div>
 
-        <h1 className="text-4xl md:text-6xl font-bold text-white leading-[1.05] tracking-tight max-w-3xl">
+        <h1 className="text-5xl md:text-7xl font-bold text-white leading-[1.0] tracking-tight max-w-3xl">
           Where premium teas
           <br />
           <span className="text-white">meet global buyers.</span>

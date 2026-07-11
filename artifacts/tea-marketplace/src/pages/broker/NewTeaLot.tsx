@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { PageHeader } from "@/components/ui/page-header";
 
 const createLotSchema = z.object({
   ewrId: z.coerce.number().min(1, "EWR ID is required"),
@@ -72,10 +73,10 @@ export default function NewTeaLot() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Create Tea Lot</h1>
-        <p className="text-muted-foreground mt-1">Draft a new catalogue entry from an eWR.</p>
-      </div>
+      <PageHeader
+        title="Create Tea Lot"
+        description="Draft a new catalogue entry from an eWR."
+      />
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">

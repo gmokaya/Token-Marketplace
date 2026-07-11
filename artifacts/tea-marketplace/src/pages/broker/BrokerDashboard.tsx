@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/ui/page-header";
 import { Plus, Gavel, FileEdit, Archive, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
@@ -76,20 +77,20 @@ export default function BrokerDashboard() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Broker Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Manage tea lots, auction sessions, and performance.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Link href="/admin/auctions/new">
-            <Button variant="outline" className="rounded-none gap-2">Create Session</Button>
-          </Link>
-          <Link href="/broker/lots/new">
-            <Button className="rounded-none gap-2"><Plus className="w-4 h-4" /> New Lot</Button>
-          </Link>
-        </div>
-      </div>
+      <PageHeader
+        title="Broker Dashboard"
+        description="Manage tea lots, auction sessions, and performance."
+        actions={
+          <>
+            <Link href="/admin/auctions/new">
+              <Button variant="outline" className="rounded-none gap-2">Create Session</Button>
+            </Link>
+            <Link href="/broker/lots/new">
+              <Button className="rounded-none gap-2"><Plus className="w-4 h-4" /> New Lot</Button>
+            </Link>
+          </>
+        }
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="rounded-none shadow-sm border border-border bg-card">

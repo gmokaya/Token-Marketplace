@@ -22,6 +22,7 @@ import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { FileText, ShieldX, Plus } from "lucide-react";
 import { format } from "date-fns";
+import { PageHeader } from "@/components/ui/page-header";
 
 const mandateSchema = z.object({
   brokerId: z.coerce.number().min(1),
@@ -87,55 +88,52 @@ export default function Mandates() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Broker Mandates</h1>
-          <p className="text-muted-foreground mt-1">
-            {isBroker ? "Mandates granted to you by producers." : "Mandates you have granted to brokers."}
-          </p>
-        </div>
-
-        {isProducer && (
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button className="rounded-none gap-2"><Plus className="w-4 h-4" /> Grant Mandate</Button>
-            </DialogTrigger>
-            <DialogContent className="rounded-none sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle className="text-xl font-bold">Grant Broker Mandate</DialogTitle>
-              </DialogHeader>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 pt-4">
-                  <FormField control={form.control} name="brokerId" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Broker User ID</FormLabel>
-                      <FormControl><Input type="number" {...field} className="rounded-none h-11" /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                  <FormField control={form.control} name="commissionRateOverride" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Commission Override (%)</FormLabel>
-                      <FormControl><Input type="number" step="0.1" {...field} className="rounded-none h-11" /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                  <FormField control={form.control} name="validTo" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Valid Until</FormLabel>
-                      <FormControl><Input type="date" {...field} className="rounded-none h-11" /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                  <Button type="submit" className="w-full rounded-none mt-6 h-11 font-semibold" disabled={createMandate.isPending}>
-                    Grant Mandate
-                  </Button>
-                </form>
-              </Form>
-            </DialogContent>
-          </Dialog>
-        )}
-      </div>
+      <PageHeader
+        title="Broker Mandates"
+        description={isBroker ? "Mandates granted to you by producers." : "Mandates you have granted to brokers."}
+        actions={
+          isProducer && (
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button className="rounded-none gap-2"><Plus className="w-4 h-4" /> Grant Mandate</Button>
+              </DialogTrigger>
+              <DialogContent className="rounded-none sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle className="text-xl font-bold">Grant Broker Mandate</DialogTitle>
+                </DialogHeader>
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 pt-4">
+                    <FormField control={form.control} name="brokerId" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Broker User ID</FormLabel>
+                        <FormControl><Input type="number" {...field} className="rounded-none h-11" /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="commissionRateOverride" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Commission Override (%)</FormLabel>
+                        <FormControl><Input type="number" step="0.1" {...field} className="rounded-none h-11" /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="validTo" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Valid Until</FormLabel>
+                        <FormControl><Input type="date" {...field} className="rounded-none h-11" /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <Button type="submit" className="w-full rounded-none mt-6 h-11 font-semibold" disabled={createMandate.isPending}>
+                      Grant Mandate
+                    </Button>
+                  </form>
+                </Form>
+              </DialogContent>
+            </Dialog>
+          )
+        }
+      />
 
       <div className="grid gap-6">
         {isLoading ? (

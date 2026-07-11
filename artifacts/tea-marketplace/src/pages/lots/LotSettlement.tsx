@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle, Clock, FileCheck2, ArrowLeft } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default function LotSettlement() {
   const params = useParams();
@@ -37,13 +38,13 @@ export default function LotSettlement() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      <div>
-        <Link href={`/lots/${lotId}`} className="text-primary hover:text-primary/80 transition-colors text-sm font-semibold uppercase tracking-wider flex items-center gap-1 mb-4">
-          <ArrowLeft className="w-4 h-4" /> Back to Lot
-        </Link>
-        <h1 className="text-3xl font-bold tracking-tight">Settlement Statement</h1>
-        <p className="text-muted-foreground mt-1">Financial breakdown for Lot #{lotId} {lot ? `(${lot.grade})` : ''}</p>
-      </div>
+      <Link href={`/lots/${lotId}`} className="text-primary hover:text-primary/80 transition-colors text-sm font-semibold uppercase tracking-wider flex items-center gap-1 mb-4">
+        <ArrowLeft className="w-4 h-4" /> Back to Lot
+      </Link>
+      <PageHeader
+        title="Settlement Statement"
+        description={`Financial breakdown for Lot #${lotId} ${lot ? `(${lot.grade})` : ''}`}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <Card className="rounded-none shadow-sm border border-border">
