@@ -1,5 +1,6 @@
 import { Link } from "wouter";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, LogIn, LogOut } from "lucide-react";
+import { useAuth, useClerk } from "@clerk/react";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -10,6 +11,9 @@ const stats = [
 ];
 
 export default function Home() {
+  const { isSignedIn } = useAuth();
+  const { signOut } = useClerk();
+
   /* ── Full-screen hero — visible to all visitors ── */
   return (
     <div className="relative w-screen h-screen overflow-hidden flex flex-col select-none">
@@ -37,11 +41,21 @@ export default function Home() {
           />
         </Link>
         <div className="flex items-center gap-3">
-          <Link href="/sign-in">
-            <button className="text-sm font-medium text-white/80 hover:text-white transition-colors px-4 py-2">
-              Sign In
+          {isSignedIn ? (
+            <button
+              onClick={() => signOut()}
+              title="Sign out"
+              className="w-10 h-10 flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              <LogOut className="w-5 h-5" />
             </button>
-          </Link>
+          ) : (
+            <Link href="/sign-in" title="Sign in">
+              <button className="w-10 h-10 flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition-colors">
+                <LogIn className="w-5 h-5" />
+              </button>
+            </Link>
+          )}
           <Link href="/sign-up">
             <button className="text-sm font-semibold bg-white text-[#0a2a2a] hover:bg-white/90 transition-colors px-5 py-2.5 flex items-center gap-2">
               Get Started <ArrowRight className="w-3.5 h-3.5" />
