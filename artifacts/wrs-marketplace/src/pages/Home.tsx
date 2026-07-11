@@ -660,18 +660,18 @@ export default function Home() {
             <div style={{ position: "relative", zIndex: 3, width: "52%", padding: "0 48px 0 max(32px, calc((100vw - 1200px) / 2 + 32px))" }}>
               <div style={{ maxWidth: 520 }}>
                 {/* brand label */}
-                <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 32 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 9, marginTop: 48, marginBottom: 18 }}>
                   <div style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT }} />
                   <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, fontWeight: 500, letterSpacing: "0.22em", textTransform: "uppercase" }}>{hero.badge}</span>
                 </div>
                 {/* heading */}
-                <h1 style={{ color: "#fff", fontWeight: 300, lineHeight: 1.08, margin: "0 0 32px", fontSize: "clamp(3rem, 6.5vw, 6.2rem)", whiteSpace: "pre-line" }}>
+                <h1 style={{ color: "#fff", fontWeight: 300, lineHeight: 1.02, margin: "0 0 18px", fontSize: "clamp(3rem, 6.5vw, 6.2rem)", whiteSpace: "pre-line" }}>
                   {hero.headline}
                 </h1>
                 {/* accent line */}
-                <div style={{ width: 45, height: 2, background: ACCENT, marginBottom: 32 }} />
+                <div style={{ width: 45, height: 2, background: ACCENT, marginBottom: 18 }} />
                 {/* sub */}
-                <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 18, fontWeight: 300, lineHeight: 1.9, margin: "0 0 44px" }}>
+                <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 18, fontWeight: 300, lineHeight: 1.65, margin: "0 0 28px" }}>
                   {hero.subheadline}
                 </p>
                 {/* CTAs */}
