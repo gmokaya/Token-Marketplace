@@ -459,7 +459,7 @@ export default function Home() {
             <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", height: 68, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               {/* logo */}
               <Link href="/" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
-                <img src={`${BASE}/logo-white.png`} alt="TokenHarvest" style={{ height: 40, width: "auto" }} />
+                <img src={`${BASE}/logo-white.png`} alt="TokenHarvest" style={{ height: 72, width: "auto" }} />
               </Link>
               {/* numbered links */}
               <nav style={{ display: "flex", gap: 32, alignItems: "center" }}>
@@ -801,7 +801,7 @@ export default function Home() {
                 <div>
                   <div style={{ marginBottom: 14 }}>
                     <Link href="/" style={{ display: "inline-flex" }}>
-                      <img src={`${BASE}/logo-white.png`} alt="TokenHarvest" style={{ height: 24, width: "auto" }} />
+                      <img src={`${BASE}/logo-white.png`} alt="TokenHarvest" style={{ height: 48, width: "auto" }} />
                     </Link>
                   </div>
                   <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 13, lineHeight: 1.9, margin: 0 }}>
