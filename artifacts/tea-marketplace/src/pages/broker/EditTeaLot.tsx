@@ -94,20 +94,22 @@ export default function EditTeaLot() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <div className="mb-6">
+    <div className="max-w-4xl mx-auto space-y-8">
+      <div>
         <h1 className="text-3xl font-bold tracking-tight">Edit Tea Lot</h1>
-        <p className="text-muted-foreground">Lot #{lot.id} — Status: {lot.status}</p>
+        <p className="text-muted-foreground mt-1">Lot #{lot.id} — Status: <span className="font-semibold text-foreground uppercase">{lot.status}</span></p>
       </div>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <div className="grid grid-cols-2 gap-6 bg-card p-6 border">
-            {/* Same fields as NewTeaLot, omitted here for brevity but included fully */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 bg-card p-8 border border-border shadow-sm">
+            <div className="col-span-1 md:col-span-2 text-xs font-bold uppercase tracking-widest text-primary border-b border-border pb-3 mb-2">
+              Source & Identification
+            </div>
             <FormField control={form.control} name="grade" render={({ field }) => (
               <FormItem>
                 <FormLabel>Grade</FormLabel>
-                <FormControl><Input {...field} className="rounded-none" /></FormControl>
+                <FormControl><Input {...field} className="rounded-none h-11" /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
@@ -115,15 +117,19 @@ export default function EditTeaLot() {
             <FormField control={form.control} name="gradeMark" render={({ field }) => (
               <FormItem>
                 <FormLabel>Grade Mark</FormLabel>
-                <FormControl><Input {...field} className="rounded-none" /></FormControl>
+                <FormControl><Input {...field} className="rounded-none h-11" /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
 
+            <div className="col-span-1 md:col-span-2 text-xs font-bold uppercase tracking-widest text-primary border-b border-border pb-3 mb-2 mt-4">
+              Weights & Valuation
+            </div>
+            
             <FormField control={form.control} name="netWeightKg" render={({ field }) => (
               <FormItem>
                 <FormLabel>Net Weight (kg)</FormLabel>
-                <FormControl><Input type="number" step="0.1" {...field} className="rounded-none" /></FormControl>
+                <FormControl><Input type="number" step="0.1" {...field} className="rounded-none h-11" /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
@@ -131,25 +137,29 @@ export default function EditTeaLot() {
              <FormField control={form.control} name="reservePriceUsd" render={({ field }) => (
               <FormItem>
                 <FormLabel>Reserve Price (USD/kg)</FormLabel>
-                <FormControl><Input type="number" step="0.01" {...field} className="rounded-none" /></FormControl>
+                <FormControl><Input type="number" step="0.01" {...field} className="rounded-none h-11" /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
 
+            <div className="col-span-1 md:col-span-2 text-xs font-bold uppercase tracking-widest text-primary border-b border-border pb-3 mb-2 mt-4">
+              Remarks
+            </div>
+
             <FormField control={form.control} name="tasterRemarks" render={({ field }) => (
-              <FormItem className="col-span-2">
+              <FormItem className="col-span-1 md:col-span-2">
                 <FormLabel>Taster Remarks</FormLabel>
-                <FormControl><Textarea {...field} className="rounded-none resize-y" rows={3} /></FormControl>
+                <FormControl><Textarea {...field} className="rounded-none resize-y p-3" rows={4} /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
           </div>
 
-          <div className="flex justify-end gap-4">
-            <Button type="button" variant="outline" onClick={() => setLocation("/broker")} className="rounded-none">
+          <div className="flex justify-end gap-3 border-t border-border pt-6">
+            <Button type="button" variant="outline" onClick={() => setLocation("/broker")} className="rounded-none px-6 h-11">
               Cancel
             </Button>
-            <Button type="submit" className="rounded-none" disabled={updateLot.isPending}>
+            <Button type="submit" className="rounded-none px-8 h-11 font-semibold" disabled={updateLot.isPending}>
               {updateLot.isPending ? "Saving..." : "Save Changes"}
             </Button>
           </div>

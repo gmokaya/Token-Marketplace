@@ -75,12 +75,15 @@ export default function BrokerDashboard() {
   const statuses = ["DRAFT", "CATALOGUED", "LIVE", "SOLD", "RESERVE_NOT_MET", "WITHDRAWN"];
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">Broker Dashboard</h1>
+    <div className="space-y-8">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Broker Dashboard</h1>
+          <p className="text-muted-foreground mt-1">Manage tea lots, auction sessions, and performance.</p>
+        </div>
         <div className="flex items-center gap-3">
           <Link href="/admin/auctions/new">
-            <Button variant="outline" className="rounded-none">Create Session</Button>
+            <Button variant="outline" className="rounded-none gap-2">Create Session</Button>
           </Link>
           <Link href="/broker/lots/new">
             <Button className="rounded-none gap-2"><Plus className="w-4 h-4" /> New Lot</Button>
@@ -89,42 +92,42 @@ export default function BrokerDashboard() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="rounded-none shadow-none border-border">
-          <CardHeader className="p-4 bg-muted/20 border-b">
-            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Lots Managed</CardTitle>
+        <Card className="rounded-none shadow-sm border border-border bg-card">
+          <CardHeader className="p-5 pb-2 border-b bg-muted/5">
+            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total Lots Managed</CardTitle>
           </CardHeader>
-          <CardContent className="p-4">
-            <div className="text-3xl font-bold">{brokerLots.length}</div>
+          <CardContent className="p-5">
+            <div className="text-4xl font-bold tracking-tight">{brokerLots.length}</div>
           </CardContent>
         </Card>
-        <Card className="rounded-none shadow-none border-border">
-          <CardHeader className="p-4 bg-muted/20 border-b">
-            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Lots Catalogued</CardTitle>
+        <Card className="rounded-none shadow-sm border border-border bg-card">
+          <CardHeader className="p-5 pb-2 border-b bg-muted/5">
+            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Lots Catalogued</CardTitle>
           </CardHeader>
-          <CardContent className="p-4">
-            <div className="text-3xl font-bold">{lotsByStatus["CATALOGUED"]?.length || 0}</div>
+          <CardContent className="p-5">
+            <div className="text-4xl font-bold tracking-tight">{lotsByStatus["CATALOGUED"]?.length || 0}</div>
           </CardContent>
         </Card>
-        <Card className="rounded-none shadow-none border-border">
-          <CardHeader className="p-4 bg-muted/20 border-b">
-            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Lots Sold</CardTitle>
+        <Card className="rounded-none shadow-sm border border-border bg-card">
+          <CardHeader className="p-5 pb-2 border-b bg-muted/5">
+            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Lots Sold</CardTitle>
           </CardHeader>
-          <CardContent className="p-4">
-            <div className="text-3xl font-bold">{lotsByStatus["SOLD"]?.length || 0}</div>
+          <CardContent className="p-5">
+            <div className="text-4xl font-bold tracking-tight">{lotsByStatus["SOLD"]?.length || 0}</div>
           </CardContent>
         </Card>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="w-full justify-start rounded-none border-b bg-transparent h-auto p-0">
+        <TabsList className="w-full justify-start rounded-none border-b border-border bg-transparent h-auto p-0 gap-6">
           {statuses.map(status => (
             <TabsTrigger 
               key={status} 
               value={status}
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-2 font-medium"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 py-3 font-medium text-muted-foreground data-[state=active]:text-foreground transition-none"
             >
               {status.replace(/_/g, ' ')}
-              <Badge variant="secondary" className="ml-2 rounded-none text-xs">
+              <Badge variant="secondary" className="ml-2 rounded-none text-xs bg-muted/50">
                 {lotsByStatus[status]?.length || 0}
               </Badge>
             </TabsTrigger>
@@ -132,46 +135,48 @@ export default function BrokerDashboard() {
         </TabsList>
         
         {statuses.map(status => (
-          <TabsContent key={status} value={status} className="pt-6">
+          <TabsContent key={status} value={status} className="pt-6 outline-none">
             {!lotsByStatus[status]?.length ? (
-              <div className="text-center p-12 border border-dashed text-muted-foreground">
-                No lots found in this status.
+              <div className="flex flex-col items-center justify-center p-16 text-center border border-border bg-muted/5">
+                <Archive className="w-12 h-12 text-muted-foreground/30 mb-4" />
+                <h3 className="text-lg font-medium">No lots found</h3>
+                <p className="text-muted-foreground mt-1">There are no lots currently in the {status.replace(/_/g, ' ')} status.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {lotsByStatus[status].map(lot => (
-                  <Card key={lot.id} className="rounded-none shadow-none flex flex-col">
-                    <CardHeader className="p-4 pb-2 border-b bg-muted/10">
+                  <Card key={lot.id} className="rounded-none shadow-sm flex flex-col border border-border transition-all hover:border-primary/30">
+                    <CardHeader className="p-5 border-b bg-muted/5">
                       <div className="flex justify-between items-start">
                         <div>
-                          <CardTitle className="text-lg">{lot.grade}</CardTitle>
-                          <div className="text-sm text-muted-foreground mt-1">{lot.gradeMark} • {lot.giOrigin}</div>
+                          <CardTitle className="text-xl font-bold">{lot.grade}</CardTitle>
+                          <div className="text-sm text-muted-foreground mt-1 font-medium">{lot.gradeMark} • {lot.giOrigin}</div>
                         </div>
-                        <Badge variant="outline" className="rounded-none">{lot.listingType}</Badge>
+                        <Badge variant="outline" className="rounded-none text-xs tracking-wider">{lot.listingType}</Badge>
                       </div>
                     </CardHeader>
-                    <CardContent className="p-4 flex-1 space-y-3">
-                      <div className="grid grid-cols-2 gap-2 text-sm">
+                    <CardContent className="p-5 flex-1 space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <div className="text-muted-foreground">Weight</div>
-                          <div className="font-semibold">{lot.netWeightKg} kg</div>
+                          <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">Weight</div>
+                          <div className="font-mono text-base">{lot.netWeightKg} kg</div>
                         </div>
                         <div>
-                          <div className="text-muted-foreground">Reserve</div>
-                          <div className="font-semibold">${lot.reservePriceUsd?.toFixed(2) || '—'} /kg</div>
+                          <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">Reserve</div>
+                          <div className="font-mono text-base">${lot.reservePriceUsd?.toFixed(2) || '—'} /kg</div>
                         </div>
                       </div>
                     </CardContent>
                     
-                    <div className="p-4 pt-0 mt-auto flex gap-2 flex-wrap">
-                      <Link href={`/lots/${lot.id}`} className="flex-1">
-                        <Button variant="outline" size="sm" className="w-full rounded-none">View</Button>
+                    <div className="p-5 pt-0 mt-auto flex gap-3 flex-wrap border-t bg-muted/5">
+                      <Link href={`/lots/${lot.id}`} className="flex-1 mt-5">
+                        <Button variant="outline" size="sm" className="w-full rounded-none gap-2"><Gavel className="w-3 h-3"/> View Details</Button>
                       </Link>
                       
                       {(status === "DRAFT" || status === "CATALOGUED") && (
-                        <Link href={`/broker/lots/${lot.id}/edit`} className="flex-1">
+                        <Link href={`/broker/lots/${lot.id}/edit`} className="flex-1 mt-5">
                           <Button variant="secondary" size="sm" className="w-full rounded-none gap-2">
-                            <FileEdit className="w-3 h-3" /> Edit
+                            <FileEdit className="w-3 h-3" /> Edit Lot
                           </Button>
                         </Link>
                       )}
@@ -181,20 +186,20 @@ export default function BrokerDashboard() {
                           <Button 
                             variant="default" 
                             size="sm" 
-                            className="flex-1 rounded-none"
+                            className="flex-1 rounded-none mt-5 gap-2"
                             onClick={() => acceptMutation.mutate({ lotId: lot.id })}
                             disabled={acceptMutation.isPending}
                           >
-                            <CheckCircle className="w-3 h-3 mr-1" /> Accept
+                            <CheckCircle className="w-3 h-3" /> Accept
                           </Button>
                           <Button 
                             variant="destructive" 
                             size="sm" 
-                            className="flex-1 rounded-none"
+                            className="flex-1 rounded-none mt-5 gap-2"
                             onClick={() => takeOutMutation.mutate({ lotId: lot.id })}
                             disabled={takeOutMutation.isPending}
                           >
-                            <Archive className="w-3 h-3 mr-1" /> Take Out
+                            <Archive className="w-3 h-3" /> Withdraw
                           </Button>
                         </>
                       )}

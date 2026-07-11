@@ -71,23 +71,23 @@ export default function NewTeaLot() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <div className="mb-6">
+    <div className="max-w-4xl mx-auto space-y-8">
+      <div>
         <h1 className="text-3xl font-bold tracking-tight">Create Tea Lot</h1>
-        <p className="text-muted-foreground">Draft a new catalogue entry from an eWR.</p>
+        <p className="text-muted-foreground mt-1">Draft a new catalogue entry from an eWR.</p>
       </div>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <div className="grid grid-cols-2 gap-6 bg-card p-6 border">
-            <div className="col-span-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground border-b pb-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 bg-card p-8 border border-border shadow-sm">
+            <div className="col-span-1 md:col-span-2 text-xs font-bold uppercase tracking-widest text-primary border-b border-border pb-3 mb-2">
               Source & Identification
             </div>
             
             <FormField control={form.control} name="ewrId" render={({ field }) => (
               <FormItem>
                 <FormLabel>eWR ID</FormLabel>
-                <FormControl><Input type="number" {...field} className="rounded-none" /></FormControl>
+                <FormControl><Input type="number" {...field} className="rounded-none h-11" /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
@@ -95,7 +95,7 @@ export default function NewTeaLot() {
             <FormField control={form.control} name="grade" render={({ field }) => (
               <FormItem>
                 <FormLabel>Grade (e.g. BP1, PF1)</FormLabel>
-                <FormControl><Input {...field} className="rounded-none" /></FormControl>
+                <FormControl><Input {...field} className="rounded-none h-11" /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
@@ -103,7 +103,7 @@ export default function NewTeaLot() {
             <FormField control={form.control} name="gradeMark" render={({ field }) => (
               <FormItem>
                 <FormLabel>Grade Mark (Estate/Factory)</FormLabel>
-                <FormControl><Input {...field} className="rounded-none" /></FormControl>
+                <FormControl><Input {...field} className="rounded-none h-11" /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
@@ -111,19 +111,19 @@ export default function NewTeaLot() {
             <FormField control={form.control} name="giOrigin" render={({ field }) => (
               <FormItem>
                 <FormLabel>GI Origin</FormLabel>
-                <FormControl><Input {...field} className="rounded-none" /></FormControl>
+                <FormControl><Input {...field} className="rounded-none h-11" /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
 
-            <div className="col-span-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground border-b pb-2 mt-4">
+            <div className="col-span-1 md:col-span-2 text-xs font-bold uppercase tracking-widest text-primary border-b border-border pb-3 mb-2 mt-4">
               Weights & Packaging
             </div>
 
             <FormField control={form.control} name="grossWeightKg" render={({ field }) => (
               <FormItem>
                 <FormLabel>Gross Weight (kg)</FormLabel>
-                <FormControl><Input type="number" step="0.1" {...field} className="rounded-none" /></FormControl>
+                <FormControl><Input type="number" step="0.1" {...field} className="rounded-none h-11" /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
@@ -131,7 +131,7 @@ export default function NewTeaLot() {
             <FormField control={form.control} name="netWeightKg" render={({ field }) => (
               <FormItem>
                 <FormLabel>Net Weight (kg)</FormLabel>
-                <FormControl><Input type="number" step="0.1" {...field} className="rounded-none" /></FormControl>
+                <FormControl><Input type="number" step="0.1" {...field} className="rounded-none h-11" /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
@@ -139,7 +139,7 @@ export default function NewTeaLot() {
             <FormField control={form.control} name="tareWeightKg" render={({ field }) => (
               <FormItem>
                 <FormLabel>Tare Weight (kg)</FormLabel>
-                <FormControl><Input type="number" step="0.1" {...field} className="rounded-none" /></FormControl>
+                <FormControl><Input type="number" step="0.1" {...field} className="rounded-none h-11" /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
@@ -147,12 +147,12 @@ export default function NewTeaLot() {
             <FormField control={form.control} name="packageType" render={({ field }) => (
               <FormItem>
                 <FormLabel>Package Type</FormLabel>
-                <FormControl><Input {...field} className="rounded-none" /></FormControl>
+                <FormControl><Input {...field} className="rounded-none h-11" /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
 
-            <div className="col-span-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground border-b pb-2 mt-4">
+            <div className="col-span-1 md:col-span-2 text-xs font-bold uppercase tracking-widest text-primary border-b border-border pb-3 mb-2 mt-4">
               Listing Details
             </div>
 
@@ -161,7 +161,7 @@ export default function NewTeaLot() {
                 <FormLabel>Listing Type</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger className="rounded-none"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="rounded-none h-11"><SelectValue /></SelectTrigger>
                   </FormControl>
                   <SelectContent className="rounded-none">
                     <SelectItem value="AUCTION">Auction</SelectItem>
@@ -177,7 +177,7 @@ export default function NewTeaLot() {
                 <FormLabel>Catalogue Type</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger className="rounded-none"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="rounded-none h-11"><SelectValue /></SelectTrigger>
                   </FormControl>
                   <SelectContent className="rounded-none">
                     <SelectItem value="WITH_VALUATION">With Valuation</SelectItem>
@@ -191,7 +191,7 @@ export default function NewTeaLot() {
             <FormField control={form.control} name="reservePriceUsd" render={({ field }) => (
               <FormItem>
                 <FormLabel>Reserve Price (USD/kg)</FormLabel>
-                <FormControl><Input type="number" step="0.01" {...field} className="rounded-none" /></FormControl>
+                <FormControl><Input type="number" step="0.01" {...field} className="rounded-none h-11" /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
@@ -199,25 +199,25 @@ export default function NewTeaLot() {
             <FormField control={form.control} name="brokerValuationUsd" render={({ field }) => (
               <FormItem>
                 <FormLabel>Broker Valuation (USD/kg)</FormLabel>
-                <FormControl><Input type="number" step="0.01" {...field} className="rounded-none" /></FormControl>
+                <FormControl><Input type="number" step="0.01" {...field} className="rounded-none h-11" /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
 
             <FormField control={form.control} name="tasterRemarks" render={({ field }) => (
-              <FormItem className="col-span-2">
+              <FormItem className="col-span-1 md:col-span-2">
                 <FormLabel>Taster Remarks</FormLabel>
-                <FormControl><Textarea {...field} className="rounded-none resize-y" rows={3} /></FormControl>
+                <FormControl><Textarea {...field} className="rounded-none resize-y p-3" rows={4} /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
           </div>
 
-          <div className="flex justify-end gap-4">
-            <Button type="button" variant="outline" onClick={() => setLocation("/broker")} className="rounded-none">
+          <div className="flex justify-end gap-3 border-t border-border pt-6">
+            <Button type="button" variant="outline" onClick={() => setLocation("/broker")} className="rounded-none px-6 h-11">
               Cancel
             </Button>
-            <Button type="submit" className="rounded-none" disabled={createLot.isPending}>
+            <Button type="submit" className="rounded-none px-8 h-11 font-semibold" disabled={createLot.isPending}>
               {createLot.isPending ? "Creating..." : "Create Draft Lot"}
             </Button>
           </div>

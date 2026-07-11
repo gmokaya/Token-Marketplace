@@ -127,18 +127,18 @@ export default function LiveAuction() {
       {/* Main Auction Stage */}
       <div className="flex-1 flex flex-col gap-4 overflow-hidden">
         <Card className="rounded-none border-border shadow-none flex-1 flex flex-col bg-card overflow-hidden">
-          <CardHeader className="border-b bg-muted/10 p-6 flex flex-row items-center justify-between shrink-0">
+          <CardHeader className="border-b border-border bg-muted/5 p-6 flex flex-row items-center justify-between shrink-0">
             <div>
-              <CardTitle className="text-2xl flex items-center gap-2">
+              <CardTitle className="text-2xl font-bold flex items-center gap-2">
                 <Gavel className="w-6 h-6" /> Live Tea Auction
               </CardTitle>
-              <p className="text-muted-foreground mt-1">
+              <p className="text-muted-foreground font-mono mt-1 text-sm">
                 Session #{session.id}
               </p>
             </div>
             <Badge
               variant={session.status === "LIVE" ? "destructive" : "secondary"}
-              className="rounded-none text-sm px-3 py-1"
+              className="rounded-none px-3 py-1 text-xs tracking-wider"
             >
               {session.status}
             </Badge>

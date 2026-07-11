@@ -86,11 +86,11 @@ export default function Mandates() {
   const isError = isBroker ? errorMy : errorGiven;
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="max-w-5xl mx-auto space-y-8">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Broker Mandates</h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground mt-1">
             {isBroker ? "Mandates granted to you by producers." : "Mandates you have granted to brokers."}
           </p>
         </div>
@@ -102,32 +102,32 @@ export default function Mandates() {
             </DialogTrigger>
             <DialogContent className="rounded-none sm:max-w-[425px]">
               <DialogHeader>
-                <DialogTitle>Grant Broker Mandate</DialogTitle>
+                <DialogTitle className="text-xl font-bold">Grant Broker Mandate</DialogTitle>
               </DialogHeader>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-4">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 pt-4">
                   <FormField control={form.control} name="brokerId" render={({ field }) => (
                     <FormItem>
                       <FormLabel>Broker User ID</FormLabel>
-                      <FormControl><Input type="number" {...field} className="rounded-none" /></FormControl>
+                      <FormControl><Input type="number" {...field} className="rounded-none h-11" /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
                   <FormField control={form.control} name="commissionRateOverride" render={({ field }) => (
                     <FormItem>
                       <FormLabel>Commission Override (%)</FormLabel>
-                      <FormControl><Input type="number" step="0.1" {...field} className="rounded-none" /></FormControl>
+                      <FormControl><Input type="number" step="0.1" {...field} className="rounded-none h-11" /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
                   <FormField control={form.control} name="validTo" render={({ field }) => (
                     <FormItem>
                       <FormLabel>Valid Until</FormLabel>
-                      <FormControl><Input type="date" {...field} className="rounded-none" /></FormControl>
+                      <FormControl><Input type="date" {...field} className="rounded-none h-11" /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
-                  <Button type="submit" className="w-full rounded-none mt-4" disabled={createMandate.isPending}>
+                  <Button type="submit" className="w-full rounded-none mt-6 h-11 font-semibold" disabled={createMandate.isPending}>
                     Grant Mandate
                   </Button>
                 </form>
@@ -137,53 +137,58 @@ export default function Mandates() {
         )}
       </div>
 
-      <div className="grid gap-4">
+      <div className="grid gap-6">
         {isLoading ? (
-          [1,2].map(i => <Skeleton key={i} className="h-32 w-full" />)
+          [1,2].map(i => <Skeleton key={i} className="h-32 w-full rounded-none" />)
         ) : isError ? (
-          <div className="flex items-center justify-center h-48 text-muted-foreground">
+          <div className="flex items-center justify-center h-48 text-muted-foreground border border-border bg-muted/5">
             <span>Failed to load mandates. Please try again.</span>
           </div>
         ) : mandates?.length === 0 ? (
-          <div className="text-center p-16 border border-dashed">
-            <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-20" />
-            <div className="text-muted-foreground text-lg">No active mandates.</div>
+          <div className="flex flex-col items-center justify-center p-16 text-center border border-border bg-muted/5">
+            <FileText className="w-12 h-12 text-muted-foreground/30 mb-4" />
+            <h3 className="text-lg font-medium">No active mandates</h3>
+            <p className="text-muted-foreground mt-1">You have no active broker mandates at this time.</p>
           </div>
         ) : (
           mandates?.map(m => (
-            <Card key={m.id} className="rounded-none shadow-none flex flex-col sm:flex-row items-center justify-between p-6">
-              <div className="flex-1 space-y-2">
+            <Card key={m.id} className="rounded-none shadow-sm border border-border flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 hover:border-primary/30 transition-colors">
+              <div className="flex-1 space-y-4">
                 <div className="flex items-center gap-3">
-                  <h3 className="text-xl font-bold font-mono">Mandate #{m.id}</h3>
-                  <Badge variant={!m.revoked ? 'default' : 'secondary'} className="rounded-none">
+                  <h3 className="text-xl font-bold">Mandate #{m.id}</h3>
+                  <Badge variant={!m.revoked ? 'default' : 'secondary'} className="rounded-none px-2 py-1 text-[10px] tracking-wider">
                     {!m.revoked ? 'ACTIVE' : 'REVOKED'}
                   </Badge>
                 </div>
-                <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground max-w-md">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-sm">
                   <div>
-                    <span className="font-semibold">Broker ID:</span> {m.brokerId}
+                    <div className="text-xs text-muted-foreground uppercase font-semibold tracking-wider mb-1">Broker ID</div>
+                    <div className="font-mono font-medium">{m.brokerId}</div>
                   </div>
                   <div>
-                    <span className="font-semibold">Owner ID:</span> {m.ownerId}
+                    <div className="text-xs text-muted-foreground uppercase font-semibold tracking-wider mb-1">Owner ID</div>
+                    <div className="font-mono font-medium">{m.ownerId}</div>
                   </div>
                   <div>
-                    <span className="font-semibold">Commission:</span> {m.commissionRateOverride ? m.commissionRateOverride + '%' : 'Default'}
+                    <div className="text-xs text-muted-foreground uppercase font-semibold tracking-wider mb-1">Commission</div>
+                    <div className="font-medium">{m.commissionRateOverride ? m.commissionRateOverride + '%' : 'Default'}</div>
                   </div>
                   <div>
-                    <span className="font-semibold">Valid Until:</span> {m.validTo ? new Date(m.validTo).toLocaleDateString() : 'Indefinite'}
+                    <div className="text-xs text-muted-foreground uppercase font-semibold tracking-wider mb-1">Valid Until</div>
+                    <div className="font-medium">{m.validTo ? new Date(m.validTo).toLocaleDateString() : 'Indefinite'}</div>
                   </div>
                 </div>
               </div>
               
               {!m.revoked && isProducer && (
-                <div className="mt-4 sm:mt-0">
+                <div className="mt-6 sm:mt-0 sm:ml-6 shrink-0">
                   <Button 
                     variant="destructive" 
-                    className="rounded-none gap-2"
+                    className="rounded-none gap-2 h-11"
                     onClick={() => revokeMandate.mutate({ mandateId: m.id })}
                     disabled={revokeMandate.isPending}
                   >
-                    <ShieldX className="w-4 h-4" /> Revoke
+                    <ShieldX className="w-4 h-4" /> Revoke Mandate
                   </Button>
                 </div>
               )}

@@ -37,59 +37,59 @@ export default function LotDetail() {
   );
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="max-w-5xl mx-auto space-y-8">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3 mb-2">
             <h1 className="text-3xl font-bold tracking-tight">Lot #{lot.id}</h1>
-            <Badge variant="outline" className="rounded-none text-sm px-3 py-1 uppercase">{lot.status}</Badge>
-            <Badge className="rounded-none text-sm px-3 py-1 uppercase">{lot.listingType}</Badge>
+            <Badge variant="outline" className="rounded-none text-xs tracking-wider px-3 py-1 uppercase bg-muted/5">{lot.status}</Badge>
+            <Badge className="rounded-none text-xs tracking-wider px-3 py-1 uppercase">{lot.listingType}</Badge>
           </div>
-          <p className="text-muted-foreground">{lot.grade} • {lot.gradeMark}</p>
+          <p className="text-muted-foreground font-medium">{lot.grade} • {lot.gradeMark}</p>
         </div>
         {settlement && (
           <Link href={`/lots/${lot.id}/settlement`}>
-            <Button className="rounded-none gap-2">View Settlement <ArrowRight className="w-4 h-4" /></Button>
+            <Button className="rounded-none gap-2 h-11 font-semibold">View Settlement <ArrowRight className="w-4 h-4" /></Button>
           </Link>
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 space-y-6">
-          <Card className="rounded-none shadow-none border-border">
-            <CardHeader className="bg-muted/10 border-b p-4">
-              <CardTitle className="text-lg flex items-center gap-2">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="md:col-span-2 space-y-8">
+          <Card className="rounded-none shadow-sm border border-border">
+            <CardHeader className="bg-muted/5 border-b border-border p-5">
+              <CardTitle className="text-lg font-bold flex items-center gap-2">
                 <FileText className="w-5 h-5 text-muted-foreground" /> Catalogue Details
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-y-8 gap-x-4">
+            <CardContent className="p-8">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-y-8 gap-x-6">
                 <div>
-                  <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1 font-semibold flex items-center gap-1"><Scale className="w-3 h-3" /> Net Weight</div>
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2 font-semibold flex items-center gap-1.5"><Scale className="w-3.5 h-3.5" /> Net Weight</div>
                   <div className="font-mono text-xl">{lot.netWeightKg} kg</div>
                 </div>
                 <div>
-                  <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1 font-semibold">Gross Weight</div>
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2 font-semibold">Gross Weight</div>
                   <div className="font-mono text-xl">{lot.grossWeightKg} kg</div>
                 </div>
                 <div>
-                  <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1 font-semibold">Tare Weight</div>
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2 font-semibold">Tare Weight</div>
                   <div className="font-mono text-xl">{lot.tareWeightKg} kg</div>
                 </div>
                 <div>
-                  <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1 font-semibold flex items-center gap-1"><MapPin className="w-3 h-3" /> Origin</div>
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2 font-semibold flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> Origin</div>
                   <div className="text-lg font-medium">{lot.giOrigin}</div>
                 </div>
                 <div>
-                  <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1 font-semibold flex items-center gap-1"><Package className="w-3 h-3" /> Package</div>
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2 font-semibold flex items-center gap-1.5"><Package className="w-3.5 h-3.5" /> Package</div>
                   <div className="text-lg font-medium">{lot.packageType}</div>
                 </div>
                 <div>
-                  <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1 font-semibold">Certifications</div>
-                  <div className="flex gap-1 flex-wrap">
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2 font-semibold">Certifications</div>
+                  <div className="flex gap-2 flex-wrap">
                     {lot.certifications?.length ? lot.certifications.map(c => (
-                      <Badge key={c} variant="secondary" className="rounded-none text-[10px]">{c}</Badge>
-                    )) : 'None'}
+                      <Badge key={c} variant="secondary" className="rounded-none text-[10px] tracking-wider">{c}</Badge>
+                    )) : <span className="text-muted-foreground text-sm">None</span>}
                   </div>
                 </div>
               </div>
@@ -97,12 +97,12 @@ export default function LotDetail() {
           </Card>
 
           {lot.tasterRemarks && (
-            <Card className="rounded-none shadow-none border-border">
-              <CardHeader className="bg-muted/10 border-b p-4">
-                <CardTitle className="text-lg">Taster Remarks</CardTitle>
+            <Card className="rounded-none shadow-sm border border-border">
+              <CardHeader className="bg-muted/5 border-b border-border p-5">
+                <CardTitle className="text-lg font-bold">Taster Remarks</CardTitle>
               </CardHeader>
-              <CardContent className="p-6">
-                <p className="text-lg italic text-muted-foreground border-l-4 border-primary pl-4">
+              <CardContent className="p-8">
+                <p className="text-lg italic text-foreground border-l-4 border-primary pl-6 py-2 leading-relaxed">
                   "{lot.tasterRemarks}"
                 </p>
               </CardContent>
@@ -110,41 +110,41 @@ export default function LotDetail() {
           )}
         </div>
 
-        <div className="space-y-6">
-          <Card className="rounded-none shadow-none border-border bg-primary/5">
-            <CardHeader className="p-4 border-b border-primary/10">
-              <CardTitle className="text-lg">Valuation</CardTitle>
+        <div className="space-y-8">
+          <Card className="rounded-none shadow-sm border border-border bg-card">
+            <CardHeader className="p-5 border-b border-border bg-primary text-primary-foreground">
+              <CardTitle className="text-lg font-bold">Valuation</CardTitle>
             </CardHeader>
-            <CardContent className="p-6 space-y-4">
+            <CardContent className="p-6 space-y-6">
               <div>
-                <div className="text-sm text-muted-foreground uppercase tracking-wider mb-1">Reserve Price</div>
-                <div className="text-3xl font-bold font-mono">${lot.reservePriceUsd?.toFixed(2)}<span className="text-sm text-muted-foreground">/kg</span></div>
+                <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2 font-semibold">Reserve Price</div>
+                <div className="text-4xl font-black font-mono tracking-tight">${lot.reservePriceUsd?.toFixed(2)}<span className="text-base font-normal text-muted-foreground tracking-normal">/kg</span></div>
               </div>
               {lot.brokerValuationUsd && (
-                <div>
-                  <div className="text-sm text-muted-foreground uppercase tracking-wider mb-1">Broker Valuation</div>
-                  <div className="text-xl font-semibold font-mono">${lot.brokerValuationUsd.toFixed(2)}<span className="text-sm text-muted-foreground">/kg</span></div>
+                <div className="pt-4 border-t border-border">
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2 font-semibold">Broker Valuation</div>
+                  <div className="text-2xl font-bold font-mono tracking-tight">${lot.brokerValuationUsd.toFixed(2)}<span className="text-sm font-normal text-muted-foreground tracking-normal">/kg</span></div>
                 </div>
               )}
             </CardContent>
           </Card>
 
-          <Card className="rounded-none shadow-none border-border">
-            <CardHeader className="bg-muted/10 border-b p-4">
-              <CardTitle className="text-lg">Dispatch Documents</CardTitle>
+          <Card className="rounded-none shadow-sm border border-border">
+            <CardHeader className="bg-muted/5 border-b border-border p-5">
+              <CardTitle className="text-lg font-bold">Dispatch Documents</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
-              <div className="divide-y">
+              <div className="divide-y divide-border">
                 {docsError ? (
-                  <div className="p-4 text-center text-sm text-muted-foreground">Failed to load documents.</div>
+                  <div className="p-6 text-center text-sm text-muted-foreground">Failed to load documents.</div>
                 ) : docs?.length === 0 ? (
-                  <div className="p-4 text-center text-sm text-muted-foreground">No documents attached.</div>
+                  <div className="p-6 text-center text-sm text-muted-foreground">No documents attached.</div>
                 ) : (
-                  docs?.map(doc => (
-                    <div className="p-4 flex items-center justify-between hover:bg-muted/5">
+                  docs?.map((doc, idx) => (
+                    <div key={idx} className="p-5 flex items-center justify-between hover:bg-muted/5 transition-colors">
                       <div>
-                        <div className="font-medium text-sm">{doc.docType.replace(/_/g, ' ')}</div>
-                        <div className="text-xs text-muted-foreground">{new Date(doc.createdAt).toLocaleDateString()}</div>
+                        <div className="font-semibold text-sm uppercase tracking-wider">{doc.docType.replace(/_/g, ' ')}</div>
+                        <div className="text-xs text-muted-foreground mt-1 font-mono">{new Date(doc.createdAt).toLocaleDateString()}</div>
                       </div>
                       {doc.docData && (doc.docData as any).fileUrl && (
                         <Button variant="ghost" size="icon" className="rounded-none" asChild>
