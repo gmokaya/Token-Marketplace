@@ -100,8 +100,8 @@ function ClerkProviderWithRoutes() {
       appearance={clerkAppearance}
       signInUrl={`${basePath}/sign-in`}
       signUpUrl={`${basePath}/sign-up`}
-      signInFallbackRedirectUrl={`${basePath}/`}
-      signUpFallbackRedirectUrl={`${basePath}/`}
+      signInFallbackRedirectUrl={`${basePath}/broker`}
+      signUpFallbackRedirectUrl={`${basePath}/broker`}
       routerPush={(to) => setLocation(stripBase(to))}
       routerReplace={(to) => setLocation(stripBase(to), { replace: true })}
     >
