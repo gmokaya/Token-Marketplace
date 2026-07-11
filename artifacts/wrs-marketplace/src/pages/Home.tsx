@@ -513,8 +513,6 @@ export default function Home() {
               backgroundImage: "radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)",
               backgroundSize: "28px 28px",
             }} />
-            {/* diagonal fade from left panel into right */}
-            <div style={{ position: "absolute", top: 0, bottom: 0, left: "calc(55% - 120px)", width: 180, zIndex: 4, background: "linear-gradient(to right, #161616 40%, transparent 100%)" }} />
 
             {/* hero content (left side) */}
             <div style={{ position: "relative", zIndex: 3, width: "55%", padding: "0 56px 0 max(48px, calc((100vw - 1200px) / 2 + 48px))" }}>
