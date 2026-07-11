@@ -28,7 +28,7 @@ export default function Home() {
       <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-transparent" />
 
       {/* ── Top nav ── */}
-      <nav className="relative z-10 flex items-center justify-between px-8 md:px-14 pt-16">
+      <nav className="relative z-10 flex items-center justify-between px-8 pt-16">
         <Link href="/">
           <img
             src={`${basePath}/logo-white.png`}
