@@ -51,19 +51,9 @@ export function AppHeader({ collapsed, onToggle }: AppHeaderProps) {
   const tierLabel = formatTier(dbUser?.tier);
 
   return (
-    <header className="sticky top-0 z-50 flex items-center justify-between h-14 px-3 bg-card border-b border-border shrink-0">
-      <div className="flex items-center gap-2">
-        <button
-          onClick={onToggle}
-          aria-label="Toggle sidebar"
-          className="flex items-center justify-center w-8 h-8 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-        >
-          {collapsed
-            ? <PanelLeftOpen className="w-4 h-4" />
-            : <PanelLeftClose className="w-4 h-4" />}
-        </button>
-
-        <Link href="/" className="flex items-center ml-1">
+    <header className="sticky top-0 z-50 flex items-center justify-between h-14 pl-2 pr-3 bg-card border-b border-border shrink-0">
+      <div className="flex items-center gap-1">
+        <Link href="/" className="flex items-center">
           <img
             src={`${basePath}/logo-dark.png`}
             alt="TokenHarvest Tea"
@@ -75,6 +65,16 @@ export function AppHeader({ collapsed, onToggle }: AppHeaderProps) {
             className="h-18 w-auto shrink-0 hidden dark:block"
           />
         </Link>
+
+        <button
+          onClick={onToggle}
+          aria-label="Toggle sidebar"
+          className="flex items-center justify-center w-8 h-8 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+        >
+          {collapsed
+            ? <PanelLeftOpen className="w-4 h-4" />
+            : <PanelLeftClose className="w-4 h-4" />}
+        </button>
 
         <Link href="/">
           <button
