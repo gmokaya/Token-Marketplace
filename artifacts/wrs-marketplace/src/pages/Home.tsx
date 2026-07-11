@@ -578,7 +578,7 @@ export default function Home() {
 
           {/* ══ NAVBAR ══════════════════════════════════════════════ */}
           <header style={{
-            position: "fixed", top: 20, left: 0, right: 0, zIndex: 200,
+            position: "fixed", top: 0, left: 0, right: 0, zIndex: 200,
             background: scrolled ? "rgba(22,22,22,0.97)" : "transparent",
             backdropFilter: scrolled ? "blur(10px)" : "none",
             transition: "background 0.3s",
@@ -637,27 +637,27 @@ export default function Home() {
           {/* ══ HERO ════════════════════════════════════════════════ */}
           <section style={{ position: "relative", height: "100vh", minHeight: 600, display: "flex", alignItems: "center" }}>
             {/* left charcoal panel */}
-            <div style={{ position: "absolute", inset: 0, right: "45%", background: "#161616", zIndex: 1 }} />
+            <div style={{ position: "absolute", inset: 0, right: "48%", background: "#161616", zIndex: 1 }} />
             {/* right panel — East African farmer photo */}
             <div style={{
-              position: "absolute", inset: 0, left: "55%", zIndex: 1,
+              position: "absolute", inset: 0, left: "52%", zIndex: 1,
               backgroundImage: `url(${photo("hero-soybean-farmer.jpg")})`,
               backgroundSize: "cover", backgroundPosition: "center",
             }} />
             {/* WRS brand green overlay over the photo for cohesion + legibility */}
             <div style={{
-              position: "absolute", inset: 0, left: "55%", zIndex: 1,
+              position: "absolute", inset: 0, left: "52%", zIndex: 1,
               background: "linear-gradient(145deg, hsl(180 62% 10% / 0.36) 0%, hsl(180 62% 6% / 0.44) 60%, hsl(180 50% 8% / 0.36) 100%)",
             }} />
             {/* subtle dot-grid pattern overlay */}
             <div style={{
-              position: "absolute", inset: 0, left: "55%", zIndex: 2,
+              position: "absolute", inset: 0, left: "52%", zIndex: 2,
               backgroundImage: "radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)",
               backgroundSize: "28px 28px",
             }} />
 
             {/* hero content (left side) */}
-            <div style={{ position: "relative", zIndex: 3, width: "55%", padding: "0 56px 0 max(32px, calc((100vw - 1200px) / 2 + 32px))" }}>
+            <div style={{ position: "relative", zIndex: 3, width: "52%", padding: "0 48px 0 max(32px, calc((100vw - 1200px) / 2 + 32px))" }}>
               <div style={{ maxWidth: 520 }}>
                 {/* brand label */}
                 <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 32 }}>
