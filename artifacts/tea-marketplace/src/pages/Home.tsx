@@ -56,11 +56,6 @@ export default function Home() {
               </button>
             </Link>
           )}
-          <Link href="/sign-up">
-            <button className="text-sm font-semibold bg-white text-[#0a2a2a] hover:bg-white/90 transition-colors px-5 py-2.5 flex items-center gap-2">
-              Get Started <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          </Link>
         </div>
       </nav>
 
