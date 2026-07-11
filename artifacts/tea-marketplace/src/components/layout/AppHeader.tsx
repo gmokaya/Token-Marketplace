@@ -53,7 +53,7 @@ export function AppHeader({ collapsed, onToggle }: AppHeaderProps) {
   return (
     <header className="sticky top-0 z-50 flex items-center justify-between h-14 pl-2 pr-3 bg-card border-b border-border shrink-0">
       <div className="flex items-center gap-1">
-        <Link href="/" className="flex items-center">
+        <Link href="/" className="flex items-center -ml-2.5">
           <img
             src={`${basePath}/logo-dark.png`}
             alt="TokenHarvest Tea"
