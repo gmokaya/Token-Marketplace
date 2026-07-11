@@ -16,35 +16,69 @@ interface NavItem {
   icon: React.ElementType;
 }
 
-const NAV_BY_TIER: Record<string, NavItem[]> = {
-  ENABLER: [
-    { href: "/broker",              label: "Broker Dashboard",  icon: LayoutDashboard },
-    { href: "/broker/lots/new",     label: "List New Tea Lot",  icon: PlusCircle     },
-    { href: "/mandates",            label: "My Mandates",       icon: FileText       },
-    { href: "/admin/auctions",      label: "Auction Sessions",  icon: Gavel          },
-    { href: "/market",              label: "Spot Market",       icon: ShoppingBag    },
-    { href: "/profile",             label: "Profile",           icon: User           },
-  ],
-  OFF_TAKER: [
-    { href: "/market",              label: "Spot Market",       icon: ShoppingBag    },
-    { href: "/admin/auctions",      label: "Live Auctions",     icon: Gavel          },
-    { href: "/profile",             label: "Profile",           icon: User           },
-  ],
-  PRODUCER: [
-    { href: "/mandates",            label: "Mandates Given",    icon: FileText       },
-    { href: "/admin/auctions",      label: "Active Auctions",   icon: Gavel          },
-    { href: "/market",              label: "Spot Market",       icon: ShoppingBag    },
-    { href: "/profile",             label: "Profile",           icon: User           },
-  ],
-  ADMIN: [
-    { href: "/admin/auctions",      label: "Auction Sessions",  icon: Gavel          },
-    { href: "/admin/auctions/new",  label: "New Auction",       icon: PlusCircle     },
-    { href: "/market",              label: "Market Overview",   icon: BarChart2      },
-    { href: "/broker",              label: "Lots Overview",     icon: Leaf           },
-    { href: "/mandates",            label: "Mandates",          icon: FileText       },
-    { href: "/profile",             label: "Profile",           icon: User           },
-  ],
-};
+interface AccountSection {
+  tier: string;
+  heading: string;
+  items: NavItem[];
+}
+
+const ACCOUNT_SECTIONS: AccountSection[] = [
+  {
+    tier: "ENABLER",
+    heading: "Brokers",
+    items: [
+      { href: "/broker",              label: "Broker Dashboard", icon: LayoutDashboard },
+      { href: "/broker/lots/new",     label: "List New Tea Lot", icon: PlusCircle     },
+      { href: "/mandates",            label: "My Mandates",      icon: FileText       },
+      { href: "/admin/auctions",      label: "Auction Sessions", icon: Gavel          },
+      { href: "/market",              label: "Spot Market",      icon: ShoppingBag    },
+      { href: "/profile",             label: "Profile",          icon: User           },
+    ],
+  },
+  {
+    tier: "PRODUCER",
+    heading: "Producers",
+    items: [
+      { href: "/mandates",            label: "Mandates Given",   icon: FileText       },
+      { href: "/admin/auctions",      label: "Active Auctions",  icon: Gavel          },
+      { href: "/market",              label: "Spot Market",      icon: ShoppingBag    },
+      { href: "/profile",             label: "Profile",          icon: User           },
+    ],
+  },
+  {
+    tier: "OFF_TAKER",
+    heading: "Traders",
+    items: [
+      { href: "/market",              label: "Spot Market",      icon: ShoppingBag    },
+      { href: "/admin/auctions",      label: "Live Auctions",    icon: Gavel          },
+      { href: "/profile",             label: "Profile",          icon: User           },
+    ],
+  },
+  {
+    tier: "FINANCIER",
+    heading: "Exchange",
+    items: [
+      { href: "/admin/auctions",      label: "Auction Sessions", icon: Gavel          },
+      { href: "/admin/auctions/new",  label: "New Auction",      icon: PlusCircle     },
+      { href: "/market",              label: "Market Overview",  icon: BarChart2      },
+      { href: "/broker",              label: "Lots Overview",    icon: Leaf           },
+      { href: "/mandates",            label: "Mandates",         icon: FileText       },
+      { href: "/profile",             label: "Profile",          icon: User           },
+    ],
+  },
+  {
+    tier: "ADMIN",
+    heading: "Exchange Admin",
+    items: [
+      { href: "/admin/auctions",      label: "Auction Sessions", icon: Gavel          },
+      { href: "/admin/auctions/new",  label: "New Auction",      icon: PlusCircle     },
+      { href: "/market",              label: "Market Overview",  icon: BarChart2      },
+      { href: "/broker",              label: "Lots Overview",    icon: Leaf           },
+      { href: "/mandates",            label: "Mandates",         icon: FileText       },
+      { href: "/profile",             label: "Profile",          icon: User           },
+    ],
+  },
+];
 
 function NavLink({ item, collapsed, location }: { item: NavItem; collapsed: boolean; location: string }) {
   const isActive = location === item.href || location.startsWith(`${item.href}/`);
@@ -75,7 +109,9 @@ export function Sidebar({ collapsed }: SidebarProps) {
   const tier = dbUser?.tier;
   const isAdmin = tier === "ADMIN";
 
-  const items = tier ? (NAV_BY_TIER[tier] ?? []) : [];
+  const visibleSections = isAdmin
+    ? ACCOUNT_SECTIONS
+    : ACCOUNT_SECTIONS.filter((s) => s.tier === tier);
 
   return (
     <aside
@@ -93,7 +129,7 @@ export function Sidebar({ collapsed }: SidebarProps) {
               ? "bg-primary/15 text-primary border-primary/30"
               : "bg-sidebar-accent/60 text-sidebar-accent-foreground border-sidebar-border"
             }`}>
-            {isAdmin ? "Superadmin" : formatTier(tier)}
+            {isAdmin ? "Exchange Admin" : formatTier(tier)}
           </span>
         </div>
       )}
@@ -107,11 +143,20 @@ export function Sidebar({ collapsed }: SidebarProps) {
       )}
 
       <nav className="flex-1 px-2 py-2 overflow-y-auto">
-        <div className="space-y-0.5">
-          {items.map((item) => (
-            <NavLink key={item.href} item={item} collapsed={collapsed} location={location} />
-          ))}
-        </div>
+        {visibleSections.map((section) => (
+          <div key={section.tier} className="mb-3">
+            {!collapsed && (
+              <p className="text-[9px] font-bold tracking-widest uppercase text-sidebar-foreground/40 px-3 py-1 mb-0.5">
+                {section.heading}
+              </p>
+            )}
+            <div className="space-y-0.5">
+              {section.items.map((item) => (
+                <NavLink key={item.href + item.label} item={item} collapsed={collapsed} location={location} />
+              ))}
+            </div>
+          </div>
+        ))}
       </nav>
     </aside>
   );
