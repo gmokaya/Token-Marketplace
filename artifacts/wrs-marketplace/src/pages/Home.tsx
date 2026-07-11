@@ -517,8 +517,8 @@ export default function Home() {
             <div style={{ position: "absolute", top: 0, bottom: 0, left: "calc(55% - 120px)", width: 180, zIndex: 4, background: "linear-gradient(to right, #161616 40%, transparent 100%)" }} />
 
             {/* hero content (left side) */}
-            <div style={{ position: "relative", zIndex: 3, maxWidth: 1200, margin: "0 auto", padding: "0 32px", width: "100%" }}>
-              <div style={{ maxWidth: 560 }}>
+            <div style={{ position: "relative", zIndex: 3, width: "55%", padding: "0 56px 0 max(48px, calc((100vw - 1200px) / 2 + 48px))" }}>
+              <div style={{ maxWidth: 520 }}>
                 {/* brand label */}
                 <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 24 }}>
                   <div style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT }} />
