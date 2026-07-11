@@ -4,8 +4,8 @@ import { ArrowRight } from "lucide-react";
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 const stats = [
-  { value: "150+", label: "Tea Factories" },
-  { value: "40+",  label: "Countries"    },
+  { value: "50+", label: "Tea Factories" },
+  { value: "7+",  label: "Countries"    },
   { value: "$2B+", label: "Annual Volume" },
 ];
 
@@ -28,12 +28,12 @@ export default function Home() {
       <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-transparent" />
 
       {/* ── Top nav ── */}
-      <nav className="relative z-10 flex items-center justify-between px-8 pt-16">
+      <nav className="relative z-10 flex items-center justify-between px-8 pt-8">
         <Link href="/">
           <img
             src={`${basePath}/logo-white.png`}
             alt="TokenHarvest"
-            className="h-18 w-auto cursor-pointer"
+            className="h-14 w-auto cursor-pointer"
           />
         </Link>
         <div className="flex items-center gap-3">
@@ -51,30 +51,30 @@ export default function Home() {
       </nav>
 
       {/* ── Hero copy — bottom-left anchored ── */}
-      <div className="relative z-10 flex-1 flex flex-col justify-end px-8 md:px-14 pb-28">
-        <div className="inline-flex items-center gap-2 bg-white/10 text-white/75 text-xs font-medium px-3 py-1.5 rounded-full mb-7 w-fit backdrop-blur-sm border border-white/15">
+      <div className="relative z-10 flex-1 flex flex-col justify-end px-8 md:px-14 pb-8">
+        <div className="inline-flex items-center gap-2 bg-white/10 text-white/75 text-xs font-medium px-3 py-1.5 rounded-full mb-4 w-fit backdrop-blur-sm border border-white/15">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
           B2B Tea Marketplace
         </div>
 
-        <h1 className="text-5xl md:text-7xl font-bold text-white leading-[1.0] tracking-tight max-w-3xl">
+        <h1 className="text-4xl md:text-6xl font-bold text-white leading-[1.05] tracking-tight max-w-3xl">
           Where premium teas
           <br />
           <span className="text-white">meet global buyers.</span>
         </h1>
 
-        <p className="mt-5 text-white/55 text-base md:text-lg leading-relaxed max-w-xl">
+        <p className="mt-3 text-white/55 text-sm md:text-base leading-relaxed max-w-xl">
           Every exceptional tea begins with its origin. TokenHarvest is the trusted marketplace for GI-protected and specialty teas, commercial teas empowering producers and buyers with verified provenance, Digital Tea Passports, embedded Trade Finance, and frictionless cross-border trade.
         </p>
 
-        <div className="mt-8 flex items-center gap-4">
+        <div className="mt-5 flex items-center gap-4">
           <Link href="/sign-in">
-            <button className="text-sm font-semibold bg-white text-[#0a2a2a] hover:bg-white/90 transition-colors px-7 py-3.5 flex items-center gap-2">
+            <button className="text-sm font-semibold bg-white text-[#0a2a2a] hover:bg-white/90 transition-colors px-6 py-3 flex items-center gap-2">
               Sign in to Terminal <ArrowRight className="w-4 h-4" />
             </button>
           </Link>
           <Link href="/sign-up">
-            <button className="text-sm font-medium text-white/80 hover:text-white border border-white/20 hover:border-white/40 transition-colors px-7 py-3.5 backdrop-blur-sm">
+            <button className="text-sm font-medium text-white/80 hover:text-white border border-white/20 hover:border-white/40 transition-colors px-6 py-3 backdrop-blur-sm">
               Create Account
             </button>
           </Link>
@@ -82,7 +82,7 @@ export default function Home() {
       </div>
 
       {/* ── Stats bar — bottom ── */}
-      <div className="relative z-10 flex items-center gap-12 md:gap-20 px-8 md:px-14 pb-10 pt-5 border-t border-white/10">
+      <div className="relative z-10 flex items-center gap-12 md:gap-20 px-8 md:px-14 pb-6 pt-4 border-t border-white/10">
         {stats.map((s) => (
           <div key={s.label}>
             <p className="text-xl font-bold text-white">{s.value}</p>
