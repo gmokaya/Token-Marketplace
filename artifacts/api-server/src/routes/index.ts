@@ -15,6 +15,7 @@ import adminRouter from "./admin";
 import wrscRouter from "./wrsc";
 import profilesRouter from "./profiles";
 import contentRouter from "./content";
+import contactRouter from "./contact";
 import ewrApiRouter, { EWR_API_SECURELY_CONFIGURED } from "./ewr-api";
 import cooperativesRouter from "./cooperatives";
 import teaLotsRouter from "./tea-lots";
@@ -34,6 +35,9 @@ function requireAuth(req: Request, res: Response, next: NextFunction): void {
 
 // Public content endpoint — no auth needed
 router.use(contentRouter);
+
+// Public contact form — no auth needed
+router.use(contactRouter);
 
 // Object storage — upload URL request is auth-gated inline; serving is public
 router.use(storageRouter);

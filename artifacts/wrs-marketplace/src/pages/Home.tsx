@@ -411,12 +411,23 @@ function ContactModal({ open, onClose }: { open: boolean; onClose: () => void })
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
+  const API = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
+
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus("sending");
-    // Simulate send — replace with real endpoint if needed
-    await new Promise(r => setTimeout(r, 900));
-    setStatus("done");
+    try {
+      const res = await fetch(`${API}/api/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) throw new Error("Send failed");
+      setStatus("done");
+    } catch {
+      setStatus("idle");
+      alert("Something went wrong — please try again.");
+    }
   };
 
   if (!open) return null;
