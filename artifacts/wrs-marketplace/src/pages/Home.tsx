@@ -1,7 +1,7 @@
 import { useAuth } from "@clerk/react";
 import { Link } from "wouter";
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, ChevronRight } from "lucide-react";
+import { ArrowRight, ChevronRight, X, Send } from "lucide-react";
 import { PriceTicker } from "@/components/PriceTicker";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -395,11 +395,142 @@ function PartnersSection() {
   );
 }
 
+/* ── Contact Modal ─────────────────────────────────────── */
+function ContactModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const [status, setStatus] = useState<"idle" | "sending" | "done">("idle");
+
+  useEffect(() => {
+    if (!open) { setForm({ name: "", email: "", message: "" }); setStatus("idle"); }
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+
+  const send = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus("sending");
+    // Simulate send — replace with real endpoint if needed
+    await new Promise(r => setTimeout(r, 900));
+    setStatus("done");
+  };
+
+  if (!open) return null;
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed", inset: 0, zIndex: 9000,
+        background: "rgba(0,0,0,0.72)", backdropFilter: "blur(6px)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        padding: "24px",
+      }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          background: "#111", width: "100%", maxWidth: 480,
+          padding: "48px 40px 40px",
+          position: "relative",
+          fontFamily: "'Jost', sans-serif",
+        }}
+      >
+        {/* close */}
+        <button onClick={onClose} style={{
+          position: "absolute", top: 18, right: 18,
+          background: "none", border: "none", cursor: "pointer",
+          color: "rgba(255,255,255,0.35)", padding: 4,
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          <X size={18} />
+        </button>
+
+        {status === "done" ? (
+          <div style={{ textAlign: "center", padding: "24px 0" }}>
+            <div style={{ width: 48, height: 48, borderRadius: "50%", background: ACCENT, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
+              <Send size={20} color="#fff" />
+            </div>
+            <h3 style={{ color: "#fff", fontWeight: 300, fontSize: 22, margin: "0 0 10px" }}>Message sent</h3>
+            <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 15, lineHeight: 1.7, margin: "0 0 28px" }}>
+              We'll be in touch shortly.
+            </p>
+            <button onClick={onClose} style={{
+              background: ACCENT, color: "#fff", border: "none", cursor: "pointer",
+              padding: "13px 28px", fontSize: 14, fontWeight: 600, fontFamily: "'Jost',sans-serif",
+            }}>
+              Close
+            </button>
+          </div>
+        ) : (
+          <>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 28 }}>
+              <div style={{ width: 3, height: 22, background: ACCENT }} />
+              <h3 style={{ color: "#fff", fontWeight: 300, fontSize: 22, margin: 0 }}>Get in touch</h3>
+            </div>
+
+            <form onSubmit={send} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+              {[
+                { key: "name",    label: "Full name",     type: "text",  placeholder: "Your name" },
+                { key: "email",   label: "Email address", type: "email", placeholder: "you@company.com" },
+              ].map(({ key, label, type, placeholder }) => (
+                <div key={key}>
+                  <label style={{ display: "block", color: "rgba(255,255,255,0.4)", fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 8 }}>
+                    {label}
+                  </label>
+                  <input
+                    required type={type} placeholder={placeholder}
+                    value={form[key as "name" | "email"]}
+                    onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
+                    style={{
+                      width: "100%", background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)",
+                      color: "#fff", padding: "12px 14px", fontSize: 14, fontFamily: "'Jost',sans-serif",
+                      outline: "none", boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+              ))}
+              <div>
+                <label style={{ display: "block", color: "rgba(255,255,255,0.4)", fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 8 }}>
+                  Message
+                </label>
+                <textarea
+                  required rows={4} placeholder="How can we help you?"
+                  value={form.message}
+                  onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
+                  style={{
+                    width: "100%", background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)",
+                    color: "#fff", padding: "12px 14px", fontSize: 14, fontFamily: "'Jost',sans-serif",
+                    outline: "none", resize: "vertical", boxSizing: "border-box",
+                  }}
+                />
+              </div>
+              <button type="submit" disabled={status === "sending"} style={{
+                background: ACCENT, color: "#fff", border: "none", cursor: status === "sending" ? "default" : "pointer",
+                padding: "15px 28px", fontSize: 15, fontWeight: 600, fontFamily: "'Jost',sans-serif",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                opacity: status === "sending" ? 0.7 : 1, marginTop: 4,
+              }}>
+                {status === "sending" ? "Sending…" : <><Send size={15} /> Send Message</>}
+              </button>
+            </form>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const { isSignedIn } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [statsOn, setStatsOn]   = useState(false);
   const statsRef = useRef<HTMLDivElement>(null);
+  const [contactOpen, setContactOpen] = useState(false);
 
   const [hp, setHp] = useState<Partial<HpContent>>({});
   const hero     = hp.hero        ?? DEF_HERO;
@@ -786,10 +917,10 @@ export default function Home() {
                   style={{ background: ACCENT, color: "#fff", padding: "17px 32px", textDecoration: "none", fontSize: 15, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 8 }}>
                   {cta.cta1} <ArrowRight size={16} />
                 </Link>
-                <Link href="/sign-in"
-                  style={{ background: "#2a2a2a", color: "#fff", padding: "17px 32px", textDecoration: "none", fontSize: 15, fontWeight: 500, display: "inline-flex", alignItems: "center", gap: 8 }}>
-                  {cta.cta2}
-                </Link>
+                <button onClick={() => setContactOpen(true)}
+                  style={{ background: "#2a2a2a", color: "#fff", padding: "17px 32px", border: "none", cursor: "pointer", fontSize: 15, fontWeight: 500, fontFamily: "'Jost',sans-serif", display: "inline-flex", alignItems: "center", gap: 8 }}>
+                  Contact Us
+                </button>
               </div>
             </div>
           </section>
@@ -839,6 +970,9 @@ export default function Home() {
           <PriceTicker />
 
         </div>
+
+        {/* ══ CONTACT MODAL ═══════════════════════════════════════ */}
+        <ContactModal open={contactOpen} onClose={() => setContactOpen(false)} />
     </>
   );
 }
