@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 const ACCENT = "hsl(180 62% 10%)";
+const API = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
 
 type Quote = {
   e: string;
@@ -9,7 +10,9 @@ type Quote = {
   price: number;  // current price
 };
 
-const SEED: Omit<Quote, "price">[] = [
+type TickerItem = { e: string; name: string; open: number };
+
+const SEED: TickerItem[] = [
   { e: "🌽", name: "Maize",   open: 282 },
   { e: "🌾", name: "Rice",    open: 585 },
   { e: "☕", name: "Coffee",  open: 4210 },
@@ -20,18 +23,31 @@ const SEED: Omit<Quote, "price">[] = [
   { e: "🫘", name: "Soybean", open: 540 },
 ];
 
+function seedToQuotes(items: TickerItem[]): Quote[] {
+  return items.map(q => ({
+    ...q,
+    price: Math.round(q.open * (1 + (Math.random() - 0.5) * 0.03)),
+  }));
+}
+
 function fmt(n: number) {
   return n.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
 export function PriceTicker() {
-  const [quotes, setQuotes] = useState<Quote[]>(() =>
-    SEED.map(q => ({
-      ...q,
-      // start each quote slightly off its open so movement is visible immediately
-      price: Math.round(q.open * (1 + (Math.random() - 0.5) * 0.03)),
-    }))
-  );
+  const [quotes, setQuotes] = useState<Quote[]>(() => seedToQuotes(SEED));
+
+  // Load CMS ticker prices; replace seed if found
+  useEffect(() => {
+    fetch(`${API}/api/content/ticker`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        const items: TickerItem[] | undefined = d?.value?.items;
+        if (items?.length) setQuotes(seedToQuotes(items));
+      })
+      .catch(() => {});
+  }, []);
+
   useEffect(() => {
     const id = setInterval(() => {
       setQuotes(prev =>

@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Plus, Trash2, GripVertical, Globe, Save, ImageOff,
   LayoutTemplate, Layers, Info, ListOrdered, BarChart3, Users, Megaphone, Image,
-  Upload, Loader2,
+  Upload, Loader2, TrendingUp,
 } from "lucide-react";
 
 const API = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
@@ -24,6 +24,7 @@ type ServiceCard = { icon: string; title: string; sub: string; desc: string };
 type AboutContent = { badge: string; heading: string; body: string; bullets: string[] };
 type HowItWorksStep = { num: string; title: string; desc: string };
 type StatCounter = { target: number; suffix: string; label: string };
+type TickerItem = { e: string; name: string; open: number };
 type CtaContent = { heading: string; subheadline: string; cta1: string; cta2: string };
 type MarketCard = { num: string; name: string; grade: string; desc: string; photo: string; link: string };
 
@@ -139,7 +140,19 @@ const TABS = [
   { id: "cta",          label: "CTA",              Icon: Megaphone },
   { id: "markets",      label: "Available Markets",Icon: Image },
   { id: "partners",     label: "Partners",         Icon: Users },
+  { id: "ticker",       label: "Price Ticker",     Icon: TrendingUp },
 ] as const;
+
+const DEFAULT_TICKER: TickerItem[] = [
+  { e: "🌽", name: "Maize",   open: 282 },
+  { e: "🌾", name: "Rice",    open: 585 },
+  { e: "☕", name: "Coffee",  open: 4210 },
+  { e: "🍵", name: "Tea",     open: 2640 },
+  { e: "🥑", name: "Avocado", open: 1455 },
+  { e: "🌿", name: "Sorghum", open: 264 },
+  { e: "🌾", name: "Wheat",   open: 318 },
+  { e: "🫘", name: "Soybean", open: 540 },
+];
 
 type TabId = (typeof TABS)[number]["id"];
 
@@ -160,6 +173,33 @@ export default function AdminHomepage() {
   const [cta, setCta] = useState<CtaContent>(DEFAULT_CTA);
   const [markets, setMarkets] = useState<MarketCard[]>(DEFAULT_MARKETS);
   const [partners, setPartners] = useState<Partner[]>(DEFAULT_PARTNERS);
+  const [ticker, setTicker] = useState<TickerItem[]>(DEFAULT_TICKER);
+  const [tickerSaving, setTickerSaving] = useState(false);
+
+  useEffect(() => {
+    fetch(`${API}/api/content/ticker`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.value?.items?.length) setTicker(d.value.items); })
+      .catch(() => {});
+  }, []);
+
+  const saveTicker = useCallback(async () => {
+    setTickerSaving(true);
+    try {
+      const res = await fetch(`${API}/api/content/ticker`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ value: { items: ticker } }),
+      });
+      if (!res.ok) throw new Error("Save failed");
+      toast({ title: "Ticker saved", description: "Price ticker updated." });
+    } catch (e: any) {
+      toast({ title: "Save failed", description: e.message, variant: "destructive" });
+    } finally {
+      setTickerSaving(false);
+    }
+  }, [ticker, toast]);
 
   useEffect(() => {
     Promise.allSettled([
@@ -275,6 +315,9 @@ export default function AdminHomepage() {
             )}
             {activeTab === "partners" && (
               <PartnersTab partners={partners} setPartners={setPartners} />
+            )}
+            {activeTab === "ticker" && (
+              <TickerTab ticker={ticker} setTicker={setTicker} onSave={saveTicker} saving={tickerSaving} />
             )}
           </>
         )}
@@ -775,6 +818,102 @@ function MarketsTab({ markets, setMarkets }: { markets: MarketCard[]; setMarkets
           ))}
         </div>
       </SectionCard>
+    </div>
+  );
+}
+
+/* ── Price Ticker ───────────────────────────────────────── */
+function TickerTab({ ticker, setTicker, onSave, saving }: {
+  ticker: TickerItem[];
+  setTicker: (t: TickerItem[]) => void;
+  onSave: () => void;
+  saving: boolean;
+}) {
+  const update = (i: number, k: keyof TickerItem, v: string | number) =>
+    setTicker(ticker.map((t, idx) => idx === i ? { ...t, [k]: v } : t));
+  const add = () => setTicker([...ticker, { e: "🌱", name: "New Commodity", open: 100 }]);
+  const remove = (i: number) => setTicker(ticker.filter((_, idx) => idx !== i));
+
+  const ACCENT = "hsl(180 62% 10%)";
+
+  return (
+    <div className="grid gap-4">
+      <SectionCard
+        title="Live Price Ticker"
+        desc="Commodities shown in the scrolling ticker bar at the bottom of the homepage. The displayed price will drift slightly around the base price you set here."
+        action={
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" className="gap-1.5" onClick={add}>
+              <Plus className="w-4 h-4" />Add Commodity
+            </Button>
+            <Button size="sm" className="gap-1.5" onClick={onSave} disabled={saving}>
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {saving ? "Saving…" : "Save Ticker"}
+            </Button>
+          </div>
+        }
+      >
+        <div className="text-xs text-muted-foreground mb-3 p-3 bg-muted/40 rounded-lg">
+          <strong>Note:</strong> The ticker saves independently from the rest of the homepage. Click <em>Save Ticker</em> above to publish changes.
+        </div>
+        {ticker.map((t, i) => (
+          <div key={i} className="flex gap-3 items-center p-3 border border-gray-100 rounded-lg bg-gray-50/50">
+            <GripVertical className="w-4 h-4 text-gray-300 shrink-0" />
+            <div className="flex-1 grid grid-cols-[56px_1fr_140px] gap-2">
+              <div>
+                <Label className="text-xs text-muted-foreground mb-1 block">Emoji</Label>
+                <Input
+                  value={t.e}
+                  onChange={e => update(i, "e", e.target.value)}
+                  className="h-8 text-lg text-center"
+                  maxLength={4}
+                />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground mb-1 block">Commodity name</Label>
+                <Input value={t.name} onChange={e => update(i, "name", e.target.value)} className="h-8 text-sm" />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground mb-1 block">Base price (USD/MT)</Label>
+                <Input
+                  type="number"
+                  min={0}
+                  value={t.open}
+                  onChange={e => update(i, "open", Number(e.target.value))}
+                  className="h-8 text-sm"
+                />
+              </div>
+            </div>
+            <Button variant="ghost" size="icon" className="text-gray-400 hover:text-red-600 shrink-0 h-8 w-8"
+              onClick={() => remove(i)}>
+              <Trash2 className="w-3.5 h-3.5" />
+            </Button>
+          </div>
+        ))}
+      </SectionCard>
+
+      {/* Live preview */}
+      <PreviewCard>
+        <div style={{ background: "rgba(13,13,13,0.97)", height: 44, display: "flex", alignItems: "stretch", overflow: "hidden", fontFamily: "'Jost',sans-serif" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 18px", background: ACCENT, color: "#fff", flexShrink: 0, fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" }}>
+            <span style={{ display: "block", width: 7, height: 7, borderRadius: "50%", background: "#fff" }} />
+            Live Markets
+          </div>
+          <div style={{ display: "flex", alignItems: "center", overflow: "hidden", gap: 0 }}>
+            {ticker.slice(0, 5).map((t, i) => (
+              <div key={i} style={{ display: "inline-flex", alignItems: "center", gap: 9, padding: "0 26px", borderRight: "1px solid rgba(255,255,255,0.07)", whiteSpace: "nowrap" }}>
+                <span style={{ fontSize: 15 }}>{t.e}</span>
+                <span style={{ color: "rgba(255,255,255,0.85)", fontSize: 13, fontWeight: 600 }}>{t.name}</span>
+                <span style={{ color: "#fff", fontSize: 13, fontWeight: 500 }}>${t.open.toLocaleString()}<span style={{ color: "rgba(255,255,255,0.35)", fontSize: 11 }}>/MT</span></span>
+                <span style={{ color: "hsl(180 50% 55%)", fontSize: 12, fontWeight: 700 }}>▲ 0.00%</span>
+              </div>
+            ))}
+            {ticker.length > 5 && (
+              <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 12, padding: "0 16px" }}>+{ticker.length - 5} more…</span>
+            )}
+          </div>
+        </div>
+      </PreviewCard>
     </div>
   );
 }
