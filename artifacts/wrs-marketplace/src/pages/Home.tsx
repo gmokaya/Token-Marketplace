@@ -436,7 +436,7 @@ export default function Home() {
 
           {/* ══ NAVBAR ══════════════════════════════════════════════ */}
           <header style={{
-            position: "fixed", top: 0, left: 0, right: 0, zIndex: 200,
+            position: "fixed", top: 20, left: 0, right: 0, zIndex: 200,
             background: scrolled ? "rgba(22,22,22,0.97)" : "transparent",
             backdropFilter: scrolled ? "blur(10px)" : "none",
             transition: "background 0.3s",

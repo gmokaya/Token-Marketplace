@@ -28,12 +28,12 @@ export default function Home() {
       <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-transparent" />
 
       {/* ── Top nav ── */}
-      <nav className="relative z-10 flex items-center justify-between px-8 md:px-14 pt-8">
+      <nav className="relative z-10 flex items-center justify-between px-8 md:px-14 pt-16">
         <Link href="/">
           <img
             src={`${basePath}/logo-white.png`}
             alt="TokenHarvest"
-            className="h-7 w-auto cursor-pointer"
+            className="h-18 w-auto cursor-pointer"
           />
         </Link>
         <div className="flex items-center gap-3">

@@ -67,12 +67,12 @@ export function AppHeader({ collapsed, onToggle }: AppHeaderProps) {
           <img
             src={`${basePath}/logo-dark.png`}
             alt="TokenHarvest Tea"
-            className="h-9 w-auto shrink-0 dark:hidden"
+            className="h-18 w-auto shrink-0 dark:hidden"
           />
           <img
             src={`${basePath}/logo-white.png`}
             alt="TokenHarvest Tea"
-            className="h-9 w-auto shrink-0 hidden dark:block"
+            className="h-18 w-auto shrink-0 hidden dark:block"
           />
         </Link>
 
