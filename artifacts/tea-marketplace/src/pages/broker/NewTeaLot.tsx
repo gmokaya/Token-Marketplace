@@ -212,15 +212,15 @@ export default function NewTeaLot() {
                 <FormMessage />
               </FormItem>
             )} />
-          </div>
 
-          <div className="flex justify-end gap-3 border-t border-border pt-6">
-            <Button type="button" variant="outline" onClick={() => setLocation("/broker")} className="rounded-none px-6 h-11">
-              Cancel
-            </Button>
-            <Button type="submit" className="rounded-none px-8 h-11 font-semibold" disabled={createLot.isPending}>
-              {createLot.isPending ? "Creating..." : "Create Draft Lot"}
-            </Button>
+            <div className="col-span-1 md:col-span-2 flex justify-end gap-3 border-t border-border pt-6 mt-2">
+              <Button type="button" variant="outline" onClick={() => setLocation("/broker")} className="rounded-none px-6 h-11">
+                Cancel
+              </Button>
+              <Button type="submit" className="rounded-none px-8 h-11 font-semibold" disabled={createLot.isPending}>
+                {createLot.isPending ? "Creating..." : "Create Draft Lot"}
+              </Button>
+            </div>
           </div>
         </form>
       </Form>
