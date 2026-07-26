@@ -6,13 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "wouter";
-import { Filter, Search } from "lucide-react";
+import { Filter, Search, Warehouse } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 
 export default function Market() {
   const [grade, setGrade] = useState("");
   const [origin, setOrigin] = useState("");
-  
+
   const { data: lots, isLoading, isError } = useListTeaLots(
     { listingType: "FIXED_PRICE", status: "LIVE" },
     {
@@ -23,11 +23,12 @@ export default function Market() {
     }
   );
 
-  const fixedPriceLots = lots?.filter(l => l.listingType === "FIXED_PRICE" && l.status === "LIVE") || [];
+  const fixedPriceLots = lots?.filter((l) => l.listingType === "FIXED_PRICE" && l.status === "LIVE") ?? [];
 
-  const filteredLots = fixedPriceLots.filter(l => 
-    (!grade || l.grade.toLowerCase().includes(grade.toLowerCase())) &&
-    (!origin || l.giOrigin.toLowerCase().includes(origin.toLowerCase()))
+  const filteredLots = fixedPriceLots.filter(
+    (l) =>
+      (!grade  || l.grade.toLowerCase().includes(grade.toLowerCase())) &&
+      (!origin || l.giOrigin.toLowerCase().includes(origin.toLowerCase()))
   );
 
   return (
@@ -43,8 +44,8 @@ export default function Market() {
             <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Search Grade</label>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input 
-                placeholder="e.g. BP1" 
+              <Input
+                placeholder="e.g. BOP, BOPF"
                 value={grade}
                 onChange={(e) => setGrade(e.target.value)}
                 className="pl-9 rounded-none bg-background h-11"
@@ -55,8 +56,8 @@ export default function Market() {
             <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Filter Origin</label>
             <div className="relative">
               <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input 
-                placeholder="e.g. Kenya" 
+              <Input
+                placeholder="e.g. Kenya"
                 value={origin}
                 onChange={(e) => setOrigin(e.target.value)}
                 className="pl-9 rounded-none bg-background h-11"
@@ -68,11 +69,11 @@ export default function Market() {
 
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {[1,2,3,4,5,6].map(i => <Skeleton key={i} className="h-72 w-full rounded-none" />)}
+          {[1, 2, 3, 4, 5, 6].map((i) => <Skeleton key={i} className="h-80 w-full rounded-none" />)}
         </div>
       ) : isError ? (
         <div className="flex items-center justify-center h-48 text-muted-foreground border border-border bg-muted/5">
-          <span>Failed to load market listings. Please try again.</span>
+          Failed to load market listings. Please try again.
         </div>
       ) : filteredLots.length === 0 ? (
         <div className="flex flex-col items-center justify-center p-16 text-center border border-border bg-muted/5">
@@ -82,43 +83,61 @@ export default function Market() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredLots.map(lot => (
-            <Card key={lot.id} className="rounded-none shadow-sm flex flex-col hover:border-primary/50 transition-colors border border-border">
-              <CardHeader className="p-6 border-b bg-muted/5">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-2xl font-bold">{lot.grade}</CardTitle>
-                    <div className="text-sm font-medium text-muted-foreground mt-1">{lot.gradeMark}</div>
+          {filteredLots.map((lot) => {
+            const warehouseCode = (lot as any).warehouseCode as string | null;
+            return (
+              <Card
+                key={lot.id}
+                className="rounded-none shadow-sm flex flex-col hover:border-primary/50 transition-colors border border-border"
+              >
+                <CardHeader className="p-6 border-b bg-muted/5">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <CardTitle className="text-2xl font-bold">{lot.grade}</CardTitle>
+                      <div className="text-sm font-medium text-muted-foreground mt-1">{lot.gradeMark}</div>
+                    </div>
+                    <Badge className="rounded-none px-2 py-1 tracking-wider text-[10px]">SPOT</Badge>
                   </div>
-                  <Badge className="rounded-none px-2 py-1 tracking-wider text-[10px]">SPOT</Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="p-6 flex-1 flex flex-col">
-                <div className="grid grid-cols-2 gap-y-6 gap-x-4 mb-8">
-                  <div>
-                    <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">Origin</div>
-                    <div className="font-medium">{lot.giOrigin}</div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">Weight</div>
-                    <div className="font-mono">{lot.netWeightKg} kg</div>
-                  </div>
-                  <div className="col-span-2">
-                    <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">Price</div>
-                    <div className="text-3xl font-black text-primary tracking-tight font-mono">
-                      ${lot.fixedPricePerKgUsd?.toFixed(2) || lot.reservePriceUsd?.toFixed(2)}<span className="text-base text-muted-foreground font-normal tracking-normal">/kg</span>
+                </CardHeader>
+                <CardContent className="p-6 flex-1 flex flex-col">
+                  <div className="grid grid-cols-2 gap-y-5 gap-x-4 mb-6">
+                    <div>
+                      <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">Origin</div>
+                      <div className="font-medium">{lot.giOrigin}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">Weight</div>
+                      <div className="font-mono">{lot.netWeightKg} kg</div>
+                    </div>
+
+                    {/* Warehouse — always shown if available */}
+                    {warehouseCode && (
+                      <div className="col-span-2">
+                        <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1 flex items-center gap-1">
+                          <Warehouse className="w-3 h-3" /> Stored At
+                        </div>
+                        <div className="font-mono text-sm font-semibold">{warehouseCode}</div>
+                      </div>
+                    )}
+
+                    <div className="col-span-2">
+                      <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">Price</div>
+                      <div className="text-3xl font-black text-primary tracking-tight font-mono">
+                        ${(lot.fixedPricePerKgUsd ?? lot.reservePriceUsd)?.toFixed(2)}
+                        <span className="text-base text-muted-foreground font-normal tracking-normal">/kg</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                
-                <div className="mt-auto">
-                  <Link href={`/lots/${lot.id}`} className="block">
-                    <Button className="w-full rounded-none h-11 font-semibold">View Details</Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+
+                  <div className="mt-auto">
+                    <Link href={`/lots/${lot.id}`} className="block">
+                      <Button className="w-full rounded-none h-11 font-semibold">View Details</Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>

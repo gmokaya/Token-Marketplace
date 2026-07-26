@@ -2,7 +2,7 @@ import { Link, useLocation } from "wouter";
 import { useGetMe } from "@workspace/api-client-react";
 import {
   LayoutDashboard, Leaf, FileText, Gavel, BarChart2,
-  ShoppingBag, User, Shield, PlusCircle, Warehouse,
+  ShoppingBag, User, Shield, PlusCircle, Warehouse, Users,
 } from "lucide-react";
 import { formatTier } from "@/lib/formatTier";
 
@@ -27,10 +27,11 @@ const ACCOUNT_SECTIONS: AccountSection[] = [
     tier: "ENABLER",
     heading: "Brokers",
     items: [
-      { href: "/broker",              label: "Broker Dashboard", icon: LayoutDashboard },
-      { href: "/broker/lots/new",     label: "List New Tea Lot", icon: PlusCircle     },
-      { href: "/mandates",            label: "My Mandates",      icon: FileText       },
-      { href: "/admin/auctions",      label: "Auction Sessions", icon: Gavel          },
+      { href: "/broker",                  label: "Broker Dashboard",  icon: LayoutDashboard },
+      { href: "/broker/mandate-holders",  label: "Mandate Holders",   icon: Users          },
+      { href: "/broker/lots/new",         label: "List New Tea Lot",  icon: PlusCircle     },
+      { href: "/mandates",                label: "My Mandates",       icon: FileText       },
+      { href: "/admin/auctions",          label: "Auction Sessions",  icon: Gavel          },
       { href: "/market",              label: "Spot Market",      icon: ShoppingBag    },
       { href: "/profile",             label: "Profile",          icon: User           },
     ],

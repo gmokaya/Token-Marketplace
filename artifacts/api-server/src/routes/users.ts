@@ -77,6 +77,26 @@ router.patch("/users/me", async (req, res) => {
   return res.json(updated);
 });
 
+// ── GET /users/brokers — list all ENABLER-tier users for mandate picker ────────
+router.get("/users/brokers", async (req, res) => {
+  const { userId: clerkId } = getAuth(req);
+  if (!clerkId) return res.status(401).json({ error: "Unauthorized" });
+
+  const brokers = await db
+    .select({
+      id: usersTable.id,
+      name: usersTable.name,
+      email: usersTable.email,
+      company: usersTable.company,
+      tier: usersTable.tier,
+      createdAt: usersTable.createdAt,
+    })
+    .from(usersTable)
+    .where(eq(usersTable.tier, "ENABLER"));
+
+  return res.json(brokers);
+});
+
 router.get("/users/:userId", async (req, res) => {
   const { userId: clerkId } = getAuth(req);
   if (!clerkId) return res.status(401).json({ error: "Unauthorized" });

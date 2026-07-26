@@ -18,6 +18,7 @@ import {
   teaDispatchDocsTable,
   usersTable,
   ewrsTable,
+  warehouseProfilesTable,
 } from "@workspace/db";
 import { eq, and, SQL, or } from "drizzle-orm";
 import { z } from "zod";
@@ -243,10 +244,19 @@ router.get("/tea/lots", async (req, res) => {
   if (brokerId) conditions.push(eq(teaLotsTable.brokerId, parseInt(brokerId)));
   if (ownerId) conditions.push(eq(teaLotsTable.ownerId, parseInt(ownerId)));
 
-  let lots = await db
-    .select()
+  const rawLots = await db
+    .select({
+      lot: teaLotsTable,
+      warehouseCode: ewrsTable.warehouseCode,
+    })
     .from(teaLotsTable)
+    .leftJoin(ewrsTable, eq(ewrsTable.id, teaLotsTable.ewrId))
     .where(conditions.length > 0 ? and(...conditions) : undefined);
+
+  let lots = rawLots.map(({ lot, warehouseCode }) => ({
+    ...lot,
+    warehouseCode: warehouseCode ?? null,
+  }));
 
   // Filter by certification (JSONB array contains check — done in JS to avoid dialect issues)
   if (certification) {
@@ -289,24 +299,46 @@ router.get("/tea/lots/:id", async (req, res) => {
 
   const [ewr] = await db
     .select({
-      ewrsReceiptId: ewrsTable.ewrsReceiptId,
-      commodityType: ewrsTable.commodityType,
-      weightMt: ewrsTable.weightMt,
-      harvestSeason: ewrsTable.harvestSeason,
-      state: ewrsTable.state,
+      ewrsReceiptId:     ewrsTable.ewrsReceiptId,
+      commodityType:     ewrsTable.commodityType,
+      weightMt:          ewrsTable.weightMt,
+      harvestSeason:     ewrsTable.harvestSeason,
+      state:             ewrsTable.state,
       teaProcessingType: ewrsTable.teaProcessingType,
-      teaLeafGrade: ewrsTable.teaLeafGrade,
-      teaInvoiceSerial: ewrsTable.teaInvoiceSerial,
+      teaLeafGrade:      ewrsTable.teaLeafGrade,
+      teaInvoiceSerial:  ewrsTable.teaInvoiceSerial,
+      warehouseCode:     ewrsTable.warehouseCode,
     })
     .from(ewrsTable)
     .where(eq(ewrsTable.id, lot.ewrId))
     .limit(1);
 
+  // Best-effort: look up a warehouse profile registered with this WRSC license/code
+  const [warehouseProfile] = ewr?.warehouseCode
+    ? await db
+        .select({
+          operatorName:            warehouseProfilesTable.operatorName,
+          wrscLicenseNumber:       warehouseProfilesTable.wrscLicenseNumber,
+          facilityType:            warehouseProfilesTable.facilityType,
+          capacityMt:              warehouseProfilesTable.capacityMt,
+          warehouseInChargeName:   warehouseProfilesTable.warehouseInChargeName,
+          warehouseInChargePhone:  warehouseProfilesTable.warehouseInChargePhone,
+          warehouseInChargeEmail:  warehouseProfilesTable.warehouseInChargeEmail,
+          handlesTea:              warehouseProfilesTable.handlesTea,
+          insurerName:             warehouseProfilesTable.insurerName,
+        })
+        .from(warehouseProfilesTable)
+        .where(eq(warehouseProfilesTable.wrscLicenseNumber, ewr.warehouseCode))
+        .limit(1)
+    : [null];
+
   return res.json({
     ...lot,
-    ownerName: owner?.name ?? null,
+    warehouseCode: ewr?.warehouseCode ?? null,
+    ownerName:  owner?.name  ?? null,
     brokerName: broker?.name ?? null,
     ewr: ewr ?? null,
+    warehouseProfile: warehouseProfile ?? null,
   });
 });
 

@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useLocation } from "wouter";
+import { useLocation, useSearch } from "wouter";
 import { useCreateTeaLot } from "@workspace/api-client-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -58,6 +58,8 @@ interface AvailableEwr {
 
 export default function NewTeaLot() {
   const [, setLocation] = useLocation();
+  const search = useSearch();
+  const preselectedEwrId = new URLSearchParams(search).get("ewrId");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -74,7 +76,7 @@ export default function NewTeaLot() {
   const form = useForm<CreateLotForm>({
     resolver: zodResolver(createLotSchema),
     defaultValues: {
-      ewrId: 0,
+      ewrId: preselectedEwrId ? Number(preselectedEwrId) : 0,
       grade: "",
       gradeMark: "",
       giOrigin: "Kenya",
