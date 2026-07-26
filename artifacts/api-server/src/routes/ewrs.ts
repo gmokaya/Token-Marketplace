@@ -7,6 +7,7 @@ import {
   spotListingsTable,
   financingRequestsTable,
   loansTable,
+  brokerMandatesTable,
 } from "@workspace/db";
 import { eq, and, inArray, ne, SQL } from "drizzle-orm";
 import { z } from "zod";
@@ -319,6 +320,78 @@ router.get("/ewrs", async (req, res) => {
     .from(ewrsTable)
     .leftJoin(usersTable, eq(ewrsTable.ownerId, usersTable.id))
     .where(conditions.length > 0 ? and(...conditions) : undefined);
+
+  return res.json(ewrs);
+});
+
+// ── GET /ewrs/broker-available ────────────────────────────────────────────────
+// Returns INGESTED TEA eWRs owned by producers who have granted the calling
+// broker an active mandate. Replaces the manual ewrId text input in the
+// broker lot-creation form — the eWR is the source of truth for weight & grade.
+router.get("/ewrs/broker-available", async (req, res) => {
+  const { userId: clerkId } = getAuth(req);
+  if (!clerkId) return res.status(401).json({ error: "Unauthorized" });
+
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.clerkId, clerkId)).limit(1);
+  if (!user) return res.status(404).json({ error: "User not found" });
+  if (user.tier !== "ENABLER") {
+    return res.status(403).json({ error: "Only brokers (ENABLER) can access this endpoint" });
+  }
+
+  // All non-revoked TEA mandates where this user is the broker
+  const now = new Date();
+  const mandates = await db
+    .select({
+      ownerId: brokerMandatesTable.ownerId,
+      validFrom: brokerMandatesTable.validFrom,
+      validTo: brokerMandatesTable.validTo,
+    })
+    .from(brokerMandatesTable)
+    .where(
+      and(
+        eq(brokerMandatesTable.brokerId, user.id),
+        eq(brokerMandatesTable.commodityType, "TEA"),
+        eq(brokerMandatesTable.revoked, false),
+      )
+    );
+
+  // Filter to currently active mandates in JS (consistent with rest of codebase)
+  const activeOwnerIds = mandates
+    .filter((m) => {
+      const from = m.validFrom ? new Date(m.validFrom) : null;
+      const to   = m.validTo   ? new Date(m.validTo)   : null;
+      return (from === null || from <= now) && (to === null || to > now);
+    })
+    .map((m) => m.ownerId);
+
+  if (activeOwnerIds.length === 0) return res.json([]);
+
+  const ewrs = await db
+    .select({
+      id:                 ewrsTable.id,
+      ewrsReceiptId:      ewrsTable.ewrsReceiptId,
+      warehouseCode:      ewrsTable.warehouseCode,
+      grade:              ewrsTable.grade,
+      weightMt:           ewrsTable.weightMt,
+      harvestSeason:      ewrsTable.harvestSeason,
+      state:              ewrsTable.state,
+      ownerId:            ewrsTable.ownerId,
+      ownerName:          usersTable.name,
+      teaProcessingType:  ewrsTable.teaProcessingType,
+      teaLeafGrade:       ewrsTable.teaLeafGrade,
+      teaInvoiceSerial:   ewrsTable.teaInvoiceSerial,
+      estimatedValueUsd:  ewrsTable.estimatedValueUsd,
+      issuedAt:           ewrsTable.issuedAt,
+    })
+    .from(ewrsTable)
+    .leftJoin(usersTable, eq(ewrsTable.ownerId, usersTable.id))
+    .where(
+      and(
+        inArray(ewrsTable.ownerId, activeOwnerIds),
+        eq(ewrsTable.commodityType, "TEA"),
+        eq(ewrsTable.state, "INGESTED"),
+      )
+    );
 
   return res.json(ewrs);
 });
