@@ -6,3 +6,9 @@ id = "zTjelc_1pd_dMPGanC3qE"
 uri = "file://docs/tea-factory-api-integration.pdf"
 type = "pdf"
 title = "Tea Factory API Integration Reference"
+
+[[outputs]]
+id = "M014AhYp9iZPWv9TdDN4V"
+uri = "file://docs/TokenHarvest-API-Integration-Guide.pdf"
+type = "pdf"
+title = "TokenHarvest Tea Marketplace — API Integration Guide"
