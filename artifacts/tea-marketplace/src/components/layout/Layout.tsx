@@ -32,8 +32,8 @@ export function Layout({ children }: LayoutProps) {
           <Sidebar collapsed={collapsed} />
         </Show>
 
-        <main className="flex-1 overflow-y-auto flex flex-col">
-          <div className="mx-auto p-6 max-w-[1400px] w-full flex-1">
+        <main className="flex-1 overflow-y-auto">
+          <div className="mx-auto p-6 max-w-[1400px] w-full">
             {children}
           </div>
         </main>

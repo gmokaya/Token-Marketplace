@@ -1055,10 +1055,10 @@ export interface CreateTeaAuctionSessionRequest {
   /** Planned date of the auction session (YYYY-MM-DD) */
   auctionDate: string;
   /**
-     * Ordered list of tea lot IDs in catalogue sequence
+     * Optional initial lot IDs; lots can also be added via POST /tea/auctions/{sessionId}/lots
      * @minItems 1
      */
-  lotIds: number[];
+  lotIds?: number[];
 }
 
 export type TeaAuctionSessionStatus = typeof TeaAuctionSessionStatus[keyof typeof TeaAuctionSessionStatus];

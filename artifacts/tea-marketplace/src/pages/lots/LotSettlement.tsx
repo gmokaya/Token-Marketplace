@@ -23,8 +23,10 @@ export default function LotSettlement() {
   const confirmPayment = useConfirmTeaLotPayment({
     mutation: {
       onSuccess: () => {
-        toast({ title: "Payment confirmed" });
+        toast({ title: "Payment confirmed", description: "The lot has been marked as settled." });
         queryClient.invalidateQueries({ queryKey: getGetTeaLotSettlementQueryKey(lotId) });
+        queryClient.invalidateQueries({ queryKey: getGetTeaLotQueryKey(lotId) });
+        queryClient.invalidateQueries({ queryKey: ["/api/tea/lots"] });
       }
     }
   });

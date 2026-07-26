@@ -1599,7 +1599,7 @@ export const ListTeaAuctionSessionsResponse = zod.array(ListTeaAuctionSessionsRe
 
 export const CreateTeaAuctionSessionBody = zod.object({
   "auctionDate": zod.coerce.date().describe('Planned date of the auction session (YYYY-MM-DD)'),
-  "lotIds": zod.array(zod.number()).min(1).describe('Ordered list of tea lot IDs in catalogue sequence')
+  "lotIds": zod.array(zod.number()).min(1).optional().describe('Optional initial lot IDs; lots can also be added via POST \/tea\/auctions\/{sessionId}\/lots')
 })
 
 

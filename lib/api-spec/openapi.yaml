@@ -3224,7 +3224,7 @@ components:
 
     CreateTeaAuctionSessionRequest:
       type: object
-      required: [auctionDate, lotIds]
+      required: [auctionDate]
       properties:
         auctionDate:
           type: string
@@ -3235,7 +3235,7 @@ components:
           items:
             type: integer
           minItems: 1
-          description: Ordered list of tea lot IDs in catalogue sequence
+          description: Optional initial lot IDs; lots can also be added via POST /tea/auctions/{sessionId}/lots
 
     TeaAuctionSession:
       type: object

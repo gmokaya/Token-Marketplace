@@ -118,7 +118,7 @@ export default function BrokerMandateHolders() {
                   </div>
                   <div className="flex items-center gap-6 text-sm text-muted-foreground shrink-0">
                     <span>
-                      <span className="font-semibold text-foreground">{commissionDisplay(mandate.commissionRateOverride)}</span>
+                      <span className="font-semibold text-foreground">{commissionDisplay(mandate.commissionRateOverride != null ? String(mandate.commissionRateOverride) : null)}</span>
                       {" "}commission
                     </span>
                     {mandate.validTo && (

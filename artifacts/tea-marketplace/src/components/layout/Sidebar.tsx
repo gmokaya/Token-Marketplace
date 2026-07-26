@@ -25,33 +25,33 @@ interface AccountSection {
 const ACCOUNT_SECTIONS: AccountSection[] = [
   {
     tier: "ENABLER",
-    heading: "Brokers",
+    heading: "Broker",
     items: [
-      { href: "/broker",                  label: "Broker Dashboard",  icon: LayoutDashboard },
+      { href: "/broker",                  label: "Dashboard",         icon: LayoutDashboard },
       { href: "/broker/mandate-holders",  label: "Mandate Holders",   icon: Users          },
       { href: "/broker/lots/new",         label: "List New Tea Lot",  icon: PlusCircle     },
       { href: "/mandates",                label: "My Mandates",       icon: FileText       },
-      { href: "/admin/auctions",          label: "Auction Sessions",  icon: Gavel          },
-      { href: "/market",              label: "Spot Market",      icon: ShoppingBag    },
-      { href: "/profile",             label: "Profile",          icon: User           },
+      { href: "/broker/auctions",         label: "Auction Sessions",  icon: Gavel          },
+      { href: "/market",                  label: "Spot Market",       icon: ShoppingBag    },
+      { href: "/profile",                 label: "Profile",           icon: User           },
     ],
   },
   {
     tier: "PRODUCER",
-    heading: "Producers",
+    heading: "Producer",
     items: [
       { href: "/producer",            label: "My Tea",           icon: LayoutDashboard },
       { href: "/producer/lots/new",   label: "List Direct",      icon: PlusCircle      },
       { href: "/producer/ewrs",       label: "My eWRs",          icon: Warehouse        },
       { href: "/mandates",            label: "Mandates Given",   icon: FileText        },
-      { href: "/admin/auctions",      label: "Active Auctions",  icon: Gavel           },
+      { href: "/admin/auctions",      label: "Auction Activity", icon: Gavel           },
       { href: "/market",              label: "Spot Market",      icon: ShoppingBag     },
       { href: "/profile",             label: "Profile",          icon: User            },
     ],
   },
   {
     tier: "OFF_TAKER",
-    heading: "Traders",
+    heading: "Trader",
     items: [
       { href: "/market",              label: "Spot Market",      icon: ShoppingBag    },
       { href: "/admin/auctions",      label: "Live Auctions",    icon: Gavel          },

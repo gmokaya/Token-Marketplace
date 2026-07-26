@@ -265,7 +265,7 @@ export default function Mandates() {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-2 text-sm">
                     <div>
                       <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Commission</p>
-                      <p className="font-medium mt-0.5">{commissionDisplay(m.commissionRateOverride)}</p>
+                      <p className="font-medium mt-0.5">{commissionDisplay(m.commissionRateOverride != null ? String(m.commissionRateOverride) : null)}</p>
                     </div>
                     <div>
                       <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Valid From</p>
