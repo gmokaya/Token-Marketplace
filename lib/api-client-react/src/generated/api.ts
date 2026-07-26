@@ -22,6 +22,7 @@ import type {
 import type {
   AcceptTeaLotBelowReserve200,
   ActivityItem,
+  AddLotsToTeaAuctionSessionBody,
   AttachDispatchDocRequest,
   Auction,
   AuctionBid,
@@ -37,10 +38,8 @@ import type {
   CooperativeProfileInput,
   CreateBrokerMandateRequest,
   CreateEwrRequest,
-  AddLotsToTeaAuctionSessionRequest,
   CreateTeaAuctionSessionRequest,
   CreateTeaLotRequest,
-  ListTeaAuctionSessionsParams,
   DigitalReleaseToken,
   DisburseInput,
   EligibleEwr,
@@ -64,6 +63,7 @@ import type {
   ListForwardContractsParams,
   ListOrdersParams,
   ListSpotListingsParams,
+  ListTeaAuctionSessionsParams,
   ListTeaLotsParams,
   Loan,
   MacroLot,
@@ -101,6 +101,7 @@ import type {
   UploadUrlResponse,
   User,
   UserUpdate,
+  WarehouseProfile,
   WarehouseStat
 } from './api.schemas';
 
@@ -4880,147 +4881,89 @@ export const useTransferEwr = <TError = ErrorType<unknown>,
       return useMutation(getTransferEwrMutationOptions(options));
     }
 
-// ── GET /api/tea/auctions — list sessions ─────────────────────────────────────
+export const getListTeaAuctionSessionsUrl = (params?: ListTeaAuctionSessionsParams,) => {
+  const normalizedParams = new URLSearchParams();
 
-export const getListTeaAuctionSessionsUrl = (params?: ListTeaAuctionSessionsParams) => {
-  const searchParams = new URLSearchParams();
-  if (params?.status) searchParams.set('status', params.status);
-  const qs = searchParams.toString();
-  return qs ? `/api/tea/auctions?${qs}` : `/api/tea/auctions`;
-};
+  Object.entries(params || {}).forEach(([key, value]) => {
 
-export const listTeaAuctionSessions = async (
-  params?: ListTeaAuctionSessionsParams,
-  options?: RequestInit
-): Promise<TeaAuctionSession[]> => {
-  return customFetch<TeaAuctionSession[]>(getListTeaAuctionSessionsUrl(params), {
-    ...options,
-    method: 'GET',
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
   });
-};
 
-export const getListTeaAuctionSessionsQueryKey = (params?: ListTeaAuctionSessionsParams) =>
-  [`/api/tea/auctions`, ...(params ? [params] : [])] as const;
+  const stringifiedParams = normalizedParams.toString();
 
-export const getListTeaAuctionSessionsQueryOptions = <
-  TData = Awaited<ReturnType<typeof listTeaAuctionSessions>>,
-  TError = ErrorType<ErrorEnvelope>
->(
-  params?: ListTeaAuctionSessionsParams,
-  options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof listTeaAuctionSessions>>, TError, TData>;
-    request?: SecondParameter<typeof customFetch>;
-  }
-) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
-  const queryKey = queryOptions?.queryKey ?? getListTeaAuctionSessionsQueryKey(params);
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof listTeaAuctionSessions>>> = ({ signal }) =>
-    listTeaAuctionSessions(params, { signal, ...requestOptions });
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof listTeaAuctionSessions>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
-
-export function useListTeaAuctionSessions<
-  TData = Awaited<ReturnType<typeof listTeaAuctionSessions>>,
-  TError = ErrorType<ErrorEnvelope>
->(
-  params?: ListTeaAuctionSessionsParams,
-  options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof listTeaAuctionSessions>>, TError, TData>;
-    request?: SecondParameter<typeof customFetch>;
-  }
-) {
-  const queryOptions = getListTeaAuctionSessionsQueryOptions(params, options);
-  return useQuery(queryOptions);
+  return stringifiedParams.length > 0 ? `/api/tea/auctions?${stringifiedParams}` : `/api/tea/auctions`
 }
 
-// ── POST /api/tea/auctions/:sessionId/lots — broker submits lots ──────────────
+/**
+ * @summary List tea auction sessions
+ */
+export const listTeaAuctionSessions = async (params?: ListTeaAuctionSessionsParams, options?: RequestInit): Promise<TeaAuctionSession[]> => {
 
-export const getAddLotsToTeaAuctionSessionUrl = (sessionId: number) =>
-  `/api/tea/auctions/${sessionId}/lots`;
-
-export const addLotsToTeaAuctionSession = async (
-  sessionId: number,
-  addLotsToTeaAuctionSessionRequest: AddLotsToTeaAuctionSessionRequest,
-  options?: RequestInit
-): Promise<TeaAuctionSession> => {
-  return customFetch<TeaAuctionSession>(getAddLotsToTeaAuctionSessionUrl(sessionId), {
+  return customFetch<TeaAuctionSession[]>(getListTeaAuctionSessionsUrl(params),
+  {
     ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(addLotsToTeaAuctionSessionRequest),
-  });
-};
+    method: 'GET'
 
-export const getAddLotsToTeaAuctionSessionMutationOptions = <
-  TError = ErrorType<ErrorEnvelope>,
-  TContext = unknown
->(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof addLotsToTeaAuctionSession>>,
-      TError,
-      { sessionId: number; data: BodyType<AddLotsToTeaAuctionSessionRequest> },
-      TContext
-    >;
-    request?: SecondParameter<typeof customFetch>;
+
   }
-): UseMutationOptions<
-  Awaited<ReturnType<typeof addLotsToTeaAuctionSession>>,
-  TError,
-  { sessionId: number; data: BodyType<AddLotsToTeaAuctionSessionRequest> },
-  TContext
-> => {
-  const mutationKey = ['addLotsToTeaAuctionSession'];
-  const { mutation: mutationOptions, request: requestOptions } = options
-    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, request: undefined };
+);}
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof addLotsToTeaAuctionSession>>,
-    { sessionId: number; data: BodyType<AddLotsToTeaAuctionSessionRequest> }
-  > = (props) => {
-    const { sessionId, data } = props ?? {};
-    return addLotsToTeaAuctionSession(sessionId, data, requestOptions);
-  };
 
-  return { mutationFn, ...mutationOptions };
-};
 
-export type AddLotsToTeaAuctionSessionMutationResult = NonNullable<
-  Awaited<ReturnType<typeof addLotsToTeaAuctionSession>>
->;
-export type AddLotsToTeaAuctionSessionMutationBody = BodyType<AddLotsToTeaAuctionSessionRequest>;
-export type AddLotsToTeaAuctionSessionMutationError = ErrorType<ErrorEnvelope>;
 
-export const useAddLotsToTeaAuctionSession = <
-  TError = ErrorType<ErrorEnvelope>,
-  TContext = unknown
->(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof addLotsToTeaAuctionSession>>,
-      TError,
-      { sessionId: number; data: BodyType<AddLotsToTeaAuctionSessionRequest> },
-      TContext
-    >;
-    request?: SecondParameter<typeof customFetch>;
-  }
-): UseMutationResult<
-  Awaited<ReturnType<typeof addLotsToTeaAuctionSession>>,
-  TError,
-  { sessionId: number; data: BodyType<AddLotsToTeaAuctionSessionRequest> },
-  TContext
-> => {
-  return useMutation(getAddLotsToTeaAuctionSessionMutationOptions(options));
-};
 
-// ── original createTeaAuctionSession ─────────────────────────────────────────
+export const getListTeaAuctionSessionsQueryKey = (params?: ListTeaAuctionSessionsParams,) => {
+    return [
+    `/api/tea/auctions`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListTeaAuctionSessionsQueryOptions = <TData = Awaited<ReturnType<typeof listTeaAuctionSessions>>, TError = ErrorType<unknown>>(params?: ListTeaAuctionSessionsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listTeaAuctionSessions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListTeaAuctionSessionsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listTeaAuctionSessions>>> = ({ signal }) => listTeaAuctionSessions(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listTeaAuctionSessions>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListTeaAuctionSessionsQueryResult = NonNullable<Awaited<ReturnType<typeof listTeaAuctionSessions>>>
+export type ListTeaAuctionSessionsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List tea auction sessions
+ */
+
+export function useListTeaAuctionSessions<TData = Awaited<ReturnType<typeof listTeaAuctionSessions>>, TError = ErrorType<unknown>>(
+ params?: ListTeaAuctionSessionsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listTeaAuctionSessions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListTeaAuctionSessionsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
 
 export const getCreateTeaAuctionSessionUrl = () => {
 
@@ -5169,6 +5112,78 @@ export function useGetTeaAuctionSession<TData = Awaited<ReturnType<typeof getTea
 
 
 
+
+export const getAddLotsToTeaAuctionSessionUrl = (sessionId: number,) => {
+
+
+
+
+  return `/api/tea/auctions/${sessionId}/lots`
+}
+
+/**
+ * @summary Broker submits lots to a scheduled session
+ */
+export const addLotsToTeaAuctionSession = async (sessionId: number,
+    addLotsToTeaAuctionSessionBody: AddLotsToTeaAuctionSessionBody, options?: RequestInit): Promise<TeaAuctionSession> => {
+
+  return customFetch<TeaAuctionSession>(getAddLotsToTeaAuctionSessionUrl(sessionId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      addLotsToTeaAuctionSessionBody,)
+  }
+);}
+
+
+
+
+export const getAddLotsToTeaAuctionSessionMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addLotsToTeaAuctionSession>>, TError,{sessionId: number;data: BodyType<AddLotsToTeaAuctionSessionBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof addLotsToTeaAuctionSession>>, TError,{sessionId: number;data: BodyType<AddLotsToTeaAuctionSessionBody>}, TContext> => {
+
+const mutationKey = ['addLotsToTeaAuctionSession'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof addLotsToTeaAuctionSession>>, {sessionId: number;data: BodyType<AddLotsToTeaAuctionSessionBody>}> = (props) => {
+          const {sessionId,data} = props ?? {};
+
+          return  addLotsToTeaAuctionSession(sessionId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AddLotsToTeaAuctionSessionMutationResult = NonNullable<Awaited<ReturnType<typeof addLotsToTeaAuctionSession>>>
+    export type AddLotsToTeaAuctionSessionMutationBody = BodyType<AddLotsToTeaAuctionSessionBody>
+    export type AddLotsToTeaAuctionSessionMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Broker submits lots to a scheduled session
+ */
+export const useAddLotsToTeaAuctionSession = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addLotsToTeaAuctionSession>>, TError,{sessionId: number;data: BodyType<AddLotsToTeaAuctionSessionBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof addLotsToTeaAuctionSession>>,
+        TError,
+        {sessionId: number;data: BodyType<AddLotsToTeaAuctionSessionBody>},
+        TContext
+      > => {
+      return useMutation(getAddLotsToTeaAuctionSessionMutationOptions(options));
+    }
 
 export const getStartTeaAuctionSessionUrl = (sessionId: number,) => {
 
@@ -6348,4 +6363,81 @@ export const useRevokeBrokerMandate = <TError = ErrorType<ErrorEnvelope>,
       > => {
       return useMutation(getRevokeBrokerMandateMutationOptions(options));
     }
+
+export const getGetWarehouseProfileByCodeUrl = (warehouseCode: string,) => {
+
+
+
+
+  return `/api/warehouse-profiles/${warehouseCode}`
+}
+
+/**
+ * @summary Get registered warehouse profile by WRSC code
+ */
+export const getWarehouseProfileByCode = async (warehouseCode: string, options?: RequestInit): Promise<WarehouseProfile> => {
+
+  return customFetch<WarehouseProfile>(getGetWarehouseProfileByCodeUrl(warehouseCode),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetWarehouseProfileByCodeQueryKey = (warehouseCode: string,) => {
+    return [
+    `/api/warehouse-profiles/${warehouseCode}`
+    ] as const;
+    }
+
+
+export const getGetWarehouseProfileByCodeQueryOptions = <TData = Awaited<ReturnType<typeof getWarehouseProfileByCode>>, TError = ErrorType<ErrorEnvelope>>(warehouseCode: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getWarehouseProfileByCode>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetWarehouseProfileByCodeQueryKey(warehouseCode);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getWarehouseProfileByCode>>> = ({ signal }) => getWarehouseProfileByCode(warehouseCode, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(warehouseCode), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getWarehouseProfileByCode>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetWarehouseProfileByCodeQueryResult = NonNullable<Awaited<ReturnType<typeof getWarehouseProfileByCode>>>
+export type GetWarehouseProfileByCodeQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary Get registered warehouse profile by WRSC code
+ */
+
+export function useGetWarehouseProfileByCode<TData = Awaited<ReturnType<typeof getWarehouseProfileByCode>>, TError = ErrorType<ErrorEnvelope>>(
+ warehouseCode: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getWarehouseProfileByCode>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetWarehouseProfileByCodeQueryOptions(warehouseCode,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
 

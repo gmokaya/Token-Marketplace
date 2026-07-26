@@ -21,6 +21,7 @@ import cooperativesRouter from "./cooperatives";
 import teaLotsRouter from "./tea-lots";
 import brokerMandatesRouter from "./broker-mandates";
 import teaAuctionsRouter from "./tea-auctions";
+import warehouseProfilesRouter from "./warehouse-profiles";
 import factoryRouter, { FACTORY_API_CONFIGURED } from "./factory";
 
 const router: IRouter = Router();
@@ -80,5 +81,6 @@ router.use(cooperativesRouter);
 router.use(teaLotsRouter);
 router.use(brokerMandatesRouter);
 router.use(teaAuctionsRouter);
+router.use(warehouseProfilesRouter);
 
 export default router;

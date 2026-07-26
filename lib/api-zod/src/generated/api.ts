@@ -1571,6 +1571,27 @@ export const TransferEwrResponse = zod.object({
 
 
 /**
+ * @summary List tea auction sessions
+ */
+export const ListTeaAuctionSessionsQueryParams = zod.object({
+  "status": zod.enum(['SCHEDULED', 'LIVE', 'CLOSED', 'COMPLETED']).optional()
+})
+
+export const ListTeaAuctionSessionsResponseItem = zod.object({
+  "id": zod.number(),
+  "createdByBrokerId": zod.number(),
+  "brokerName": zod.string().nullish(),
+  "auctionDate": zod.coerce.date(),
+  "catalogueOrder": zod.array(zod.number()),
+  "currentLotId": zod.number().nullish(),
+  "status": zod.enum(['SCHEDULED', 'LIVE', 'CLOSED', 'COMPLETED']),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+export const ListTeaAuctionSessionsResponse = zod.array(ListTeaAuctionSessionsResponseItem)
+
+
+/**
  * @summary Broker or admin creates a tea auction session linking multiple catalogued lots
  */
 
@@ -1604,6 +1625,33 @@ export const GetTeaAuctionSessionResponse = zod.object({
 
 }).passthrough().describe('TeaLot enriched with currentHighBidUsd, bidCount, secsRemaining, minNextBidUsd')).optional()
 }))
+
+
+/**
+ * @summary Broker submits lots to a scheduled session
+ */
+export const AddLotsToTeaAuctionSessionParams = zod.object({
+  "sessionId": zod.coerce.number()
+})
+
+
+
+
+export const AddLotsToTeaAuctionSessionBody = zod.object({
+  "lotIds": zod.array(zod.number()).min(1)
+})
+
+export const AddLotsToTeaAuctionSessionResponse = zod.object({
+  "id": zod.number(),
+  "createdByBrokerId": zod.number(),
+  "brokerName": zod.string().nullish(),
+  "auctionDate": zod.coerce.date(),
+  "catalogueOrder": zod.array(zod.number()),
+  "currentLotId": zod.number().nullish(),
+  "status": zod.enum(['SCHEDULED', 'LIVE', 'CLOSED', 'COMPLETED']),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
 
 
 /**
@@ -1688,6 +1736,19 @@ export const TeaLotTakeOutResponse = zod.object({
   "bidSecurityPct": zod.number(),
   "status": zod.enum(['DRAFT', 'CATALOGUED', 'DISPATCHED', 'LIVE', 'SOLD', 'UNSOLD', 'WITHDRAWN', 'RESERVE_NOT_MET']),
   "publishedAt": zod.coerce.date().nullish(),
+  "warehouseCode": zod.string().nullish().describe('WRSC warehouse code from the source eWR'),
+  "warehouseProfile": zod.object({
+  "operatorName": zod.string(),
+  "wrscLicenseNumber": zod.string(),
+  "facilityType": zod.string().nullish(),
+  "capacityMt": zod.string().nullish(),
+  "warehouseInChargeName": zod.string().nullish(),
+  "warehouseInChargePhone": zod.string().nullish(),
+  "warehouseInChargeEmail": zod.string().nullish(),
+  "handlesTea": zod.string().nullish(),
+  "insurerName": zod.string().nullish()
+}).nullish(),
+  "sessionId": zod.number().nullish().describe('Auction session ID if the lot has been assigned to a session'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -1813,6 +1874,19 @@ export const ListTeaLotsResponseItem = zod.object({
   "bidSecurityPct": zod.number(),
   "status": zod.enum(['DRAFT', 'CATALOGUED', 'DISPATCHED', 'LIVE', 'SOLD', 'UNSOLD', 'WITHDRAWN', 'RESERVE_NOT_MET']),
   "publishedAt": zod.coerce.date().nullish(),
+  "warehouseCode": zod.string().nullish().describe('WRSC warehouse code from the source eWR'),
+  "warehouseProfile": zod.object({
+  "operatorName": zod.string(),
+  "wrscLicenseNumber": zod.string(),
+  "facilityType": zod.string().nullish(),
+  "capacityMt": zod.string().nullish(),
+  "warehouseInChargeName": zod.string().nullish(),
+  "warehouseInChargePhone": zod.string().nullish(),
+  "warehouseInChargeEmail": zod.string().nullish(),
+  "handlesTea": zod.string().nullish(),
+  "insurerName": zod.string().nullish()
+}).nullish(),
+  "sessionId": zod.number().nullish().describe('Auction session ID if the lot has been assigned to a session'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -1928,6 +2002,19 @@ export const GetTeaLotResponse = zod.object({
   "bidSecurityPct": zod.number(),
   "status": zod.enum(['DRAFT', 'CATALOGUED', 'DISPATCHED', 'LIVE', 'SOLD', 'UNSOLD', 'WITHDRAWN', 'RESERVE_NOT_MET']),
   "publishedAt": zod.coerce.date().nullish(),
+  "warehouseCode": zod.string().nullish().describe('WRSC warehouse code from the source eWR'),
+  "warehouseProfile": zod.object({
+  "operatorName": zod.string(),
+  "wrscLicenseNumber": zod.string(),
+  "facilityType": zod.string().nullish(),
+  "capacityMt": zod.string().nullish(),
+  "warehouseInChargeName": zod.string().nullish(),
+  "warehouseInChargePhone": zod.string().nullish(),
+  "warehouseInChargeEmail": zod.string().nullish(),
+  "handlesTea": zod.string().nullish(),
+  "insurerName": zod.string().nullish()
+}).nullish(),
+  "sessionId": zod.number().nullish().describe('Auction session ID if the lot has been assigned to a session'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 }).and(zod.object({
@@ -2027,6 +2114,19 @@ export const UpdateTeaLotResponse = zod.object({
   "bidSecurityPct": zod.number(),
   "status": zod.enum(['DRAFT', 'CATALOGUED', 'DISPATCHED', 'LIVE', 'SOLD', 'UNSOLD', 'WITHDRAWN', 'RESERVE_NOT_MET']),
   "publishedAt": zod.coerce.date().nullish(),
+  "warehouseCode": zod.string().nullish().describe('WRSC warehouse code from the source eWR'),
+  "warehouseProfile": zod.object({
+  "operatorName": zod.string(),
+  "wrscLicenseNumber": zod.string(),
+  "facilityType": zod.string().nullish(),
+  "capacityMt": zod.string().nullish(),
+  "warehouseInChargeName": zod.string().nullish(),
+  "warehouseInChargePhone": zod.string().nullish(),
+  "warehouseInChargeEmail": zod.string().nullish(),
+  "handlesTea": zod.string().nullish(),
+  "insurerName": zod.string().nullish()
+}).nullish(),
+  "sessionId": zod.number().nullish().describe('Auction session ID if the lot has been assigned to a session'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -2148,6 +2248,26 @@ export const RevokeBrokerMandateResponse = zod.object({
   "revoked": zod.boolean(),
   "revokedAt": zod.coerce.date().nullish(),
   "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Get registered warehouse profile by WRSC code
+ */
+export const GetWarehouseProfileByCodeParams = zod.object({
+  "warehouseCode": zod.coerce.string()
+})
+
+export const GetWarehouseProfileByCodeResponse = zod.object({
+  "operatorName": zod.string(),
+  "wrscLicenseNumber": zod.string(),
+  "facilityType": zod.string().nullish(),
+  "capacityMt": zod.string().nullish(),
+  "warehouseInChargeName": zod.string().nullish(),
+  "warehouseInChargePhone": zod.string().nullish(),
+  "warehouseInChargeEmail": zod.string().nullish(),
+  "handlesTea": zod.string().nullish(),
+  "insurerName": zod.string().nullish()
 })
 
 

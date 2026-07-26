@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useLocation, useSearch } from "wouter";
-import { useCreateTeaLot } from "@workspace/api-client-react";
+import { useCreateTeaLot, useGetWarehouseProfileByCode, getGetWarehouseProfileByCodeQueryKey } from "@workspace/api-client-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
@@ -97,6 +97,11 @@ export default function NewTeaLot() {
   const listingType = form.watch("listingType");
 
   const selectedEwr = availableEwrs.find((e) => e.id === Number(selectedEwrId));
+  const selectedWarehouseCode = selectedEwr?.warehouseCode;
+
+  const { data: warehouseProfile } = useGetWarehouseProfileByCode(selectedWarehouseCode ?? "", {
+    query: { enabled: !!selectedWarehouseCode, queryKey: getGetWarehouseProfileByCodeQueryKey(selectedWarehouseCode ?? "") },
+  });
 
   // Auto-fill from selected eWR — eWR is the source of truth for weight & grade
   useEffect(() => {
@@ -219,9 +224,25 @@ export default function NewTeaLot() {
                   <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Harvest Season</p>
                   <p className="font-semibold mt-0.5">{selectedEwr.harvestSeason}</p>
                 </div>
-                <div>
+                <div className="col-span-2 md:col-span-2">
                   <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Warehouse</p>
-                  <p className="font-semibold mt-0.5">{selectedEwr.warehouseCode}</p>
+                  <p className="font-semibold mt-0.5">
+                    {warehouseProfile?.operatorName ?? selectedEwr.warehouseCode}
+                  </p>
+                  {warehouseProfile?.facilityType && (
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {warehouseProfile.facilityType === "CONTROLLED_ATMOSPHERE_COLD_STORAGE"
+                        ? "Controlled Atmosphere / Cold Storage"
+                        : warehouseProfile.facilityType === "DRY_GRAIN_SILO"
+                        ? "Dry Grain Silo"
+                        : warehouseProfile.facilityType}
+                    </p>
+                  )}
+                  {warehouseProfile?.warehouseInChargeName && (
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      In charge: {warehouseProfile.warehouseInChargeName}
+                    </p>
+                  )}
                 </div>
                 {selectedEwr.estimatedValueUsd && (
                   <div>

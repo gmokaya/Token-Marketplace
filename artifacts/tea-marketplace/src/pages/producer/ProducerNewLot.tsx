@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useLocation, useSearch } from "wouter";
-import { useCreateTeaLot } from "@workspace/api-client-react";
+import { useCreateTeaLot, useGetWarehouseProfileByCode, getGetWarehouseProfileByCodeQueryKey } from "@workspace/api-client-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
@@ -16,7 +16,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { PageHeader } from "@/components/ui/page-header";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -85,20 +85,24 @@ export default function ProducerNewLot() {
 
   const selectedEwrId = form.watch("ewrId");
   const listingType = form.watch("listingType");
+  const selectedEwr = teaEwrs.find((e: any) => e.id === Number(selectedEwrId));
+  const selectedWarehouseCode = selectedEwr?.warehouseCode as string | undefined;
+
+  const { data: warehouseProfile } = useGetWarehouseProfileByCode(selectedWarehouseCode ?? "", {
+    query: { enabled: !!selectedWarehouseCode, queryKey: getGetWarehouseProfileByCodeQueryKey(selectedWarehouseCode ?? "") },
+  });
 
   // When the user selects an eWR, pre-fill grade from it
   useEffect(() => {
-    if (!selectedEwrId) return;
-    const ewr = teaEwrs.find((e: any) => e.id === Number(selectedEwrId));
-    if (!ewr) return;
-    form.setValue("grade", ewr.grade ?? "");
+    if (!selectedEwr) return;
+    form.setValue("grade", selectedEwr.grade ?? "");
     // Convert MT → kg for weight fields
-    const weightKg = parseFloat(ewr.weightMt ?? "0") * 1000;
+    const weightKg = parseFloat(selectedEwr.weightMt ?? "0") * 1000;
     if (weightKg > 0) {
       form.setValue("grossWeightKg", weightKg);
       form.setValue("netWeightKg", weightKg);
     }
-  }, [selectedEwrId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [selectedEwr?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const createLot = useCreateTeaLot({
     mutation: {
@@ -166,6 +170,52 @@ export default function ProducerNewLot() {
                 <FormMessage />
               </FormItem>
             )} />
+
+            {/* eWR detail card — shown once an eWR is selected */}
+            {selectedEwr && (
+              <div className="col-span-1 md:col-span-2 bg-primary/5 border border-primary/20 p-4 text-sm grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div>
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Weight</p>
+                  <p className="font-semibold mt-0.5">{parseFloat(selectedEwr.weightMt ?? "0").toFixed(3)} MT</p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Harvest Season</p>
+                  <p className="font-semibold mt-0.5">{selectedEwr.harvestSeason ?? "—"}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Processing</p>
+                  <p className="font-semibold mt-0.5">{selectedEwr.teaProcessingType ?? "—"}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Leaf Grade</p>
+                  <p className="font-semibold mt-0.5">{selectedEwr.teaLeafGrade ?? "—"}</p>
+                </div>
+                <div className="col-span-2 md:col-span-2">
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Warehouse</p>
+                  <p className="font-semibold mt-0.5">
+                    {warehouseProfile?.operatorName ?? selectedEwr.warehouseCode}
+                  </p>
+                  {warehouseProfile?.facilityType && (
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {warehouseProfile.facilityType === "CONTROLLED_ATMOSPHERE_COLD_STORAGE"
+                        ? "Controlled Atmosphere / Cold Storage"
+                        : warehouseProfile.facilityType === "DRY_GRAIN_SILO"
+                        ? "Dry Grain Silo"
+                        : warehouseProfile.facilityType}
+                    </p>
+                  )}
+                  {warehouseProfile?.warehouseInChargeName && (
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      In charge: {warehouseProfile.warehouseInChargeName}
+                    </p>
+                  )}
+                </div>
+                <div className="col-span-2 md:col-span-4 flex items-center gap-1.5 text-[11px] text-primary/70 pt-1 border-t border-primary/10">
+                  <CheckCircle2 className="w-3 h-3" />
+                  Grade and weight have been pre-filled from this eWR. Adjust if the physical lot differs.
+                </div>
+              </div>
+            )}
 
             {/* Lot details */}
             <div className="col-span-1 md:col-span-2 text-xs font-bold uppercase tracking-widest text-primary border-b border-border pb-3 mb-2 mt-4">

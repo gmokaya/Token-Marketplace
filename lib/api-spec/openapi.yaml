@@ -1436,6 +1436,25 @@ paths:
                 $ref: "#/components/schemas/Ewr"
 
   /tea/auctions:
+    get:
+      operationId: listTeaAuctionSessions
+      tags: [tea]
+      summary: List tea auction sessions
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [SCHEDULED, LIVE, CLOSED, COMPLETED]
+      responses:
+        "200":
+          description: List of tea auction sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TeaAuctionSession"
     post:
       operationId: createTeaAuctionSession
       tags: [tea]
@@ -1486,6 +1505,56 @@ paths:
                 $ref: "#/components/schemas/TeaAuctionSessionDetail"
         "404":
           description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /tea/auctions/{sessionId}/lots:
+    post:
+      operationId: addLotsToTeaAuctionSession
+      tags: [tea]
+      summary: Broker submits lots to a scheduled session
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [lotIds]
+              properties:
+                lotIds:
+                  type: array
+                  items:
+                    type: integer
+                  minItems: 1
+      responses:
+        "200":
+          description: Lots added to session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeaAuctionSession"
+        "400":
+          description: Session not SCHEDULED or lots ineligible
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: Not the mandate broker or admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: Session or lot not found
           content:
             application/json:
               schema:
@@ -2027,6 +2096,31 @@ paths:
                 $ref: "#/components/schemas/ErrorEnvelope"
         "404":
           description: Mandate not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /warehouse-profiles/{warehouseCode}:
+    get:
+      operationId: getWarehouseProfileByCode
+      tags: [warehouse-profiles]
+      summary: Get registered warehouse profile by WRSC code
+      parameters:
+        - name: warehouseCode
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Warehouse profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WarehouseProfile"
+        "404":
+          description: Warehouse profile not found
           content:
             application/json:
               schema:
@@ -3325,6 +3419,29 @@ components:
           default: 1800
           description: Maximum total extension (30 min cap)
 
+    WarehouseProfile:
+      type: object
+      required: [operatorName, wrscLicenseNumber]
+      properties:
+        operatorName:
+          type: string
+        wrscLicenseNumber:
+          type: string
+        facilityType:
+          type: ["string", "null"]
+        capacityMt:
+          type: ["string", "null"]
+        warehouseInChargeName:
+          type: ["string", "null"]
+        warehouseInChargePhone:
+          type: ["string", "null"]
+        warehouseInChargeEmail:
+          type: ["string", "null"]
+        handlesTea:
+          type: ["string", "null"]
+        insurerName:
+          type: ["string", "null"]
+
     TeaLot:
       type: object
       required: [id, ewrId, ownerId, brokerId, grade, gradeMark, giOrigin, grossWeightKg, netWeightKg, tareWeightKg, packageType, certifications, listingType, catalogueType, commissionRate, tickTiers, antiSnipeConfig, bidSecurityPct, status, createdAt, updatedAt]
@@ -3389,6 +3506,15 @@ components:
         publishedAt:
           type: ["string", "null"]
           format: date-time
+        warehouseCode:
+          type: ["string", "null"]
+          description: WRSC warehouse code from the source eWR
+        warehouseProfile:
+          type: ["object", "null"]
+          $ref: "#/components/schemas/WarehouseProfile"
+        sessionId:
+          type: ["integer", "null"]
+          description: Auction session ID if the lot has been assigned to a session
         createdAt:
           type: string
           format: date-time

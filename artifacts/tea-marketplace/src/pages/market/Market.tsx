@@ -116,7 +116,21 @@ export default function Market() {
                         <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1 flex items-center gap-1">
                           <Warehouse className="w-3 h-3" /> Stored At
                         </div>
-                        <div className="font-mono text-sm font-semibold">{warehouseCode}</div>
+                        <div className="font-semibold text-sm">{(lot as any).warehouseProfile?.operatorName ?? warehouseCode}</div>
+                        {(lot as any).warehouseProfile?.facilityType && (
+                          <div className="text-xs text-muted-foreground mt-0.5">
+                            {(lot as any).warehouseProfile.facilityType === "CONTROLLED_ATMOSPHERE_COLD_STORAGE"
+                              ? "Controlled Atmosphere / Cold Storage"
+                              : (lot as any).warehouseProfile.facilityType === "DRY_GRAIN_SILO"
+                              ? "Dry Grain Silo"
+                              : (lot as any).warehouseProfile.facilityType}
+                          </div>
+                        )}
+                        {(lot as any).warehouseProfile?.warehouseInChargeName && (
+                          <div className="text-xs text-muted-foreground mt-0.5">
+                            In charge: {(lot as any).warehouseProfile.warehouseInChargeName}
+                          </div>
+                        )}
                       </div>
                     )}
 

@@ -235,7 +235,7 @@ router.post("/tea/lots", async (req, res) => {
   // Advance the eWR state from INGESTED → MARKET_LISTED now that it has an active lot
   await db
     .update(ewrsTable)
-    .set({ state: "MARKET_LISTED", updatedAt: new Date() })
+    .set({ state: "MARKET_LISTED" })
     .where(eq(ewrsTable.id, ewr.id));
 
   return res.status(201).json(lot);
@@ -279,14 +279,30 @@ router.get("/tea/lots", async (req, res) => {
     .select({
       lot: teaLotsTable,
       warehouseCode: ewrsTable.warehouseCode,
+      warehouseProfile: {
+        operatorName: warehouseProfilesTable.operatorName,
+        wrscLicenseNumber: warehouseProfilesTable.wrscLicenseNumber,
+        facilityType: warehouseProfilesTable.facilityType,
+        capacityMt: warehouseProfilesTable.capacityMt,
+        warehouseInChargeName: warehouseProfilesTable.warehouseInChargeName,
+        warehouseInChargePhone: warehouseProfilesTable.warehouseInChargePhone,
+        warehouseInChargeEmail: warehouseProfilesTable.warehouseInChargeEmail,
+        handlesTea: warehouseProfilesTable.handlesTea,
+        insurerName: warehouseProfilesTable.insurerName,
+      },
     })
     .from(teaLotsTable)
     .leftJoin(ewrsTable, eq(ewrsTable.id, teaLotsTable.ewrId))
+    .leftJoin(
+      warehouseProfilesTable,
+      eq(warehouseProfilesTable.wrscLicenseNumber, ewrsTable.warehouseCode)
+    )
     .where(conditions.length > 0 ? and(...conditions) : undefined);
 
-  let lots = rawLots.map(({ lot, warehouseCode }) => ({
+  let lots = rawLots.map(({ lot, warehouseCode, warehouseProfile }) => ({
     ...lot,
     warehouseCode: warehouseCode ?? null,
+    warehouseProfile: warehouseProfile?.operatorName ? warehouseProfile : null,
   }));
 
   // Filter by certification (JSONB array contains check — done in JS to avoid dialect issues)

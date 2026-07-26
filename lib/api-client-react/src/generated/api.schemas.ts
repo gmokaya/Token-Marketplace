@@ -1054,16 +1054,11 @@ export interface AuditLogEntry {
 export interface CreateTeaAuctionSessionRequest {
   /** Planned date of the auction session (YYYY-MM-DD) */
   auctionDate: string;
-}
-
-export interface AddLotsToTeaAuctionSessionRequest {
-  /** Ordered list of tea lot IDs to submit to this session */
+  /**
+     * Ordered list of tea lot IDs in catalogue sequence
+     * @minItems 1
+     */
   lotIds: number[];
-}
-
-export interface ListTeaAuctionSessionsParams {
-  /** Filter by session status (SCHEDULED, LIVE, CLOSED, COMPLETED) */
-  status?: string;
 }
 
 export type TeaAuctionSessionStatus = typeof TeaAuctionSessionStatus[keyof typeof TeaAuctionSessionStatus];
@@ -1213,6 +1208,25 @@ export interface AntiSnipeConfig {
   maxExtensionSecs?: number;
 }
 
+export interface WarehouseProfile {
+  operatorName: string;
+  wrscLicenseNumber: string;
+  /** @nullable */
+  facilityType?: string | null;
+  /** @nullable */
+  capacityMt?: string | null;
+  /** @nullable */
+  warehouseInChargeName?: string | null;
+  /** @nullable */
+  warehouseInChargePhone?: string | null;
+  /** @nullable */
+  warehouseInChargeEmail?: string | null;
+  /** @nullable */
+  handlesTea?: string | null;
+  /** @nullable */
+  insurerName?: string | null;
+}
+
 export type TeaLotListingType = typeof TeaLotListingType[keyof typeof TeaLotListingType];
 
 
@@ -1277,6 +1291,18 @@ export interface TeaLot {
   status: TeaLotStatus;
   /** @nullable */
   publishedAt?: string | null;
+  /**
+     * WRSC warehouse code from the source eWR
+     * @nullable
+     */
+  warehouseCode?: string | null;
+  /** @nullable */
+  warehouseProfile?: WarehouseProfile | null;
+  /**
+     * Auction session ID if the lot has been assigned to a session
+     * @nullable
+     */
+  sessionId?: number | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -1727,6 +1753,25 @@ export type SplitEwr201 = {
 export type TransferEwrBody = {
   /** ID of the recipient user */
   toUserId: number;
+};
+
+export type ListTeaAuctionSessionsParams = {
+status?: ListTeaAuctionSessionsStatus;
+};
+
+export type ListTeaAuctionSessionsStatus = typeof ListTeaAuctionSessionsStatus[keyof typeof ListTeaAuctionSessionsStatus];
+
+
+export const ListTeaAuctionSessionsStatus = {
+  SCHEDULED: 'SCHEDULED',
+  LIVE: 'LIVE',
+  CLOSED: 'CLOSED',
+  COMPLETED: 'COMPLETED',
+} as const;
+
+export type AddLotsToTeaAuctionSessionBody = {
+  /** @minItems 1 */
+  lotIds: number[];
 };
 
 export type StartTeaAuctionSessionBody = {
