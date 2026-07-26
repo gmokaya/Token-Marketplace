@@ -82,8 +82,8 @@ export default function BrokerDashboard() {
         description="Manage tea lots, auction sessions, and performance."
         actions={
           <>
-            <Link href="/admin/auctions/new">
-              <Button variant="outline" className="rounded-none gap-2">Create Session</Button>
+            <Link href="/broker/auctions">
+              <Button variant="outline" className="rounded-none gap-2"><Gavel className="w-4 h-4" /> Submit to Auction</Button>
             </Link>
             <Link href="/broker/lots/new">
               <Button className="rounded-none gap-2"><Plus className="w-4 h-4" /> New Lot</Button>

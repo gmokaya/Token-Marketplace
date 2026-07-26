@@ -1054,11 +1054,16 @@ export interface AuditLogEntry {
 export interface CreateTeaAuctionSessionRequest {
   /** Planned date of the auction session (YYYY-MM-DD) */
   auctionDate: string;
-  /**
-     * Ordered list of tea lot IDs in catalogue sequence
-     * @minItems 1
-     */
+}
+
+export interface AddLotsToTeaAuctionSessionRequest {
+  /** Ordered list of tea lot IDs to submit to this session */
   lotIds: number[];
+}
+
+export interface ListTeaAuctionSessionsParams {
+  /** Filter by session status (SCHEDULED, LIVE, CLOSED, COMPLETED) */
+  status?: string;
 }
 
 export type TeaAuctionSessionStatus = typeof TeaAuctionSessionStatus[keyof typeof TeaAuctionSessionStatus];

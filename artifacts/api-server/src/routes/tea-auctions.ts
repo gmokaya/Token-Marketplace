@@ -1,14 +1,16 @@
 /**
  * Tea Auction Engine routes
  *
- * POST /tea/auctions               — broker/admin creates a session
- * GET  /tea/auctions/:id           — session detail + lot list
- * POST /tea/auctions/:id/start     — start the session (moves first lot to LIVE)
- * POST /tea/lots/:id/bids          — place a bid (tick-enforced, anti-snipe, bid security)
- * POST /tea/lots/:id/take-out      — broker withdraws a RESERVE_NOT_MET lot
- * POST /tea/lots/:id/accept-below-reserve — broker accepts below-reserve offer
- * POST /tea/lots/:id/settle        — confirm payment received → ISSUABLE delivery order
- * GET  /tea/lots/:id/settlement    — settlement detail including prompt date
+ * POST /tea/auctions                       — exchange admin creates a session
+ * GET  /tea/auctions                       — list sessions (all authenticated users)
+ * GET  /tea/auctions/:id                   — session detail + lot list
+ * POST /tea/auctions/:id/lots              — broker submits lots to a SCHEDULED session
+ * POST /tea/auctions/:id/start             — admin starts the session (moves first lot to LIVE)
+ * POST /tea/lots/:id/bids                  — place a bid (tick-enforced, anti-snipe, bid security)
+ * POST /tea/lots/:id/take-out              — broker withdraws a RESERVE_NOT_MET lot
+ * POST /tea/lots/:id/accept-below-reserve  — broker accepts below-reserve offer
+ * POST /tea/lots/:id/settle                — confirm payment received → ISSUABLE delivery order
+ * GET  /tea/lots/:id/settlement            — settlement detail including prompt date
  */
 
 import { Router, type Request, type Response } from "express";
@@ -46,11 +48,10 @@ async function resolveUser(clerkId: string) {
   return user ?? null;
 }
 
-// ── POST /tea/auctions — create session ───────────────────────────────────────
+// ── POST /tea/auctions — admin creates session ────────────────────────────────
 
 const createSessionSchema = z.object({
   auctionDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "auctionDate must be YYYY-MM-DD"),
-  lotIds: z.array(z.number().int().positive()).min(1),
 });
 
 router.post("/tea/auctions", async (req, res) => {
@@ -59,8 +60,8 @@ router.post("/tea/auctions", async (req, res) => {
 
   const user = await resolveUser(clerkId);
   if (!user) return res.status(404).json({ error: "User not found" });
-  if (!["ENABLER", "ADMIN"].includes(user.tier)) {
-    return res.status(403).json({ error: "Only ENABLER (broker) or ADMIN accounts can create tea auction sessions" });
+  if (user.tier !== "ADMIN") {
+    return res.status(403).json({ error: "Only exchange admin accounts can create tea auction sessions" });
   }
 
   const parsed = createSessionSchema.safeParse(req.body);
@@ -68,9 +69,79 @@ router.post("/tea/auctions", async (req, res) => {
     return res.status(400).json({ error: "Validation failed", issues: parsed.error.issues });
   }
 
-  const { auctionDate, lotIds } = parsed.data;
+  const { auctionDate } = parsed.data;
 
-  // Verify all lots exist, are DISPATCHED or CATALOGUED, and belong to this broker
+  const [session] = await db
+    .insert(teaAuctionSessionsTable)
+    .values({
+      createdByBrokerId: user.id,   // stores the admin's user ID
+      auctionDate,
+      catalogueOrder: [],
+      status: "SCHEDULED",
+    })
+    .returning();
+
+  return res.status(201).json(session);
+});
+
+// ── GET /tea/auctions — list sessions ─────────────────────────────────────────
+
+router.get("/tea/auctions", async (req, res) => {
+  const { userId: clerkId } = getAuth(req);
+  if (!clerkId) return res.status(401).json({ error: "Unauthorized" });
+
+  const statusFilter = req.query.status as string | undefined;
+
+  const sessions = await db
+    .select()
+    .from(teaAuctionSessionsTable)
+    .orderBy(sql`${teaAuctionSessionsTable.auctionDate} DESC`);
+
+  const filtered = statusFilter
+    ? sessions.filter((s) => s.status === statusFilter)
+    : sessions;
+
+  return res.json(filtered);
+});
+
+// ── POST /tea/auctions/:id/lots — broker submits lots to a scheduled session ──
+
+const addLotsSchema = z.object({
+  lotIds: z.array(z.number().int().positive()).min(1),
+});
+
+router.post("/tea/auctions/:id/lots", async (req, res) => {
+  const { userId: clerkId } = getAuth(req);
+  if (!clerkId) return res.status(401).json({ error: "Unauthorized" });
+
+  const sessionId = parseInt(req.params.id);
+  if (isNaN(sessionId)) return res.status(400).json({ error: "Invalid session ID" });
+
+  const user = await resolveUser(clerkId);
+  if (!user) return res.status(404).json({ error: "User not found" });
+  if (!["ENABLER", "ADMIN"].includes(user.tier)) {
+    return res.status(403).json({ error: "Only brokers (ENABLER) can submit lots to auction sessions" });
+  }
+
+  const parsed = addLotsSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: "Validation failed", issues: parsed.error.issues });
+  }
+
+  const { lotIds } = parsed.data;
+
+  const [session] = await db
+    .select()
+    .from(teaAuctionSessionsTable)
+    .where(eq(teaAuctionSessionsTable.id, sessionId))
+    .limit(1);
+
+  if (!session) return res.status(404).json({ error: "Auction session not found" });
+  if (session.status !== "SCHEDULED") {
+    return res.status(400).json({ error: `Cannot add lots to a session with status ${session.status}. Session must be SCHEDULED.` });
+  }
+
+  // Validate all requested lots
   const lots = await db
     .select()
     .from(teaLotsTable)
@@ -80,43 +151,58 @@ router.post("/tea/auctions", async (req, res) => {
     return res.status(404).json({ error: "One or more lot IDs not found" });
   }
 
-  const ineligible = lots.filter(
-    (l) => !["CATALOGUED", "DISPATCHED"].includes(l.status)
-  );
+  const ineligible = lots.filter((l) => !["CATALOGUED", "DISPATCHED"].includes(l.status));
   if (ineligible.length > 0) {
     return res.status(400).json({
-      error: "All lots must be CATALOGUED or DISPATCHED to be included in a session",
+      error: "All lots must be CATALOGUED or DISPATCHED to be submitted to a session",
       ineligibleLotIds: ineligible.map((l) => l.id),
     });
   }
 
+  // Brokers may only submit lots where they hold the mandate
   if (user.tier === "ENABLER") {
-    const wrongBroker = lots.filter((l) => l.brokerId !== user.id);
-    if (wrongBroker.length > 0) {
+    const notMyLots = lots.filter((l) => l.brokerId !== user.id);
+    if (notMyLots.length > 0) {
       return res.status(403).json({
-        error: "You can only include lots where you are the mandate broker",
-        foreignLotIds: wrongBroker.map((l) => l.id),
+        error: "You can only submit lots where you are the mandate broker",
+        foreignLotIds: notMyLots.map((l) => l.id),
       });
     }
   }
 
-  const [session] = await db
-    .insert(teaAuctionSessionsTable)
-    .values({
-      createdByBrokerId: user.id,
-      auctionDate,
-      catalogueOrder: lotIds,
-      status: "SCHEDULED",
-    })
-    .returning();
+  // Reject lots already assigned to a different session
+  const alreadyAssigned = lots.filter((l) => l.sessionId !== null && l.sessionId !== sessionId);
+  if (alreadyAssigned.length > 0) {
+    return res.status(400).json({
+      error: "Some lots are already assigned to another session",
+      conflictingLotIds: alreadyAssigned.map((l) => l.id),
+    });
+  }
 
-  // Link lots to session
-  await db
-    .update(teaLotsTable)
-    .set({ sessionId: session.id, updatedAt: new Date() })
-    .where(sql`${teaLotsTable.id} = ANY(${lotIds})`);
+  // Merge new lotIds into existing catalogueOrder (deduplicate)
+  const existingOrder = (session.catalogueOrder as number[]) ?? [];
+  const existingSet = new Set(existingOrder);
+  const newOrder = [...existingOrder, ...lotIds.filter((id) => !existingSet.has(id))];
 
-  return res.status(201).json(session);
+  await db.transaction(async (tx) => {
+    await tx
+      .update(teaAuctionSessionsTable)
+      .set({ catalogueOrder: newOrder, updatedAt: new Date() })
+      .where(eq(teaAuctionSessionsTable.id, sessionId));
+
+    await tx
+      .update(teaLotsTable)
+      .set({ sessionId, updatedAt: new Date() })
+      .where(sql`${teaLotsTable.id} = ANY(${lotIds})`);
+  });
+
+  const [updated] = await db
+    .select()
+    .from(teaAuctionSessionsTable)
+    .where(eq(teaAuctionSessionsTable.id, sessionId))
+    .limit(1);
+
+  return res.status(200).json(updated);
 });
 
 // ── GET /tea/auctions/:id — session detail ────────────────────────────────────
@@ -139,16 +225,17 @@ router.get("/tea/auctions/:id", async (req, res) => {
 
   if (!session) return res.status(404).json({ error: "Tea auction session not found" });
 
-  // Authorization: ADMIN; creating broker; lot owner/broker within this session; or user who bid/bought a lot in it.
+  // Authorization:
+  // - ADMIN: always
+  // - Any authenticated user: can view SCHEDULED sessions (so brokers can browse and submit lots)
+  // - For LIVE/CLOSED sessions: must be the admin who created it, a lot owner/broker, or a bidder
   const isAdmin = user.tier === "ADMIN";
-  const isSessionBroker = session.createdByBrokerId === user.id;
 
-  if (!isAdmin && !isSessionBroker) {
+  if (!isAdmin && session.status !== "SCHEDULED") {
     const lotIds = (session.catalogueOrder as number[]) ?? [];
     let permitted = false;
 
     if (lotIds.length > 0) {
-      // Check if user is owner or broker of any lot in the session
       const relevantLots = await db
         .select({ ownerId: teaLotsTable.ownerId, brokerId: teaLotsTable.brokerId })
         .from(teaLotsTable)
@@ -156,7 +243,6 @@ router.get("/tea/auctions/:id", async (req, res) => {
 
       permitted = relevantLots.some((l) => l.ownerId === user.id || l.brokerId === user.id);
 
-      // Check if user has placed a bid on any lot in this session
       if (!permitted) {
         const [bidRow] = await db
           .select({ id: teaLotBidsTable.id })
@@ -254,8 +340,8 @@ router.post("/tea/auctions/:id/start", async (req, res) => {
   if (session.status !== "SCHEDULED") {
     return res.status(400).json({ error: `Session is already ${session.status}` });
   }
-  if (user.tier !== "ADMIN" && session.createdByBrokerId !== user.id) {
-    return res.status(403).json({ error: "Only the creating broker or an admin can start this session" });
+  if (user.tier !== "ADMIN") {
+    return res.status(403).json({ error: "Only exchange admin accounts can start auction sessions" });
   }
 
   const lotIds = (session.catalogueOrder as number[]) ?? [];

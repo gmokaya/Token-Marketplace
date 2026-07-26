@@ -24,6 +24,7 @@ import LotSettlement from "@/pages/lots/LotSettlement";
 import Mandates from "@/pages/mandates/Mandates";
 import AdminAuctions from "@/pages/admin/AdminAuctions";
 import NewAuction from "@/pages/admin/NewAuction";
+import BrokerAuctions from "@/pages/broker/BrokerAuctions";
 import Profile from "@/pages/Profile";
 
 const clerkPubKey = publishableKeyFromHost(window.location.hostname, import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
@@ -122,6 +123,7 @@ function ClerkProviderWithRoutes() {
                   <Route path="/profile"><ProtectedRoute><Profile /></ProtectedRoute></Route>
 
                   <Route path="/broker"><ProtectedRoute><BrokerDashboard /></ProtectedRoute></Route>
+                  <Route path="/broker/auctions"><ProtectedRoute><BrokerAuctions /></ProtectedRoute></Route>
                   <Route path="/broker/lots/new"><ProtectedRoute><NewTeaLot /></ProtectedRoute></Route>
                   <Route path="/broker/lots/:lotId/edit"><ProtectedRoute><EditTeaLot /></ProtectedRoute></Route>
 
