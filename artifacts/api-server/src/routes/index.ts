@@ -21,6 +21,7 @@ import cooperativesRouter from "./cooperatives";
 import teaLotsRouter from "./tea-lots";
 import brokerMandatesRouter from "./broker-mandates";
 import teaAuctionsRouter from "./tea-auctions";
+import factoryRouter, { FACTORY_API_CONFIGURED } from "./factory";
 
 const router: IRouter = Router();
 
@@ -52,6 +53,13 @@ if (EWR_API_SECURELY_CONFIGURED) {
   console.warn(
     "[routes] eWR external API disabled in production: set WRSC_SECRET, EWR_JWT_SECRET and EWR_OAUTH_CLIENTS to enable it."
   );
+}
+
+// Factory portal — service-to-service API key auth; must come before Clerk requireAuth
+if (FACTORY_API_CONFIGURED) {
+  router.use(factoryRouter);
+} else {
+  console.warn("[routes] Factory integration disabled: set FACTORY_API_KEY to enable POST /factory/ewrs.");
 }
 
 router.use(requireAuth);

@@ -17,6 +17,9 @@ import SignUpPage from "@/pages/SignUpPage";
 import BrokerDashboard from "@/pages/broker/BrokerDashboard";
 import NewTeaLot from "@/pages/broker/NewTeaLot";
 import EditTeaLot from "@/pages/broker/EditTeaLot";
+import ProducerDashboard from "@/pages/producer/ProducerDashboard";
+import ProducerNewLot from "@/pages/producer/ProducerNewLot";
+import ProducerEwrs from "@/pages/producer/ProducerEwrs";
 import LiveAuction from "@/pages/auction/LiveAuction";
 import Market from "@/pages/market/Market";
 import LotDetail from "@/pages/lots/LotDetail";
@@ -126,6 +129,10 @@ function ClerkProviderWithRoutes() {
                   <Route path="/broker/auctions"><ProtectedRoute><BrokerAuctions /></ProtectedRoute></Route>
                   <Route path="/broker/lots/new"><ProtectedRoute><NewTeaLot /></ProtectedRoute></Route>
                   <Route path="/broker/lots/:lotId/edit"><ProtectedRoute><EditTeaLot /></ProtectedRoute></Route>
+
+                  <Route path="/producer"><ProtectedRoute><ProducerDashboard /></ProtectedRoute></Route>
+                  <Route path="/producer/lots/new"><ProtectedRoute><ProducerNewLot /></ProtectedRoute></Route>
+                  <Route path="/producer/ewrs"><ProtectedRoute><ProducerEwrs /></ProtectedRoute></Route>
 
                   <Route path="/auction/:sessionId"><ProtectedRoute><LiveAuction /></ProtectedRoute></Route>
                   <Route path="/market"><ProtectedRoute><Market /></ProtectedRoute></Route>

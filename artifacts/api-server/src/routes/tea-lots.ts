@@ -110,7 +110,9 @@ async function getActiveMandate(brokerId: number, ownerId: number) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// POST /tea/lots  — broker creates a catalogue entry
+// POST /tea/lots  — broker (ENABLER) or producer (PRODUCER) creates a lot
+//   • ENABLER: mandate from eWR owner required; commission from mandate
+//   • PRODUCER: must own the eWR; no mandate; commission = 0; direct listing
 // ─────────────────────────────────────────────────────────────────────────────
 router.post("/tea/lots", async (req, res) => {
   const { userId: clerkId } = getAuth(req);
@@ -118,8 +120,8 @@ router.post("/tea/lots", async (req, res) => {
 
   const user = await resolveUser(clerkId);
   if (!user) return res.status(404).json({ error: "User not found" });
-  if (user.tier !== "ENABLER") {
-    return res.status(403).json({ error: "Only ENABLER (broker) accounts can create tea lots" });
+  if (user.tier !== "ENABLER" && user.tier !== "PRODUCER") {
+    return res.status(403).json({ error: "Only brokers (ENABLER) or producers (PRODUCER) can create tea lots" });
   }
 
   const parsed = createTeaLotSchema.safeParse(req.body);
@@ -141,12 +143,29 @@ router.post("/tea/lots", async (req, res) => {
     return res.status(400).json({ error: "eWR is not a TEA commodity" });
   }
 
-  // Verify active mandate from eWR owner to this broker
-  const mandate = await getActiveMandate(user.id, ewr.ownerId);
-  if (!mandate) {
-    return res.status(403).json({
-      error: "No active TEA mandate from the eWR owner. The owner must grant a mandate before you can catalogue this lot.",
-    });
+  // ── Role-specific authorisation ─────────────────────────────────────────
+  let effectiveBrokerId: number;
+  let commissionRate: number;
+
+  if (user.tier === "PRODUCER") {
+    // Producer must own the eWR; they act as their own agent (direct listing)
+    if (ewr.ownerId !== user.id) {
+      return res.status(403).json({ error: "Producers can only create lots from eWRs they own." });
+    }
+    effectiveBrokerId = user.id; // self-agent for direct listings
+    commissionRate = 0;          // no brokerage commission on direct sales
+  } else {
+    // ENABLER — verify active mandate from eWR owner to this broker
+    const mandate = await getActiveMandate(user.id, ewr.ownerId);
+    if (!mandate) {
+      return res.status(403).json({
+        error: "No active TEA mandate from the eWR owner. The owner must grant a mandate before you can catalogue this lot.",
+      });
+    }
+    effectiveBrokerId = user.id;
+    commissionRate = mandate.commissionRateOverride
+      ? parseFloat(mandate.commissionRateOverride)
+      : body.commissionRate;
   }
 
   // Validate listing-type specific requirements
@@ -157,17 +176,12 @@ router.post("/tea/lots", async (req, res) => {
     return res.status(400).json({ error: "fixedPricePerKgUsd is required for FIXED_PRICE lots" });
   }
 
-  // Use mandate commission override if set
-  const commissionRate = mandate.commissionRateOverride
-    ? parseFloat(mandate.commissionRateOverride)
-    : body.commissionRate;
-
   const [lot] = await db
     .insert(teaLotsTable)
     .values({
       ewrId: body.ewrId,
       ownerId: ewr.ownerId,
-      brokerId: user.id,
+      brokerId: effectiveBrokerId,
       grade: body.grade,
       gradeMark: body.gradeMark,
       giOrigin: body.giOrigin,
