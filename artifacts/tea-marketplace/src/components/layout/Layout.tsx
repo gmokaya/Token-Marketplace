@@ -33,7 +33,7 @@ export function Layout({ children }: LayoutProps) {
         </Show>
 
         <main className="flex-1 overflow-y-auto">
-          <div className="mx-auto p-6 max-w-[1400px]">
+          <div className="mx-auto p-6 max-w-[1400px] min-h-full">
             {children}
           </div>
         </main>
