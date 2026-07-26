@@ -18,9 +18,11 @@ import BrokerDashboard from "@/pages/broker/BrokerDashboard";
 import NewTeaLot from "@/pages/broker/NewTeaLot";
 import EditTeaLot from "@/pages/broker/EditTeaLot";
 import BrokerMandateHolders from "@/pages/broker/BrokerMandateHolders";
+import Dashboard from "@/pages/Dashboard";
 import ProducerDashboard from "@/pages/producer/ProducerDashboard";
 import ProducerNewLot from "@/pages/producer/ProducerNewLot";
 import ProducerEwrs from "@/pages/producer/ProducerEwrs";
+import ProducerEditLot from "@/pages/producer/ProducerEditLot";
 import LiveAuction from "@/pages/auction/LiveAuction";
 import Market from "@/pages/market/Market";
 import LotDetail from "@/pages/lots/LotDetail";
@@ -105,8 +107,8 @@ function ClerkProviderWithRoutes() {
       appearance={clerkAppearance}
       signInUrl={`${basePath}/sign-in`}
       signUpUrl={`${basePath}/sign-up`}
-      signInFallbackRedirectUrl={`${basePath}/broker`}
-      signUpFallbackRedirectUrl={`${basePath}/broker`}
+      signInFallbackRedirectUrl={`${basePath}/dashboard`}
+      signUpFallbackRedirectUrl={`${basePath}/dashboard`}
       routerPush={(to) => setLocation(stripBase(to))}
       routerReplace={(to) => setLocation(stripBase(to), { replace: true })}
     >
@@ -132,8 +134,11 @@ function ClerkProviderWithRoutes() {
                   <Route path="/broker/lots/new"><ProtectedRoute><NewTeaLot /></ProtectedRoute></Route>
                   <Route path="/broker/lots/:lotId/edit"><ProtectedRoute><EditTeaLot /></ProtectedRoute></Route>
 
+                  <Route path="/dashboard"><ProtectedRoute><Dashboard /></ProtectedRoute></Route>
+
                   <Route path="/producer"><ProtectedRoute><ProducerDashboard /></ProtectedRoute></Route>
                   <Route path="/producer/lots/new"><ProtectedRoute><ProducerNewLot /></ProtectedRoute></Route>
+                  <Route path="/producer/lots/:lotId/edit"><ProtectedRoute><ProducerEditLot /></ProtectedRoute></Route>
                   <Route path="/producer/ewrs"><ProtectedRoute><ProducerEwrs /></ProtectedRoute></Route>
 
                   <Route path="/auction/:sessionId"><ProtectedRoute><LiveAuction /></ProtectedRoute></Route>

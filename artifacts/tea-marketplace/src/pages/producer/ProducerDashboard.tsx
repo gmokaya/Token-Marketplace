@@ -146,7 +146,7 @@ export default function ProducerDashboard() {
                 className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-muted/30 cursor-pointer transition-colors"
                 onClick={() => setLocation(`/lots/${lot.id}`)}
               >
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="font-semibold text-sm truncate">
                     {lot.grade} — {lot.gradeMark}
                   </p>
@@ -154,12 +154,27 @@ export default function ProducerDashboard() {
                     {parseFloat(lot.netWeightKg).toFixed(1)} kg net · {lot.giOrigin} · {lot.listingType}
                   </p>
                 </div>
-                <Badge
-                  variant="outline"
-                  className={`text-[10px] uppercase tracking-wider shrink-0 ${STATUS_COLORS[lot.status] ?? ""}`}
-                >
-                  {lot.status.replace("_", " ")}
-                </Badge>
+                <div className="flex items-center gap-2 shrink-0">
+                  {["DRAFT", "CATALOGUED"].includes(lot.status) && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="rounded-none text-xs h-7 px-2"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLocation(`/producer/lots/${lot.id}/edit`);
+                      }}
+                    >
+                      Edit
+                    </Button>
+                  )}
+                  <Badge
+                    variant="outline"
+                    className={`text-[10px] uppercase tracking-wider ${STATUS_COLORS[lot.status] ?? ""}`}
+                  >
+                    {lot.status.replace("_", " ")}
+                  </Badge>
+                </div>
               </div>
             ))}
           </div>

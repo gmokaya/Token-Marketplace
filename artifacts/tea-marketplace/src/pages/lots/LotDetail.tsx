@@ -1,8 +1,9 @@
-import { useParams, Link } from "wouter";
+import { useParams, Link, useLocation } from "wouter";
 import {
   useGetTeaLot,
   useGetTeaLotSettlement,
   useGetTeaLotDispatchDocs,
+  useGetMe,
   getGetTeaLotQueryKey,
   getGetTeaLotSettlementQueryKey,
   getGetTeaLotDispatchDocsQueryKey,
@@ -13,7 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import {
   FileText, Download, Scale, MapPin, Package, ArrowRight,
-  Warehouse, Phone, Mail, User2, ShieldCheck,
+  Warehouse, Phone, Mail, User2, ShieldCheck, Pencil,
 } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 
@@ -28,7 +29,9 @@ const FACILITY_LABELS: Record<string, string> = {
 export default function LotDetail() {
   const params = useParams();
   const lotId = Number(params.lotId);
+  const [, setLocation] = useLocation();
 
+  const { data: me } = useGetMe();
   const { data: lot, isLoading: lotLoading, isError: lotError } = useGetTeaLot(lotId, {
     query: { enabled: !!lotId, queryKey: getGetTeaLotQueryKey(lotId) },
   });
@@ -47,6 +50,14 @@ export default function LotDetail() {
       Lot not found or failed to load.
     </div>
   );
+
+  // Whether the current user can edit this lot (owner, editable status)
+  const isOwner = me && me.id === (lot as any).ownerId;
+  const isDirectListing = (lot as any).ownerId === (lot as any).brokerId;
+  const canEdit = isOwner && ["DRAFT", "CATALOGUED"].includes(lot.status);
+  const editPath = isDirectListing
+    ? `/producer/lots/${lot.id}/edit`
+    : `/broker/lots/${lot.id}/edit`;
 
   const warehouseCode    = (lot as any).warehouseCode as string | null;
   const warehouseProfile = (lot as any).warehouseProfile as {
@@ -77,13 +88,24 @@ export default function LotDetail() {
         }
         description={`${lot.grade} • ${lot.gradeMark}`}
         actions={
-          settlement && (
-            <Link href={`/lots/${lot.id}/settlement`}>
-              <Button className="rounded-none gap-2 h-11 font-semibold">
-                View Settlement <ArrowRight className="w-4 h-4" />
+          <div className="flex items-center gap-2">
+            {canEdit && (
+              <Button
+                variant="outline"
+                className="rounded-none gap-2 h-11"
+                onClick={() => setLocation(editPath)}
+              >
+                <Pencil className="w-4 h-4" /> Edit Lot
               </Button>
-            </Link>
-          )
+            )}
+            {settlement && (
+              <Link href={`/lots/${lot.id}/settlement`}>
+                <Button className="rounded-none gap-2 h-11 font-semibold">
+                  View Settlement <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            )}
+          </div>
         }
       />
 

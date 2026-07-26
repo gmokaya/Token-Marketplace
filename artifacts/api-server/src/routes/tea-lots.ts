@@ -20,7 +20,7 @@ import {
   ewrsTable,
   warehouseProfilesTable,
 } from "@workspace/db";
-import { eq, and, SQL, or } from "drizzle-orm";
+import { eq, and, SQL, or, ne } from "drizzle-orm";
 import { z } from "zod";
 
 const router = Router();
@@ -144,6 +144,31 @@ router.post("/tea/lots", async (req, res) => {
     return res.status(400).json({ error: "eWR is not a TEA commodity" });
   }
 
+  // Ensure the eWR is in INGESTED state (available for listing)
+  if (ewr.state !== "INGESTED") {
+    return res.status(409).json({
+      error: `eWR is not available for listing. Current state: ${ewr.state}. Only INGESTED eWRs can be used to create a new lot.`,
+    });
+  }
+
+  // Guard against duplicate lots from the same eWR (any non-WITHDRAWN lot blocks re-listing)
+  const [existingLot] = await db
+    .select({ id: teaLotsTable.id, status: teaLotsTable.status })
+    .from(teaLotsTable)
+    .where(
+      and(
+        eq(teaLotsTable.ewrId, body.ewrId),
+        ne(teaLotsTable.status, "WITHDRAWN"),
+      )
+    )
+    .limit(1);
+
+  if (existingLot) {
+    return res.status(409).json({
+      error: `An active lot (ID: ${existingLot.id}, status: ${existingLot.status}) already exists for this eWR. Withdraw the existing lot before creating a new one.`,
+    });
+  }
+
   // ── Role-specific authorisation ─────────────────────────────────────────
   let effectiveBrokerId: number;
   let commissionRate: number;
@@ -206,6 +231,12 @@ router.post("/tea/lots", async (req, res) => {
       status: "DRAFT",
     })
     .returning();
+
+  // Advance the eWR state from INGESTED → MARKET_LISTED now that it has an active lot
+  await db
+    .update(ewrsTable)
+    .set({ state: "MARKET_LISTED", updatedAt: new Date() })
+    .where(eq(ewrsTable.id, ewr.id));
 
   return res.status(201).json(lot);
 });
@@ -394,6 +425,9 @@ router.patch("/tea/lots/:id", async (req, res) => {
     return res.status(400).json({ error: "fixedPricePerKgUsd is required for FIXED_PRICE lots" });
   }
 
+  // Detect direct (producer self-listed) lots: brokerId === ownerId
+  const isDirectListing = lot.brokerId === lot.ownerId;
+
   const updates: Record<string, unknown> = { updatedAt: new Date() };
 
   if (body.grade !== undefined) updates.grade = body.grade;
@@ -412,7 +446,12 @@ router.patch("/tea/lots/:id", async (req, res) => {
   if (body.reservePriceUsd !== undefined) updates.reservePriceUsd = String(body.reservePriceUsd);
   if (body.brokerValuationUsd !== undefined) updates.brokerValuationUsd = String(body.brokerValuationUsd);
   if (body.fixedPricePerKgUsd !== undefined) updates.fixedPricePerKgUsd = String(body.fixedPricePerKgUsd);
-  if (body.commissionRate !== undefined) updates.commissionRate = String(body.commissionRate);
+  // Lock commissionRate at 0 for direct (self-agent) listings; honour broker changes otherwise
+  if (isDirectListing) {
+    updates.commissionRate = "0";
+  } else if (body.commissionRate !== undefined) {
+    updates.commissionRate = String(body.commissionRate);
+  }
   if (body.tickTiers !== undefined) updates.tickTiers = body.tickTiers;
   if (body.antiSnipeConfig !== undefined) updates.antiSnipeConfig = body.antiSnipeConfig;
   if (body.bidSecurityPct !== undefined) updates.bidSecurityPct = String(body.bidSecurityPct);
