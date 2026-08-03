@@ -51,19 +51,19 @@ const DEFAULT_HERO: HeroContent = {
 
 const DEFAULT_SERVICES: ServiceCard[] = [
   {
-    icon: "icon-tax.png",
+    icon: "Globe",
     title: "Direct Trade",
     sub: "For Buyers & Producers",
     desc: "Finding reliable suppliers and negotiating fair prices across borders shouldn't take months of guesswork. Connect directly with verified producers, compare offers transparently, and close deals with confidence, backed by digital contracts and full origin traceability.",
   },
   {
-    icon: "icon-money-1.png",
+    icon: "Truck",
     title: "Trade Execution",
     sub: "For Buyers",
     desc: "Once a deal is done, moving goods across borders becomes a maze of freight, customs, documentation, and insurance. We handle every step so you receive what you paid for, where and when you need it, without ever having to manage the logistics yourself.",
   },
   {
-    icon: "icon-financial-1.png",
+    icon: "Landmark",
     title: "Trade Finance",
     sub: "For Buyers & Suppliers",
     desc: "Capital tied up in inventory or slow payments shouldn't stop a deal from happening. Access working capital against your purchase orders, invoices, or warehouse receipts, and trade at the scale the market demands, not the scale your cash flow allows.",
