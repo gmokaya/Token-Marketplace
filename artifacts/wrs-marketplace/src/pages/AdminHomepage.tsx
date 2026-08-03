@@ -98,7 +98,7 @@ function normalizeServices(value: unknown): ServiceCard[] | undefined {
 const DEFAULT_ABOUT: AboutContent = {
   badge: "The Platform",
   heading: "End-to-End Digital\nTrade Infrastructure",
-  body: "TokenHarvest is built for the full lifecycle of international commodity trade, not just the transaction. Every stage of the journey, from finding the right supplier to understanding your portfolio performance, is connected on a single platform.",
+  body: "TokenHarvest helps you source, finance, move, and manage agricultural trade with confidence. Built for growing businesses, it brings the essential tools for international trade into one platform, helping you reduce complexity, improve visibility, and reach new markets faster.",
   bullets: [
     "Source: discover and qualify verified suppliers across East Africa's commodity markets",
     "Trade: negotiate, contract, and transact on terms you can trust",
