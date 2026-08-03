@@ -6,7 +6,8 @@ East Africa's electronic warehouse receipt (eWR) trading platform for agricultur
 
 Workflows are managed by Replit. The three services start automatically:
 - **`artifacts/api-server: API Server`** — Express API on port 8080 (`/api`)
-- **`artifacts/wrs-marketplace: web`** — React/Vite frontend on port 26227 (`/`)
+- **`artifacts/wrs-marketplace: web`** — WRS Marketplace React/Vite frontend on port 26227 (`/`)
+- **`artifacts/tea-marketplace: web`** — Tea Marketplace React/Vite frontend on port 25073 (`/tea/`)
 - **`artifacts/mockup-sandbox: Component Preview Server`** — Design canvas on port 8081 (`/__mockup`)
 
 One-off commands:
