@@ -69,14 +69,14 @@ function normalizeServices(value: unknown): HpService[] | undefined {
 }
 const DEF_ABOUT: HpAbout = {
   badge: "The Platform",
-  heading: "East Africa's Leading\neWR Marketplace",
-  body: "WRS Marketplace connects producers, off-takers, and financiers in a single, fully auditable trading environment, backed by licensed warehouses and an immutable transaction ledger.",
+  heading: "End-to-End Digital\nTrade Infrastructure",
+  body: "TokenHarvest is built for the full lifecycle of international commodity trade — not just the transaction. Every stage of the journey, from finding the right supplier to understanding your portfolio performance, is connected on a single platform.",
   bullets: [
-    "§6.1 state-machine enforced eWR lifecycle",
-    "Real-time auctions with anti-snipe window",
-    "Forward contracts with performance bond escrow",
-    "Warehouse financing up to 60% of market value",
-    "SHA-256 audit log on every transaction",
+    "Source — discover and qualify verified suppliers across East Africa's commodity markets",
+    "Trade — negotiate, contract, and transact on terms you can trust",
+    "Finance — unlock working capital at every stage, without waiting on the banks",
+    "Fulfil — goods move from warehouse to destination without you managing the logistics",
+    "Insights — live market data and analytics so every decision is an informed one",
   ],
 };
 const DEF_STEPS: HpStep[] = [
