@@ -30,10 +30,43 @@ const DEF_HERO: HpHero = {
   cta2: "Our Services",
 };
 const DEF_SERVICES: HpService[] = [
-  { icon: "icon-tax.png",        title: "Spot Market",       sub: "For Producers",  desc: "List your eWRs on the live marketplace. Access transparent pricing and verified buyers instantly." },
-  { icon: "icon-money-1.png",    title: "Live Auctions",     sub: "For Off-Takers", desc: "Compete in real-time sealed-bid auctions with automatic anti-snipe protection and fair price discovery." },
-  { icon: "icon-financial-1.png",title: "Forward Contracts", sub: "For Financiers", desc: "Lock in future delivery prices with performance-bond escrow and immutable audit trails." },
+  {
+    icon: "icon-tax.png",
+    title: "Direct Trade",
+    sub: "For Buyers & Producers",
+    desc: "Connect directly with verified producers and exporters across specialty and commodity markets. AI-powered supplier matching, digital contracts, and transparent price discovery make cross-border sourcing simple and trusted.",
+  },
+  {
+    icon: "icon-money-1.png",
+    title: "Trade Execution",
+    sub: "For Shippers & Exporters",
+    desc: "End-to-end logistics from loading to final delivery. Freight coordination, customs and export documentation, warehouse receipts, cargo insurance, and live shipment tracking — every operational step in one place.",
+  },
+  {
+    icon: "icon-financial-1.png",
+    title: "Trade Finance",
+    sub: "For Financiers",
+    desc: "Unlock capital at every stage of the trade lifecycle. From purchase order and invoice finance to warehouse receipt lending, integrated banking connections keep goods and capital moving without delay.",
+  },
 ];
+
+function normalizeServices(value: unknown): HpService[] | undefined {
+  if (!Array.isArray(value) || value.length === 0) return undefined;
+
+  return value.map((service, index) => {
+    const raw = service && typeof service === "object"
+      ? service as Record<string, unknown>
+      : {};
+    const fallback = DEF_SERVICES[index] ?? DEF_SERVICES[0];
+
+    return {
+      icon:  typeof raw["icon"]  === "string" ? raw["icon"]  : fallback.icon,
+      title: typeof raw["title"] === "string" ? raw["title"] : fallback.title,
+      sub:   typeof raw["sub"]   === "string" ? raw["sub"]   : fallback.sub,
+      desc:  typeof raw["desc"]  === "string" ? raw["desc"]  : fallback.desc,
+    };
+  });
+}
 const DEF_ABOUT: HpAbout = {
   badge: "The Platform",
   heading: "East Africa's Leading\neWR Marketplace",
@@ -556,7 +589,13 @@ export default function Home() {
   useEffect(() => {
     fetch(`${HP_API}/api/content/homepage`)
       .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d?.value) setHp(d.value); })
+      .then(d => {
+        if (!d?.value || typeof d.value !== "object") return;
+        setHp({
+          ...d.value,
+          services: normalizeServices(d.value.services) ?? DEF_SERVICES,
+        });
+      })
       .catch(() => {});
   }, []);
 
