@@ -24,8 +24,8 @@ type HpContent = { hero: HpHero; services: HpService[]; about: HpAbout; howItWor
 
 const DEF_HERO: HpHero = {
   badge: "WRS Marketplace",
-  headline: "Agricultural\nMarketplace",
-  subheadline: "Trade Electronic Warehouse Receipts securely. Live auctions, forward contracts, and warehouse financing across East Africa.",
+  headline: "Trade. Finance.\nDeliver.",
+  subheadline: "TokenHarvest enables businesses to trade agricultural commodities with confidence across East Africa and global markets.",
   cta1: "Join the Marketplace",
   cta2: "Our Services",
 };
