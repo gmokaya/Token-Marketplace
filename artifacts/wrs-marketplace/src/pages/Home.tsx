@@ -832,9 +832,6 @@ export default function Home() {
                     );
                   })}
                 </ul>
-                <Link href="/sign-up" style={{ color: ACCENT, textDecoration: "none", fontSize: 14, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 7, letterSpacing: "0.02em" }}>
-                  Get Started <ArrowRight size={15} />
-                </Link>
               </div>
             </div>
           </section>
