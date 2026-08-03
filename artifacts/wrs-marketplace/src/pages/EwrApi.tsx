@@ -35,7 +35,7 @@ interface Group {
 
 const GROUPS: Group[] = [
   {
-    title: "Authentication — OAuth2 Client Credentials",
+    title: "Authentication: OAuth2 Client Credentials",
     icon: <Shield className="h-4 w-4" />,
     color: "border-purple-200 dark:border-purple-800",
     endpoints: [
@@ -43,7 +43,7 @@ const GROUPS: Group[] = [
         method: "POST",
         path: "/ewr/oauth2/token",
         description: "Obtain a Bearer token using client_credentials grant. Tokens are valid for 30 minutes.",
-        auth: "None — public endpoint",
+        auth: "None: public endpoint",
         body: JSON.stringify({ grant_type: "client_credentials", client_id: "fi-agrifinance-01", client_secret: "fi-secret-2025" }, null, 2),
       },
     ],
@@ -57,7 +57,7 @@ const GROUPS: Group[] = [
         method: "POST",
         path: "/webhooks/registry-sync",
         description: "Accepts the §3.1 standardised JSON payload from the WRSC Central Registry. Optionally verified via X-WRSC-Signature HMAC-SHA256 header.",
-        auth: "HMAC-SHA256 signature (X-WRSC-Signature header) — optional in dev",
+        auth: "HMAC-SHA256 signature (X-WRSC-Signature header), optional in dev",
         body: JSON.stringify({
           ewrs_receipt_id: "eWR-MZE-2026-88931",
           wrsc_registry_signature: "0x8f3c9a22e11b40d...",
@@ -158,7 +158,7 @@ const GROUPS: Group[] = [
       {
         method: "POST",
         path: "/ewr/warehouse/retire",
-        description: "Retire a warehouse receipt — sets state to SETTLED",
+        description: "Retire a warehouse receipt: sets state to SETTLED",
         body: JSON.stringify({ warehouseReceiptNumber: "eWR-MZE-2026-88931", retirementReason: "Commodity collected by depositor" }, null, 2),
       },
     ],
@@ -182,7 +182,7 @@ const GROUPS: Group[] = [
       {
         method: "GET",
         path: "/ewr/finance/loan-details?wareHouseReciptNo=eWR-MZE-2026-88931",
-        description: "Get loan details for a receipt — date of pledging, proposed amount, duration (FI doc §4.4)",
+        description: "Get loan details for a receipt: date of pledging, proposed amount, duration (FI doc §4.4)",
       },
       {
         method: "GET",
@@ -297,7 +297,7 @@ export default function EwrApi() {
       const data = await res.json() as { access_token?: string; error?: string };
       if (data.access_token) {
         setToken(data.access_token);
-        toast({ description: "Token obtained — valid 30 minutes" });
+        toast({ description: "Token obtained. Valid for 30 minutes" });
       } else {
         toast({ variant: "destructive", description: data.error ?? "Failed to obtain token" });
       }
@@ -314,7 +314,7 @@ export default function EwrApi() {
         <div>
           <h1 className="text-2xl font-bold">eWRS API Integration</h1>
           <p className="text-muted-foreground mt-1">
-            External compatibility layer implementing the CSM Technologies eWRS API contract —
+            External compatibility layer implementing the CSM Technologies eWRS API contract:
             OAuth2 client credentials, §3.1 registry-sync webhook, warehouse operator, financial institution,
             and KOMEX trading platform endpoints.
           </p>
@@ -354,7 +354,7 @@ export default function EwrApi() {
                 <CardDescription>
                   Use these client_id / client_secret pairs to obtain Bearer tokens via{" "}
                   <code className="text-xs bg-muted px-1 rounded">POST /ewr/oauth2/token</code>.
-                  These are development credentials — rotate before production deployment.
+                  These are development credentials. Rotate before production deployment.
                 </CardDescription>
               </CardHeader>
               <CardContent>

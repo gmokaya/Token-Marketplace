@@ -115,7 +115,7 @@ export default function MacroLotsPage() {
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <Badge className={`text-xs ${STATUS_COLORS[lot.status] ?? ""}`}>{lot.status}</Badge>
-                      <span className="font-semibold">{lot.commodityType} — {lot.grade}</span>
+                      <span className="font-semibold">{lot.commodityType} - {lot.grade}</span>
                     </div>
                     <p className="text-sm text-muted-foreground">
                       <strong>{parseFloat(String(lot.totalWeightMt)).toFixed(2)} MT</strong>

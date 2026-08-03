@@ -1,5 +1,5 @@
 /**
- * BrokerMandateHolders — broker's view of their mandate portfolio.
+ * BrokerMandateHolders: broker's view of their mandate portfolio.
  *
  * Shows each producer who has granted an active mandate, alongside their
  * INGESTED TEA eWRs that the broker can immediately catalogue into lots.
@@ -79,7 +79,7 @@ export default function BrokerMandateHolders() {
     <div className="space-y-8">
       <PageHeader
         title="Mandate Holders"
-        description="Producers who have authorised you to catalogue their tea — and the eWRs ready to list."
+        description="Producers who have authorised you to catalogue their tea, and the eWRs ready to list."
       />
 
       {isLoading ? (

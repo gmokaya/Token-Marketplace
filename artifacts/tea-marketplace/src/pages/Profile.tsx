@@ -31,7 +31,7 @@ export default function Profile() {
             </div>
             <div>
               <div className="text-xs text-muted-foreground uppercase font-semibold tracking-wider mb-2">Company</div>
-              <div className="font-medium text-lg">{user.company || '—'}</div>
+              <div className="font-medium text-lg">{user.company || '-'}</div>
             </div>
             <div>
               <div className="text-xs text-muted-foreground uppercase font-semibold tracking-wider mb-2">Role Tier</div>

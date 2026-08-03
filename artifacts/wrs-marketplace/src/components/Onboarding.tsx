@@ -146,7 +146,7 @@ const ROLE_META: Record<UserUpdateTier, {
   },
   [UserUpdateTier.ENABLER]: {
     label: "Warehouse Operator",
-    subtitle: "Licensed warehouses — issue & secure eWRs",
+    subtitle: "Licensed warehouses: issue & secure eWRs",
     icon: Warehouse,
     needs: ["WRSC licence number", "Insurance policy details", "Facility capacity"],
   },
@@ -235,7 +235,7 @@ export function Onboarding() {
         }),
       });
     } catch {
-      // Non-fatal — user can update contact details from profile page
+      // Non-fatal: user can update contact details from profile page
     } finally {
       setIsSubmitting(false);
     }
@@ -429,14 +429,14 @@ export function Onboarding() {
             <StepIndicator current="profile" />
             <h1 className="text-2xl font-bold">{tierName} Compliance Profile</h1>
             <p className="text-muted-foreground text-sm mt-1">
-              Required for KYB verification — you can also skip and complete this later.
+              Required for KYB verification. You can also skip and complete this later.
             </p>
           </div>
 
           <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 mb-5 flex items-start gap-3">
             <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
             <p className="text-xs text-amber-700">
-              <strong>Not ready yet?</strong> Skip this step to access your dashboard immediately. You can submit these details from your <strong>Profile</strong> page anytime — they're needed before you can trade.
+              <strong>Not ready yet?</strong> Skip this step to access your dashboard immediately. You can submit these details from your <strong>Profile</strong> page anytime. They're needed before you can trade.
             </p>
           </div>
 
@@ -459,7 +459,7 @@ export function Onboarding() {
                       <FormMessage />
                     </FormItem>
                   )} />
-                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider pt-2">Optional — complete later</div>
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider pt-2">Optional: complete later</div>
                   <FormField control={profileForm.control} name="kraPin" render={({ field }) => (
                     <FormItem>
                       <FormLabel>KRA PIN</FormLabel>
@@ -536,7 +536,7 @@ export function Onboarding() {
                       <FormMessage />
                     </FormItem>
                   )} />
-                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider pt-2">Optional — complete later</div>
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider pt-2">Optional: complete later</div>
                   <FormField control={profileForm.control} name="kraPin" render={({ field }) => (
                     <FormItem>
                       <FormLabel>KRA PIN</FormLabel>
@@ -613,7 +613,7 @@ export function Onboarding() {
                       <FormMessage />
                     </FormItem>
                   )} />
-                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider pt-2">Optional — complete later</div>
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider pt-2">Optional: complete later</div>
                   <FormField control={profileForm.control} name="capacityMt" render={({ field }) => (
                     <FormItem>
                       <FormLabel>Capacity (Metric Tons)</FormLabel>
@@ -676,7 +676,7 @@ export function Onboarding() {
                       <FormMessage />
                     </FormItem>
                   )} />
-                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider pt-2">Optional — complete later</div>
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider pt-2">Optional: complete later</div>
                   <FormField control={profileForm.control} name="departmentDesignation" render={({ field }) => (
                     <FormItem>
                       <FormLabel>Department Designation</FormLabel>
@@ -725,7 +725,7 @@ export function Onboarding() {
                       <FormMessage />
                     </FormItem>
                   )} />
-                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider pt-2">Optional — complete later</div>
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider pt-2">Optional: complete later</div>
                   <FormField control={profileForm.control} name="licenceNumber" render={({ field }) => (
                     <FormItem>
                       <FormLabel>Licence Number</FormLabel>
@@ -819,7 +819,7 @@ export function Onboarding() {
                 onClick={handleSkip}
                 disabled={isSubmitting}
               >
-                Skip for now — complete later from Profile
+                Skip for now. Complete later from Profile
               </Button>
             </form>
           </Form>
@@ -848,11 +848,11 @@ export function Onboarding() {
               <div className="space-y-2">
                 <div className="flex items-start gap-2 text-xs text-amber-700">
                   <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 text-primary shrink-0" />
-                  <span>Dashboard access — available now</span>
+                  <span>Dashboard access: available now</span>
                 </div>
                 <div className="flex items-start gap-2 text-xs text-amber-700">
                   <Clock className="w-3.5 h-3.5 mt-0.5 text-amber-500 shrink-0" />
-                  <span>Full trading access — after KYB profile submission & review (1–2 days)</span>
+                  <span>Full trading access: after KYB profile submission & review (1–2 days)</span>
                 </div>
               </div>
             </div>
@@ -875,7 +875,7 @@ export function Onboarding() {
                 </div>
                 <div className="flex items-start gap-2 text-xs text-gray-600">
                   <Clock className="w-3.5 h-3.5 mt-0.5 text-amber-500 shrink-0" />
-                  <span>KYB review — 1–2 business days</span>
+                  <span>KYB review: 1–2 business days</span>
                 </div>
                 <div className="flex items-start gap-2 text-xs text-gray-600">
                   <Clock className="w-3.5 h-3.5 mt-0.5 text-gray-400 shrink-0" />

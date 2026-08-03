@@ -134,11 +134,11 @@ function ProducerDashboard() {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Avg Price / MT</span>
-                  <span className="font-semibold">{summary?.avgPricePerMt ? `$${summary.avgPricePerMt.toFixed(2)}` : "—"}</span>
+                  <span className="font-semibold">{summary?.avgPricePerMt ? `$${summary.avgPricePerMt.toFixed(2)}` : "-"}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Your Reputation Score</span>
-                  <span className="font-semibold" data-testid="profile-reputation">{user?.reputationScore ?? "—"}</span>
+                  <span className="font-semibold" data-testid="profile-reputation">{user?.reputationScore ?? "-"}</span>
                 </div>
               </div>
             )}
@@ -520,7 +520,7 @@ function EnablerDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold" data-testid="dashboard-avg-price">
-                {summary?.avgPricePerMt ? `$${summary.avgPricePerMt.toFixed(2)}` : "—"}
+                {summary?.avgPricePerMt ? `$${summary.avgPricePerMt.toFixed(2)}` : "-"}
               </div>
             </CardContent>
           </Card>

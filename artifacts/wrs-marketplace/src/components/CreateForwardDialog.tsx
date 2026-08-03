@@ -82,7 +82,7 @@ export function CreateForwardDialog() {
               <option value="">Select an eWR…</option>
               {eligibleEwrs.map(ewr => (
                 <option key={ewr.id} value={ewr.id}>
-                  {ewr.ewrsReceiptId} — {ewr.commodityType} {ewr.grade} {ewr.weightMt}MT
+                  {ewr.ewrsReceiptId} - {ewr.commodityType} {ewr.grade} {ewr.weightMt}MT
                 </option>
               ))}
             </select>

@@ -149,7 +149,7 @@ export default function LotDetail() {
                 </div>
                 <div>
                   <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2 font-semibold">Harvest Season</div>
-                  <div className="text-lg font-medium">{(lot as any).ewr?.harvestSeason ?? "—"}</div>
+                  <div className="text-lg font-medium">{(lot as any).ewr?.harvestSeason ?? "-"}</div>
                 </div>
                 {(lot as any).ewr?.teaProcessingType && (
                   <div>
@@ -201,7 +201,7 @@ export default function LotDetail() {
                     </div>
                   </div>
 
-                  {/* Enriched operator profile — when a registered warehouse matches */}
+                  {/* Enriched operator profile, when a registered warehouse matches */}
                   {warehouseProfile ? (
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-6">
                       <div className="col-span-2 md:col-span-3 flex items-center gap-2 text-xs text-primary/70 border-b border-border pb-3">
@@ -334,7 +334,7 @@ export default function LotDetail() {
             </CardContent>
           </Card>
 
-          {/* Compact warehouse chip — repeated here for easy reference */}
+          {/* Compact warehouse chip, repeated here for easy reference */}
           {warehouseCode && (
             <div className="border border-border p-4 bg-card flex items-center gap-3">
               <Warehouse className="w-4 h-4 text-muted-foreground shrink-0" />

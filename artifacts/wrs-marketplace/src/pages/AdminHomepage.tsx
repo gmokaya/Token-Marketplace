@@ -54,19 +54,19 @@ const DEFAULT_SERVICES: ServiceCard[] = [
     icon: "icon-tax.png",
     title: "Direct Trade",
     sub: "For Buyers & Producers",
-    desc: "Finding reliable suppliers and negotiating fair prices across borders shouldn't take months of guesswork. Connect directly with verified producers, compare offers transparently, and close deals with confidence — backed by digital contracts and full origin traceability.",
+    desc: "Finding reliable suppliers and negotiating fair prices across borders shouldn't take months of guesswork. Connect directly with verified producers, compare offers transparently, and close deals with confidence, backed by digital contracts and full origin traceability.",
   },
   {
     icon: "icon-money-1.png",
     title: "Trade Execution",
     sub: "For Buyers",
-    desc: "Once a deal is done, moving goods across borders becomes a maze of freight, customs, documentation, and insurance. We handle every step so you receive what you paid for — where and when you need it — without ever having to manage the logistics yourself.",
+    desc: "Once a deal is done, moving goods across borders becomes a maze of freight, customs, documentation, and insurance. We handle every step so you receive what you paid for, where and when you need it, without ever having to manage the logistics yourself.",
   },
   {
     icon: "icon-financial-1.png",
     title: "Trade Finance",
     sub: "For Buyers & Suppliers",
-    desc: "Capital tied up in inventory or slow payments shouldn't stop a deal from happening. Access working capital against your purchase orders, invoices, or warehouse receipts — and trade at the scale the market demands, not the scale your cash flow allows.",
+    desc: "Capital tied up in inventory or slow payments shouldn't stop a deal from happening. Access working capital against your purchase orders, invoices, or warehouse receipts, and trade at the scale the market demands, not the scale your cash flow allows.",
   },
 ];
 
@@ -91,13 +91,13 @@ function normalizeServices(value: unknown): ServiceCard[] | undefined {
 const DEFAULT_ABOUT: AboutContent = {
   badge: "The Platform",
   heading: "End-to-End Digital\nTrade Infrastructure",
-  body: "TokenHarvest is built for the full lifecycle of international commodity trade — not just the transaction. Every stage of the journey, from finding the right supplier to understanding your portfolio performance, is connected on a single platform.",
+  body: "TokenHarvest is built for the full lifecycle of international commodity trade, not just the transaction. Every stage of the journey, from finding the right supplier to understanding your portfolio performance, is connected on a single platform.",
   bullets: [
-    "Source — discover and qualify verified suppliers across East Africa's commodity markets",
-    "Trade — negotiate, contract, and transact on terms you can trust",
-    "Finance — unlock working capital at every stage, without waiting on the banks",
-    "Fulfil — goods move from warehouse to destination without you managing the logistics",
-    "Insights — live market data and analytics so every decision is an informed one",
+    "Source: discover and qualify verified suppliers across East Africa's commodity markets",
+    "Trade: negotiate, contract, and transact on terms you can trust",
+    "Finance: unlock working capital at every stage, without waiting on the banks",
+    "Fulfil: goods move from warehouse to destination without you managing the logistics",
+    "Insights: live market data and analytics so every decision is an informed one",
   ],
 };
 
@@ -477,7 +477,7 @@ function HowItWorksTab({ steps, setSteps }: { steps: HowItWorksStep[]; setSteps:
   const remove = (i: number) => setSteps(steps.filter((_, idx) => idx !== i));
   return (
     <div className="grid gap-4">
-      <SectionCard title="How It Works — Steps" desc="The 4-column process walkthrough on the homepage."
+      <SectionCard title="How It Works - Steps" desc="The 4-column process walkthrough on the homepage."
         action={<Button variant="outline" size="sm" className="gap-1.5" onClick={add}><Plus className="w-4 h-4" />Add Step</Button>}>
         {steps.map((step, i) => (
           <div key={i} className="flex gap-3 p-3 border border-gray-100 rounded-lg bg-gray-50/50 items-start">

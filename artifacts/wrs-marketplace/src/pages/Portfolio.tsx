@@ -86,8 +86,8 @@ interface EwrItem {
 
 function GradingPanel({ ewr }: { ewr: EwrItem }) {
   const ct = ewr.commodityType;
-  const pct = (v: string | number | null | undefined) => v != null ? `${parseFloat(String(v)).toFixed(2)}%` : "—";
-  const num = (v: string | number | null | undefined, dp = 1) => v != null ? parseFloat(String(v)).toFixed(dp) : "—";
+  const pct = (v: string | number | null | undefined) => v != null ? `${parseFloat(String(v)).toFixed(2)}%` : "-";
+  const num = (v: string | number | null | undefined, dp = 1) => v != null ? parseFloat(String(v)).toFixed(dp) : "-";
 
   if (ct === "MAIZE" || ct === "RICE") {
     const standard = ct === "MAIZE" ? "EAS 2:2013" : "EAS 128:2013";
@@ -122,7 +122,7 @@ function GradingPanel({ ewr }: { ewr: EwrItem }) {
         <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1">Coffee Grading</p>
         <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs">
           <span className="text-muted-foreground">Bean Size</span>
-          <span className="font-medium text-right">{ewr.coffeeBeanSize ?? "—"}</span>
+          <span className="font-medium text-right">{ewr.coffeeBeanSize ?? "-"}</span>
           <span className="text-muted-foreground">Cupping Score</span>
           <span className="font-medium text-right">{num(ewr.coffeeCuppingScore)} <span className="text-gray-400">/ 10</span></span>
           {ewr.moisturePct != null && <>
@@ -140,9 +140,9 @@ function GradingPanel({ ewr }: { ewr: EwrItem }) {
         <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1">Tea Grading</p>
         <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs">
           <span className="text-muted-foreground">Processing</span>
-          <span className="font-medium text-right">{ewr.teaProcessingType ?? "—"}</span>
+          <span className="font-medium text-right">{ewr.teaProcessingType ?? "-"}</span>
           <span className="text-muted-foreground">Leaf Grade</span>
-          <span className="font-medium text-right">{ewr.teaLeafGrade ?? "—"}</span>
+          <span className="font-medium text-right">{ewr.teaLeafGrade ?? "-"}</span>
           {ewr.teaInvoiceSerial && <>
             <span className="text-muted-foreground">Invoice</span>
             <span className="font-medium text-right font-mono text-[10px]">{ewr.teaInvoiceSerial}</span>
@@ -161,9 +161,9 @@ function GradingPanel({ ewr }: { ewr: EwrItem }) {
         <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1">EAS 19:2017 · CA Storage</p>
         <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs">
           <span className="text-muted-foreground">Variety</span>
-          <span className="font-medium text-right">{ewr.avocadoVariety ?? "—"}</span>
+          <span className="font-medium text-right">{ewr.avocadoVariety ?? "-"}</span>
           <span className="text-muted-foreground">Sizing Code</span>
-          <span className="font-medium text-right">{ewr.avocadoSizingCode ?? "—"}</span>
+          <span className="font-medium text-right">{ewr.avocadoSizingCode ?? "-"}</span>
           <span className="text-muted-foreground">Cold Chain</span>
           <span className="font-medium text-right">{ewr.avocadoColdChainCompliant ? "✓ Compliant" : "✗ Non-compliant"}</span>
           {pctIntact != null && <>

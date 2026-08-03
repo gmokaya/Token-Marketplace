@@ -36,7 +36,7 @@ export default function Forwards() {
       status: (statusFilter || undefined) as ListForwardContractsStatus | undefined,
       sellerId: isProducer ? myId : undefined,
       // OFF_TAKERs browse all contracts (especially PENDING_SIGNATURE ones to co-sign)
-      // — do NOT filter by buyerId here or new buyers see an empty list
+      // Do NOT filter by buyerId here or new buyers see an empty list
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     { query: { refetchInterval: 10000 } as any }
@@ -85,7 +85,7 @@ export default function Forwards() {
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <CardTitle className="text-sm font-bold">{c.commodityType ?? "—"} · {c.grade ?? "—"}</CardTitle>
+                        <CardTitle className="text-sm font-bold">{c.commodityType ?? "-"} · {c.grade ?? "-"}</CardTitle>
                         <p className="text-xs text-muted-foreground mt-0.5">{c.warehouseCode} · {c.weightMt} MT</p>
                       </div>
                       <Badge variant="outline" className={`text-xs shrink-0 ${STATUS_COLORS[c.contractStatus] ?? ""}`}>
@@ -112,7 +112,7 @@ export default function Forwards() {
                       </div>
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      Seller: {c.sellerName ?? "—"}{c.buyerName ? ` · Buyer: ${c.buyerName}` : " · Awaiting co-signer"}
+                      Seller: {c.sellerName ?? "-"}{c.buyerName ? ` · Buyer: ${c.buyerName}` : " · Awaiting co-signer"}
                     </div>
                   </CardContent>
                 </Card>

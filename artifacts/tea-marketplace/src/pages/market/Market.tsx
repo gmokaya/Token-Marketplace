@@ -8,7 +8,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "wouter";
 import { Filter, Search, Warehouse } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
-
 export default function Market() {
   const [grade, setGrade] = useState("");
   const [origin, setOrigin] = useState("");
@@ -110,7 +109,7 @@ export default function Market() {
                       <div className="font-mono">{lot.netWeightKg} kg</div>
                     </div>
 
-                    {/* Warehouse — always shown if available */}
+                    {/* Warehouse, always shown if available */}
                     {warehouseCode && (
                       <div className="col-span-2">
                         <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1 flex items-center gap-1">

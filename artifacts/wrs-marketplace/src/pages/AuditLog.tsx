@@ -65,7 +65,7 @@ export default function AuditLog() {
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Audit Log</h1>
-            <p className="text-muted-foreground mt-1">Compliance trail — every state change with an immutable SHA-256 hash</p>
+            <p className="text-muted-foreground mt-1">Compliance trail: every state change with an immutable SHA-256 hash</p>
           </div>
           <div className="flex items-center gap-2 p-2 bg-muted/40 rounded-lg text-xs text-muted-foreground">
             <ShieldCheck className="w-4 h-4 text-primary" />

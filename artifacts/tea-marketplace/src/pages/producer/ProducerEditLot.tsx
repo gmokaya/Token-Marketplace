@@ -113,7 +113,7 @@ export default function ProducerEditLot() {
     <div className="max-w-4xl mx-auto space-y-8">
       <PageHeader
         title="Edit Direct Listing"
-        description={`Lot #${lot.id} · ${lot.grade} — ${lot.gradeMark}`}
+        description={`Lot #${lot.id} · ${lot.grade} - ${lot.gradeMark}`}
       />
 
       {!canEdit && (

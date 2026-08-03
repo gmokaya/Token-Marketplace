@@ -140,23 +140,23 @@ export default function AuctionDetail() {
         if (antiSnipeTriggered) {
           toast({
             title: "⚡ Anti-snipe triggered",
-            description: "A bid was placed in the final 3 minutes — auction extended by 3 minutes.",
+            description: "A bid was placed in the final 3 minutes. Auction extended by 3 minutes.",
           });
         }
       } catch {
-        // malformed event — ignore
+        // malformed event: ignore
       }
     });
 
     es.addEventListener("closed", () => {
-      // Auction just closed — refresh from server to get the final state
+      // Auction just closed. Refresh from server to get the final state
       refetchDetail();
       refetchBids();
       setLiveConnected(false);
     });
 
     es.addEventListener("ping", () => {
-      // keepalive — no action needed
+      // keepalive: no action needed
     });
 
     es.onerror = () => {
@@ -398,7 +398,7 @@ export default function AuctionDetail() {
                 <Card className="border-blue-300">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-blue-700 text-sm">
-                      <Banknote className="w-4 h-4" />You Won — Settle Now
+                      <Banknote className="w-4 h-4" />You Won: Settle Now
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">

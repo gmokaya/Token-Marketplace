@@ -59,7 +59,7 @@ export default function SignInPage() {
       {/* Subtle top-to-bottom darkening */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/40" />
 
-      {/* Logo — top left */}
+      {/* Logo, top left */}
       <div className="absolute top-8 left-8 md:left-12 z-20">
         <Link href="/">
           <img
@@ -70,7 +70,7 @@ export default function SignInPage() {
         </Link>
       </div>
 
-      {/* Form panel — right-side float */}
+      {/* Form panel, right-side float */}
       <div className="relative z-10 w-full max-w-[440px] mr-8 md:mr-20 xl:mr-28">
         <div className="bg-white/97 backdrop-blur-md shadow-2xl p-10">
           {/* Heading */}
@@ -104,7 +104,7 @@ export default function SignInPage() {
         </div>
       </div>
 
-      {/* Back link — bottom center */}
+      {/* Back link, bottom center */}
       <div className="absolute bottom-7 left-0 right-0 text-center z-20">
         <a
           href={basePath || "/"}

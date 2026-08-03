@@ -117,12 +117,12 @@ function ClerkProviderWithRoutes() {
         <AutoLogout />
         <TooltipProvider>
           <Switch>
-            {/* ── Full-screen pages — no Layout wrapper ── */}
+            {/* Full-screen pages, no Layout wrapper */}
             <Route path="/" component={Home} />
             <Route path="/sign-in/*?" component={SignInPage} />
             <Route path="/sign-up/*?" component={SignUpPage} />
 
-            {/* ── App pages — wrapped in Layout ── */}
+            {/* App pages, wrapped in Layout */}
             <Route>
               <Layout>
                 <Switch>

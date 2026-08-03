@@ -50,9 +50,9 @@ export default function SettlementDetail() {
     try {
       await disburse({ settlementId: id, data: { leg } });
       const labels: Record<string, string> = {
-        bank: "SETTLE-P3 complete — bank repayment confirmed",
-        platform: "SETTLE-P4 complete — platform fee routed",
-        producer: "SETTLE-P5 complete — producer payout dispatched",
+        bank: "SETTLE-P3 complete: bank repayment confirmed",
+        platform: "SETTLE-P4 complete: platform fee routed",
+        producer: "SETTLE-P5 complete: producer payout dispatched",
       };
       toast({ title: labels[leg], description: "Payout leg confirmed." });
       refetch();
@@ -120,7 +120,7 @@ export default function SettlementDetail() {
       label: `Bank Liquidation Return (R_bank)`,
       description: rBank > 0
         ? `Bank routes R_bank = $${rBank.toLocaleString(undefined, { maximumFractionDigits: 2 })} to internal loan ledger. Principal + yield cleared. Lien Release: TRIGGERED.`
-        : "No active loan — bank leg not applicable (N_A).",
+        : "No active loan. Bank leg not applicable (N_A).",
       done: bankDone,
       na: bankStatus === "N_A",
       locked: false,
@@ -302,7 +302,7 @@ export default function SettlementDetail() {
             <CardContent className="p-4 flex items-center gap-3">
               <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0" />
               <div>
-                <p className="font-semibold text-green-800">Settlement Complete — SETTLE-P6 Executed</p>
+                <p className="font-semibold text-green-800">Settlement Complete: SETTLE-P6 Executed</p>
                 <p className="text-xs text-green-700">
                   All payout legs disbursed and eWRS-CR title transfer confirmed on{" "}
                   {new Date(settlement.completedAt!).toLocaleString()}

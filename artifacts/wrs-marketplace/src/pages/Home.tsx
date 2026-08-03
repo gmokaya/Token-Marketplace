@@ -34,19 +34,19 @@ const DEF_SERVICES: HpService[] = [
     icon: "icon-tax.png",
     title: "Direct Trade",
     sub: "For Buyers & Producers",
-    desc: "Finding reliable suppliers and negotiating fair prices across borders shouldn't take months of guesswork. Connect directly with verified producers, compare offers transparently, and close deals with confidence — backed by digital contracts and full origin traceability.",
+    desc: "Finding reliable suppliers and negotiating fair prices across borders shouldn't take months of guesswork. Connect directly with verified producers, compare offers transparently, and close deals with confidence, backed by digital contracts and full origin traceability.",
   },
   {
     icon: "icon-money-1.png",
     title: "Trade Execution",
     sub: "For Buyers",
-    desc: "Once a deal is done, moving goods across borders becomes a maze of freight, customs, documentation, and insurance. We handle every step so you receive what you paid for — where and when you need it — without ever having to manage the logistics yourself.",
+    desc: "Once a deal is done, moving goods across borders becomes a maze of freight, customs, documentation, and insurance. We handle every step so you receive what you paid for, where and when you need it, without ever having to manage the logistics yourself.",
   },
   {
     icon: "icon-financial-1.png",
     title: "Trade Finance",
     sub: "For Buyers & Suppliers",
-    desc: "Capital tied up in inventory or slow payments shouldn't stop a deal from happening. Access working capital against your purchase orders, invoices, or warehouse receipts — and trade at the scale the market demands, not the scale your cash flow allows.",
+    desc: "Capital tied up in inventory or slow payments shouldn't stop a deal from happening. Access working capital against your purchase orders, invoices, or warehouse receipts, and trade at the scale the market demands, not the scale your cash flow allows.",
   },
 ];
 
@@ -70,13 +70,13 @@ function normalizeServices(value: unknown): HpService[] | undefined {
 const DEF_ABOUT: HpAbout = {
   badge: "The Platform",
   heading: "End-to-End Digital\nTrade Infrastructure",
-  body: "TokenHarvest is built for the full lifecycle of international commodity trade — not just the transaction. Every stage of the journey, from finding the right supplier to understanding your portfolio performance, is connected on a single platform.",
+  body: "TokenHarvest is built for the full lifecycle of international commodity trade, not just the transaction. Every stage of the journey, from finding the right supplier to understanding your portfolio performance, is connected on a single platform.",
   bullets: [
-    "Source — discover and qualify verified suppliers across East Africa's commodity markets",
-    "Trade — negotiate, contract, and transact on terms you can trust",
-    "Finance — unlock working capital at every stage, without waiting on the banks",
-    "Fulfil — goods move from warehouse to destination without you managing the logistics",
-    "Insights — live market data and analytics so every decision is an informed one",
+    "Source: discover and qualify verified suppliers across East Africa's commodity markets",
+    "Trade: negotiate, contract, and transact on terms you can trust",
+    "Finance: unlock working capital at every stage, without waiting on the banks",
+    "Fulfil: goods move from warehouse to destination without you managing the logistics",
+    "Insights: live market data and analytics so every decision is an informed one",
   ],
 };
 const DEF_STEPS: HpStep[] = [
@@ -175,7 +175,7 @@ function MarketCard({ num, name, grade, desc, photo, link }: MarketCardData) {
 
       {/* bottom block */}
       <div>
-        {/* description + link — only on hover */}
+        {/* description + link, only on hover */}
         <div style={{
           overflow: "hidden",
           maxHeight: hover ? 140 : 0,
@@ -400,7 +400,7 @@ function PartnersSection() {
   return (
     <section style={{ background: "#fff", borderTop: "1px solid #f0f0f0", padding: "96px 32px" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-        {/* Header — corzo style */}
+        {/* Header, corzo style */}
         <div style={{ textAlign: "center", marginBottom: 64 }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
             <div style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT }} />
@@ -459,7 +459,7 @@ function ContactModal({ open, onClose }: { open: boolean; onClose: () => void })
       setStatus("done");
     } catch {
       setStatus("idle");
-      alert("Something went wrong — please try again.");
+      alert("Something went wrong. Please try again.");
     }
   };
 
@@ -677,7 +677,7 @@ export default function Home() {
           <section style={{ position: "relative", height: "100vh", minHeight: 600, display: "flex", alignItems: "center" }}>
             {/* left charcoal panel */}
             <div style={{ position: "absolute", inset: 0, right: "48%", background: "#161616", zIndex: 1 }} />
-            {/* right panel — East African farmer photo */}
+            {/* right panel, East African farmer photo */}
             <div style={{
               position: "absolute", inset: 0, left: "52%", zIndex: 1,
               backgroundImage: `url(${photo("hero-soybean-farmer.jpg")})`,
@@ -867,7 +867,7 @@ export default function Home() {
           {/* ══ AVAILABLE MARKETS ────────────────────────────────── */}
           <section style={{ background: "#fff" }}>
 
-            {/* Section header — centred, constrained */}
+            {/* Section header, centred and constrained */}
             <div style={{ textAlign: "center", padding: "96px 32px 64px", maxWidth: 1200, margin: "0 auto" }}>
               <div style={{ display: "inline-flex", alignItems: "center", gap: 9, marginBottom: 14 }}>
                 <div style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT }} />

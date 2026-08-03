@@ -103,7 +103,7 @@ export default function NewTeaLot() {
     query: { enabled: !!selectedWarehouseCode, queryKey: getGetWarehouseProfileByCodeQueryKey(selectedWarehouseCode ?? "") },
   });
 
-  // Auto-fill from selected eWR — eWR is the source of truth for weight & grade
+  // Auto-fill from selected eWR. eWR is the source of truth for weight & grade
   useEffect(() => {
     if (!selectedEwr) return;
     const weightKg = parseFloat(selectedEwr.weightMt) * 1000;
@@ -197,12 +197,12 @@ export default function NewTeaLot() {
               </FormItem>
             )} />
 
-            {/* eWR detail card — shown once an eWR is selected */}
+            {/* eWR detail card, shown once an eWR is selected */}
             {selectedEwr && (
               <div className="col-span-1 md:col-span-2 bg-primary/5 border border-primary/20 p-4 text-sm grid grid-cols-2 md:grid-cols-4 gap-3">
                 <div>
                   <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Producer</p>
-                  <p className="font-semibold mt-0.5">{selectedEwr.ownerName ?? "—"}</p>
+                  <p className="font-semibold mt-0.5">{selectedEwr.ownerName ?? "-"}</p>
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Weight</p>
@@ -210,15 +210,15 @@ export default function NewTeaLot() {
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Processing</p>
-                  <p className="font-semibold mt-0.5">{selectedEwr.teaProcessingType ?? "—"}</p>
+                  <p className="font-semibold mt-0.5">{selectedEwr.teaProcessingType ?? "-"}</p>
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Leaf Grade</p>
-                  <p className="font-semibold mt-0.5">{selectedEwr.teaLeafGrade ?? "—"}</p>
+                  <p className="font-semibold mt-0.5">{selectedEwr.teaLeafGrade ?? "-"}</p>
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Invoice Serial</p>
-                  <p className="font-semibold mt-0.5">{selectedEwr.teaInvoiceSerial ?? "—"}</p>
+                  <p className="font-semibold mt-0.5">{selectedEwr.teaInvoiceSerial ?? "-"}</p>
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Harvest Season</p>

@@ -127,12 +127,12 @@ export default function CoopInventory() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">e-WR Inventory</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Manage your cooperative's electronic warehouse receipts — split, transfer, retire, or list on the market.
+            Manage your cooperative's electronic warehouse receipts. Split, transfer, retire, or list on the market.
           </p>
         </div>
 
         <div className="p-3 rounded-lg border border-blue-200 bg-blue-50 text-blue-800 text-xs">
-          All spot listings and auction lots from this cooperative are automatically anonymised — buyers see only commodity type, grade, moisture %, tonnage, and warehouse zone prefix.
+          All spot listings and auction lots from this cooperative are automatically anonymised. Buyers see only commodity type, grade, moisture %, tonnage, and warehouse zone prefix.
         </div>
 
         {isLoading ? (
@@ -158,7 +158,7 @@ export default function CoopInventory() {
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         <Badge className={`text-xs ${STATE_COLORS[ewr.state] ?? ""}`}>{ewr.state}</Badge>
-                        <span className="font-semibold">{ewr.commodityType} — {ewr.grade}</span>
+                        <span className="font-semibold">{ewr.commodityType} - {ewr.grade}</span>
                         <code className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">{ewr.ewrsReceiptId}</code>
                       </div>
                       <p className="text-sm text-muted-foreground">
@@ -271,7 +271,7 @@ export default function CoopInventory() {
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>List on Marketplace</DialogTitle>
-            <DialogDescription>Listing will be anonymised — no cooperative name or full warehouse code visible to buyers.</DialogDescription>
+            <DialogDescription>Listing will be anonymised. No cooperative name or full warehouse code visible to buyers.</DialogDescription>
           </DialogHeader>
           <div className="space-y-1.5 py-2">
             <Label>Price per MT (USD) *</Label>

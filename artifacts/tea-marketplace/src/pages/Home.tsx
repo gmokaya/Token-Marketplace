@@ -14,11 +14,11 @@ export default function Home() {
   const { isSignedIn } = useAuth();
   const { signOut } = useClerk();
 
-  /* ── Full-screen hero — visible to all visitors ── */
+  /* Full-screen hero, visible to all visitors */
   return (
     <div className="relative w-screen h-screen overflow-hidden flex flex-col select-none">
 
-      {/* Background — landscape tea plantation */}
+      {/* Background: landscape tea plantation */}
       <img
         src={`${basePath}/photos/tea-plantation.jpg`}
         alt=""
@@ -59,7 +59,7 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* ── Hero copy — bottom-left anchored ── */}
+      {/* Hero copy, bottom-left anchored */}
       <div className="relative z-10 flex-1 flex flex-col justify-end px-8 md:px-14 pb-8">
         <div className="inline-flex items-center gap-2 bg-white/10 text-white/75 text-xs font-medium px-3 py-1.5 rounded-full mb-4 w-fit backdrop-blur-sm border border-white/15">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -90,7 +90,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ── Stats bar — bottom ── */}
+    {/* Stats bar, bottom */}
       <div className="relative z-10 flex items-center gap-12 md:gap-20 px-8 md:px-14 pb-6 pt-4 border-t border-white/10">
         {stats.map((s) => (
           <div key={s.label}>

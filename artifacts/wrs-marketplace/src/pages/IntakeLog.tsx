@@ -136,7 +136,7 @@ export default function IntakeLogPage() {
                           <Badge className={`text-xs ${COMMODITY_COLORS[log.commodityType] ?? ""}`}>{log.commodityType}</Badge>
                         </td>
                         <td className="py-2.5 pr-4 font-bold">{parseFloat(String(log.weightMt)).toFixed(2)}</td>
-                        <td className="py-2.5 pr-4 text-muted-foreground">{log.moisturePct ? `${parseFloat(String(log.moisturePct)).toFixed(1)}%` : "—"}</td>
+                        <td className="py-2.5 pr-4 text-muted-foreground">{log.moisturePct ? `${parseFloat(String(log.moisturePct)).toFixed(1)}%` : "-"}</td>
                         <td className="py-2.5 pr-4">{log.grade}</td>
                         <td className="py-2.5 text-muted-foreground text-xs">{new Date(log.intakeAt).toLocaleDateString()}</td>
                       </tr>
@@ -163,7 +163,7 @@ export default function IntakeLogPage() {
                   {(members ?? []).map(m => (
                     <SelectItem key={m.memberRef} value={m.memberRef}>
                       <code className="text-xs">{m.memberRef}</code>
-                      {m.farmLocation && <span className="text-muted-foreground ml-1 text-xs">— {m.farmLocation}</span>}
+                      {m.farmLocation && <span className="text-muted-foreground ml-1 text-xs">- {m.farmLocation}</span>}
                     </SelectItem>
                   ))}
                 </SelectContent>

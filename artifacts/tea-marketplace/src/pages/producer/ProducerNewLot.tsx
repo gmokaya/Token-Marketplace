@@ -125,7 +125,7 @@ export default function ProducerNewLot() {
     <div className="max-w-4xl mx-auto space-y-8">
       <PageHeader
         title="List Tea Direct"
-        description="Create a listing from your own eWR — no broker mandate required."
+        description="Create a listing from your own eWR. No broker mandate required."
       />
 
       {teaEwrs.length === 0 && (
@@ -162,7 +162,7 @@ export default function ProducerNewLot() {
                   <SelectContent className="rounded-none">
                     {teaEwrs.map((e: any) => (
                       <SelectItem key={e.id} value={String(e.id)}>
-                        {e.ewrsReceiptId} — {e.grade} · {parseFloat(e.weightMt).toFixed(3)} MT · {e.warehouseCode}
+                        {e.ewrsReceiptId} - {e.grade} · {parseFloat(e.weightMt).toFixed(3)} MT · {e.warehouseCode}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -171,7 +171,7 @@ export default function ProducerNewLot() {
               </FormItem>
             )} />
 
-            {/* eWR detail card — shown once an eWR is selected */}
+            {/* eWR detail card, shown once an eWR is selected */}
             {selectedEwr && (
               <div className="col-span-1 md:col-span-2 bg-primary/5 border border-primary/20 p-4 text-sm grid grid-cols-2 md:grid-cols-4 gap-3">
                 <div>
@@ -180,15 +180,15 @@ export default function ProducerNewLot() {
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Harvest Season</p>
-                  <p className="font-semibold mt-0.5">{selectedEwr.harvestSeason ?? "—"}</p>
+                  <p className="font-semibold mt-0.5">{selectedEwr.harvestSeason ?? "-"}</p>
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Processing</p>
-                  <p className="font-semibold mt-0.5">{selectedEwr.teaProcessingType ?? "—"}</p>
+                  <p className="font-semibold mt-0.5">{selectedEwr.teaProcessingType ?? "-"}</p>
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Leaf Grade</p>
-                  <p className="font-semibold mt-0.5">{selectedEwr.teaLeafGrade ?? "—"}</p>
+                  <p className="font-semibold mt-0.5">{selectedEwr.teaLeafGrade ?? "-"}</p>
                 </div>
                 <div className="col-span-2 md:col-span-2">
                   <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Warehouse</p>

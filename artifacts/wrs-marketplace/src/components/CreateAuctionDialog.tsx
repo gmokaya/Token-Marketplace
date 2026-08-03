@@ -78,7 +78,7 @@ export function CreateAuctionDialog() {
               <option value="">Select an eWR…</option>
               {ingestedEwrs.map(ewr => (
                 <option key={ewr.id} value={ewr.id}>
-                  {ewr.ewrsReceiptId} — {ewr.commodityType} {ewr.grade} {ewr.weightMt}MT @ {ewr.warehouseCode}
+                  {ewr.ewrsReceiptId} - {ewr.commodityType} {ewr.grade} {ewr.weightMt}MT @ {ewr.warehouseCode}
                 </option>
               ))}
             </select>

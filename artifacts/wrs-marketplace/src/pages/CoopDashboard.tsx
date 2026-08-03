@@ -83,7 +83,7 @@ export default function CoopDashboard() {
                 (intakeLogs ?? []).slice(-5).reverse().map(log => (
                   <div key={log.id} className="flex items-center justify-between py-1.5 border-b border-border/50 last:border-0">
                     <div>
-                      <p className="text-sm font-medium">{log.commodityType} — {log.grade}</p>
+                      <p className="text-sm font-medium">{log.commodityType} - {log.grade}</p>
                       <p className="text-xs text-muted-foreground">{log.memberRef}</p>
                     </div>
                     <Badge variant="outline" className="text-xs">{parseFloat(String(log.weightMt)).toFixed(1)} MT</Badge>
@@ -119,7 +119,7 @@ export default function CoopDashboard() {
                 (ewrs ?? []).slice(0, 5).map(ewr => (
                   <div key={ewr.id} className="flex items-center justify-between py-1.5 border-b border-border/50 last:border-0">
                     <div>
-                      <p className="text-sm font-medium">{ewr.commodityType} — {ewr.grade}</p>
+                      <p className="text-sm font-medium">{ewr.commodityType} - {ewr.grade}</p>
                       <p className="text-xs text-muted-foreground">{ewr.warehouseCode}</p>
                     </div>
                     <div className="text-right">

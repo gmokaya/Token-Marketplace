@@ -136,7 +136,7 @@ function Step1({
             <SelectContent>
               {producers.map(p => (
                 <SelectItem key={p.clerkId} value={p.clerkId}>
-                  {p.name}{p.company ? ` — ${p.company}` : ""}
+                  {p.name}{p.company ? ` - ${p.company}` : ""}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -444,7 +444,7 @@ function Step3({ form, onBack, onSuccess }: {
         <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-sm text-destructive">
           {(mutation.error as any)?.violations
             ? (mutation.error as any).violations.join(" · ")
-            : (mutation.error as any)?.error ?? "Submission failed — please check your values."}
+            : (mutation.error as any)?.error ?? "Submission failed. Please check your values."}
         </div>
       )}
 

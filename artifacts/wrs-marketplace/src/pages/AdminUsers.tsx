@@ -183,7 +183,7 @@ export default function AdminUsers() {
                         <div className="font-medium">{u.name}</div>
                         <div className="text-xs text-muted-foreground">{u.email}</div>
                       </td>
-                      <td className="px-4 py-3 text-muted-foreground">{u.company ?? "—"}</td>
+                      <td className="px-4 py-3 text-muted-foreground">{u.company ?? "-"}</td>
 
                       {/* role cell */}
                       <td className="px-4 py-3">

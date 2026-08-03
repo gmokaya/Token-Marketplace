@@ -70,10 +70,10 @@ export default function ProducerDashboard() {
       {/* Summary cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Available eWRs", value: ewrsLoading ? "—" : teaEwrs.length, sub: "TEA · INGESTED" },
-          { label: "Active Lots",    value: lotsLoading ? "—" : activeLots.length, sub: "In catalogue or live" },
-          { label: "Sold",           value: lotsLoading ? "—" : soldLots.length, sub: "All time" },
-          { label: "Total Lots",     value: lotsLoading ? "—" : lots.length, sub: "All statuses" },
+          { label: "Available eWRs", value: ewrsLoading ? "-" : teaEwrs.length, sub: "TEA · INGESTED" },
+          { label: "Active Lots",    value: lotsLoading ? "-" : activeLots.length, sub: "In catalogue or live" },
+          { label: "Sold",           value: lotsLoading ? "-" : soldLots.length, sub: "All time" },
+          { label: "Total Lots",     value: lotsLoading ? "-" : lots.length, sub: "All statuses" },
         ].map((c) => (
           <div key={c.label} className="bg-card border border-border p-5">
             <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{c.label}</p>
@@ -148,7 +148,7 @@ export default function ProducerDashboard() {
               >
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold text-sm truncate">
-                    {lot.grade} — {lot.gradeMark}
+                    {lot.grade} - {lot.gradeMark}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {parseFloat(lot.netWeightKg).toFixed(1)} kg net · {lot.giOrigin} · {lot.listingType}

@@ -140,8 +140,8 @@ export default function Mandates() {
         title="Broker Mandates"
         description={
           isBroker
-            ? "Mandates granted to you by producers — these authorise you to catalogue their eWRs."
-            : "Mandates you have granted to brokers — brokers can only list your eWRs once you grant one."
+            ? "Mandates granted to you by producers. These authorise you to catalogue their eWRs."
+            : "Mandates you have granted to brokers. Brokers can only list your eWRs once you grant one."
         }
         actions={
           isProducer && (

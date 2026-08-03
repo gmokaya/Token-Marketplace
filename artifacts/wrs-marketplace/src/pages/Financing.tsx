@@ -148,7 +148,7 @@ export default function Financing() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Financing</h1>
-            <p className="text-muted-foreground mt-1">Inventory receipt discounting — advance up to 60% of eWR value</p>
+            <p className="text-muted-foreground mt-1">Inventory receipt discounting: advance up to 60% of eWR value</p>
           </div>
           {isProducer && <RequestAdvanceDialog onSuccess={() => setRefetchKey(k => k + 1)} />}
         </div>
@@ -243,7 +243,7 @@ export default function Financing() {
           {isFinancier && (
             <TabsContent value="creditrisk" className="mt-4 space-y-3">
               <p className="text-sm text-muted-foreground">
-                Unencumbered eWRs eligible for financing — credit risk view for underwriting decisions.
+                Unencumbered eWRs eligible for financing: credit risk view for underwriting decisions.
               </p>
               {eligibleLoading && Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-20" />)}
               {!eligibleLoading && !eligibleEwrs?.length && (

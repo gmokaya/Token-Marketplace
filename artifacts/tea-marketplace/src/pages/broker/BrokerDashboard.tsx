@@ -45,7 +45,7 @@ export default function BrokerDashboard() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  // Server-side filtered by brokerId — no client-side re-filter needed
+  // Server-side filtered by brokerId. No client-side re-filter needed
   const { data: lots = [], isLoading, isError } = useListTeaLots(
     { brokerId: user?.id },
     { query: { enabled: !!user?.id, queryKey: getListTeaLotsQueryKey({ brokerId: user?.id }) } }
@@ -136,7 +136,7 @@ export default function BrokerDashboard() {
         ))}
       </div>
 
-      {/* Lots table — tabbed by status */}
+      {/* Lots table, tabbed by status */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="w-full justify-start rounded-none border-b border-border bg-transparent h-auto p-0 gap-0 overflow-x-auto">
           {ALL_STATUSES.map((status) => (
@@ -177,7 +177,7 @@ export default function BrokerDashboard() {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-semibold text-sm">{lot.grade}</span>
-                        <span className="text-muted-foreground text-sm">— {lot.gradeMark}</span>
+                        <span className="text-muted-foreground text-sm">- {lot.gradeMark}</span>
                         <Badge
                           variant="outline"
                           className={`rounded-none text-[10px] uppercase tracking-wider ${STATUS_BADGE[lot.status] ?? ""}`}

@@ -78,7 +78,7 @@ export default function SignInPage() {
               <span className="text-emerald-300">with confidence.</span>
             </h1>
             <p className="mt-4 text-white/60 text-sm leading-relaxed">
-              Digital eWR tokenisation, compliance-grade KYB, real-time auctions and forward contract settlement — all in one platform.
+              Digital eWR tokenisation, compliance-grade KYB, real-time auctions and forward contract settlement, all in one platform.
             </p>
           </div>
 
@@ -100,7 +100,7 @@ export default function SignInPage() {
 
       {/* ── Right form panel ── */}
       <div className="flex-1 flex flex-col bg-white">
-        {/* Top bar — mobile logo */}
+        {/* Top bar, mobile logo */}
         <div className="flex items-center justify-between px-6 py-5 lg:hidden border-b border-gray-100">
           <Link href="/">
             <img src={`${basePath}/logo-dark.png`} alt="TokenHarvest" className="h-7 w-auto cursor-pointer" />

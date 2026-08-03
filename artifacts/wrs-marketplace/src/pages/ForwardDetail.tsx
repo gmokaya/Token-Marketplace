@@ -192,7 +192,7 @@ export default function ForwardDetail() {
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Parties</h3>
                 <div className="flex justify-between items-center p-2 rounded border">
                   <span className="text-sm text-muted-foreground">Seller</span>
-                  <span className="font-medium text-sm">{contract.sellerName ?? "—"}</span>
+                  <span className="font-medium text-sm">{contract.sellerName ?? "-"}</span>
                 </div>
                 <div className="flex justify-between items-center p-2 rounded border">
                   <span className="text-sm text-muted-foreground">Buyer</span>
@@ -243,7 +243,7 @@ export default function ForwardDetail() {
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 shrink-0" />
                   <div>
-                    <p className="font-semibold text-sm text-green-800">Contract has reached maturity — mark as completed</p>
+                    <p className="font-semibold text-sm text-green-800">Contract has reached maturity. Mark as completed.</p>
                     <p className="text-xs text-green-700 mt-1">
                       Both performance bonds (
                       <strong>${parseFloat(String(contract.performanceBondUsd)).toFixed(2)}</strong> each) will be released.
@@ -298,7 +298,7 @@ export default function ForwardDetail() {
                 <div className="flex items-start gap-2">
                   <Banknote className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
                   <div>
-                    <p className="font-semibold text-sm text-blue-800">Contract completed — initiate settlement</p>
+                    <p className="font-semibold text-sm text-blue-800">Contract completed. Initiate settlement.</p>
                     <p className="text-xs text-blue-700 mt-1">
                       Disburse the delivery price of{" "}
                       <strong>${parseFloat(String(contract.deliveryPriceUsd)).toLocaleString()}</strong> through the split-settlement engine.

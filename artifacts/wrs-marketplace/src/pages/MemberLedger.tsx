@@ -82,7 +82,7 @@ export default function MemberLedger() {
           <CardHeader className="pb-2 flex flex-row items-center gap-2">
             <Lock className="w-4 h-4" style={{ color: ACCENT }} />
             <CardTitle className="text-base">
-              {(members ?? []).length} Members — Identities Privacy-Hashed
+              {(members ?? []).length} Members: Identities Privacy-Hashed
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -115,11 +115,11 @@ export default function MemberLedger() {
                             <code className="text-xs bg-muted px-1.5 py-0.5 rounded font-mono">{m.memberRef}</code>
                           </div>
                         </td>
-                        <td className="py-2.5 pr-4 text-muted-foreground">{m.farmLocation ?? "—"}</td>
+                        <td className="py-2.5 pr-4 text-muted-foreground">{m.farmLocation ?? "-"}</td>
                         <td className="py-2.5 pr-4">
-                          {m.gender ? <Badge variant="outline" className="text-xs">{m.gender}</Badge> : "—"}
+                          {m.gender ? <Badge variant="outline" className="text-xs">{m.gender}</Badge> : "-"}
                         </td>
-                        <td className="py-2.5 pr-4">{m.acreageMt ? `${parseFloat(String(m.acreageMt)).toFixed(2)}` : "—"}</td>
+                        <td className="py-2.5 pr-4">{m.acreageMt ? `${parseFloat(String(m.acreageMt)).toFixed(2)}` : "-"}</td>
                         <td className="py-2.5 text-muted-foreground text-xs">{new Date(m.createdAt).toLocaleDateString()}</td>
                       </tr>
                     ))}

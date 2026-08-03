@@ -129,7 +129,7 @@ export default function Auctions() {
         };
         patchBidInCache(payload.auctionId, payload.bid.amountUsd);
       } catch {
-        // malformed event — ignore
+        // malformed event: ignore
       }
     });
 
@@ -138,12 +138,12 @@ export default function Auctions() {
         const payload = JSON.parse(e.data) as { auctionId: number };
         patchClosedInCache(payload.auctionId);
       } catch {
-        // malformed event — ignore
+        // malformed event: ignore
       }
     });
 
     es.addEventListener("ping", () => {
-      // keepalive — no action
+      // keepalive: no action
     });
 
     es.onerror = () => {
@@ -222,7 +222,7 @@ export default function Auctions() {
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <CardTitle className="text-sm font-bold">{auction.commodityType ?? "—"} · {auction.grade ?? "—"}</CardTitle>
+                        <CardTitle className="text-sm font-bold">{auction.commodityType ?? "-"} · {auction.grade ?? "-"}</CardTitle>
                         <p className="text-xs text-muted-foreground mt-0.5">{auction.warehouseCode} · {auction.weightMt} MT</p>
                       </div>
                       <Badge variant="outline" className={`text-xs shrink-0 ${STATUS_COLORS[auction.status] ?? ""}`}>

@@ -100,7 +100,7 @@ export default function EditTeaLot() {
         title="Edit Tea Lot"
         description={
           <>
-            Lot #{lot.id} — Status: <span className="font-semibold text-foreground uppercase">{lot.status}</span>
+            Lot #{lot.id} - Status: <span className="font-semibold text-foreground uppercase">{lot.status}</span>
           </>
         }
       />
