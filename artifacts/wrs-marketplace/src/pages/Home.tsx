@@ -797,7 +797,7 @@ export default function Home() {
           <section id="about" style={{ background: "#e8e8e8", padding: "104px 0 112px" }}>
             <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "stretch" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <img src={photo("about-planting.jpg")} alt="East African farmer planting in the field" style={{ width: "94%", display: "block", objectFit: "cover", aspectRatio: "4 / 3", maxHeight: 430, boxShadow: "0 8px 20px rgba(0,0,0,0.35), 0 24px 60px rgba(0,0,0,0.25), 0 48px 100px rgba(0,0,0,0.15)" }} />
+                <img src={photo("about-planting.jpg")} alt="East African farmer planting in the field" style={{ width: "94%", display: "block", objectFit: "cover", aspectRatio: "4 / 3", maxHeight: 460, boxShadow: "0 8px 20px rgba(0,0,0,0.35), 0 24px 60px rgba(0,0,0,0.25), 0 48px 100px rgba(0,0,0,0.15)" }} />
               </div>
               <div style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 14 }}>
