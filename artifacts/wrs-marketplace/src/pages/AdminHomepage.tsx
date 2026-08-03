@@ -54,19 +54,19 @@ const DEFAULT_SERVICES: ServiceCard[] = [
     icon: "icon-tax.png",
     title: "Direct Trade",
     sub: "For Buyers & Producers",
-    desc: "Connect directly with verified producers and exporters across specialty and commodity markets. AI-powered supplier matching, digital contracts, and transparent price discovery make cross-border sourcing simple and trusted.",
+    desc: "Finding reliable suppliers and negotiating fair prices across borders shouldn't take months of guesswork. Connect directly with verified producers, compare offers transparently, and close deals with confidence — backed by digital contracts and full origin traceability.",
   },
   {
     icon: "icon-money-1.png",
     title: "Trade Execution",
-    sub: "For Shippers & Exporters",
-    desc: "End-to-end logistics from loading to final delivery. Freight coordination, customs and export documentation, warehouse receipts, cargo insurance, and live shipment tracking — every operational step in one place.",
+    sub: "For Buyers",
+    desc: "Once a deal is done, moving goods across borders becomes a maze of freight, customs, documentation, and insurance. We handle every step so you receive what you paid for — where and when you need it — without ever having to manage the logistics yourself.",
   },
   {
     icon: "icon-financial-1.png",
     title: "Trade Finance",
-    sub: "For Financiers",
-    desc: "Unlock capital at every stage of the trade lifecycle. From purchase order and invoice finance to warehouse receipt lending, integrated banking connections keep goods and capital moving without delay.",
+    sub: "For Buyers & Suppliers",
+    desc: "Capital tied up in inventory or slow payments shouldn't stop a deal from happening. Access working capital against your purchase orders, invoices, or warehouse receipts — and trade at the scale the market demands, not the scale your cash flow allows.",
   },
 ];
 
