@@ -68,18 +68,6 @@ const DEFAULT_SERVICES: ServiceCard[] = [
     sub: "For Buyers & Suppliers",
     desc: "Capital tied up in inventory or slow payments shouldn't stop a deal from happening. Access working capital against your purchase orders, invoices, or warehouse receipts, and trade at the scale the market demands, not the scale your cash flow allows.",
   },
-  {
-    icon: "icon-img.png",
-    title: "Fulfil",
-    sub: "For Buyers & Sellers",
-    desc: "Winning the trade is only half the battle — getting the goods from warehouse to destination without delays, damage, or documentation failures is where deals live or die. We manage the full physical journey, from licensed storage release through freight, customs clearance, and last-mile delivery, so your goods arrive on time without you managing the logistics.",
-  },
-  {
-    icon: "icon-financial-1.png",
-    title: "Insights",
-    sub: "For All Platform Participants",
-    desc: "Trading blind is trading at a disadvantage. Insights gives every platform participant access to live commodity price data, auction depth, portfolio performance, and settlement analytics in one unified dashboard. Whether you are a producer benchmarking offers or a financier monitoring exposure, every decision you make is backed by real data.",
-  },
 ];
 
 function normalizeServices(value: unknown): ServiceCard[] | undefined {
