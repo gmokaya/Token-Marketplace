@@ -1,9 +1,7 @@
 import { useAuth } from "@clerk/react";
 import { Link } from "wouter";
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, ChevronRight, X, Send, Globe, Truck, Landmark, type LucideIcon } from "lucide-react";
-
-const SERVICE_ICONS: Record<string, LucideIcon> = { Globe, Truck, Landmark };
+import { ArrowRight, ChevronRight, X, Send } from "lucide-react";
 import { PriceTicker } from "@/components/PriceTicker";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -33,19 +31,19 @@ const DEF_HERO: HpHero = {
 };
 const DEF_SERVICES: HpService[] = [
   {
-    icon: "Globe",
+    icon: "icon-tax.png",
     title: "Direct Trade",
     sub: "For Buyers & Producers",
     desc: "Finding reliable suppliers and negotiating fair prices across borders shouldn't take months of guesswork. Connect directly with verified producers, compare offers transparently, and close deals with confidence, backed by digital contracts and full origin traceability.",
   },
   {
-    icon: "Truck",
+    icon: "icon-money-1.png",
     title: "Trade Execution",
     sub: "For Buyers",
     desc: "Once a deal is done, moving goods across borders becomes a maze of freight, customs, documentation, and insurance. We handle every step so you receive what you paid for, where and when you need it, without ever having to manage the logistics yourself.",
   },
   {
-    icon: "Landmark",
+    icon: "icon-financial-1.png",
     title: "Trade Finance",
     sub: "For Buyers & Suppliers",
     desc: "Capital tied up in inventory or slow payments shouldn't stop a deal from happening. Access working capital against your purchase orders, invoices, or warehouse receipts, and trade at the scale the market demands, not the scale your cash flow allows.",
@@ -779,7 +777,7 @@ export default function Home() {
                     (e.currentTarget as HTMLDivElement).style.boxShadow = "inset 0 0 0 transparent";
                     (e.currentTarget as HTMLDivElement).style.zIndex = "1";
                   }}>
-                    {(() => { const Icon = SERVICE_ICONS[icon]; return Icon ? <Icon size={40} strokeWidth={1.25} color={ACCENT} style={{ marginBottom: 20 }} /> : null; })()}
+                    <img src={img(icon)} alt={title} style={{ width: 44, marginBottom: 20 }} />
                     <h3 style={{ fontSize: 24, fontWeight: 600, color: "#232323", margin: "0 0 2px", display: "flex", alignItems: "center", gap: 9 }}>
                       <span style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT, display: "inline-block", flexShrink: 0 }} />
                       {title}
