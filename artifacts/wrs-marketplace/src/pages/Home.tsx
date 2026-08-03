@@ -894,17 +894,17 @@ export default function Home() {
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
                   <div style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT }} />
-                  <span style={{ color: ACCENT, fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase" }}>Trade Finance</span>
+                  <span style={{ color: ACCENT, fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase" }}>Trade Finance &amp; Settlement</span>
                 </div>
                 <h2 style={{ fontSize: "clamp(1.8rem, 3.2vw, 40px)", fontWeight: 500, color: "#090909", margin: "0 0 16px", lineHeight: 1.15 }}>
-                  Trade Finance &amp; Liquidity
+                  Trade Finance &amp; Settlement
                 </h2>
                 <div style={{ width: 40, height: 2, background: ACCENT, marginBottom: 24 }} />
                 <p style={{ color: "#555", fontSize: 16, fontWeight: 300, lineHeight: 1.8, margin: "0 0 28px" }}>
-                  <strong style={{ fontWeight: 500, color: "#1a1a1a" }}>Capitalize on Your Stored Harvest, Instantly.</strong>
+                  <strong style={{ fontWeight: 500, color: "#1a1a1a" }}>Empower your business with seamless financing, secure payments, and efficient settlement throughout the trade lifecycle.</strong>
                 </p>
                 <p style={{ color: "#555", fontSize: 16, fontWeight: 300, lineHeight: 1.8, margin: 0 }}>
-                  Verified harvests in our certified warehouses become liquid collateral. Farmers and cooperatives unlock instant working capital for operational costs, early payouts, or next-season inputs without liquidating their stored assets.
+                  TokenHarvest streamlines the financial side of trade by connecting buyers, suppliers, financial institutions, insurers, and payment providers through a unified digital ecosystem. From securing working capital and trade finance to processing cross-border payments and final settlement, the platform helps businesses trade with greater confidence, speed, and transparency.
                 </p>
               </div>
               <div>
