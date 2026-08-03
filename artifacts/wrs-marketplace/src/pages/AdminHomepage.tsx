@@ -14,12 +14,13 @@ import {
 } from "lucide-react";
 
 const API = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 /* ── Types ─────────────────────────────────────────────── */
 
 type Partner = { id: string; name: string; short: string; logoUrl: string; website: string };
 
-type HeroContent = { badge: string; headline: string; subheadline: string; cta1: string; cta2: string };
+type HeroContent = { badge: string; headline: string; subheadline: string; cta1: string; cta2: string; images?: string[] };
 type ServiceCard = { icon: string; title: string; sub: string; desc: string };
 type AboutContent = { badge: string; heading: string; body: string; bullets: string[] };
 type HowItWorksStep = { num: string; title: string; desc: string };
@@ -47,7 +48,24 @@ const DEFAULT_HERO: HeroContent = {
   subheadline: "TokenHarvest enables businesses to trade agricultural commodities with confidence across East Africa and global markets.",
   cta1: "Join the Marketplace",
   cta2: "Our Services",
+  images: [`${BASE}/photos/hero-soybean-farmer.jpg`, `${BASE}/photos/about-planting.jpg`, `${BASE}/photos/cta-harvest.jpg`],
 };
+
+function normalizeHero(value: unknown): HeroContent {
+  const raw = value && typeof value === "object" ? value as Record<string, unknown> : {};
+  const images = Array.isArray(raw.images)
+    ? raw.images.filter((image): image is string => typeof image === "string" && image.trim().length > 0)
+    : [];
+
+  return {
+    badge: typeof raw.badge === "string" ? raw.badge : DEFAULT_HERO.badge,
+    headline: typeof raw.headline === "string" ? raw.headline : DEFAULT_HERO.headline,
+    subheadline: typeof raw.subheadline === "string" ? raw.subheadline : DEFAULT_HERO.subheadline,
+    cta1: typeof raw.cta1 === "string" ? raw.cta1 : DEFAULT_HERO.cta1,
+    cta2: typeof raw.cta2 === "string" ? raw.cta2 : DEFAULT_HERO.cta2,
+    images: images.length > 0 ? images : DEFAULT_HERO.images,
+  };
+}
 
 const DEFAULT_SERVICES: ServiceCard[] = [
   {
@@ -248,7 +266,7 @@ export default function AdminHomepage() {
     ]).then(([hpRes, ptRes]) => {
       if (hpRes.status === "fulfilled" && hpRes.value?.value) {
         const v: Partial<HomepageContent> = hpRes.value.value;
-        if (v.hero)       setHero(v.hero);
+        if (v.hero)       setHero(normalizeHero(v.hero));
         const normalizedServices = normalizeServices(v.services);
         if (normalizedServices) setServices(normalizedServices);
         if (v.about)      setAbout(v.about);
@@ -372,6 +390,8 @@ export default function AdminHomepage() {
 /* ── Hero ──────────────────────────────────────────────── */
 function HeroTab({ hero, setHero }: { hero: HeroContent; setHero: (h: HeroContent) => void }) {
   const set = (k: keyof HeroContent, v: string) => setHero({ ...hero, [k]: v });
+  const images = hero.images ?? [];
+  const setImages = (next: string[]) => setHero({ ...hero, images: next });
   return (
     <div className="grid gap-4">
       <SectionCard title="Hero Section" desc="The full-screen banner at the top of the homepage.">
@@ -382,6 +402,83 @@ function HeroTab({ hero, setHero }: { hero: HeroContent; setHero: (h: HeroConten
           <Field label="Primary CTA button" value={hero.cta1} onChange={v => set("cta1", v)} />
           <Field label="Secondary CTA button" value={hero.cta2} onChange={v => set("cta2", v)} />
         </div>
+      </SectionCard>
+      <SectionCard
+        title="Hero Image Gallery"
+        desc="Add multiple images to rotate through the hero panel. Changes publish when you click Save Homepage."
+        action={
+          <Button type="button" size="sm" variant="outline" className="gap-1.5" onClick={() => setImages([...images, ""])}>
+            <Plus className="w-3.5 h-3.5" /> Add image
+          </Button>
+        }
+      >
+        {images.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No gallery images yet. The homepage will use its built-in hero image.</p>
+        ) : (
+          <div className="space-y-3">
+            {images.map((image, index) => (
+              <div key={`${index}-${image}`} className="flex gap-3 items-start rounded border border-gray-200 p-3">
+                <div className="w-24 h-16 rounded overflow-hidden bg-gray-100 shrink-0">
+                  {image ? (
+                    <img src={image} alt={`Hero image ${index + 1}`} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="h-full flex items-center justify-center text-xs text-gray-400">No image</div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <ImageUploadField
+                    label={`Image ${index + 1}`}
+                    value={image}
+                    onChange={value => setImages(images.map((entry, itemIndex) => itemIndex === index ? value : entry))}
+                  />
+                </div>
+                <div className="flex gap-1 pt-6 shrink-0">
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="outline"
+                    className="h-8 w-8"
+                    disabled={index === 0}
+                    aria-label="Move image left"
+                    onClick={() => {
+                      const next = [...images];
+                      [next[index - 1], next[index]] = [next[index], next[index - 1]];
+                      setImages(next);
+                    }}
+                  >
+                    ←
+                  </Button>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="outline"
+                    className="h-8 w-8"
+                    disabled={index === images.length - 1}
+                    aria-label="Move image right"
+                    onClick={() => {
+                      const next = [...images];
+                      [next[index], next[index + 1]] = [next[index + 1], next[index]];
+                      setImages(next);
+                    }}
+                  >
+                    →
+                  </Button>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="outline"
+                    className="h-8 w-8 text-red-600 hover:text-red-700"
+                    aria-label="Remove image"
+                    onClick={() => setImages(images.filter((_, itemIndex) => itemIndex !== index))}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        <p className="text-xs text-muted-foreground">Images crossfade automatically every 6.5 seconds. Use landscape images for the best result.</p>
       </SectionCard>
       <PreviewCard>
         <div className="bg-[#161616] rounded p-8 text-white">

@@ -14,7 +14,7 @@ const ACCENT_LIGHT = "hsl(180 50% 42%)";    // WRS teal (on dark bg)
 const HP_API = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
 
 /* ── Homepage CMS defaults (overridden by /api/content/homepage) ── */
-type HpHero    = { badge: string; headline: string; subheadline: string; cta1: string; cta2: string };
+type HpHero    = { badge: string; headline: string; subheadline: string; cta1: string; cta2: string; images?: string[] };
 type HpService = { icon: string; title: string; sub: string; desc: string };
 type HpAbout   = { badge: string; heading: string; body: string; bullets: string[] };
 type HpStep    = { num: string; title: string; desc: string };
@@ -28,6 +28,7 @@ const DEF_HERO: HpHero = {
   subheadline: "TokenHarvest enables businesses to trade agricultural commodities with confidence across East Africa and global markets.",
   cta1: "Join the Marketplace",
   cta2: "Our Services",
+  images: [photo("hero-soybean-farmer.jpg"), photo("about-planting.jpg"), photo("cta-harvest.jpg")],
 };
 const DEF_SERVICES: HpService[] = [
   {
@@ -73,6 +74,22 @@ function normalizeServices(value: unknown): HpService[] | undefined {
   }
 
   return mapped;
+}
+
+function normalizeHero(value: unknown): HpHero {
+  const raw = value && typeof value === "object" ? value as Record<string, unknown> : {};
+  const images = Array.isArray(raw.images)
+    ? raw.images.filter((image): image is string => typeof image === "string" && image.trim().length > 0)
+    : [];
+
+  return {
+    badge: typeof raw.badge === "string" ? raw.badge : DEF_HERO.badge,
+    headline: typeof raw.headline === "string" ? raw.headline : DEF_HERO.headline,
+    subheadline: typeof raw.subheadline === "string" ? raw.subheadline : DEF_HERO.subheadline,
+    cta1: typeof raw.cta1 === "string" ? raw.cta1 : DEF_HERO.cta1,
+    cta2: typeof raw.cta2 === "string" ? raw.cta2 : DEF_HERO.cta2,
+    images: images.length > 0 ? images : DEF_HERO.images,
+  };
 }
 const DEF_ABOUT: HpAbout = {
   badge: "The Platform",
@@ -586,6 +603,8 @@ export default function Home() {
   const [hp, setHp] = useState<Partial<HpContent>>({});
   const [activePillar, setActivePillar] = useState<number | null>(null);
   const hero     = hp.hero        ?? DEF_HERO;
+  const heroImages = (hero.images?.filter(Boolean).length ? hero.images : DEF_HERO.images) ?? [];
+  const [heroImageIndex, setHeroImageIndex] = useState(0);
   const services = hp.services    ?? DEF_SERVICES;
   const about    = hp.about       ?? DEF_ABOUT;
   const steps    = hp.howItWorks  ?? DEF_STEPS;
@@ -601,11 +620,24 @@ export default function Home() {
         if (!d?.value || typeof d.value !== "object") return;
         setHp({
           ...d.value,
+          hero: normalizeHero(d.value.hero),
           services: normalizeServices(d.value.services) ?? DEF_SERVICES,
         });
       })
       .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    setHeroImageIndex(0);
+  }, [heroImages.join("|")]);
+
+  useEffect(() => {
+    if (heroImages.length < 2) return;
+    const timer = window.setInterval(() => {
+      setHeroImageIndex(current => (current + 1) % heroImages.length);
+    }, 6500);
+    return () => window.clearInterval(timer);
+  }, [heroImages.join("|")]);
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 60);
@@ -685,12 +717,25 @@ export default function Home() {
           <section style={{ position: "relative", height: "100vh", minHeight: 600, display: "flex", alignItems: "center" }}>
             {/* left charcoal panel */}
             <div style={{ position: "absolute", inset: 0, right: "48%", background: "#161616", zIndex: 1 }} />
-            {/* right panel, East African farmer photo */}
-            <div style={{
-              position: "absolute", inset: 0, left: "52%", zIndex: 1,
-              backgroundImage: `url(${photo("hero-soybean-farmer.jpg")})`,
-              backgroundSize: "cover", backgroundPosition: "center",
-            }} />
+            {/* right panel, rotating hero image gallery */}
+            <div style={{ position: "absolute", inset: 0, left: "52%", zIndex: 1, overflow: "hidden", background: "#163333" }}>
+              {heroImages.map((image, index) => (
+                <div
+                  key={`${image}-${index}`}
+                  aria-hidden={index !== heroImageIndex}
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    backgroundImage: `url(${image})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    opacity: index === heroImageIndex ? 1 : 0,
+                    transform: index === heroImageIndex ? "scale(1.03)" : "scale(1)",
+                    transition: "opacity 1.35s ease-in-out, transform 6.5s ease-out",
+                  }}
+                />
+              ))}
+            </div>
             {/* WRS brand green overlay over the photo for cohesion + legibility */}
             <div style={{
               position: "absolute", inset: 0, left: "52%", zIndex: 1,
