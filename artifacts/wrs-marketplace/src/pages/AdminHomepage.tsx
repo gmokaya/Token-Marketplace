@@ -64,9 +64,9 @@ const DEFAULT_SERVICES: ServiceCard[] = [
   },
   {
     icon: "icon-financial-1.png",
-    title: "Trade Finance & Payments",
-    sub: "Empower your business with seamless financing, secure payments, and efficient settlement throughout the trade lifecycle.",
-    desc: "TokenHarvest streamlines the financial side of trade by connecting buyers, suppliers, financial institutions, insurers, and payment providers through a unified digital ecosystem. From securing working capital and trade finance to processing cross-border payments and final settlement, the platform helps businesses trade with greater confidence, speed, and transparency.",
+    title: "Trade Finance",
+    sub: "For Buyers & Suppliers",
+    desc: "Capital tied up in inventory or slow payments shouldn't stop a deal from happening. Access working capital against your purchase orders, invoices, or warehouse receipts, and trade at the scale the market demands, not the scale your cash flow allows.",
   },
 ];
 
