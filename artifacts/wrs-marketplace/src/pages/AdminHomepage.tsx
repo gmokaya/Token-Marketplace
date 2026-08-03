@@ -100,11 +100,11 @@ const DEFAULT_ABOUT: AboutContent = {
   heading: "End-to-End Digital\nTrade Infrastructure",
   body: "TokenHarvest helps you source, finance, move, and manage agricultural trade with confidence. Built for growing businesses, it brings the essential tools for international trade into one platform, helping you reduce complexity, improve visibility, and reach new markets faster.",
   bullets: [
-    "Source: discover and qualify verified suppliers across East Africa's commodity markets",
-    "Trade: negotiate, contract, and transact on terms you can trust",
-    "Finance: unlock working capital at every stage, without waiting on the banks",
-    "Fulfil: goods move from warehouse to destination without you managing the logistics",
-    "Insights: live market data and analytics so every decision is an informed one",
+    "Source: Find trusted producers and suppliers across East Africa, matched to your quality, volume, and sourcing requirements.",
+    "Trade: Negotiate, contract, and complete transactions with confidence through secure digital trade workflows.",
+    "Finance: Access the capital you need to buy, sell, and grow, when you need it, not when traditional financing becomes available.",
+    "Fulfil: Move your products from origin to destination with integrated warehousing, shipping, customs, and delivery services.",
+    "Insights: Make better trading decisions with real-time market intelligence, portfolio visibility, and performance analytics.",
   ],
 };
 

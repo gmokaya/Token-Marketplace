@@ -79,11 +79,11 @@ const DEF_ABOUT: HpAbout = {
   heading: "End-to-End Digital\nTrade Infrastructure",
   body: "TokenHarvest helps you source, finance, move, and manage agricultural trade with confidence. Built for growing businesses, it brings the essential tools for international trade into one platform, helping you reduce complexity, improve visibility, and reach new markets faster.",
   bullets: [
-    "Source: discover and qualify verified suppliers across East Africa's commodity markets",
-    "Trade: negotiate, contract, and transact on terms you can trust",
-    "Finance: unlock working capital at every stage, without waiting on the banks",
-    "Fulfil: goods move from warehouse to destination without you managing the logistics",
-    "Insights: live market data and analytics so every decision is an informed one",
+    "Source: Find trusted producers and suppliers across East Africa, matched to your quality, volume, and sourcing requirements.",
+    "Trade: Negotiate, contract, and complete transactions with confidence through secure digital trade workflows.",
+    "Finance: Access the capital you need to buy, sell, and grow, when you need it, not when traditional financing becomes available.",
+    "Fulfil: Move your products from origin to destination with integrated warehousing, shipping, customs, and delivery services.",
+    "Insights: Make better trading decisions with real-time market intelligence, portfolio visibility, and performance analytics.",
   ],
 };
 const DEF_STEPS: HpStep[] = [
@@ -584,6 +584,7 @@ export default function Home() {
   const [contactOpen, setContactOpen] = useState(false);
 
   const [hp, setHp] = useState<Partial<HpContent>>({});
+  const [activePillar, setActivePillar] = useState<number | null>(null);
   const hero     = hp.hero        ?? DEF_HERO;
   const services = hp.services    ?? DEF_SERVICES;
   const about    = hp.about       ?? DEF_ABOUT;
@@ -807,13 +808,27 @@ export default function Home() {
                 <p style={{ fontSize: 17, color: "#555", lineHeight: 1.8, marginBottom: 28 }}>
                   {about.body}
                 </p>
-                <ul style={{ listStyle: "none", padding: 0, margin: "0 0 28px", display: "flex", flexDirection: "column", gap: 11 }}>
-                  {about.bullets.map(item => (
-                    <li key={item} style={{ display: "flex", alignItems: "flex-start", gap: 10, fontSize: 15, color: "#555" }}>
-                      <ChevronRight size={16} style={{ color: ACCENT, marginTop: 3, flexShrink: 0 }} />
-                      {item}
-                    </li>
-                  ))}
+                <ul style={{ listStyle: "none", padding: 0, margin: "0 0 28px", display: "flex", flexDirection: "column" }}>
+                  {about.bullets.map((item, idx) => {
+                    const colonIdx = item.indexOf(": ");
+                    const title = colonIdx >= 0 ? item.slice(0, colonIdx) : item;
+                    const desc  = colonIdx >= 0 ? item.slice(colonIdx + 2) : "";
+                    const active = activePillar === idx;
+                    return (
+                      <li key={item}
+                        onMouseEnter={() => setActivePillar(idx)}
+                        onMouseLeave={() => setActivePillar(null)}
+                        style={{ borderBottom: "1px solid #d0d0d0", padding: "11px 0", cursor: "default" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+                          <ChevronRight size={14} style={{ color: ACCENT, flexShrink: 0, transition: "transform 0.2s", transform: active ? "rotate(90deg)" : "none" }} />
+                          <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: active ? ACCENT : "#232323", transition: "color 0.2s" }}>{title}</span>
+                        </div>
+                        <div style={{ overflow: "hidden", maxHeight: active ? 72 : 0, opacity: active ? 1 : 0, transition: "max-height 0.28s ease, opacity 0.22s ease", paddingLeft: 23 }}>
+                          <p style={{ fontSize: 14, color: "#666", lineHeight: 1.65, margin: "7px 0 0" }}>{desc}</p>
+                        </div>
+                      </li>
+                    );
+                  })}
                 </ul>
                 <Link href="/sign-up" style={{ color: ACCENT, textDecoration: "none", fontSize: 14, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 7, letterSpacing: "0.02em" }}>
                   Get Started <ArrowRight size={15} />
