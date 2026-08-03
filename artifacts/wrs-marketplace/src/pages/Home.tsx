@@ -794,23 +794,23 @@ export default function Home() {
           </section>
 
           {/* ══ ABOUT ════════════════════════════════════════════════ */}
-          <section id="about" style={{ background: "#e8e8e8", padding: "80px 0 88px" }}>
-            <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 56, alignItems: "stretch" }}>
+          <section id="about" style={{ background: "#e8e8e8", padding: "104px 0 112px" }}>
+            <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "stretch" }}>
               <div style={{ display: "flex" }}>
-                <img src={photo("about-planting.jpg")} alt="East African farmer planting in the field" style={{ width: "100%", display: "block", objectFit: "cover", minHeight: 400, boxShadow: "0 8px 20px rgba(0,0,0,0.35), 0 24px 60px rgba(0,0,0,0.25), 0 48px 100px rgba(0,0,0,0.15)" }} />
+                <img src={photo("about-planting.jpg")} alt="East African farmer planting in the field" style={{ width: "100%", display: "block", objectFit: "cover", minHeight: 460, boxShadow: "0 8px 20px rgba(0,0,0,0.35), 0 24px 60px rgba(0,0,0,0.25), 0 48px 100px rgba(0,0,0,0.15)" }} />
               </div>
-              <div>
-                <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
+              <div style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 14 }}>
                   <div style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT }} />
                   <span style={{ color: ACCENT, fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase" }}>{about.badge}</span>
                 </div>
-                <h2 style={{ fontSize: "clamp(1.8rem, 3vw, 40px)", fontWeight: 500, color: "#090909", lineHeight: 1.18, margin: "0 0 20px", whiteSpace: "pre-line" }}>
+                <h2 style={{ fontSize: "clamp(1.8rem, 3vw, 40px)", fontWeight: 500, color: "#090909", lineHeight: 1.18, margin: "0 0 24px", whiteSpace: "pre-line" }}>
                   {about.heading}
                 </h2>
-                <p style={{ fontSize: 17, color: "#555", lineHeight: 1.8, marginBottom: 28 }}>
+                <p style={{ fontSize: 16, color: "#555", lineHeight: 1.85, marginBottom: 36 }}>
                   {about.body}
                 </p>
-                <ul style={{ listStyle: "none", padding: 0, margin: "0 0 28px", display: "flex", flexDirection: "column" }}>
+                <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column" }}>
                   {about.bullets.map((item, idx) => {
                     const colonIdx = item.indexOf(": ");
                     const title = colonIdx >= 0 ? item.slice(0, colonIdx) : item;
@@ -820,13 +820,13 @@ export default function Home() {
                       <li key={item}
                         onMouseEnter={() => setActivePillar(idx)}
                         onMouseLeave={() => setActivePillar(null)}
-                        style={{ borderBottom: "1px solid #d0d0d0", padding: "11px 0", cursor: "default" }}>
+                        style={{ borderBottom: "1px solid #d0d0d0", padding: "14px 0", cursor: "default" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
                           <ChevronRight size={14} style={{ color: ACCENT, flexShrink: 0, transition: "transform 0.2s", transform: active ? "rotate(90deg)" : "none" }} />
                           <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: active ? ACCENT : "#232323", transition: "color 0.2s" }}>{title}</span>
                         </div>
-                        <div style={{ overflow: "hidden", maxHeight: active ? 72 : 0, opacity: active ? 1 : 0, transition: "max-height 0.28s ease, opacity 0.22s ease", paddingLeft: 23 }}>
-                          <p style={{ fontSize: 14, color: "#666", lineHeight: 1.65, margin: "7px 0 0" }}>{desc}</p>
+                        <div style={{ overflow: "hidden", maxHeight: active ? 80 : 0, opacity: active ? 1 : 0, transition: "max-height 0.3s ease, opacity 0.25s ease", paddingLeft: 23 }}>
+                          <p style={{ fontSize: 14, color: "#666", lineHeight: 1.7, margin: "9px 0 2px" }}>{desc}</p>
                         </div>
                       </li>
                     );

@@ -181,10 +181,12 @@
   --chart-5: 0 80% 60%;
 }
 
+/* Smooth scroll — outside any layer so it always wins over Tailwind preflight */
+html {
+  scroll-behavior: smooth;
+}
+
 @layer base {
-  html {
-    scroll-behavior: smooth;
-  }
   * {
     @apply border-border;
   }
