@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { PlusCircle, Leaf, Warehouse, ArrowRight } from "lucide-react";
+import { PlusCircle, Leaf, Warehouse, ArrowRight, Radio, Clock, AlertCircle, Globe } from "lucide-react";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -19,6 +19,16 @@ const STATUS_COLORS: Record<string, string> = {
   RESERVE_NOT_MET: "bg-red-50 text-red-700 border-red-200",
 };
 
+// Publication status visual config — compact badge variant
+const PUB_BADGE: Record<string, { label: string; className: string; icon: React.ElementType }> = {
+  live:          { label: "Live",    className: "bg-green-50 text-green-700 border-green-200", icon: Radio },
+  pending:       { label: "Pending", className: "bg-amber-50 text-amber-700 border-amber-200", icon: Clock },
+  update_pending:{ label: "Updating",className: "bg-amber-50 text-amber-700 border-amber-200", icon: Clock },
+  failed:        { label: "Failed",  className: "bg-red-50 text-red-600 border-red-200",       icon: AlertCircle },
+  not_published: { label: "Not Published", className: "bg-muted/60 text-muted-foreground",      icon: Globe },
+  unpublished:   { label: "Unpublished",   className: "bg-muted/60 text-muted-foreground",      icon: Globe },
+};
+
 export default function ProducerDashboard() {
   const [, setLocation] = useLocation();
   const { data: me } = useGetMe();
@@ -27,7 +37,7 @@ export default function ProducerDashboard() {
     queryKey: ["/api/tea/lots", "owner", me?.id],
     queryFn: async ({ signal }) => {
       if (!me?.id) return [];
-      const res = await fetch(`${BASE}/api/tea/lots?ownerId=${me.id}`, { signal });
+      const res = await fetch(`${BASE}/api/tea/lots?ownerId=${me.id}`, { signal, credentials: "include" });
       if (!res.ok) throw new Error("Failed to load lots");
       return res.json() as Promise<any[]>;
     },
@@ -37,11 +47,36 @@ export default function ProducerDashboard() {
   const { data: portfolio, isLoading: ewrsLoading } = useQuery({
     queryKey: ["/api/ewrs/my-portfolio"],
     queryFn: async ({ signal }) => {
-      const res = await fetch(`${BASE}/api/ewrs/my-portfolio`, { signal });
+      const res = await fetch(`${BASE}/api/ewrs/my-portfolio`, { signal, credentials: "include" });
       if (!res.ok) throw new Error("Failed to load eWRs");
       return res.json() as Promise<{ ewrs: any[]; totalValueUsd: number }>;
     },
   });
+
+  // Fetch all publication records for this producer — scoped server-side to owned/brokered lots
+  const { data: publications = [] } = useQuery<any[]>({
+    queryKey: ["/api/listing-publications", "factory", me?.id],
+    queryFn: async ({ signal }) => {
+      if (!me?.id) return [];
+      const res = await fetch(`${BASE}/api/listing-publications?factoryId=${me.id}`, {
+        signal, credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to load publication records");
+      return res.json();
+    },
+    enabled: !!me?.id,
+    // Re-poll while any record is pending so the badge updates automatically
+    refetchInterval: (query) => {
+      const data = query.state.data as any[] | undefined;
+      return data?.some((p: any) => ["pending", "update_pending"].includes(p.status)) ? 4000 : false;
+    },
+  });
+
+  // Build a lookup map: lotId → publication record
+  const pubByLot = new Map<number, any>();
+  for (const pub of publications) {
+    if (pub.listingId != null) pubByLot.set(pub.listingId, pub);
+  }
 
   const teaEwrs = (portfolio?.ewrs ?? []).filter(
     (e: any) => e.commodityType === "TEA" && e.state === "INGESTED",
@@ -124,7 +159,7 @@ export default function ProducerDashboard() {
         )}
       </div>
 
-      {/* My lots */}
+      {/* My lots — with per-lot marketplace publication badge */}
       <div>
         <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2 mb-3">
           <Leaf className="w-4 h-4" /> My Tea Lots
@@ -140,43 +175,60 @@ export default function ProducerDashboard() {
           </div>
         ) : (
           <div className="border border-border divide-y divide-border">
-            {lots.map((lot: any) => (
-              <div
-                key={lot.id}
-                className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-muted/30 cursor-pointer transition-colors"
-                onClick={() => setLocation(`/lots/${lot.id}`)}
-              >
-                <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-sm truncate">
-                    {lot.grade} - {lot.gradeMark}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {parseFloat(lot.netWeightKg).toFixed(1)} kg net · {lot.giOrigin} · {lot.listingType}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  {["DRAFT", "CATALOGUED"].includes(lot.status) && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="rounded-none text-xs h-7 px-2"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setLocation(`/producer/lots/${lot.id}/edit`);
-                      }}
+            {lots.map((lot: any) => {
+              const pub = pubByLot.get(lot.id);
+              const pubStatus = pub?.status ?? "not_published";
+              const pubConf = PUB_BADGE[pubStatus] ?? PUB_BADGE["not_published"];
+              const PubIcon = pubConf.icon;
+
+              return (
+                <div
+                  key={lot.id}
+                  className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-muted/30 cursor-pointer transition-colors"
+                  onClick={() => setLocation(`/lots/${lot.id}`)}
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-sm truncate">
+                      {lot.grade} - {lot.gradeMark}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {parseFloat(lot.netWeightKg).toFixed(1)} kg net · {lot.giOrigin} · {lot.listingType}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {["DRAFT", "CATALOGUED"].includes(lot.status) && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="rounded-none text-xs h-7 px-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setLocation(`/producer/lots/${lot.id}/edit`);
+                        }}
+                      >
+                        Edit
+                      </Button>
+                    )}
+                    {/* Marketplace publication status */}
+                    <Badge
+                      variant="outline"
+                      className={`text-[10px] flex items-center gap-1 px-2 py-0.5 ${pubConf.className}`}
+                      title={`Marketplace: ${pubConf.label}`}
                     >
-                      Edit
-                    </Button>
-                  )}
-                  <Badge
-                    variant="outline"
-                    className={`text-[10px] uppercase tracking-wider ${STATUS_COLORS[lot.status] ?? ""}`}
-                  >
-                    {lot.status.replace("_", " ")}
-                  </Badge>
+                      <PubIcon className="w-2.5 h-2.5" />
+                      {pubConf.label}
+                    </Badge>
+                    {/* Authoring status */}
+                    <Badge
+                      variant="outline"
+                      className={`text-[10px] uppercase tracking-wider ${STATUS_COLORS[lot.status] ?? ""}`}
+                    >
+                      {lot.status.replace("_", " ")}
+                    </Badge>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

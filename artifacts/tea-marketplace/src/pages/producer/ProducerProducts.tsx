@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import {
   PlusCircle, Leaf, ExternalLink, Edit2, Archive, QrCode, ChevronRight,
+  Radio, Clock, AlertCircle,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -22,6 +23,15 @@ const STATUS_COLOR: Record<string, string> = {
   draft:    "bg-muted text-muted-foreground",
   active:   "bg-green-50 text-green-700 border-green-200",
   archived: "bg-red-50 text-red-600 border-red-200",
+};
+
+const PUB_STATUS_CONFIG: Record<string, { label: string; className: string; icon: React.ElementType }> = {
+  live:          { label: "Live",          className: "bg-green-50 text-green-700 border-green-200", icon: Radio },
+  pending:       { label: "Pending",       className: "bg-amber-50 text-amber-700 border-amber-200", icon: Clock },
+  update_pending:{ label: "Update Pending",className: "bg-amber-50 text-amber-700 border-amber-200", icon: Clock },
+  failed:        { label: "Failed",        className: "bg-red-50 text-red-600 border-red-200",       icon: AlertCircle },
+  not_published: { label: "Not Published", className: "bg-muted text-muted-foreground",              icon: Leaf },
+  unpublished:   { label: "Unpublished",   className: "bg-muted text-muted-foreground",              icon: Leaf },
 };
 
 const EMPTY_FORM = {
@@ -51,6 +61,38 @@ export default function ProducerProducts() {
     },
     enabled: !!me,
   });
+
+  // Fetch all lots owned by this producer so we can join publication status
+  const { data: myLots = [] } = useQuery<any[]>({
+    queryKey: ["/api/tea/lots", "owner", me?.id],
+    queryFn: async ({ signal }) => {
+      if (!me?.id) return [];
+      const res = await fetch(`${BASE}/api/tea/lots?ownerId=${me.id}`, { credentials: "include", signal });
+      if (!res.ok) throw new Error("Failed to load lots");
+      return res.json();
+    },
+    enabled: !!me?.id,
+  });
+
+  // Fetch all publications for this producer
+  const { data: publications = [] } = useQuery<any[]>({
+    queryKey: ["/api/listing-publications", "factory", me?.id],
+    queryFn: async ({ signal }) => {
+      if (!me?.id) return [];
+      const res = await fetch(`${BASE}/api/listing-publications?factoryId=${me.id}`, { credentials: "include", signal });
+      if (!res.ok) throw new Error("Failed to load publications");
+      return res.json();
+    },
+    enabled: !!me?.id,
+  });
+
+  // Summarise marketplace publication state
+  const pubCounts = {
+    live:    publications.filter((p: any) => p.status === "live").length,
+    pending: publications.filter((p: any) => ["pending", "update_pending"].includes(p.status)).length,
+    failed:  publications.filter((p: any) => p.status === "failed").length,
+  };
+  const totalLots = myLots.length;
 
   const upsert = useMutation({
     mutationFn: async (data: any) => {
@@ -136,6 +178,41 @@ export default function ProducerProducts() {
           </Button>
         }
       />
+
+      {/* Marketplace Publication Summary */}
+      {totalLots > 0 && (
+        <div className="border border-border p-4 bg-muted/5 flex flex-wrap items-center gap-6">
+          <div>
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-1">Marketplace Sync</p>
+            <p className="text-xs text-muted-foreground">{totalLots} lot{totalLots !== 1 ? "s" : ""} total</p>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Radio className="w-3.5 h-3.5 text-green-600" />
+            <span className="text-sm font-semibold text-green-700">{pubCounts.live}</span>
+            <span className="text-xs text-muted-foreground">Live</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Clock className="w-3.5 h-3.5 text-amber-600" />
+            <span className="text-sm font-semibold text-amber-700">{pubCounts.pending}</span>
+            <span className="text-xs text-muted-foreground">Pending</span>
+          </div>
+          {pubCounts.failed > 0 && (
+            <div className="flex items-center gap-1.5">
+              <AlertCircle className="w-3.5 h-3.5 text-red-600" />
+              <span className="text-sm font-semibold text-red-600">{pubCounts.failed}</span>
+              <span className="text-xs text-muted-foreground">Failed</span>
+            </div>
+          )}
+          <Button
+            size="sm"
+            variant="outline"
+            className="rounded-none h-7 text-xs ml-auto"
+            onClick={() => setLocation("/producer")}
+          >
+            View Lots &amp; Sync Status
+          </Button>
+        </div>
+      )}
 
       {isLoading ? (
         <p className="text-sm text-muted-foreground">Loading…</p>

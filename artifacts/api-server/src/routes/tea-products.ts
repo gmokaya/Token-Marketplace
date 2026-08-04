@@ -89,9 +89,14 @@ router.post("/tea/products", async (req, res): Promise<void> => {
     return;
   }
 
+  const { availableQuantityKg, ...rest } = parsed.data;
   const [product] = await db
     .insert(teaProductsTable)
-    .values({ ...parsed.data, ownerId: user.id })
+    .values({
+      ...rest,
+      ownerId: user.id,
+      ...(availableQuantityKg != null ? { availableQuantityKg: String(availableQuantityKg) } : {}),
+    })
     .returning();
 
   res.status(201).json(product);
@@ -138,9 +143,14 @@ router.patch("/tea/products/:id", async (req, res): Promise<void> => {
 
   if (!existing) { res.status(404).json({ error: "Product not found or access denied" }); return; }
 
+  const { availableQuantityKg: updQty, ...restUpdate } = parsed.data;
   const [updated] = await db
     .update(teaProductsTable)
-    .set({ ...parsed.data, updatedAt: new Date() })
+    .set({
+      ...restUpdate,
+      updatedAt: new Date(),
+      ...(updQty != null ? { availableQuantityKg: String(updQty) } : {}),
+    })
     .where(eq(teaProductsTable.id, id))
     .returning();
 

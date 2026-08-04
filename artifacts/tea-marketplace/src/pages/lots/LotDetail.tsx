@@ -8,6 +8,7 @@ import {
   getGetTeaLotSettlementQueryKey,
   getGetTeaLotDispatchDocsQueryKey,
 } from "@workspace/api-client-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -15,8 +16,12 @@ import { Button } from "@/components/ui/button";
 import {
   FileText, Download, Scale, MapPin, Package, ArrowRight,
   Warehouse, Phone, Mail, User2, ShieldCheck, Pencil,
+  Radio, Clock, AlertCircle, RefreshCw, Globe,
 } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
+import { useToast } from "@/hooks/use-toast";
+
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 const FACILITY_LABELS: Record<string, string> = {
   DRY_GRAIN_SILO:                    "Dry Grain Silo",
@@ -26,10 +31,60 @@ const FACILITY_LABELS: Record<string, string> = {
   OTHER:                             "Other",
 };
 
+// Publication status visual config
+const PUB_CONFIG: Record<string, {
+  label: string;
+  badgeClass: string;
+  icon: React.ElementType;
+  description: string;
+}> = {
+  live: {
+    label: "Live",
+    badgeClass: "bg-green-50 text-green-700 border-green-200",
+    icon: Radio,
+    description: "This lot is live on the TokenHarvest marketplace.",
+  },
+  pending: {
+    label: "Pending",
+    badgeClass: "bg-amber-50 text-amber-700 border-amber-200",
+    icon: Clock,
+    description: "Publication is in progress. This may take a few moments.",
+  },
+  update_pending: {
+    label: "Update Pending",
+    badgeClass: "bg-amber-50 text-amber-700 border-amber-200",
+    icon: Clock,
+    description: "A change is being pushed to the marketplace.",
+  },
+  failed: {
+    label: "Failed",
+    badgeClass: "bg-red-50 text-red-600 border-red-200",
+    icon: AlertCircle,
+    description: "The last publication attempt failed. Use Retry to try again.",
+  },
+  not_published: {
+    label: "Not Published",
+    badgeClass: "bg-muted text-muted-foreground",
+    icon: Globe,
+    description: "This lot has not been published to the marketplace.",
+  },
+  unpublished: {
+    label: "Unpublished",
+    badgeClass: "bg-muted text-muted-foreground",
+    icon: Globe,
+    description: "This lot was previously published but has been unpublished.",
+  },
+};
+
+// Statuses that allow publishing
+const PUBLISHABLE_STATUSES = ["CATALOGUED", "DISPATCHED", "LIVE"];
+
 export default function LotDetail() {
   const params = useParams();
   const lotId = Number(params.lotId);
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const qc = useQueryClient();
 
   const { data: me } = useGetMe();
   const { data: lot, isLoading: lotLoading, isError: lotError } = useGetTeaLot(lotId, {
@@ -44,6 +99,71 @@ export default function LotDetail() {
     query: { enabled: !!lotId, queryKey: getGetTeaLotDispatchDocsQueryKey(lotId) },
   });
 
+  // Fetch publication record for this lot
+  const pubQueryKey = [`/api/listing-publications`, "lot", lotId];
+  const { data: publications = [] } = useQuery<any[]>({
+    queryKey: pubQueryKey,
+    queryFn: async ({ signal }) => {
+      const res = await fetch(`${BASE}/api/listing-publications?lotId=${lotId}`, {
+        credentials: "include", signal,
+      });
+      if (!res.ok) throw new Error("Failed to load publication status");
+      return res.json();
+    },
+    enabled: !!lotId,
+    refetchInterval: (query) => {
+      // Poll while pending so the UI updates when the adapter resolves
+      const data = query.state.data as any[] | undefined;
+      const hasPending = data?.some((p: any) => ["pending", "update_pending"].includes(p.status));
+      return hasPending ? 3000 : false;
+    },
+  });
+
+  const publication = publications[0] ?? null;
+  const pubStatus = publication?.status ?? "not_published";
+  const pubConf = PUB_CONFIG[pubStatus] ?? PUB_CONFIG["not_published"];
+  const PubIcon = pubConf.icon;
+
+  // Publish mutation
+  const publish = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`${BASE}/api/tea/lots/${lotId}/publish`, {
+        method: "POST", credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? "Failed to publish");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: pubQueryKey });
+      toast({ title: "Publication initiated", description: "The lot is being pushed to the marketplace." });
+    },
+    onError: (e: any) => toast({ title: "Publish failed", description: e.message, variant: "destructive" }),
+  });
+
+  // Retry mutation
+  const retry = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`${BASE}/api/tea/lots/${lotId}/publish/retry`, {
+        method: "POST", credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? "Retry failed");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: pubQueryKey });
+      toast({ title: "Retry initiated", description: "Re-attempting marketplace publication." });
+    },
+    onError: (e: any) => toast({ title: "Retry failed", description: e.message, variant: "destructive" }),
+  });
+
   if (lotLoading) return <Skeleton className="h-[600px] w-full" />;
   if (lotError || !lot) return (
     <div className="flex items-center justify-center h-64 text-muted-foreground border border-border">
@@ -53,8 +173,10 @@ export default function LotDetail() {
 
   // Whether the current user can edit this lot (owner, editable status)
   const isOwner = me && me.id === (lot as any).ownerId;
+  const isBroker = me && me.id === (lot as any).brokerId;
   const isDirectListing = (lot as any).ownerId === (lot as any).brokerId;
   const canEdit = isOwner && ["DRAFT", "CATALOGUED"].includes(lot.status);
+  const canPublish = (isOwner || isBroker) && PUBLISHABLE_STATUSES.includes(lot.status);
   const editPath = isDirectListing
     ? `/producer/lots/${lot.id}/edit`
     : `/broker/lots/${lot.id}/edit`;
@@ -334,7 +456,91 @@ export default function LotDetail() {
             </CardContent>
           </Card>
 
-          {/* Compact warehouse chip, repeated here for easy reference */}
+          {/* ── Marketplace Publication Status ────────────────────────────── */}
+          <Card className="rounded-none shadow-sm border border-border">
+            <CardHeader className="bg-muted/5 border-b border-border p-5">
+              <CardTitle className="text-lg font-bold flex items-center gap-2">
+                <Globe className="w-5 h-5 text-muted-foreground" /> Marketplace
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-5 space-y-4">
+              {/* Status badge */}
+              <div className="flex items-center gap-2">
+                <Badge
+                  variant="outline"
+                  className={`rounded-none text-xs px-3 py-1.5 flex items-center gap-1.5 ${pubConf.badgeClass}`}
+                >
+                  <PubIcon className="w-3.5 h-3.5" />
+                  {pubConf.label}
+                </Badge>
+              </div>
+
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {pubConf.description}
+              </p>
+
+              {/* External listing ID when live */}
+              {publication?.externalListingId && (
+                <div className="bg-muted/30 border border-border p-3">
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-1">External ID</p>
+                  <p className="font-mono text-xs break-all">{publication.externalListingId}</p>
+                </div>
+              )}
+
+              {/* Last attempt timestamp */}
+              {publication?.lastAttemptAt && (
+                <p className="text-[10px] text-muted-foreground">
+                  Last attempt: {new Date(publication.lastAttemptAt).toLocaleString()}
+                </p>
+              )}
+
+              {/* Error detail for failed state */}
+              {pubStatus === "failed" && publication?.lastError && (
+                <div className="bg-red-50 border border-red-200 p-3 text-xs text-red-700 break-all">
+                  <p className="font-semibold mb-1">Error</p>
+                  <p>{publication.lastError}</p>
+                </div>
+              )}
+
+              {/* Action buttons */}
+              <div className="pt-1 space-y-2">
+                {/* Publish button — shown when not yet published or unpublished */}
+                {canPublish && ["not_published", "unpublished"].includes(pubStatus) && (
+                  <Button
+                    className="w-full rounded-none gap-2 h-9 text-xs"
+                    onClick={() => publish.mutate()}
+                    disabled={publish.isPending}
+                  >
+                    <Globe className="w-3.5 h-3.5" />
+                    {publish.isPending ? "Publishing…" : "Publish to Marketplace"}
+                  </Button>
+                )}
+
+                {/* Retry button — shown only for failed publications */}
+                {canPublish && pubStatus === "failed" && (
+                  <Button
+                    variant="destructive"
+                    className="w-full rounded-none gap-2 h-9 text-xs"
+                    onClick={() => retry.mutate()}
+                    disabled={retry.isPending}
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${retry.isPending ? "animate-spin" : ""}`} />
+                    {retry.isPending ? "Retrying…" : "Retry Publication"}
+                  </Button>
+                )}
+
+                {/* Pending — show spinner note */}
+                {["pending", "update_pending"].includes(pubStatus) && (
+                  <div className="flex items-center gap-2 text-xs text-amber-700">
+                    <RefreshCw className="w-3 h-3 animate-spin" />
+                    Syncing with marketplace…
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Compact warehouse chip */}
           {warehouseCode && (
             <div className="border border-border p-4 bg-card flex items-center gap-3">
               <Warehouse className="w-4 h-4 text-muted-foreground shrink-0" />

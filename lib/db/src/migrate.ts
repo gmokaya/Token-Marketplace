@@ -54,3 +54,33 @@ export async function applyDbConstraints() {
       EXECUTE FUNCTION validate_ewr_state_transition()
   `);
 }
+
+/**
+ * Ensure the listing_publications unique constraint exists.
+ *
+ * Run on every startup:
+ *   1. Deduplicate any existing rows (keep latest per listing_id+marketplace_name)
+ *      so that CREATE UNIQUE INDEX cannot fail due to pre-existing duplicates.
+ *   2. Create the unique index (IF NOT EXISTS — idempotent).
+ *
+ * Throws on failure so the caller can block publish operations rather than
+ * silently allowing ON CONFLICT DO UPDATE to hit a missing constraint at runtime.
+ */
+export async function ensurePublicationConstraint() {
+  // Step 1: remove duplicates — keep the row with the latest updated_at per pair.
+  // Uses a CTE so it is a single atomic DELETE statement.
+  await db.execute(sql`
+    DELETE FROM listing_publications
+    WHERE id NOT IN (
+      SELECT DISTINCT ON (listing_id, marketplace_name) id
+      FROM listing_publications
+      ORDER BY listing_id, marketplace_name, updated_at DESC NULLS LAST, id DESC
+    )
+  `);
+
+  // Step 2: create the unique index — idempotent, safe to re-run.
+  await db.execute(sql`
+    CREATE UNIQUE INDEX IF NOT EXISTS listing_publications_lot_marketplace_uniq
+      ON listing_publications (listing_id, marketplace_name)
+  `);
+}

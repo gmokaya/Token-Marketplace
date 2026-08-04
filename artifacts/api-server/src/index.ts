@@ -9,7 +9,8 @@ import { startTeaAuctionWorker } from "./lib/tea-auction-worker";
 import { startAvocadoDegradationWorker } from "./routes/ewrs";
 import { startForwardMaturityWorker } from "./routes/forwards";
 import { startAuctionPubSubSubscriber, setAuctionEventHandler, setReconnectHandler } from "./lib/pg-pubsub";
-import { applyDbConstraints } from "@workspace/db/migrate";
+import { applyDbConstraints, ensurePublicationConstraint } from "@workspace/db/migrate";
+import { setPublicationConstraintReady } from "./lib/publication-constraint";
 import { ensureAdminUser } from "./lib/ensure-admin";
 
 const rawPort = process.env["PORT"];
@@ -39,6 +40,19 @@ const server: Server = app.listen(port, async (err) => {
     logger.info("DB constraints applied");
   } catch (constraintErr) {
     logger.warn({ err: constraintErr }, "Could not apply DB constraints — continuing");
+  }
+
+  // Publication constraint must succeed for publish routes to work.
+  // Deduplicates existing rows then creates the unique index; throws on failure.
+  try {
+    await ensurePublicationConstraint();
+    setPublicationConstraintReady();
+    logger.info("Publication constraint ready");
+  } catch (pubConstraintErr) {
+    logger.error(
+      { err: pubConstraintErr },
+      "Publication constraint setup failed — publish operations will be blocked until resolved",
+    );
   }
 
   try {
