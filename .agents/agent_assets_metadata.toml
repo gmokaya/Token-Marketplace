@@ -12,3 +12,10 @@ id = "M014AhYp9iZPWv9TdDN4V"
 uri = "file://docs/TokenHarvest-API-Integration-Guide.pdf"
 type = "pdf"
 title = "TokenHarvest Tea Marketplace — API Integration Guide"
+
+[[outputs]]
+id = "8ngaTh8RaxnvsRMtQaOSe"
+uri = "file://docs/producer-marketplace-integration.pdf"
+type = "pdf"
+title = "Tea Producer Portal — Marketplace Integration Guide"
+description = "Downloadable PDF covering direct producer listings, broker mandates, marketplace auction sessions, bidding, post-auction decisions, settlement, API routes, business rules, and errors."
