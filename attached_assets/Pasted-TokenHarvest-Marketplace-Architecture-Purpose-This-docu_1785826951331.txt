@@ -1,0 +1,452 @@
+TokenHarvest Marketplace Architecture
+Purpose
+This document aligns the TokenHarvest factory portal with the TokenHarvest Marketplace. It describes the architecture that exists today, the boundary between the factory portal and the marketplace, and the integration contract required to publish factory inventory to buyers.
+
+The key principle is:
+
+The factory portal is the operational system of record for factory-owned products, listings, traceability, logistics, and ESG data. The Marketplace is the buyer-facing discovery and transaction surface.
+
+The two surfaces should share stable identifiers and explicit integration events. They should not share database tables directly once the Marketplace is running as a separate service.
+
+1. System context
+                         ┌──────────────────────────┐
+                         │       GLOBAL BUYERS      │
+                         │ discover · RFQ · negotiate│
+                         └────────────┬─────────────┘
+                                      │
+                                      ▼
+                         ┌──────────────────────────┐
+                         │   TOKENHARVEST MARKETPLACE│
+                         │ catalogue · CRM · orders  │
+                         │ contracts · buyer activity│
+                         └────────────┬─────────────┘
+                                      │
+                         Marketplace Integration API
+                         events · webhooks · sync state
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         FACTORY OPERATIONS PORTAL                           │
+│                                                                             │
+│  Products/PIM   e-Passport   Listings   RFQs/Quotes   Finance               │
+│  Shipments      Export Docs  ESG       Factory profile                      │
+└───────────────┬─────────────────────────────────────────────────────────────┘
+                │
+                ▼
+       ┌─────────────────────┐
+       │ PostgreSQL + Drizzle│
+       │ factory-owned data  │
+       └─────────────────────┘
+External systems connect through adapters, not through frontend code:
+Banks · ERP/WMS/LIMS · shipping lines · customs · certification bodies · TLIP
+
+Current repository components
+Layer	Location	Responsibility
+Portal UI	artifacts/portal/src/	Factory-facing operations and listing management
+API server	artifacts/api-server/src/	Authenticated business operations and ownership checks
+API contract	lib/api-spec/openapi.yaml	Source of truth for generated client types and validators
+Database	lib/db/src/schema/	PostgreSQL/Drizzle persistence
+Generated client	lib/api-client-react/src/generated/	React Query hooks; do not edit manually
+Generated validators	lib/api-zod/src/generated/	Request validation generated from OpenAPI
+2. Current state versus target state
+Current implementation
+The current Marketplace page is a factory-owned listing workspace. It supports:
+
+Selecting a factory product.
+Creating a listing in draft state.
+Copying the product's passportId onto the listing.
+Reviewing the listing in the portal.
+Activating the listing to active.
+Expiring or marking an active listing as sold.
+Receiving RFQs and submitting quotations through the portal.
+The current activate route changes the local listing status. It does not currently call an external Marketplace API, create an external Marketplace record, or publish a message to another service.
+
+Therefore, the current meaning of "active" is:
+
+Active in the factory portal's listing store.
+
+It should not yet be described as:
+
+Confirmed live on the external buyer Marketplace.
+
+Target implementation
+The target flow adds a Marketplace integration adapter behind the API server:
+
+Factory creates draft
+        │
+        ▼
+Portal validates product + commercial fields
+        │
+        ▼
+Factory activates listing
+        │
+        ▼
+Portal writes local activation and an outbox event
+        │
+        ▼
+Marketplace adapter publishes an idempotent product/listing payload
+        │
+        ▼
+Marketplace returns external listing ID and publication status
+        │
+        ▼
+Portal records sync status and displays "Live", "Pending", or "Failed"
+
+The local portal should remain usable if the external Marketplace is temporarily unavailable. A failed publication must be visible and retryable; it must never silently look successful.
+
+3. Domain ownership and identifiers
+Source of truth
+Domain object	System of record	Marketplace view
+Factory identity and ownership	Factory portal	Verified seller profile
+Tea product/SKU	Factory portal PIM	Buyer-facing product catalogue projection
+Digital Passport	Factory portal passport engine	Public passport link and buyer due-diligence view
+Certifications and traceability	Factory portal	Published evidence and passport data
+Commercial listing	Portal until publication; Marketplace after projection	Buyer-facing offer
+Buyer discovery and enquiries	Marketplace	RFQ projection back to factory
+Quotation negotiation	Shared workflow through integration contract	Buyer and factory views
+Shipment milestones	Factory portal/logistics	Buyer shipment visibility projection
+Finance application	Factory portal/finance service	Optional order/finance status projection
+Identifier rules
+The integration must use stable IDs rather than display names:
+
+factoryId identifies the portal factory.
+productId identifies the portal tea product.
+passportId is the public, stable Digital Tea e-Passport identifier.
+listingId identifies the portal listing.
+externalMarketplaceListingId identifies the Marketplace projection.
+rfqId identifies the portal-side RFQ record.
+externalMarketplaceRfqId identifies the buyer-side RFQ when applicable.
+The passportId must be preserved when a listing is published. The Marketplace should link to the public passport URL rather than copying the passport into a second, independently editable record.
+
+4. Factory-to-Marketplace listing workflow
+Phase A — Prepare the product
+The factory creates or updates a tea product in the PIM. The product contains the identity and evidence needed by buyers:
+
+name and grade
+region, altitude, cultivar, harvest date
+processing method and tasting notes
+packaging and batch information
+available quantity
+certifications
+traceability events
+product-level ESG indicators
+factory and origin information
+The product receives a unique passportId. This is the anchor for the public Digital Tea e-Passport and must be present before a listing can be published.
+
+Phase B — Create a commercial listing
+The factory selects a product from inventory and enters:
+
+listing title
+commercial description
+asking price in USD/kg
+available quantity in kg
+minimum order quantity
+Incoterms
+lead time
+commercial pitch
+The API verifies that:
+
+The authenticated user owns the factory.
+The selected product belongs to that factory.
+The listing is created with the product's passportId.
+The initial listing state is draft.
+
+Phase C — Validate before publication
+Before an external publish operation, the API should validate the complete publication payload. At minimum:
+
+product exists and belongs to the factory
+product has a passportId
+product is not archived or unavailable
+title and commercial description are present
+asking price is greater than zero
+available quantity is greater than zero
+supported Incoterms value is used
+buyer-visible passport route resolves
+factory profile is complete enough to show a verified seller
+required certifications or quality evidence are present when the product category requires them
+Validation failures should return a clear 400 response and leave the listing in draft.
+
+Phase D — Publish
+Publication should be an explicit action, separate from saving a draft:
+
+POST /api/factories/{factoryId}/listings/{listingId}/activate
+
+In the target design, this action should:
+
+Re-check factory and product ownership.
+Validate publication readiness.
+Change the local listing state to publish_pending.
+Record a durable publication event.
+Send the listing to the Marketplace adapter.
+Store the external ID and sync result.
+Show the final state to the factory.
+The external adapter payload should be derived from the portal's canonical records, not from frontend form state.
+
+Example logical payload:
+
+{
+  "source": {
+    "factoryId": 1,
+    "productId": 42,
+    "listingId": 108
+  },
+  "seller": {
+    "name": "Verified Factory Name",
+    "country": "Kenya",
+    "region": "Kericho"
+  },
+  "product": {
+    "name": "First Flush Green Tea",
+    "grade": "OP1",
+    "origin": "Kericho",
+    "harvestDate": "2026-04-15",
+    "passportId": "00000000-0000-0000-0000-000000000000",
+    "passportUrl": "https://portal.example/passport/00000000-0000-0000-0000-000000000000"
+  },
+  "offer": {
+    "title": "Premium First Flush Green Tea",
+    "description": "Bright, floral whole-leaf tea.",
+    "askingPriceUsdPerKg": 18.5,
+    "availableQuantityKg": 2500,
+    "minimumOrderKg": 100,
+    "incoterms": "FOB",
+    "leadTimeDays": 21,
+    "commercialPitch": "Direct from a verified high-altitude factory."
+  },
+  "sourceUpdatedAt": "2026-08-04T12:00:00.000Z"
+}
+
+The actual public URL must be obtained from deployment configuration in the runtime; it should not be constructed from a guessed Replit domain.
+
+Phase E — Maintain the projection
+After publication, product and commercial changes need explicit rules:
+
+Change	Recommended behavior
+Price, quantity, lead time, pitch	Push an update to the Marketplace
+Product name, grade, origin, certifications	Push a catalogue/projection update
+Traceability, ESG, shipment events	Update passport/evidence projection
+Product becomes unavailable	Unpublish or pause the Marketplace listing
+Factory expires listing	Archive or deactivate Marketplace listing
+Listing is sold	Close the offer and stop new enquiries
+The portal should never overwrite buyer-owned transaction data. Once an RFQ, contract, order, or shipment exists, listing changes must follow Marketplace and contract rules.
+
+5. Listing state model
+Portal authoring state
+The current portal has:
+
+draft ──activate──> active ──expire──> expired
+                         └─mark sold─> sold
+
+The target integration needs publication state in addition to authoring state. Do not overload one status field with both concerns.
+
+Recommended model:
+
+authoringStatus: draft | ready | active | expired | sold
+publicationStatus: not_published | pending | live | update_pending | failed | unpublished
+
+This prevents ambiguous states such as:
+
+locally active but not yet published
+live externally while a local update is pending
+locally expired while the Marketplace unpublish call failed
+If a schema change is not immediately possible, the existing status values can be retained temporarily and a separate publication/sync table can hold the external state.
+
+Recommended publication record:
+
+listing_publications
+  id
+  factory_id
+  listing_id
+  marketplace_name
+  external_listing_id
+  status
+  last_attempt_at
+  last_success_at
+  last_error
+  payload_hash
+  created_at
+  updated_at
+
+6. RFQ and buyer response flow
+The Marketplace is the source of buyer-originated discovery and RFQs. The factory portal is the source of the factory's response and operational follow-through.
+
+Buyer views live listing
+        │
+        ▼
+Buyer submits RFQ on Marketplace
+        │
+        ▼
+Marketplace sends RFQ event/webhook
+        │
+        ▼
+Portal creates or upserts local RFQ
+        │
+        ▼
+Factory responds with quotation
+        │
+        ▼
+Portal sends quotation to Marketplace
+        │
+        ▼
+Buyer negotiates or accepts
+        │
+        ▼
+Contract/order event returns to portal
+
+The current portal already has local records for:
+
+RFQs
+quotations
+negotiation messages
+The integration should add external correlation IDs and event IDs so retries do not create duplicate RFQs, quotations, or messages.
+
+Recommended inbound event envelope:
+
+{
+  "eventId": "marketplace-event-123",
+  "eventType": "rfq.created",
+  "occurredAt": "2026-08-04T12:00:00.000Z",
+  "source": "marketplace",
+  "correlation": {
+    "externalListingId": "mkp-listing-9001",
+    "listingId": "108"
+  },
+  "data": {
+    "externalRfqId": "mkp-rfq-7001",
+    "buyerCompany": "Example Tea House",
+    "requestedQuantityKg": 500,
+    "requestedPriceUsdPerKg": 17.5,
+    "message": "Please confirm harvest and shipment window."
+  }
+}
+
+7. API and integration boundaries
+Portal API
+The existing authenticated portal API owns factory operations:
+
+GET    /api/factories/{factoryId}/listings
+POST   /api/factories/{factoryId}/listings
+GET    /api/factories/{factoryId}/listings/{listingId}
+PATCH  /api/factories/{factoryId}/listings/{listingId}
+DELETE /api/factories/{factoryId}/listings/{listingId}
+POST   /api/factories/{factoryId}/listings/{listingId}/activate
+POST   /api/factories/{factoryId}/listings/{listingId}/expire
+POST   /api/factories/{factoryId}/listings/{listingId}/mark-sold
+
+These routes must continue to enforce factory ownership on every request. Child records must also be resolved through the factory/listing/product relationship before they are read or modified.
+
+Marketplace adapter
+The adapter should be a server-side module. It must not be called directly from React because:
+
+credentials and signing keys must remain server-side
+retries and idempotency need durable handling
+Marketplace responses need normalization
+publication must be auditable
+Suggested interface:
+
+interface MarketplaceAdapter {
+  publishListing(input: MarketplaceListingPayload, idempotencyKey: string):
+    Promise<PublishListingResult>;
+  updateListing(externalId: string, input: MarketplaceListingPayload,
+    idempotencyKey: string): Promise<PublishListingResult>;
+  unpublishListing(externalId: string, reason: string,
+    idempotencyKey: string): Promise<void>;
+}
+
+The rest of the portal should depend on this interface, not on a specific Marketplace SDK or HTTP implementation.
+
+Webhooks
+Inbound Marketplace webhooks should:
+
+Verify the signature.
+Reject stale or malformed events.
+Deduplicate using eventId.
+Resolve the external listing/RFQ to a local record.
+Apply a valid state transition.
+Return success only after durable processing or safe queueing.
+8. Reliability and consistency
+Publication is a distributed operation. The portal database and Marketplace cannot be updated atomically in one database transaction. Use an outbox-style pattern:
+
+Local transaction:
+  update listing publication state
+  insert outbox event
+Worker:
+  claim outbox event
+  call Marketplace
+  retry with backoff
+  record response or failure
+
+Required properties:
+
+Idempotency: one activation must create at most one external listing.
+Retry safety: repeated delivery must not duplicate listings or RFQs.
+Visibility: show pending and failed publication states in the portal.
+Auditability: retain request/result metadata without storing secrets.
+Ordering: process publish before update, and update before unpublish.
+Dead-letter handling: persist events that exceed retry limits for manual review.
+Suggested retry schedule: short bounded retries for transient errors, followed by a visible failed state and manual retry. Do not retry validation or authorization failures indefinitely.
+
+9. Security and tenant isolation
+Every factory-scoped operation must:
+
+Authenticate the Replit user.
+Resolve the factory by factoryId and ownerUserId.
+Resolve the listing by both listingId and factoryId.
+Resolve the linked product by both productId and factoryId.
+Never trust a factory, product, passport, or external ID supplied only by the client.
+Marketplace credentials, webhook secrets, and signing keys belong in the server-side secrets flow. They must never be sent to the browser, written to the database in plaintext, or included in logs.
+
+Public passport data should expose only buyer/consumer-safe information. It must not expose internal factory IDs, finance application details, private buyer contact information, or integration credentials.
+
+10. Recommended implementation phases
+Phase 1 — Formalize the local contract
+Add publication/sync state without changing the meaning of local authoring status.
+Add external IDs and correlation fields.
+Add publication readiness validation.
+Add an audit trail for activation and publication attempts.
+Phase 2 — Add the Marketplace adapter
+Define the server-side adapter interface.
+Implement the Marketplace publish/update/unpublish client.
+Add idempotency keys and normalized error handling.
+Add server-side configuration through the secrets flow.
+Phase 3 — Add reliable delivery
+Add an outbox/event table and worker or managed job.
+Add retry, dead-letter, and manual retry behavior.
+Add a portal sync-status view for factory users.
+Phase 4 — Connect buyer activity
+Accept signed RFQ webhooks.
+Correlate external listings and RFQs.
+Push quotations and negotiation messages back to the Marketplace.
+Add contract/order events and link them to finance and shipments.
+Phase 5 — Extend buyer evidence
+Project passport updates, certifications, ESG reports, and shipment milestones to the buyer view.
+Keep the public passport URL stable while its verified evidence evolves.
+11. Acceptance criteria for marketplace alignment
+The integration is aligned when:
+
+A factory can prepare a product, create a draft listing, and see validation errors before publication.
+Activation creates exactly one external Marketplace listing.
+The portal shows whether publication is pending, live, or failed.
+A retry cannot create a duplicate external listing.
+Price and quantity changes are synchronized according to defined rules.
+Expiry and sold transitions stop buyer discovery.
+A buyer RFQ maps to one local RFQ and is visible to the factory.
+A factory quotation maps back to the correct Marketplace RFQ.
+Passport, certification, ESG, and shipment links remain traceable through the stable passportId.
+Cross-factory access is rejected at every portal API boundary.
+No Marketplace credentials or private factory data reach the browser.
+Relevant implementation files
+artifacts/portal/src/pages/marketplace.tsx
+artifacts/portal/src/components/marketplace/create-listing-sheet.tsx
+artifacts/api-server/src/routes/listings.ts
+artifacts/api-server/src/routes/rfqs.ts
+artifacts/api-server/src/routes/passports.ts
+artifacts/api-server/src/routes/shipments.ts
+artifacts/api-server/src/routes/esg.ts
+lib/db/src/schema/listings.ts
+lib/db/src/schema/rfqs.ts
+lib/db/src/schema/teaProducts.ts
+lib/db/src/schema/shipments.ts
+lib/db/src/schema/financeApplications.ts
+lib/api-spec/openapi.yaml
+attached_assets/Pasted--Appendix-B-TokenHarvest-Platform-Architecture-Integrat_1784206934540.txt
