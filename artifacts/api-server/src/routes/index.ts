@@ -23,6 +23,10 @@ import brokerMandatesRouter from "./broker-mandates";
 import teaAuctionsRouter from "./tea-auctions";
 import warehouseProfilesRouter from "./warehouse-profiles";
 import factoryRouter, { FACTORY_API_CONFIGURED } from "./factory";
+import teaProductsRouter from "./tea-products";
+import teaRfqsRouter from "./tea-rfqs";
+import teaShipmentsRouter from "./tea-shipments";
+import teaEsgRouter from "./tea-esg";
 
 const router: IRouter = Router();
 
@@ -82,5 +86,9 @@ router.use(teaLotsRouter);
 router.use(brokerMandatesRouter);
 router.use(teaAuctionsRouter);
 router.use(warehouseProfilesRouter);
+router.use(teaProductsRouter);
+router.use(teaRfqsRouter);
+router.use(teaShipmentsRouter);
+router.use(teaEsgRouter);
 
 export default router;

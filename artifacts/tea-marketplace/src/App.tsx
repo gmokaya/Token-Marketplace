@@ -23,6 +23,10 @@ import ProducerDashboard from "@/pages/producer/ProducerDashboard";
 import ProducerNewLot from "@/pages/producer/ProducerNewLot";
 import ProducerEwrs from "@/pages/producer/ProducerEwrs";
 import ProducerEditLot from "@/pages/producer/ProducerEditLot";
+import ProducerProducts from "@/pages/producer/ProducerProducts";
+import ProducerRfqs from "@/pages/producer/ProducerRfqs";
+import ProducerShipments from "@/pages/producer/ProducerShipments";
+import ProducerEsg from "@/pages/producer/ProducerEsg";
 import LiveAuction from "@/pages/auction/LiveAuction";
 import Market from "@/pages/market/Market";
 import LotDetail from "@/pages/lots/LotDetail";
@@ -140,6 +144,10 @@ function ClerkProviderWithRoutes() {
                   <Route path="/producer/lots/new"><ProtectedRoute><ProducerNewLot /></ProtectedRoute></Route>
                   <Route path="/producer/lots/:lotId/edit"><ProtectedRoute><ProducerEditLot /></ProtectedRoute></Route>
                   <Route path="/producer/ewrs"><ProtectedRoute><ProducerEwrs /></ProtectedRoute></Route>
+                  <Route path="/producer/products"><ProtectedRoute><ProducerProducts /></ProtectedRoute></Route>
+                  <Route path="/producer/rfqs"><ProtectedRoute><ProducerRfqs /></ProtectedRoute></Route>
+                  <Route path="/producer/shipments"><ProtectedRoute><ProducerShipments /></ProtectedRoute></Route>
+                  <Route path="/producer/esg"><ProtectedRoute><ProducerEsg /></ProtectedRoute></Route>
 
                   <Route path="/auction/:sessionId"><ProtectedRoute><LiveAuction /></ProtectedRoute></Route>
                   <Route path="/market"><ProtectedRoute><Market /></ProtectedRoute></Route>

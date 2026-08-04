@@ -3,6 +3,7 @@ import { useGetMe } from "@workspace/api-client-react";
 import {
   LayoutDashboard, Leaf, FileText, Gavel, BarChart2,
   ShoppingBag, User, Shield, PlusCircle, Warehouse, Users,
+  Package, MessageSquare, Ship, Wind,
 } from "lucide-react";
 import { formatTier } from "@/lib/formatTier";
 
@@ -40,13 +41,17 @@ const ACCOUNT_SECTIONS: AccountSection[] = [
     tier: "PRODUCER",
     heading: "Producer",
     items: [
-      { href: "/producer",            label: "My Tea",           icon: LayoutDashboard },
-      { href: "/producer/lots/new",   label: "List Direct",      icon: PlusCircle      },
-      { href: "/producer/ewrs",       label: "My eWRs",          icon: Warehouse        },
-      { href: "/mandates",            label: "Mandates Given",   icon: FileText        },
-      { href: "/admin/auctions",      label: "Auction Activity", icon: Gavel           },
-      { href: "/market",              label: "Spot Market",      icon: ShoppingBag     },
-      { href: "/profile",             label: "Profile",          icon: User            },
+      { href: "/producer",              label: "Dashboard",        icon: LayoutDashboard },
+      { href: "/producer/products",     label: "Product Catalogue",icon: Package         },
+      { href: "/producer/rfqs",         label: "RFQ Inbox",        icon: MessageSquare   },
+      { href: "/producer/shipments",    label: "Shipments",        icon: Ship            },
+      { href: "/producer/esg",          label: "ESG Reports",      icon: Wind            },
+      { href: "/producer/ewrs",         label: "My eWRs",          icon: Warehouse       },
+      { href: "/producer/lots/new",     label: "List Direct",      icon: PlusCircle      },
+      { href: "/mandates",              label: "Mandates Given",   icon: FileText        },
+      { href: "/admin/auctions",        label: "Auction Activity", icon: Gavel           },
+      { href: "/market",                label: "Spot Market",      icon: ShoppingBag     },
+      { href: "/profile",               label: "Profile",          icon: User            },
     ],
   },
   {
