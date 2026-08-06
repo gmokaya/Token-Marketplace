@@ -17,10 +17,10 @@ export default function Home() {
   return (
     <div className="relative w-screen h-screen overflow-hidden flex flex-col select-none">
 
-      {/* Background: coffee plantation */}
+      {/* Background: shared commodity marketplace strip */}
       <img
-        src={`${basePath}/photos/coffee-plantation.jpg`}
-        alt=""
+        src={`${basePath}/marketplace-strip.png`}
+        alt="East African commodity markets including maize, rice, coffee, tea, avocado, and honey"
         className="absolute inset-0 w-full h-full object-cover object-center"
         fetchPriority="high"
       />
@@ -67,7 +67,7 @@ export default function Home() {
         </h1>
 
         <p className="mt-3 text-white/55 text-sm md:text-base leading-relaxed max-w-xl">
-          Every exceptional cup begins at origin. CoffeeXchange is the trusted B2B marketplace for specialty and commercial green coffee, connecting East African and Latin American producers directly with roasters through verified provenance, eWRs, and embedded trade finance.
+           Every exceptional cup begins at origin. Coffee Exchange is the trusted B2B marketplace for specialty and commercial green coffee, connecting East African and Latin American producers directly with roasters through verified provenance, eWRs, and embedded trade finance.
         </p>
 
         <div className="mt-5 flex items-center gap-4">

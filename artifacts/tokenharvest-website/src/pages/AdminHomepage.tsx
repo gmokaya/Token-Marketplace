@@ -44,7 +44,7 @@ type HomepageContent = {
 
 const DEFAULT_HERO: HeroContent = {
   badge: "WRS Marketplace",
-  headline: "Trade. Finance.\nDeliver.",
+  headline: "Trade.\nFinance.\nDeliver.",
   subheadline: "TokenHarvest enables businesses to trade agricultural commodities with confidence across East Africa and global markets.",
   cta1: "Join the Marketplace",
   cta2: "Our Services",
@@ -148,12 +148,12 @@ const DEFAULT_CTA: CtaContent = {
 };
 
 const DEFAULT_MARKETS: MarketCard[] = [
-  { num: "01", name: "Maize",   grade: "Grade A–C",    link: "/sign-in", desc: "White & Yellow varieties with 90-day certified storage, fully backed by registered warehouses.", photo: "https://picsum.photos/seed/maize-field/400/640" },
-  { num: "02", name: "Rice",    grade: "Grade A–B",    link: "/sign-in", desc: "Milled & paddy rice from certified storage facilities across East Africa.", photo: "https://picsum.photos/seed/rice-paddy/400/640" },
-  { num: "03", name: "Coffee",  grade: "AA / AB / PB", link: "/sign-in", desc: "Washed & natural-process beans, export-ready and auction-listed at the Nairobi Coffee Exchange.", photo: "https://picsum.photos/seed/coffee-beans/400/640" },
-  { num: "04", name: "Tea",     grade: "BOPI / FNDC",  link: "/tea/", desc: "Orthodox & CTC grades, Mombasa auction listed with full provenance traceability.", photo: "https://picsum.photos/seed/tea-plantation/400/640" },
-  { num: "05", name: "Avocado", grade: "Hass Export",  link: "/sign-in", desc: "Cold-chain certified Hass avocados meeting EU/UK market phytosanitary standards.", photo: "https://picsum.photos/seed/avocado-farm/400/640" },
-  { num: "06", name: "Sorghum", grade: "Grade A",      link: "/sign-in", desc: "Food & feed-grade sorghum with extended shelf life, ideal for long-tenor forward contracts.", photo: "https://picsum.photos/seed/sorghum-grain/400/640" },
+  { num: "01", name: "Maize",   grade: "Grade A–C",    link: "/grain/",  desc: "White & Yellow varieties with 90-day certified storage, fully backed by registered warehouses.", photo: "https://picsum.photos/seed/maize-field/400/640" },
+  { num: "02", name: "Rice",    grade: "Grade A–B",    link: "/grain/",  desc: "Milled & paddy rice from certified storage facilities across East Africa.", photo: "https://picsum.photos/seed/rice-paddy/400/640" },
+  { num: "03", name: "Coffee",  grade: "AA / AB / PB", link: "/coffee/", desc: "Washed & natural-process beans, export-ready and auction-listed at the Nairobi Coffee Exchange.", photo: "https://picsum.photos/seed/coffee-beans/400/640" },
+  { num: "04", name: "Tea",     grade: "BOPI / FNDC",  link: "/tea/",    desc: "Orthodox & CTC grades, Mombasa auction listed with full provenance traceability.", photo: "https://picsum.photos/seed/tea-plantation/400/640" },
+  { num: "05", name: "Avocado", grade: "Hass Export",  link: "/grain/",  desc: "Cold-chain certified Hass avocados meeting EU/UK market phytosanitary standards.", photo: "https://picsum.photos/seed/avocado-farm/400/640" },
+  { num: "06", name: "Honey",   grade: "Raw & Pure",   link: "/grain/",  desc: "Traceable East African honey from verified producer networks, ready for regional and export markets.", photo: "https://picsum.photos/seed/honeycomb/400/640" },
 ];
 
 const DEFAULT_PARTNERS: Partner[] = [

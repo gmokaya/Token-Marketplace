@@ -24,7 +24,7 @@ type HpContent = { hero: HpHero; services: HpService[]; about: HpAbout; howItWor
 
 const DEF_HERO: HpHero = {
   badge: "WRS Marketplace",
-  headline: "Trade. Finance.\nDeliver.",
+  headline: "Trade.\nFinance.\nDeliver.",
   subheadline: "TokenHarvest enables businesses to trade agricultural commodities with confidence across East Africa and global markets.",
   cta1: "Join the Marketplace",
   cta2: "Our Services",
@@ -122,12 +122,12 @@ const DEF_CTA: HpCta = {
   cta2: "Sign In",
 };
 const DEF_MARKETS: MarketCardData[] = [
-  { num: "01", name: "Maize",   grade: "Grade A–C",    link: "/sign-in", desc: "White & Yellow varieties with 90-day certified storage, fully backed by registered warehouses.", photo: "https://picsum.photos/seed/maize-field/400/640" },
-  { num: "02", name: "Rice",    grade: "Grade A–B",    link: "/sign-in", desc: "Milled & paddy rice from certified storage facilities across East Africa.", photo: "https://picsum.photos/seed/rice-paddy/400/640" },
-  { num: "03", name: "Coffee",  grade: "AA / AB / PB", link: "/sign-in", desc: "Washed & natural-process beans, export-ready and auction-listed at the Nairobi Coffee Exchange.", photo: "https://picsum.photos/seed/coffee-beans/400/640" },
-  { num: "04", name: "Tea",     grade: "BOPI / FNDC",  link: "/tea/", desc: "Orthodox & CTC grades, Mombasa auction listed with full provenance traceability.", photo: "https://picsum.photos/seed/tea-plantation/400/640" },
-  { num: "05", name: "Avocado", grade: "Hass Export",  link: "/sign-in", desc: "Cold-chain certified Hass avocados meeting EU/UK market phytosanitary standards.", photo: "https://picsum.photos/seed/avocado-farm/400/640" },
-  { num: "06", name: "Sorghum", grade: "Grade A",      link: "/sign-in", desc: "Food & feed-grade sorghum with extended shelf life, ideal for long-tenor forward contracts.", photo: "https://picsum.photos/seed/sorghum-grain/400/640" },
+  { num: "01", name: "Maize",   grade: "Grade A–C",    link: "/grain/",  desc: "White & Yellow varieties with 90-day certified storage, fully backed by registered warehouses.", photo: "https://picsum.photos/seed/maize-field/400/640" },
+  { num: "02", name: "Rice",    grade: "Grade A–B",    link: "/grain/",  desc: "Milled & paddy rice from certified storage facilities across East Africa.", photo: "https://picsum.photos/seed/rice-paddy/400/640" },
+  { num: "03", name: "Coffee",  grade: "AA / AB / PB", link: "/coffee/", desc: "Washed & natural-process beans, export-ready and auction-listed at the Nairobi Coffee Exchange.", photo: "https://picsum.photos/seed/coffee-beans/400/640" },
+  { num: "04", name: "Tea",     grade: "BOPI / FNDC",  link: "/tea/",    desc: "Orthodox & CTC grades, Mombasa auction listed with full provenance traceability.", photo: "https://picsum.photos/seed/tea-plantation/400/640" },
+  { num: "05", name: "Avocado", grade: "Hass Export",  link: "/grain/",  desc: "Cold-chain certified Hass avocados meeting EU/UK market phytosanitary standards.", photo: "https://picsum.photos/seed/avocado-farm/400/640" },
+  { num: "06", name: "Honey",   grade: "Raw & Pure",   link: "/grain/",  desc: "Traceable East African honey from verified producer networks, ready for regional and export markets.", photo: "https://picsum.photos/seed/honeycomb/400/640" },
 ];
 
 /* ── smooth scroll helper ─────────────────────────────────── */
@@ -226,7 +226,7 @@ function MarketCard({ num, name, grade, desc, photo, link }: MarketCardData) {
                 gap: 5,
               }}
             >
-              Learn More <ArrowRight size={13} />
+               Explore {name} Market <ArrowRight size={13} />
             </a>
           )}
         </div>
@@ -505,7 +505,7 @@ function ContactModal({ open, onClose }: { open: boolean; onClose: () => void })
           background: "#111", width: "100%", maxWidth: 480,
           padding: "48px 40px 40px",
           position: "relative",
-          fontFamily: "'Jost', sans-serif",
+          fontFamily: "'Futura', sans-serif",
         }}
       >
         {/* close */}
@@ -529,7 +529,7 @@ function ContactModal({ open, onClose }: { open: boolean; onClose: () => void })
             </p>
             <button onClick={onClose} style={{
               background: ACCENT, color: "#fff", border: "none", cursor: "pointer",
-              padding: "13px 28px", fontSize: 14, fontWeight: 600, fontFamily: "'Jost',sans-serif",
+              padding: "13px 28px", fontSize: 14, fontWeight: 600, fontFamily: "'Futura',sans-serif",
             }}>
               Close
             </button>
@@ -556,7 +556,7 @@ function ContactModal({ open, onClose }: { open: boolean; onClose: () => void })
                     onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
                     style={{
                       width: "100%", background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)",
-                      color: "#fff", padding: "12px 14px", fontSize: 14, fontFamily: "'Jost',sans-serif",
+                      color: "#fff", padding: "12px 14px", fontSize: 14, fontFamily: "'Futura',sans-serif",
                       outline: "none", boxSizing: "border-box",
                     }}
                   />
@@ -572,14 +572,14 @@ function ContactModal({ open, onClose }: { open: boolean; onClose: () => void })
                   onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
                   style={{
                     width: "100%", background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)",
-                    color: "#fff", padding: "12px 14px", fontSize: 14, fontFamily: "'Jost',sans-serif",
+                    color: "#fff", padding: "12px 14px", fontSize: 14, fontFamily: "'Futura',sans-serif",
                     outline: "none", resize: "vertical", boxSizing: "border-box",
                   }}
                 />
               </div>
               <button type="submit" disabled={status === "sending"} style={{
                 background: ACCENT, color: "#fff", border: "none", cursor: status === "sending" ? "default" : "pointer",
-                padding: "15px 28px", fontSize: 15, fontWeight: 600, fontFamily: "'Jost',sans-serif",
+                padding: "15px 28px", fontSize: 15, fontWeight: 600, fontFamily: "'Futura',sans-serif",
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                 opacity: status === "sending" ? 0.7 : 1, marginTop: 4,
               }}>
@@ -653,7 +653,7 @@ export default function Home() {
 
   return (
     <>
-      <div style={{ fontFamily: "'Jost', sans-serif", color: "#353535" }}>
+      <div style={{ fontFamily: "'Futura', sans-serif", color: "#353535" }}>
 
           {/* ══ NAVBAR ══════════════════════════════════════════════ */}
           <header style={{
@@ -691,7 +691,7 @@ export default function Home() {
               <nav style={{ display: "flex", gap: 32, alignItems: "center" }}>
                 {([ ["01","Platform","platform"], ["02","Services","services"], ["03","About","about"], ["04","Contact","cta"] ] as const).map(([n, label, id]) => (
                   <button key={n} onClick={() => scrollTo(id)}
-                    style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.72)", fontSize: 14, fontWeight: 500, display: "flex", gap: 5, alignItems: "center", fontFamily: "'Jost',sans-serif", padding: 0 }}>
+                    style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.72)", fontSize: 14, fontWeight: 500, display: "flex", gap: 5, alignItems: "center", fontFamily: "'Futura',sans-serif", padding: 0 }}>
                     <span style={{ color: ACCENT, fontSize: 11, fontWeight: 600 }}>{n}</span>{label}
                   </button>
                 ))}
@@ -719,11 +719,11 @@ export default function Home() {
           </header>
 
           {/* ══ HERO ════════════════════════════════════════════════ */}
-          <section style={{ position: "relative", height: "100vh", minHeight: 600, display: "flex", alignItems: "center" }}>
+          <section className="homepage-hero" style={{ position: "relative", height: "100vh", minHeight: 600, display: "flex", alignItems: "center" }}>
             {/* left charcoal panel */}
-            <div style={{ position: "absolute", inset: 0, right: "48%", background: "#161616", zIndex: 1 }} />
+            <div className="homepage-hero-panel" style={{ position: "absolute", inset: 0, right: "48%", background: "#161616", zIndex: 1 }} />
             {/* right panel, rotating hero image gallery */}
-            <div style={{ position: "absolute", inset: 0, left: "52%", zIndex: 1, overflow: "hidden", background: "#163333" }}>
+            <div className="homepage-hero-photo" style={{ position: "absolute", inset: 0, left: "52%", zIndex: 1, overflow: "hidden", background: "#163333" }}>
               {heroImages.map((image, index) => (
                 <div
                   key={`${image}-${index}`}
@@ -742,43 +742,43 @@ export default function Home() {
               ))}
             </div>
             {/* WRS brand green overlay over the photo for cohesion + legibility */}
-            <div style={{
+            <div className="homepage-hero-overlay" style={{
               position: "absolute", inset: 0, left: "52%", zIndex: 1,
               background: "linear-gradient(145deg, hsl(180 62% 10% / 0.36) 0%, hsl(180 62% 6% / 0.44) 60%, hsl(180 50% 8% / 0.36) 100%)",
             }} />
             {/* subtle dot-grid pattern overlay */}
-            <div style={{
+            <div className="homepage-hero-grid" style={{
               position: "absolute", inset: 0, left: "52%", zIndex: 2,
               backgroundImage: "radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)",
               backgroundSize: "28px 28px",
             }} />
 
             {/* hero content (left side) */}
-            <div style={{ position: "relative", zIndex: 3, width: "52%", padding: "0 48px 0 max(32px, calc((100vw - 1200px) / 2 + 32px))" }}>
-              <div style={{ maxWidth: 520 }}>
+            <div className="homepage-hero-content" style={{ position: "relative", zIndex: 3, width: "52%", padding: "0 48px 0 max(32px, calc((100vw - 1200px) / 2 + 32px))" }}>
+              <div className="homepage-hero-inner" style={{ maxWidth: 520 }}>
                 {/* brand label */}
-                <div style={{ display: "flex", alignItems: "center", gap: 9, marginTop: 48, marginBottom: 18 }}>
+                <div className="homepage-hero-badge" style={{ display: "flex", alignItems: "center", gap: 9, marginTop: 48, marginBottom: 18 }}>
                   <div style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT }} />
                   <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, fontWeight: 500, letterSpacing: "0.22em", textTransform: "uppercase" }}>{hero.badge}</span>
                 </div>
                 {/* heading */}
-                <h1 style={{ color: "#fff", fontWeight: 300, lineHeight: 1.02, margin: "0 0 18px", fontSize: "clamp(3rem, 6.5vw, 6.2rem)", whiteSpace: "pre-line" }}>
-                  {hero.headline}
+                <h1 className="homepage-hero-heading" style={{ color: "#fff", fontWeight: 300, lineHeight: 1.06, margin: "0 0 30px", fontSize: "clamp(4rem, 8.5vw, 7.5rem)", whiteSpace: "pre-line", letterSpacing: "-0.035em" }}>
+                  {hero.headline.replace(/^Trade\.\s+Finance\.\s*[\r\n]+?Deliver\.$/, "Trade.\nFinance.\nDeliver.")}
                 </h1>
                 {/* accent line */}
-                <div style={{ width: 45, height: 2, background: ACCENT, marginBottom: 18 }} />
+                <div style={{ width: 56, height: 2, background: ACCENT, marginBottom: 26 }} />
                 {/* sub */}
-                <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 18, fontWeight: 300, lineHeight: 1.65, margin: "0 0 28px" }}>
+                <p className="homepage-hero-subheadline" style={{ color: "rgba(255,255,255,0.55)", fontSize: 18, fontWeight: 300, lineHeight: 1.65, margin: "0 0 38px", maxWidth: 560 }}>
                   {hero.subheadline}
                 </p>
                 {/* CTAs */}
-                <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+                <div className="homepage-hero-actions" style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
                   <Link href="/sign-up"
                     style={{ background: ACCENT, color: "#fff", padding: "16px 28px", textDecoration: "none", fontSize: 15, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 8 }}>
                     {hero.cta1} <ArrowRight size={16} />
                   </Link>
                   <button onClick={() => scrollTo("services")}
-                    style={{ background: "#323232", color: "#fff", padding: "16px 28px", border: "none", cursor: "pointer", fontSize: 15, fontWeight: 500, fontFamily: "'Jost',sans-serif", display: "inline-flex", alignItems: "center", gap: 8 }}>
+                    style={{ background: "#323232", color: "#fff", padding: "16px 28px", border: "none", cursor: "pointer", fontSize: 15, fontWeight: 500, fontFamily: "'Futura',sans-serif", display: "inline-flex", alignItems: "center", gap: 8 }}>
                     {hero.cta2} <ArrowRight size={16} />
                   </button>
                 </div>
@@ -1014,19 +1014,18 @@ export default function Home() {
           <PartnersSection />
 
           {/* ══ CTA ─────────────────────────────────────────────── */}
-          <section id="cta" style={{
-            position: "relative", padding: "96px 0",
+           <section id="cta" style={{
+             position: "relative", padding: "40px 0 72px",
             backgroundImage: `url(${photo("cta-harvest.jpg")})`,
             backgroundSize: "cover", backgroundPosition: "center",
           }}>
             <div style={{ position: "absolute", inset: 0, background: "rgba(8,8,8,0.85)" }} />
             <div style={{ position: "relative", zIndex: 1, maxWidth: 1200, margin: "0 auto", padding: "0 32px", textAlign: "center" }}>
-              <div style={{ width: 2, height: 40, background: ACCENT, margin: "0 auto 28px" }} />
               <div style={{ display: "inline-flex", alignItems: "center", gap: 9, marginBottom: 14 }}>
                 <div style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT }} />
                 <span style={{ color: ACCENT, fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase" }}>Get Started</span>
               </div>
-              <h2 style={{ fontSize: "clamp(2rem, 4.5vw, 48px)", fontWeight: 300, color: "#fff", lineHeight: 1.1, margin: "0 0 20px", whiteSpace: "pre-line" }}>
+               <h2 style={{ fontSize: "clamp(2rem, 4.5vw, 48px)", fontWeight: 300, color: "#fff", lineHeight: 1.12, margin: "0 0 22px", whiteSpace: "pre-line", letterSpacing: "-0.025em" }}>
                 {cta.heading}
               </h2>
               <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 17, fontWeight: 300, maxWidth: 520, margin: "0 auto 40px", lineHeight: 1.8 }}>
@@ -1038,7 +1037,7 @@ export default function Home() {
                   {cta.cta1} <ArrowRight size={16} />
                 </Link>
                 <button onClick={() => setContactOpen(true)}
-                  style={{ background: "#2a2a2a", color: "#fff", padding: "17px 32px", border: "none", cursor: "pointer", fontSize: 15, fontWeight: 500, fontFamily: "'Jost',sans-serif", display: "inline-flex", alignItems: "center", gap: 8 }}>
+                  style={{ background: "#2a2a2a", color: "#fff", padding: "17px 32px", border: "none", cursor: "pointer", fontSize: 15, fontWeight: 500, fontFamily: "'Futura',sans-serif", display: "inline-flex", alignItems: "center", gap: 8 }}>
                   Contact Us
                 </button>
               </div>
@@ -1075,7 +1074,7 @@ export default function Home() {
                       {links.map(([name, href]) => (
                         <li key={name}>
                           {href.startsWith("#")
-                            ? <button onClick={() => scrollTo(href.slice(1))} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.45)", fontSize: 13, fontFamily: "'Jost',sans-serif", padding: 0 }}>{name}</button>
+                            ? <button onClick={() => scrollTo(href.slice(1))} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.45)", fontSize: 13, fontFamily: "'Futura',sans-serif", padding: 0 }}>{name}</button>
                             : <Link href={href as string} style={{ color: "rgba(255,255,255,0.45)", textDecoration: "none", fontSize: 13 }}>{name}</Link>
                           }
                         </li>

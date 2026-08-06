@@ -23,7 +23,7 @@
 
 @font-face {
   font-family: 'Futura';
-  src: url('/fonts/Futura_Light_font_1783759911952.ttf') format('truetype');
+  src: url('/fonts/Futura_Light_BT.ttf') format('truetype');
   font-weight: 300;
   font-style: normal;
   font-display: swap;
@@ -31,7 +31,7 @@
 
 @font-face {
   font-family: 'Futura';
-  src: url('/fonts/Futura_Book_font_1783759911949.ttf') format('truetype');
+  src: url('/fonts/Futura_Book.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -47,7 +47,7 @@
 
 @font-face {
   font-family: 'Futura';
-  src: url('/fonts/futura_medium_bt_1783759911953.ttf') format('truetype');
+  src: url('/fonts/Futura_Medium.ttf') format('truetype');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -55,7 +55,7 @@
 
 @font-face {
   font-family: 'Futura';
-  src: url('/fonts/Futura_Bold_font_1783759911958.ttf') format('truetype');
+  src: url('/fonts/Futura_Heavy.ttf') format('truetype');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -301,4 +301,63 @@ html {
 /* All headings: Simplo first, Futura as fallback */
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Simplo', 'Futura', sans-serif;
+}
+
+@media (max-width: 720px) {
+  .homepage-hero {
+    height: auto !important;
+    min-height: 760px !important;
+    padding: 104px 0 76px;
+    align-items: flex-start !important;
+  }
+
+  .homepage-hero-panel {
+    right: 0 !important;
+    background: rgba(22, 22, 22, 0.9) !important;
+  }
+
+  .homepage-hero-photo,
+  .homepage-hero-overlay,
+  .homepage-hero-grid {
+    left: 0 !important;
+  }
+
+  .homepage-hero-photo {
+    opacity: 0.34;
+  }
+
+  .homepage-hero-overlay {
+    background: linear-gradient(145deg, hsl(180 62% 10% / 0.2) 0%, hsl(180 62% 6% / 0.5) 100%) !important;
+  }
+
+  .homepage-hero-content {
+    width: 100% !important;
+    padding: 0 32px !important;
+  }
+
+  .homepage-hero-inner {
+    max-width: 560px !important;
+  }
+
+  .homepage-hero-badge {
+    margin-top: 24px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .homepage-hero-heading {
+    font-size: clamp(3.75rem, 17vw, 5.5rem) !important;
+    line-height: 1.03 !important;
+    margin-bottom: 24px !important;
+  }
+
+  .homepage-hero-subheadline {
+    max-width: 480px !important;
+    font-size: 16px !important;
+    line-height: 1.6 !important;
+    margin-bottom: 32px !important;
+  }
+
+  .homepage-hero-actions {
+    align-items: stretch;
+  }
 }
