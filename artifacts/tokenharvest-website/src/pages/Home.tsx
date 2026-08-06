@@ -122,13 +122,46 @@ const DEF_CTA: HpCta = {
   cta2: "Sign In",
 };
 const DEF_MARKETS: MarketCardData[] = [
-  { num: "01", name: "Maize",   grade: "Grade A–C",    link: "/grain/",  desc: "White & Yellow varieties with 90-day certified storage, fully backed by registered warehouses.", photo: "https://picsum.photos/seed/maize-field/400/640" },
-  { num: "02", name: "Rice",    grade: "Grade A–B",    link: "/grain/",  desc: "Milled & paddy rice from certified storage facilities across East Africa.", photo: "https://picsum.photos/seed/rice-paddy/400/640" },
-  { num: "03", name: "Coffee",  grade: "AA / AB / PB", link: "/coffee/", desc: "Washed & natural-process beans, export-ready and auction-listed at the Nairobi Coffee Exchange.", photo: "https://picsum.photos/seed/coffee-beans/400/640" },
-  { num: "04", name: "Tea",     grade: "BOPI / FNDC",  link: "/tea/",    desc: "Orthodox & CTC grades, Mombasa auction listed with full provenance traceability.", photo: "https://picsum.photos/seed/tea-plantation/400/640" },
-  { num: "05", name: "Avocado", grade: "Hass Export",  link: "/grain/",  desc: "Cold-chain certified Hass avocados meeting EU/UK market phytosanitary standards.", photo: "https://picsum.photos/seed/avocado-farm/400/640" },
-  { num: "06", name: "Honey",   grade: "Raw & Pure",   link: "/grain/",  desc: "Traceable East African honey from verified producer networks, ready for regional and export markets.", photo: "https://picsum.photos/seed/honeycomb/400/640" },
+  { num: "01", name: "Maize",   grade: "Grade A–C",    link: "/grain/",  desc: "White & Yellow varieties with 90-day certified storage, fully backed by registered warehouses.", photo: photo("hero-soybean-farmer.jpg") },
+  { num: "02", name: "Rice",    grade: "Grade A–B",    link: "/grain/",  desc: "Milled & paddy rice from certified storage facilities across East Africa.", photo: photo("hero-soybean-farmer.jpg") },
+  { num: "03", name: "Coffee",  grade: "AA / AB / PB", link: "/coffee/", desc: "Washed & natural-process beans, export-ready and auction-listed at the Nairobi Coffee Exchange.", photo: photo("cafe-imports-coffee-storage.jpg") },
+  { num: "04", name: "Tea",     grade: "BOPI / FNDC",  link: "/tea/",    desc: "Orthodox & CTC grades, Mombasa auction listed with full provenance traceability.", photo: photo("tea-plantation.jpg") },
+  { num: "05", name: "Avocado", grade: "Hass Export",  link: "/grain/",  desc: "Cold-chain certified Hass avocados meeting EU/UK market phytosanitary standards.", photo: photo("hero-soybean-farmer.jpg") },
+  { num: "06", name: "Honey",   grade: "Raw & Pure",   link: "/grain/",  desc: "Traceable East African honey from verified producer networks, ready for regional and export markets.", photo: photo("hero-soybean-farmer.jpg") },
 ];
+
+const MARKET_DESTINATIONS: Record<string, Pick<MarketCardData, "link" | "photo">> = {
+  maize: { link: "/grain/", photo: photo("hero-soybean-farmer.jpg") },
+  rice: { link: "/grain/", photo: photo("hero-soybean-farmer.jpg") },
+  coffee: { link: "/coffee/", photo: photo("cafe-imports-coffee-storage.jpg") },
+  tea: { link: "/tea/", photo: photo("tea-plantation.jpg") },
+  avocado: { link: "/grain/", photo: photo("hero-soybean-farmer.jpg") },
+  honey: { link: "/grain/", photo: photo("hero-soybean-farmer.jpg") },
+};
+
+function normalizeMarkets(value: unknown): MarketCardData[] | undefined {
+  if (!Array.isArray(value) || value.length === 0) return undefined;
+
+  return value.map((market, index) => {
+    const raw = market && typeof market === "object"
+      ? market as Record<string, unknown>
+      : {};
+    const fallback = DEF_MARKETS[index] ?? DEF_MARKETS[0];
+    const name = typeof raw.name === "string" && raw.name.trim()
+      ? raw.name
+      : fallback.name;
+    const canonical = MARKET_DESTINATIONS[name.trim().toLowerCase()];
+
+    return {
+      num: typeof raw.num === "string" ? raw.num : fallback.num,
+      name,
+      grade: typeof raw.grade === "string" ? raw.grade : fallback.grade,
+      desc: typeof raw.desc === "string" ? raw.desc : fallback.desc,
+      link: canonical?.link ?? (typeof raw.link === "string" ? raw.link : fallback.link),
+      photo: canonical?.photo ?? (typeof raw.photo === "string" ? raw.photo : fallback.photo),
+    };
+  });
+}
 
 /* ── smooth scroll helper ─────────────────────────────────── */
 function scrollTo(id: string) {
@@ -622,6 +655,7 @@ export default function Home() {
           ...d.value,
           hero: normalizeHero(d.value.hero),
           services: normalizeServices(d.value.services) ?? DEF_SERVICES,
+          markets: normalizeMarkets(d.value.markets) ?? DEF_MARKETS,
         });
       })
       .catch(() => {});
