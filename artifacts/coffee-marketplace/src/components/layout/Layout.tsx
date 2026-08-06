@@ -29,9 +29,9 @@ export function Layout({ children }: { children: ReactNode }) {
     <div className="flex min-h-[100dvh] w-full bg-background text-foreground selection:bg-accent/20">
       <div className="hidden lg:block w-64 shrink-0 border-r border-border bg-sidebar text-sidebar-foreground">
         <div className="flex h-16 items-center px-6 border-b border-sidebar-border">
-          <div className="flex items-center gap-2 text-white font-bold text-lg tracking-tight">
-            <Coffee className="w-5 h-5 text-accent" />
-            <span>CoffeeXchange</span>
+          <div className="flex items-center gap-2">
+            <Coffee className="w-4 h-4 text-accent shrink-0" />
+            <span className="tokenharvest-wordmark text-xl text-white">Coffee Exchange</span>
           </div>
         </div>
         <div className="p-4 h-[calc(100vh-4rem)] overflow-y-auto">
@@ -40,8 +40,15 @@ export function Layout({ children }: { children: ReactNode }) {
       </div>
       
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 border-b border-border flex items-center px-4 lg:px-8 justify-between sticky top-0 bg-background/90 backdrop-blur-sm z-30">
-          <div className="flex items-center gap-4 lg:hidden">
+        <header className="h-16 border-b border-border flex items-center px-4 lg:px-6 justify-between sticky top-0 bg-background/90 backdrop-blur-sm z-30">
+          {/* Desktop: wordmark in header far-left */}
+          <div className="hidden lg:flex items-center gap-2">
+            <Coffee className="w-4 h-4 text-accent shrink-0" />
+            <span className="tokenharvest-wordmark text-xl">Coffee Exchange</span>
+          </div>
+
+          {/* Mobile: hamburger + wordmark */}
+          <div className="flex items-center gap-3 lg:hidden">
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="shrink-0 -ml-2 text-muted-foreground hover:text-foreground">
@@ -50,9 +57,9 @@ export function Layout({ children }: { children: ReactNode }) {
               </SheetTrigger>
               <SheetContent side="left" className="w-64 p-0 bg-sidebar text-sidebar-foreground border-sidebar-border">
                 <div className="flex h-16 items-center px-6 border-b border-sidebar-border">
-                  <div className="flex items-center gap-2 text-white font-bold text-lg tracking-tight">
-                    <Coffee className="w-5 h-5 text-accent" />
-                    <span>CoffeeXchange</span>
+                  <div className="flex items-center gap-2">
+                    <Coffee className="w-4 h-4 text-accent shrink-0" />
+                    <span className="tokenharvest-wordmark text-xl text-white">Coffee Exchange</span>
                   </div>
                 </div>
                 <div className="p-4 overflow-y-auto">
@@ -60,10 +67,13 @@ export function Layout({ children }: { children: ReactNode }) {
                 </div>
               </SheetContent>
             </Sheet>
-            <div className="font-bold tracking-tight">CX</div>
+            <div className="flex items-center gap-1.5">
+              <Coffee className="w-4 h-4 text-accent" />
+              <span className="tokenharvest-wordmark text-lg">Coffee Exchange</span>
+            </div>
           </div>
           
-          <div className="ml-auto flex items-center gap-4">
+          <div className="flex items-center gap-4">
             {me && (
               <div className="text-right hidden sm:block mr-2">
                 <div className="text-sm font-medium leading-none">{me.name}</div>

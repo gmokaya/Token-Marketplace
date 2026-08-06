@@ -52,9 +52,9 @@ export function AppHeader({ collapsed, onToggle }: AppHeaderProps) {
   const tierLabel = formatTier(dbUser?.tier);
 
   return (
-    <header className="sticky top-0 z-50 flex items-center justify-between h-14 pl-2 pr-3 bg-card border-b border-border shrink-0">
+    <header className="sticky top-0 z-50 flex items-center justify-between h-14 pl-4 pr-3 bg-card border-b border-border shrink-0">
       <div className="flex items-center gap-1">
-        <Link href="/" className="flex items-center -ml-2.5">
+        <Link href="/" className="flex items-center">
           <span className="tokenharvest-wordmark text-2xl text-foreground shrink-0">
             TokenHarvest
           </span>

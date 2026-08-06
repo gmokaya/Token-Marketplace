@@ -21,6 +21,71 @@
   line-height: 1;
 }
 
+@font-face {
+  font-family: 'Futura';
+  src: url('/fonts/Futura_Light_font_1783759911952.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Futura';
+  src: url('/fonts/Futura_Book_font_1783759911949.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Futura';
+  src: url('/fonts/Futura_Book_Italic_font_1783759911949.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Futura';
+  src: url('/fonts/futura_medium_bt_1783759911953.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Futura';
+  src: url('/fonts/Futura_Bold_font_1783759911958.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Futura';
+  src: url('/fonts/Futura_Bold_Italic_font_1783759911958.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ── Simplo display font — place Simplo-Regular.ttf & Simplo-Bold.ttf in /fonts/ ── */
+@font-face {
+  font-family: 'Simplo';
+  src: url('/fonts/Simplo-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Simplo';
+  src: url('/fonts/Simplo-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme inline {
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
@@ -136,7 +201,7 @@
   --chart-4: 300 80% 40%;
   --chart-5: 0 80% 40%;
 
-  --app-font-sans: 'Jost', sans-serif;
+  --app-font-sans: 'Futura', sans-serif;
   --app-font-serif: Georgia, serif;
   --app-font-mono: 'JetBrains Mono', monospace;
   --radius: 0rem;
@@ -231,4 +296,9 @@ html {
     -webkit-backdrop-filter: blur(24px) saturate(160%);
     border: 1px solid rgba(255, 255, 255, 0.12);
   }
+}
+
+/* All headings: Simplo first, Futura as fallback */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Simplo', 'Futura', sans-serif;
 }

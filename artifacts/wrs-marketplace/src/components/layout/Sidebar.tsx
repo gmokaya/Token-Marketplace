@@ -26,7 +26,7 @@ interface NavSection {
 
 const ADMIN_SECTIONS: NavSection[] = [
   {
-    heading: "Platform Admin",
+    heading: "Exchange Admin",
     items: [
       { href: "/dashboard",      label: "Dashboard",        icon: LayoutDashboard, tiers: ["ADMIN"] },
       { href: "/admin/users",    label: "User Management",  icon: Users,           tiers: ["ADMIN"] },

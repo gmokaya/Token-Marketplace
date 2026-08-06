@@ -340,3 +340,25 @@ html {
     border: 1px solid rgba(255, 255, 255, 0.12);
   }
 }
+
+/* ── Simplo display font — place Simplo-Regular.ttf & Simplo-Bold.ttf in /grain/fonts/ ── */
+@font-face {
+  font-family: 'Simplo';
+  src: url('/grain/fonts/Simplo-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Simplo';
+  src: url('/grain/fonts/Simplo-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* All headings: Simplo first, Futura as fallback */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Simplo', 'Futura', sans-serif;
+}

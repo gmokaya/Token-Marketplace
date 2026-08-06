@@ -27,10 +27,13 @@ import ProducerNewLot from "@/pages/producer/ProducerNewLot";
 import ProducerEditLot from "@/pages/producer/ProducerEditLot";
 import ProducerProducts from "@/pages/producer/ProducerProducts";
 import ProducerRfqs from "@/pages/producer/ProducerRfqs";
+import ProducerRfqDetail from "@/pages/producer/ProducerRfqDetail";
 import ProducerShipments from "@/pages/producer/ProducerShipments";
+import ProducerShipmentDetail from "@/pages/producer/ProducerShipmentDetail";
 import ProducerEsg from "@/pages/producer/ProducerEsg";
 
 import BrokerDashboard from "@/pages/broker/BrokerDashboard";
+import BrokerLots from "@/pages/broker/BrokerLots";
 import NewBrokeredLot from "@/pages/broker/NewBrokeredLot";
 import EditBrokeredLot from "@/pages/broker/EditBrokeredLot";
 import BrokerMandates from "@/pages/broker/BrokerMandates";
@@ -149,10 +152,13 @@ function ClerkProviderWithRoutes() {
                   <Route path="/producer/lots/:lotId/edit"><ProtectedRoute><ProducerEditLot /></ProtectedRoute></Route>
                   <Route path="/producer/products"><ProtectedRoute><ProducerProducts /></ProtectedRoute></Route>
                   <Route path="/producer/rfqs"><ProtectedRoute><ProducerRfqs /></ProtectedRoute></Route>
+                  <Route path="/producer/rfqs/:rfqId"><ProtectedRoute><ProducerRfqDetail /></ProtectedRoute></Route>
                   <Route path="/producer/shipments"><ProtectedRoute><ProducerShipments /></ProtectedRoute></Route>
+                  <Route path="/producer/shipments/:shipmentId"><ProtectedRoute><ProducerShipmentDetail /></ProtectedRoute></Route>
                   <Route path="/producer/esg"><ProtectedRoute><ProducerEsg /></ProtectedRoute></Route>
 
                   <Route path="/broker"><ProtectedRoute><BrokerDashboard /></ProtectedRoute></Route>
+                  <Route path="/broker/lots"><ProtectedRoute><BrokerLots /></ProtectedRoute></Route>
                   <Route path="/broker/lots/new"><ProtectedRoute><NewBrokeredLot /></ProtectedRoute></Route>
                   <Route path="/broker/lots/:lotId/edit"><ProtectedRoute><EditBrokeredLot /></ProtectedRoute></Route>
                   <Route path="/broker/mandates"><ProtectedRoute><BrokerMandates /></ProtectedRoute></Route>
