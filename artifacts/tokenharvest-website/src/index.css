@@ -609,6 +609,16 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Taller tablet/compact-desktop viewports: use the lower hero space intentionally. */
 @media (min-width: 721px) and (max-width: 980px) and (min-height: 621px) {
+  .homepage-main-nav {
+    padding-left: 23vw !important;
+    padding-right: 24px !important;
+  }
+
+  .homepage-logo {
+    font-size: 42px !important;
+    margin-left: 0 !important;
+  }
+
   .homepage-hero {
     height: calc(100vh - 44px) !important;
     min-height: 0 !important;
@@ -619,35 +629,36 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .homepage-hero-content {
-    padding-left: 9vw !important;
-    padding-right: 9vw !important;
+    padding-left: 23vw !important;
+    padding-right: 24px !important;
   }
 
   .homepage-hero-badge {
     margin-top: 0 !important;
-    margin-bottom: 26px !important;
+    margin-bottom: 30px !important;
   }
 
   .homepage-hero-badge span {
-    letter-spacing: 0.25em !important;
+    letter-spacing: 0.28em !important;
   }
 
   .homepage-hero-heading {
-    font-size: clamp(4rem, 10vw, 6.5rem) !important;
-    line-height: 1.02 !important;
-    letter-spacing: -0.02em !important;
-    margin-bottom: 44px !important;
+    font-size: clamp(4.5rem, 11.5vw, 7.25rem) !important;
+    line-height: 1.04 !important;
+    letter-spacing: -0.025em !important;
+    margin-bottom: 38px !important;
   }
 
   .homepage-hero-content > .homepage-hero-inner > div[style*="width: 56px"] {
-    margin-bottom: 40px !important;
+    margin-bottom: 32px !important;
   }
 
   .homepage-hero-subheadline {
-    font-size: 17px !important;
-    line-height: 1.65 !important;
-    letter-spacing: 0.008em !important;
-    margin-bottom: 54px !important;
+    max-width: 680px !important;
+    font-size: 18px !important;
+    line-height: 1.7 !important;
+    letter-spacing: 0.01em !important;
+    margin-bottom: 42px !important;
   }
 
   .homepage-hero-actions {
