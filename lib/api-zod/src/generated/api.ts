@@ -2167,6 +2167,828 @@ export const AttachTeaDispatchDocBody = zod.object({
 
 
 /**
+ * @summary List coffee auction sessions
+ */
+export const ListCoffeeAuctionSessionsQueryParams = zod.object({
+  "status": zod.enum(['SCHEDULED', 'LIVE', 'CLOSED', 'COMPLETED']).optional()
+})
+
+export const ListCoffeeAuctionSessionsResponseItem = zod.object({
+  "id": zod.number(),
+  "createdByBrokerId": zod.number(),
+  "brokerName": zod.string().nullish(),
+  "auctionDate": zod.coerce.date(),
+  "catalogueOrder": zod.array(zod.number()),
+  "currentLotId": zod.number().nullish(),
+  "status": zod.enum(['SCHEDULED', 'LIVE', 'CLOSED', 'COMPLETED']),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+export const ListCoffeeAuctionSessionsResponse = zod.array(ListCoffeeAuctionSessionsResponseItem)
+
+
+/**
+ * @summary Admin creates a coffee auction session
+ */
+export const CreateCoffeeAuctionSessionBody = zod.object({
+  "auctionDate": zod.coerce.date().describe('Planned date of the auction session (YYYY-MM-DD)')
+})
+
+
+/**
+ * @summary Get coffee session detail with ordered lot list, current bids, and countdown timers
+ */
+export const GetCoffeeAuctionSessionParams = zod.object({
+  "sessionId": zod.coerce.number()
+})
+
+export const GetCoffeeAuctionSessionResponse = zod.object({
+  "id": zod.number(),
+  "createdByBrokerId": zod.number(),
+  "brokerName": zod.string().nullish(),
+  "auctionDate": zod.coerce.date(),
+  "catalogueOrder": zod.array(zod.number()),
+  "currentLotId": zod.number().nullish(),
+  "status": zod.enum(['SCHEDULED', 'LIVE', 'CLOSED', 'COMPLETED']),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+}).and(zod.object({
+  "lots": zod.array(zod.object({
+
+}).passthrough().describe('CoffeeLot enriched with currentHighBidUsd, bidCount, secsRemaining, minNextBidUsd')).optional()
+}))
+
+
+/**
+ * @summary Broker submits COFFEE lots to a scheduled session
+ */
+export const AddLotsToCoffeeAuctionSessionParams = zod.object({
+  "sessionId": zod.coerce.number()
+})
+
+
+
+
+export const AddLotsToCoffeeAuctionSessionBody = zod.object({
+  "lotIds": zod.array(zod.number()).min(1)
+})
+
+export const AddLotsToCoffeeAuctionSessionResponse = zod.object({
+  "id": zod.number(),
+  "createdByBrokerId": zod.number(),
+  "brokerName": zod.string().nullish(),
+  "auctionDate": zod.coerce.date(),
+  "catalogueOrder": zod.array(zod.number()),
+  "currentLotId": zod.number().nullish(),
+  "status": zod.enum(['SCHEDULED', 'LIVE', 'CLOSED', 'COMPLETED']),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Start the coffee session — moves the first lot to LIVE
+ */
+export const StartCoffeeAuctionSessionParams = zod.object({
+  "sessionId": zod.coerce.number()
+})
+
+export const startCoffeeAuctionSessionBodyDurationMinsDefault = 7;
+
+export const StartCoffeeAuctionSessionBody = zod.object({
+  "durationMins": zod.number().default(startCoffeeAuctionSessionBodyDurationMinsDefault).describe('Minutes each lot runs before closing')
+})
+
+export const StartCoffeeAuctionSessionResponse = zod.object({
+  "sessionId": zod.number().optional(),
+  "currentLotId": zod.number().optional(),
+  "auctionEndAt": zod.coerce.date().optional()
+})
+
+
+/**
+ * @summary Place a bid on a LIVE coffee lot (OFF_TAKER only). Enforces tiered tick sizes and anti-snipe extension.
+ */
+export const PlaceCoffeeLotBidParams = zod.object({
+  "lotId": zod.coerce.number()
+})
+
+export const placeCoffeeLotBidBodyAmountUsdExclusiveMin = 0;
+
+
+
+export const PlaceCoffeeLotBidBody = zod.object({
+  "amountUsd": zod.number().gt(placeCoffeeLotBidBodyAmountUsdExclusiveMin)
+})
+
+
+/**
+ * @summary Broker withdraws a RESERVE_NOT_MET coffee lot
+ */
+export const CoffeeLotTakeOutParams = zod.object({
+  "lotId": zod.coerce.number()
+})
+
+export const coffeeLotTakeOutResponseAntiSnipeConfigWindowSecsDefault = 180;
+export const coffeeLotTakeOutResponseAntiSnipeConfigExtensionSecsDefault = 180;
+export const coffeeLotTakeOutResponseAntiSnipeConfigMaxExtensionSecsDefault = 1800;
+
+export const CoffeeLotTakeOutResponse = zod.object({
+  "id": zod.number(),
+  "ewrId": zod.number(),
+  "ownerId": zod.number(),
+  "brokerId": zod.number(),
+  "grade": zod.string().describe('Coffee grade (e.g. AA, AB, PB, C or custom grade mark)'),
+  "gradeMark": zod.string().describe('Coffee lot mark \/ brand identifier'),
+  "giOrigin": zod.string().describe('Geographic origin of the coffee (e.g. Ethiopia Yirgacheffe, Colombia Huila)'),
+  "grossWeightKg": zod.number(),
+  "netWeightKg": zod.number(),
+  "tareWeightKg": zod.number(),
+  "packageType": zod.string().describe('Packaging type (e.g. Jute Bag 60kg, GrainPro, Vacuum-sealed)'),
+  "packingWeightKg": zod.number().nullish(),
+  "cuppingRemarks": zod.string().nullish().describe('Cupping notes and taster observations (coffee-specific)'),
+  "processingMethod": zod.string().nullish().describe('Processing method — Washed \/ Natural \/ Honey \/ Wet Hulled (coffee-specific)'),
+  "varietal": zod.string().nullish().describe('Coffee varietal — Bourbon \/ Geisha \/ SL28 \/ Heirloom etc. (coffee-specific)'),
+  "altitude": zod.number().nullish().describe('Farm altitude in metres above sea level (coffee-specific)'),
+  "certifications": zod.array(zod.string()),
+  "storageStatus": zod.string().nullish(),
+  "listingType": zod.enum(['AUCTION', 'FIXED_PRICE']),
+  "catalogueType": zod.enum(['WITH_VALUATION', 'WITHOUT_VALUATION']),
+  "reservePriceUsd": zod.number().nullish(),
+  "brokerValuationUsd": zod.number().nullish(),
+  "fixedPricePerKgUsd": zod.number().nullish(),
+  "commissionRate": zod.number(),
+  "tickTiers": zod.array(zod.object({
+  "upToUsd": zod.number().nullish().describe('Upper bound of this tier (null \/ absent means \"above all others\")'),
+  "above": zod.boolean().nullish().describe('True for the catch-all top tier'),
+  "incrementPct": zod.number().describe('Minimum bid increment as a percentage within this tier')
+})),
+  "antiSnipeConfig": zod.object({
+  "windowSecs": zod.number().default(coffeeLotTakeOutResponseAntiSnipeConfigWindowSecsDefault).describe('Seconds before lot end that triggers extension'),
+  "extensionSecs": zod.number().default(coffeeLotTakeOutResponseAntiSnipeConfigExtensionSecsDefault).describe('Seconds added per late bid'),
+  "maxExtensionSecs": zod.number().default(coffeeLotTakeOutResponseAntiSnipeConfigMaxExtensionSecsDefault).describe('Maximum total extension (30 min cap)')
+}),
+  "bidSecurityPct": zod.number(),
+  "status": zod.enum(['DRAFT', 'CATALOGUED', 'DISPATCHED', 'LIVE', 'SOLD', 'UNSOLD', 'WITHDRAWN', 'RESERVE_NOT_MET']),
+  "publishedAt": zod.coerce.date().nullish(),
+  "warehouseCode": zod.string().nullish(),
+  "coffeeBeanSize": zod.union([zod.literal('AA'),zod.literal('AB'),zod.literal('PB'),zod.literal('C'),zod.literal(null)]).nullish().describe('Bean size grade from eWR (coffee-specific)'),
+  "coffeeCuppingScore": zod.number().nullish().describe('Cupping score from eWR (coffee-specific)'),
+  "warehouseProfile": zod.object({
+  "operatorName": zod.string(),
+  "wrscLicenseNumber": zod.string(),
+  "facilityType": zod.string().nullish(),
+  "capacityMt": zod.string().nullish(),
+  "warehouseInChargeName": zod.string().nullish(),
+  "warehouseInChargePhone": zod.string().nullish(),
+  "warehouseInChargeEmail": zod.string().nullish(),
+  "handlesTea": zod.string().nullish(),
+  "insurerName": zod.string().nullish()
+}).nullish(),
+  "sessionId": zod.number().nullish(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Broker accepts the highest bid even though it is below reserve
+ */
+export const AcceptCoffeeLotBelowReserveParams = zod.object({
+  "lotId": zod.coerce.number()
+})
+
+export const AcceptCoffeeLotBelowReserveResponse = zod.object({
+  "lotId": zod.number().optional(),
+  "status": zod.string().optional(),
+  "acceptedBelowReserve": zod.boolean().optional(),
+  "grossAmountUsd": zod.number().optional(),
+  "promptDate": zod.coerce.date().optional()
+})
+
+
+/**
+ * @summary Admin confirms payment received — marks delivery order issuable
+ */
+export const SettleCoffeeLotParams = zod.object({
+  "lotId": zod.coerce.number()
+})
+
+export const SettleCoffeeLotResponse = zod.object({
+  "id": zod.number(),
+  "lotId": zod.number(),
+  "sessionId": zod.number(),
+  "winningBidId": zod.number(),
+  "buyerId": zod.number(),
+  "buyerName": zod.string().nullish(),
+  "grossAmountUsd": zod.number(),
+  "platformFeeUsd": zod.number(),
+  "brokerCommissionUsd": zod.number(),
+  "netProducerAmountUsd": zod.number(),
+  "promptDate": zod.coerce.date(),
+  "paymentStatus": zod.enum(['PENDING', 'PAID', 'DEFAULTED']),
+  "deliveryOrderStatus": zod.enum(['NOT_ISSUABLE', 'ISSUABLE', 'ISSUED']),
+  "acceptedBelowReserve": zod.number().optional(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Get settlement detail for a coffee lot
+ */
+export const GetCoffeeLotSettlementParams = zod.object({
+  "lotId": zod.coerce.number()
+})
+
+export const GetCoffeeLotSettlementResponse = zod.object({
+  "id": zod.number(),
+  "lotId": zod.number(),
+  "sessionId": zod.number(),
+  "winningBidId": zod.number(),
+  "buyerId": zod.number(),
+  "buyerName": zod.string().nullish(),
+  "grossAmountUsd": zod.number(),
+  "platformFeeUsd": zod.number(),
+  "brokerCommissionUsd": zod.number(),
+  "netProducerAmountUsd": zod.number(),
+  "promptDate": zod.coerce.date(),
+  "paymentStatus": zod.enum(['PENDING', 'PAID', 'DEFAULTED']),
+  "deliveryOrderStatus": zod.enum(['NOT_ISSUABLE', 'ISSUABLE', 'ISSUED']),
+  "acceptedBelowReserve": zod.number().optional(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary List coffee lots (filterable by grade, origin, certification, listing type, status)
+ */
+export const ListCoffeeLotsQueryParams = zod.object({
+  "grade": zod.coerce.string().optional(),
+  "giOrigin": zod.coerce.string().optional(),
+  "certification": zod.coerce.string().optional(),
+  "listingType": zod.enum(['AUCTION', 'FIXED_PRICE']).optional(),
+  "status": zod.enum(['DRAFT', 'CATALOGUED', 'DISPATCHED', 'LIVE', 'SOLD', 'UNSOLD', 'WITHDRAWN', 'RESERVE_NOT_MET']).optional(),
+  "brokerId": zod.coerce.number().optional(),
+  "ownerId": zod.coerce.number().optional()
+})
+
+export const listCoffeeLotsResponseAntiSnipeConfigWindowSecsDefault = 180;
+export const listCoffeeLotsResponseAntiSnipeConfigExtensionSecsDefault = 180;
+export const listCoffeeLotsResponseAntiSnipeConfigMaxExtensionSecsDefault = 1800;
+
+export const ListCoffeeLotsResponseItem = zod.object({
+  "id": zod.number(),
+  "ewrId": zod.number(),
+  "ownerId": zod.number(),
+  "brokerId": zod.number(),
+  "grade": zod.string().describe('Coffee grade (e.g. AA, AB, PB, C or custom grade mark)'),
+  "gradeMark": zod.string().describe('Coffee lot mark \/ brand identifier'),
+  "giOrigin": zod.string().describe('Geographic origin of the coffee (e.g. Ethiopia Yirgacheffe, Colombia Huila)'),
+  "grossWeightKg": zod.number(),
+  "netWeightKg": zod.number(),
+  "tareWeightKg": zod.number(),
+  "packageType": zod.string().describe('Packaging type (e.g. Jute Bag 60kg, GrainPro, Vacuum-sealed)'),
+  "packingWeightKg": zod.number().nullish(),
+  "cuppingRemarks": zod.string().nullish().describe('Cupping notes and taster observations (coffee-specific)'),
+  "processingMethod": zod.string().nullish().describe('Processing method — Washed \/ Natural \/ Honey \/ Wet Hulled (coffee-specific)'),
+  "varietal": zod.string().nullish().describe('Coffee varietal — Bourbon \/ Geisha \/ SL28 \/ Heirloom etc. (coffee-specific)'),
+  "altitude": zod.number().nullish().describe('Farm altitude in metres above sea level (coffee-specific)'),
+  "certifications": zod.array(zod.string()),
+  "storageStatus": zod.string().nullish(),
+  "listingType": zod.enum(['AUCTION', 'FIXED_PRICE']),
+  "catalogueType": zod.enum(['WITH_VALUATION', 'WITHOUT_VALUATION']),
+  "reservePriceUsd": zod.number().nullish(),
+  "brokerValuationUsd": zod.number().nullish(),
+  "fixedPricePerKgUsd": zod.number().nullish(),
+  "commissionRate": zod.number(),
+  "tickTiers": zod.array(zod.object({
+  "upToUsd": zod.number().nullish().describe('Upper bound of this tier (null \/ absent means \"above all others\")'),
+  "above": zod.boolean().nullish().describe('True for the catch-all top tier'),
+  "incrementPct": zod.number().describe('Minimum bid increment as a percentage within this tier')
+})),
+  "antiSnipeConfig": zod.object({
+  "windowSecs": zod.number().default(listCoffeeLotsResponseAntiSnipeConfigWindowSecsDefault).describe('Seconds before lot end that triggers extension'),
+  "extensionSecs": zod.number().default(listCoffeeLotsResponseAntiSnipeConfigExtensionSecsDefault).describe('Seconds added per late bid'),
+  "maxExtensionSecs": zod.number().default(listCoffeeLotsResponseAntiSnipeConfigMaxExtensionSecsDefault).describe('Maximum total extension (30 min cap)')
+}),
+  "bidSecurityPct": zod.number(),
+  "status": zod.enum(['DRAFT', 'CATALOGUED', 'DISPATCHED', 'LIVE', 'SOLD', 'UNSOLD', 'WITHDRAWN', 'RESERVE_NOT_MET']),
+  "publishedAt": zod.coerce.date().nullish(),
+  "warehouseCode": zod.string().nullish(),
+  "coffeeBeanSize": zod.union([zod.literal('AA'),zod.literal('AB'),zod.literal('PB'),zod.literal('C'),zod.literal(null)]).nullish().describe('Bean size grade from eWR (coffee-specific)'),
+  "coffeeCuppingScore": zod.number().nullish().describe('Cupping score from eWR (coffee-specific)'),
+  "warehouseProfile": zod.object({
+  "operatorName": zod.string(),
+  "wrscLicenseNumber": zod.string(),
+  "facilityType": zod.string().nullish(),
+  "capacityMt": zod.string().nullish(),
+  "warehouseInChargeName": zod.string().nullish(),
+  "warehouseInChargePhone": zod.string().nullish(),
+  "warehouseInChargeEmail": zod.string().nullish(),
+  "handlesTea": zod.string().nullish(),
+  "insurerName": zod.string().nullish()
+}).nullish(),
+  "sessionId": zod.number().nullish(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+export const ListCoffeeLotsResponse = zod.array(ListCoffeeLotsResponseItem)
+
+
+/**
+ * @summary Broker or producer creates a coffee lot catalogue entry (active COFFEE mandate required for brokers)
+ */
+
+
+
+export const createCoffeeLotBodyGrossWeightKgExclusiveMin = 0;
+
+export const createCoffeeLotBodyNetWeightKgExclusiveMin = 0;
+
+export const createCoffeeLotBodyTareWeightKgMin = 0;
+
+
+export const createCoffeeLotBodyCertificationsDefault = [];
+export const createCoffeeLotBodyListingTypeDefault = `AUCTION`;
+export const createCoffeeLotBodyCatalogueTypeDefault = `WITHOUT_VALUATION`;
+export const createCoffeeLotBodyCommissionRateDefault = 0.01;
+export const createCoffeeLotBodyCommissionRateMin = 0;
+export const createCoffeeLotBodyCommissionRateMax = 1;
+
+export const createCoffeeLotBodyTickTiersDefault = [];
+export const createCoffeeLotBodyAntiSnipeConfigWindowSecsDefault = 180;
+export const createCoffeeLotBodyAntiSnipeConfigExtensionSecsDefault = 180;
+export const createCoffeeLotBodyAntiSnipeConfigMaxExtensionSecsDefault = 1800;
+export const createCoffeeLotBodyBidSecurityPctDefault = 0.1;
+export const createCoffeeLotBodyBidSecurityPctMin = 0;
+export const createCoffeeLotBodyBidSecurityPctMax = 1;
+
+
+
+export const CreateCoffeeLotBody = zod.object({
+  "ewrId": zod.number(),
+  "grade": zod.string().min(1).describe('Coffee grade (AA, AB, PB, C or custom)'),
+  "gradeMark": zod.string().min(1).describe('Lot mark \/ brand identifier'),
+  "giOrigin": zod.string().min(1).describe('Geographic origin (e.g. Ethiopia Yirgacheffe)'),
+  "grossWeightKg": zod.number().gt(createCoffeeLotBodyGrossWeightKgExclusiveMin),
+  "netWeightKg": zod.number().gt(createCoffeeLotBodyNetWeightKgExclusiveMin),
+  "tareWeightKg": zod.number().min(createCoffeeLotBodyTareWeightKgMin),
+  "packageType": zod.string().min(1),
+  "packingWeightKg": zod.number().optional(),
+  "cuppingRemarks": zod.string().optional().describe('Cupping notes (coffee-specific)'),
+  "processingMethod": zod.string().optional().describe('Washed \/ Natural \/ Honey \/ Wet Hulled (coffee-specific)'),
+  "varietal": zod.string().optional().describe('Bourbon \/ Geisha \/ SL28 \/ Heirloom etc. (coffee-specific)'),
+  "altitude": zod.number().optional().describe('Farm altitude in metres above sea level (coffee-specific)'),
+  "certifications": zod.array(zod.string()).default(createCoffeeLotBodyCertificationsDefault),
+  "storageStatus": zod.string().optional(),
+  "listingType": zod.enum(['AUCTION', 'FIXED_PRICE']).default(createCoffeeLotBodyListingTypeDefault),
+  "catalogueType": zod.enum(['WITH_VALUATION', 'WITHOUT_VALUATION']).default(createCoffeeLotBodyCatalogueTypeDefault),
+  "reservePriceUsd": zod.number().optional().describe('Required for AUCTION lots'),
+  "brokerValuationUsd": zod.number().optional(),
+  "fixedPricePerKgUsd": zod.number().optional().describe('Required for FIXED_PRICE lots'),
+  "commissionRate": zod.number().min(createCoffeeLotBodyCommissionRateMin).max(createCoffeeLotBodyCommissionRateMax).default(createCoffeeLotBodyCommissionRateDefault),
+  "tickTiers": zod.array(zod.object({
+  "upToUsd": zod.number().nullish().describe('Upper bound of this tier (null \/ absent means \"above all others\")'),
+  "above": zod.boolean().nullish().describe('True for the catch-all top tier'),
+  "incrementPct": zod.number().describe('Minimum bid increment as a percentage within this tier')
+})).default(createCoffeeLotBodyTickTiersDefault),
+  "antiSnipeConfig": zod.object({
+  "windowSecs": zod.number().default(createCoffeeLotBodyAntiSnipeConfigWindowSecsDefault).describe('Seconds before lot end that triggers extension'),
+  "extensionSecs": zod.number().default(createCoffeeLotBodyAntiSnipeConfigExtensionSecsDefault).describe('Seconds added per late bid'),
+  "maxExtensionSecs": zod.number().default(createCoffeeLotBodyAntiSnipeConfigMaxExtensionSecsDefault).describe('Maximum total extension (30 min cap)')
+}).optional(),
+  "bidSecurityPct": zod.number().min(createCoffeeLotBodyBidSecurityPctMin).max(createCoffeeLotBodyBidSecurityPctMax).default(createCoffeeLotBodyBidSecurityPctDefault)
+})
+
+
+/**
+ * @summary Get full coffee lot detail including coffee-specific eWR fields (coffeeBeanSize, coffeeCuppingScore)
+ */
+export const GetCoffeeLotParams = zod.object({
+  "lotId": zod.coerce.number()
+})
+
+export const getCoffeeLotResponseOneAntiSnipeConfigWindowSecsDefault = 180;
+export const getCoffeeLotResponseOneAntiSnipeConfigExtensionSecsDefault = 180;
+export const getCoffeeLotResponseOneAntiSnipeConfigMaxExtensionSecsDefault = 1800;
+
+export const GetCoffeeLotResponse = zod.object({
+  "id": zod.number(),
+  "ewrId": zod.number(),
+  "ownerId": zod.number(),
+  "brokerId": zod.number(),
+  "grade": zod.string().describe('Coffee grade (e.g. AA, AB, PB, C or custom grade mark)'),
+  "gradeMark": zod.string().describe('Coffee lot mark \/ brand identifier'),
+  "giOrigin": zod.string().describe('Geographic origin of the coffee (e.g. Ethiopia Yirgacheffe, Colombia Huila)'),
+  "grossWeightKg": zod.number(),
+  "netWeightKg": zod.number(),
+  "tareWeightKg": zod.number(),
+  "packageType": zod.string().describe('Packaging type (e.g. Jute Bag 60kg, GrainPro, Vacuum-sealed)'),
+  "packingWeightKg": zod.number().nullish(),
+  "cuppingRemarks": zod.string().nullish().describe('Cupping notes and taster observations (coffee-specific)'),
+  "processingMethod": zod.string().nullish().describe('Processing method — Washed \/ Natural \/ Honey \/ Wet Hulled (coffee-specific)'),
+  "varietal": zod.string().nullish().describe('Coffee varietal — Bourbon \/ Geisha \/ SL28 \/ Heirloom etc. (coffee-specific)'),
+  "altitude": zod.number().nullish().describe('Farm altitude in metres above sea level (coffee-specific)'),
+  "certifications": zod.array(zod.string()),
+  "storageStatus": zod.string().nullish(),
+  "listingType": zod.enum(['AUCTION', 'FIXED_PRICE']),
+  "catalogueType": zod.enum(['WITH_VALUATION', 'WITHOUT_VALUATION']),
+  "reservePriceUsd": zod.number().nullish(),
+  "brokerValuationUsd": zod.number().nullish(),
+  "fixedPricePerKgUsd": zod.number().nullish(),
+  "commissionRate": zod.number(),
+  "tickTiers": zod.array(zod.object({
+  "upToUsd": zod.number().nullish().describe('Upper bound of this tier (null \/ absent means \"above all others\")'),
+  "above": zod.boolean().nullish().describe('True for the catch-all top tier'),
+  "incrementPct": zod.number().describe('Minimum bid increment as a percentage within this tier')
+})),
+  "antiSnipeConfig": zod.object({
+  "windowSecs": zod.number().default(getCoffeeLotResponseOneAntiSnipeConfigWindowSecsDefault).describe('Seconds before lot end that triggers extension'),
+  "extensionSecs": zod.number().default(getCoffeeLotResponseOneAntiSnipeConfigExtensionSecsDefault).describe('Seconds added per late bid'),
+  "maxExtensionSecs": zod.number().default(getCoffeeLotResponseOneAntiSnipeConfigMaxExtensionSecsDefault).describe('Maximum total extension (30 min cap)')
+}),
+  "bidSecurityPct": zod.number(),
+  "status": zod.enum(['DRAFT', 'CATALOGUED', 'DISPATCHED', 'LIVE', 'SOLD', 'UNSOLD', 'WITHDRAWN', 'RESERVE_NOT_MET']),
+  "publishedAt": zod.coerce.date().nullish(),
+  "warehouseCode": zod.string().nullish(),
+  "coffeeBeanSize": zod.union([zod.literal('AA'),zod.literal('AB'),zod.literal('PB'),zod.literal('C'),zod.literal(null)]).nullish().describe('Bean size grade from eWR (coffee-specific)'),
+  "coffeeCuppingScore": zod.number().nullish().describe('Cupping score from eWR (coffee-specific)'),
+  "warehouseProfile": zod.object({
+  "operatorName": zod.string(),
+  "wrscLicenseNumber": zod.string(),
+  "facilityType": zod.string().nullish(),
+  "capacityMt": zod.string().nullish(),
+  "warehouseInChargeName": zod.string().nullish(),
+  "warehouseInChargePhone": zod.string().nullish(),
+  "warehouseInChargeEmail": zod.string().nullish(),
+  "handlesTea": zod.string().nullish(),
+  "insurerName": zod.string().nullish()
+}).nullish(),
+  "sessionId": zod.number().nullish(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+}).and(zod.object({
+  "ownerName": zod.string().nullish(),
+  "brokerName": zod.string().nullish(),
+  "ewr": zod.object({
+  "ewrsReceiptId": zod.string().optional(),
+  "commodityType": zod.string().optional(),
+  "weightMt": zod.number().optional(),
+  "harvestSeason": zod.string().optional(),
+  "state": zod.string().optional(),
+  "coffeeBeanSize": zod.union([zod.literal('AA'),zod.literal('AB'),zod.literal('PB'),zod.literal('C'),zod.literal(null)]).nullish(),
+  "coffeeCuppingScore": zod.number().nullish()
+}).nullish()
+}))
+
+
+/**
+ * @summary Broker or owner updates a DRAFT/CATALOGUED coffee lot
+ */
+export const UpdateCoffeeLotParams = zod.object({
+  "lotId": zod.coerce.number()
+})
+
+export const updateCoffeeLotBodyAntiSnipeConfigWindowSecsDefault = 180;
+export const updateCoffeeLotBodyAntiSnipeConfigExtensionSecsDefault = 180;
+export const updateCoffeeLotBodyAntiSnipeConfigMaxExtensionSecsDefault = 1800;
+
+export const UpdateCoffeeLotBody = zod.object({
+  "grade": zod.string().optional(),
+  "gradeMark": zod.string().optional(),
+  "giOrigin": zod.string().optional(),
+  "grossWeightKg": zod.number().optional(),
+  "netWeightKg": zod.number().optional(),
+  "tareWeightKg": zod.number().optional(),
+  "packageType": zod.string().optional(),
+  "packingWeightKg": zod.number().optional(),
+  "cuppingRemarks": zod.string().optional().describe('Cupping notes (coffee-specific)'),
+  "processingMethod": zod.string().optional().describe('Processing method (coffee-specific)'),
+  "varietal": zod.string().optional().describe('Coffee varietal (coffee-specific)'),
+  "altitude": zod.number().optional().describe('Farm altitude masl (coffee-specific)'),
+  "certifications": zod.array(zod.string()).optional(),
+  "storageStatus": zod.string().optional(),
+  "listingType": zod.enum(['AUCTION', 'FIXED_PRICE']).optional(),
+  "catalogueType": zod.enum(['WITH_VALUATION', 'WITHOUT_VALUATION']).optional(),
+  "reservePriceUsd": zod.number().optional(),
+  "brokerValuationUsd": zod.number().optional(),
+  "fixedPricePerKgUsd": zod.number().optional(),
+  "commissionRate": zod.number().optional(),
+  "tickTiers": zod.array(zod.object({
+  "upToUsd": zod.number().nullish().describe('Upper bound of this tier (null \/ absent means \"above all others\")'),
+  "above": zod.boolean().nullish().describe('True for the catch-all top tier'),
+  "incrementPct": zod.number().describe('Minimum bid increment as a percentage within this tier')
+})).optional(),
+  "antiSnipeConfig": zod.object({
+  "windowSecs": zod.number().default(updateCoffeeLotBodyAntiSnipeConfigWindowSecsDefault).describe('Seconds before lot end that triggers extension'),
+  "extensionSecs": zod.number().default(updateCoffeeLotBodyAntiSnipeConfigExtensionSecsDefault).describe('Seconds added per late bid'),
+  "maxExtensionSecs": zod.number().default(updateCoffeeLotBodyAntiSnipeConfigMaxExtensionSecsDefault).describe('Maximum total extension (30 min cap)')
+}).optional(),
+  "bidSecurityPct": zod.number().optional()
+}).describe('All fields are optional; only the provided fields are updated')
+
+export const updateCoffeeLotResponseAntiSnipeConfigWindowSecsDefault = 180;
+export const updateCoffeeLotResponseAntiSnipeConfigExtensionSecsDefault = 180;
+export const updateCoffeeLotResponseAntiSnipeConfigMaxExtensionSecsDefault = 1800;
+
+export const UpdateCoffeeLotResponse = zod.object({
+  "id": zod.number(),
+  "ewrId": zod.number(),
+  "ownerId": zod.number(),
+  "brokerId": zod.number(),
+  "grade": zod.string().describe('Coffee grade (e.g. AA, AB, PB, C or custom grade mark)'),
+  "gradeMark": zod.string().describe('Coffee lot mark \/ brand identifier'),
+  "giOrigin": zod.string().describe('Geographic origin of the coffee (e.g. Ethiopia Yirgacheffe, Colombia Huila)'),
+  "grossWeightKg": zod.number(),
+  "netWeightKg": zod.number(),
+  "tareWeightKg": zod.number(),
+  "packageType": zod.string().describe('Packaging type (e.g. Jute Bag 60kg, GrainPro, Vacuum-sealed)'),
+  "packingWeightKg": zod.number().nullish(),
+  "cuppingRemarks": zod.string().nullish().describe('Cupping notes and taster observations (coffee-specific)'),
+  "processingMethod": zod.string().nullish().describe('Processing method — Washed \/ Natural \/ Honey \/ Wet Hulled (coffee-specific)'),
+  "varietal": zod.string().nullish().describe('Coffee varietal — Bourbon \/ Geisha \/ SL28 \/ Heirloom etc. (coffee-specific)'),
+  "altitude": zod.number().nullish().describe('Farm altitude in metres above sea level (coffee-specific)'),
+  "certifications": zod.array(zod.string()),
+  "storageStatus": zod.string().nullish(),
+  "listingType": zod.enum(['AUCTION', 'FIXED_PRICE']),
+  "catalogueType": zod.enum(['WITH_VALUATION', 'WITHOUT_VALUATION']),
+  "reservePriceUsd": zod.number().nullish(),
+  "brokerValuationUsd": zod.number().nullish(),
+  "fixedPricePerKgUsd": zod.number().nullish(),
+  "commissionRate": zod.number(),
+  "tickTiers": zod.array(zod.object({
+  "upToUsd": zod.number().nullish().describe('Upper bound of this tier (null \/ absent means \"above all others\")'),
+  "above": zod.boolean().nullish().describe('True for the catch-all top tier'),
+  "incrementPct": zod.number().describe('Minimum bid increment as a percentage within this tier')
+})),
+  "antiSnipeConfig": zod.object({
+  "windowSecs": zod.number().default(updateCoffeeLotResponseAntiSnipeConfigWindowSecsDefault).describe('Seconds before lot end that triggers extension'),
+  "extensionSecs": zod.number().default(updateCoffeeLotResponseAntiSnipeConfigExtensionSecsDefault).describe('Seconds added per late bid'),
+  "maxExtensionSecs": zod.number().default(updateCoffeeLotResponseAntiSnipeConfigMaxExtensionSecsDefault).describe('Maximum total extension (30 min cap)')
+}),
+  "bidSecurityPct": zod.number(),
+  "status": zod.enum(['DRAFT', 'CATALOGUED', 'DISPATCHED', 'LIVE', 'SOLD', 'UNSOLD', 'WITHDRAWN', 'RESERVE_NOT_MET']),
+  "publishedAt": zod.coerce.date().nullish(),
+  "warehouseCode": zod.string().nullish(),
+  "coffeeBeanSize": zod.union([zod.literal('AA'),zod.literal('AB'),zod.literal('PB'),zod.literal('C'),zod.literal(null)]).nullish().describe('Bean size grade from eWR (coffee-specific)'),
+  "coffeeCuppingScore": zod.number().nullish().describe('Cupping score from eWR (coffee-specific)'),
+  "warehouseProfile": zod.object({
+  "operatorName": zod.string(),
+  "wrscLicenseNumber": zod.string(),
+  "facilityType": zod.string().nullish(),
+  "capacityMt": zod.string().nullish(),
+  "warehouseInChargeName": zod.string().nullish(),
+  "warehouseInChargePhone": zod.string().nullish(),
+  "warehouseInChargeEmail": zod.string().nullish(),
+  "handlesTea": zod.string().nullish(),
+  "insurerName": zod.string().nullish()
+}).nullish(),
+  "sessionId": zod.number().nullish(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Retrieve dispatch documents for a coffee lot
+ */
+export const GetCoffeeLotDispatchDocsParams = zod.object({
+  "lotId": zod.coerce.number()
+})
+
+export const GetCoffeeLotDispatchDocsResponseItem = zod.object({
+  "id": zod.number(),
+  "lotId": zod.number(),
+  "docType": zod.enum(['PRE_AUCTION_DISPATCH', 'WEIGHMENT_REPORT', 'DELIVERY_ORDER']),
+  "submittedBy": zod.number(),
+  "submitterName": zod.string().nullish(),
+  "docData": zod.record(zod.string(), zod.unknown()),
+  "createdAt": zod.coerce.date()
+})
+export const GetCoffeeLotDispatchDocsResponse = zod.array(GetCoffeeLotDispatchDocsResponseItem)
+
+
+/**
+ * @summary Attach a dispatch document to a coffee lot
+ */
+export const AttachCoffeeDispatchDocParams = zod.object({
+  "lotId": zod.coerce.number()
+})
+
+export const attachCoffeeDispatchDocBodyDocDataDefault = {  };
+
+export const AttachCoffeeDispatchDocBody = zod.object({
+  "docType": zod.enum(['PRE_AUCTION_DISPATCH', 'WEIGHMENT_REPORT', 'DELIVERY_ORDER']),
+  "docData": zod.record(zod.string(), zod.unknown()).default(attachCoffeeDispatchDocBodyDocDataDefault)
+})
+
+
+/**
+ * @summary List coffee RFQs where I am owner or buyer
+ */
+export const ListCoffeeRfqsResponseItem = zod.record(zod.string(), zod.unknown())
+export const ListCoffeeRfqsResponse = zod.array(ListCoffeeRfqsResponseItem)
+
+
+/**
+ * @summary Create a coffee RFQ
+ */
+export const CreateCoffeeRfqBody = zod.record(zod.string(), zod.unknown())
+
+
+/**
+ * @summary Get coffee RFQ detail with messages and quotations
+ */
+export const GetCoffeeRfqParams = zod.object({
+  "rfqId": zod.coerce.number()
+})
+
+export const GetCoffeeRfqResponse = zod.record(zod.string(), zod.unknown())
+
+
+/**
+ * @summary Send a message on a coffee RFQ
+ */
+export const SendCoffeeRfqMessageParams = zod.object({
+  "rfqId": zod.coerce.number()
+})
+
+export const SendCoffeeRfqMessageBody = zod.object({
+  "content": zod.string(),
+  "senderRole": zod.enum(['factory', 'buyer']).optional(),
+  "attachments": zod.array(zod.object({
+
+}).passthrough()).optional()
+})
+
+
+/**
+ * @summary Submit a quotation on a coffee RFQ
+ */
+export const SubmitCoffeeRfqQuotationParams = zod.object({
+  "rfqId": zod.coerce.number()
+})
+
+export const SubmitCoffeeRfqQuotationBody = zod.object({
+  "offerPriceUsdPerKg": zod.number(),
+  "offerQuantityKg": zod.number(),
+  "incoterms": zod.string().optional(),
+  "leadTimeDays": zod.number().optional(),
+  "validUntil": zod.string().optional(),
+  "notes": zod.string().optional(),
+  "commercialPitch": zod.string().optional(),
+  "cuppingScore": zod.number().optional().describe('Coffee-specific — cupping score of offered lot'),
+  "processingMethod": zod.string().optional().describe('Coffee-specific — Washed \/ Natural \/ Honey'),
+  "varietal": zod.string().optional().describe('Coffee-specific — Bourbon \/ Geisha \/ SL28 etc.')
+})
+
+
+/**
+ * @summary Update coffee RFQ status
+ */
+export const UpdateCoffeeRfqStatusParams = zod.object({
+  "rfqId": zod.coerce.number()
+})
+
+export const UpdateCoffeeRfqStatusBody = zod.object({
+  "status": zod.enum(['open', 'quoted', 'negotiating', 'accepted', 'rejected', 'expired', 'converted'])
+})
+
+export const UpdateCoffeeRfqStatusResponse = zod.record(zod.string(), zod.unknown())
+
+
+/**
+ * @summary List my coffee shipments
+ */
+export const ListCoffeeShipmentsResponseItem = zod.record(zod.string(), zod.unknown())
+export const ListCoffeeShipmentsResponse = zod.array(ListCoffeeShipmentsResponseItem)
+
+
+/**
+ * @summary Create a coffee shipment
+ */
+export const CreateCoffeeShipmentBody = zod.object({
+  "shipmentRef": zod.string(),
+  "lotId": zod.number().optional(),
+  "rfqId": zod.number().optional(),
+  "blNumber": zod.string().optional(),
+  "containerNumber": zod.string().optional(),
+  "portOfLoading": zod.string().optional(),
+  "portOfDischarge": zod.string().optional(),
+  "incoterms": zod.string().optional(),
+  "buyerCompany": zod.string().optional(),
+  "buyerCountry": zod.string().optional(),
+  "etd": zod.string().optional(),
+  "eta": zod.string().optional(),
+  "coffeeGrade": zod.string().optional().describe('Coffee grade (AA, AB, PB, C)'),
+  "cuppingScore": zod.number().optional(),
+  "processingMethod": zod.string().optional(),
+  "phytosanitaryCertNo": zod.string().optional(),
+  "gcaContractRef": zod.string().optional()
+})
+
+
+/**
+ * @summary Get coffee shipment detail
+ */
+export const GetCoffeeShipmentParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetCoffeeShipmentResponse = zod.record(zod.string(), zod.unknown())
+
+
+/**
+ * @summary Update coffee shipment fields
+ */
+export const UpdateCoffeeShipmentParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateCoffeeShipmentBody = zod.record(zod.string(), zod.unknown())
+
+export const UpdateCoffeeShipmentResponse = zod.record(zod.string(), zod.unknown())
+
+
+/**
+ * @summary Append a milestone event to a coffee shipment
+ */
+export const AddCoffeeShipmentMilestoneParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const AddCoffeeShipmentMilestoneBody = zod.object({
+  "date": zod.string(),
+  "event": zod.string(),
+  "location": zod.string().optional(),
+  "notes": zod.string().optional()
+})
+
+
+/**
+ * @summary Attach an export document to a coffee shipment
+ */
+export const AttachCoffeeShipmentDocParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const AttachCoffeeShipmentDocBody = zod.object({
+  "docType": zod.string(),
+  "docName": zod.string(),
+  "fileUrl": zod.string().optional(),
+  "issuedAt": zod.string().optional(),
+  "issuedBy": zod.string().optional()
+})
+
+
+/**
+ * @summary List my coffee ESG reports
+ */
+export const ListCoffeeEsgReportsResponseItem = zod.record(zod.string(), zod.unknown())
+export const ListCoffeeEsgReportsResponse = zod.array(ListCoffeeEsgReportsResponseItem)
+
+
+/**
+ * @summary Create a coffee ESG report (supports coffee-specific indicators)
+ */
+export const CreateCoffeeEsgReportBody = zod.object({
+  "reportingPeriod": zod.string(),
+  "co2KgTotal": zod.number().optional(),
+  "co2KgPerKg": zod.number().optional(),
+  "certifications": zod.array(zod.object({
+
+}).passthrough()).optional(),
+  "shadeGrownPct": zod.number().optional().describe('Coffee-specific — percentage of shade-grown crop'),
+  "intercropSpecies": zod.array(zod.string()).optional().describe('Coffee-specific — companion plants \/ intercrop species'),
+  "soilHealthScore": zod.number().optional().describe('Coffee-specific — 0-10 soil health composite score'),
+  "farmerIncomePremiumUsd": zod.number().optional().describe('Coffee-specific — income premium paid above market per farmer'),
+  "farmerTrainingProgrammes": zod.array(zod.string()).optional().describe('Coffee-specific — list of training programmes run')
+})
+
+
+/**
+ * @summary Get coffee ESG report detail
+ */
+export const GetCoffeeEsgReportParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetCoffeeEsgReportResponse = zod.record(zod.string(), zod.unknown())
+
+
+/**
+ * @summary Update a coffee ESG report
+ */
+export const UpdateCoffeeEsgReportParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateCoffeeEsgReportBody = zod.record(zod.string(), zod.unknown())
+
+export const UpdateCoffeeEsgReportResponse = zod.record(zod.string(), zod.unknown())
+
+
+/**
  * @summary Owner grants a broker mandate (PRODUCER or COOPERATIVE only)
  */
 export const createBrokerMandateBodyPermissionsDefault = [`list`, `accept_bids`, `negotiate`, `set_reserve`];

@@ -1,4 +1,4 @@
-import { useListTeaLots, TeaLot } from "@workspace/api-client-react";
+import { useListCoffeeLots, CoffeeLot } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,8 +8,7 @@ import { Plus, Coffee, ArrowUpRight } from "lucide-react";
 import { format } from "date-fns";
 
 export default function ProducerProducts() {
-  // Assuming the API filters by the current user when no params are passed, or we just rely on the API context
-  const { data: lots, isLoading } = useListTeaLots({ commodityType: "COFFEE" } as any);
+  const { data: lots, isLoading } = useListCoffeeLots();
 
   return (
     <div className="space-y-6">
@@ -58,20 +57,18 @@ export default function ProducerProducts() {
   );
 }
 
-function LotCard({ lot }: { lot: TeaLot }) {
+function LotCard({ lot }: { lot: CoffeeLot }) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'LIVE': return 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20';
       case 'SOLD': return 'bg-blue-500/10 text-blue-600 border-blue-500/20';
-      case 'PENDING': return 'bg-amber-500/10 text-amber-600 border-amber-500/20';
+      case 'CATALOGUED': return 'bg-amber-500/10 text-amber-600 border-amber-500/20';
+      case 'DISPATCHED': return 'bg-purple-500/10 text-purple-600 border-purple-500/20';
       default: return 'bg-muted text-muted-foreground border-border';
     }
   };
 
-  // We are storing cupping score and origin in description or other fields since TeaLot schema might not have all coffee fields.
-  // Assuming the backend has been augmented, but looking at TeaLot schema:
-  // It has lotName, description, status, reservePriceUsd, weightMt.
-  // We'll extract properties from description if they were stored there, or just show standard fields.
+  const netWeightMt = lot.netWeightKg / 1000;
 
   return (
     <div className="group rounded-xl border border-border bg-card p-5 hover-elevate transition-all flex flex-col">
@@ -79,29 +76,55 @@ function LotCard({ lot }: { lot: TeaLot }) {
         <Badge variant="outline" className={getStatusColor(lot.status)}>
           {lot.status}
         </Badge>
-        <div className="font-mono text-lg font-bold">${lot.reservePriceUsd} <span className="text-xs text-muted-foreground font-sans font-normal">/ MT</span></div>
+        <div className="font-mono text-lg font-bold">
+          {lot.reservePriceUsd != null ? `$${lot.reservePriceUsd}` : lot.fixedPricePerKgUsd != null ? `$${lot.fixedPricePerKgUsd}/kg` : '—'}
+          {lot.reservePriceUsd != null && <span className="text-xs text-muted-foreground font-sans font-normal"> / kg</span>}
+        </div>
       </div>
-      
-      <h3 className="font-bold text-lg mb-1 group-hover:text-accent transition-colors">{lot.lotName}</h3>
-      <p className="text-sm text-muted-foreground line-clamp-2 mb-4 flex-1">
-        {lot.description || "No description provided."}
+
+      <h3 className="font-bold text-lg mb-0.5 group-hover:text-accent transition-colors">
+        {lot.gradeMark}
+      </h3>
+      <p className="text-sm text-muted-foreground mb-1">
+        {lot.grade} · {lot.giOrigin}
       </p>
-      
+      {lot.processingMethod && (
+        <p className="text-xs text-muted-foreground mb-3">{lot.processingMethod}{lot.varietal ? ` · ${lot.varietal}` : ''}</p>
+      )}
+
+      {lot.cuppingRemarks && (
+        <p className="text-sm text-muted-foreground line-clamp-2 mb-4 flex-1">
+          {lot.cuppingRemarks}
+        </p>
+      )}
+
       <div className="grid grid-cols-2 gap-2 mb-4 text-sm bg-muted/50 p-3 rounded-lg">
         <div>
-          <div className="text-xs text-muted-foreground mb-0.5">Weight</div>
-          <div className="font-mono font-medium">{lot.weightMt} MT</div>
+          <div className="text-xs text-muted-foreground mb-0.5">Net Weight</div>
+          <div className="font-mono font-medium">{netWeightMt.toFixed(2)} MT</div>
         </div>
+        {lot.coffeeBeanSize && (
+          <div>
+            <div className="text-xs text-muted-foreground mb-0.5">Bean Size</div>
+            <div className="font-medium">{lot.coffeeBeanSize}</div>
+          </div>
+        )}
+        {lot.coffeeCuppingScore != null && (
+          <div>
+            <div className="text-xs text-muted-foreground mb-0.5">Cupping Score</div>
+            <div className="font-medium">{lot.coffeeCuppingScore}</div>
+          </div>
+        )}
         <div>
           <div className="text-xs text-muted-foreground mb-0.5">Listed On</div>
           <div className="font-medium">{format(new Date(lot.createdAt), 'MMM d, yyyy')}</div>
         </div>
       </div>
-      
+
       <div className="mt-auto pt-4 border-t border-border flex justify-end gap-2">
-        {lot.status === 'PENDING' && (
+        {['DRAFT', 'CATALOGUED'].includes(lot.status) && (
           <Link href={`/producer/lots/${lot.id}/edit`}>
-            <Button variant="outline" size="sm">Edit Draft</Button>
+            <Button variant="outline" size="sm">Edit Lot</Button>
           </Link>
         )}
         <Link href={`/lots/${lot.id}`}>

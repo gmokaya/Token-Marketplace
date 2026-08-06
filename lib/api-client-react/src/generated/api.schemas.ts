@@ -1476,6 +1476,401 @@ export interface AttachDispatchDocRequest {
   docData?: AttachDispatchDocRequestDocData;
 }
 
+export interface CreateCoffeeAuctionSessionRequest {
+  /** Planned date of the auction session (YYYY-MM-DD) */
+  auctionDate: string;
+}
+
+export type CoffeeAuctionSessionStatus = typeof CoffeeAuctionSessionStatus[keyof typeof CoffeeAuctionSessionStatus];
+
+
+export const CoffeeAuctionSessionStatus = {
+  SCHEDULED: 'SCHEDULED',
+  LIVE: 'LIVE',
+  CLOSED: 'CLOSED',
+  COMPLETED: 'COMPLETED',
+} as const;
+
+export interface CoffeeAuctionSession {
+  id: number;
+  createdByBrokerId: number;
+  /** @nullable */
+  brokerName?: string | null;
+  auctionDate: string;
+  catalogueOrder: number[];
+  /** @nullable */
+  currentLotId?: number | null;
+  status: CoffeeAuctionSessionStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * CoffeeLot enriched with currentHighBidUsd, bidCount, secsRemaining, minNextBidUsd
+ */
+export type CoffeeAuctionSessionDetailLotsItem = { [key: string]: unknown };
+
+export type CoffeeAuctionSessionDetail = CoffeeAuctionSession & {
+  lots?: CoffeeAuctionSessionDetailLotsItem[];
+};
+
+export interface CoffeeLotBidInput {
+  /**
+     * @minimum 0
+     * @exclusiveMinimum true
+     */
+  amountUsd: number;
+}
+
+export interface CoffeeLotBid {
+  id: number;
+  lotId: number;
+  sessionId: number;
+  bidderId: number;
+  amountUsd: number;
+  isWinning: boolean;
+  placedAt: string;
+}
+
+export interface CoffeeLotBidResult {
+  bid: CoffeeLotBid;
+  antiSnipeTriggered: boolean;
+  /** @nullable */
+  newEndAt?: string | null;
+  bidSecurityHeldUsd: number;
+}
+
+export type CoffeeLotSettlementPaymentStatus = typeof CoffeeLotSettlementPaymentStatus[keyof typeof CoffeeLotSettlementPaymentStatus];
+
+
+export const CoffeeLotSettlementPaymentStatus = {
+  PENDING: 'PENDING',
+  PAID: 'PAID',
+  DEFAULTED: 'DEFAULTED',
+} as const;
+
+export type CoffeeLotSettlementDeliveryOrderStatus = typeof CoffeeLotSettlementDeliveryOrderStatus[keyof typeof CoffeeLotSettlementDeliveryOrderStatus];
+
+
+export const CoffeeLotSettlementDeliveryOrderStatus = {
+  NOT_ISSUABLE: 'NOT_ISSUABLE',
+  ISSUABLE: 'ISSUABLE',
+  ISSUED: 'ISSUED',
+} as const;
+
+export interface CoffeeLotSettlement {
+  id: number;
+  lotId: number;
+  sessionId: number;
+  winningBidId: number;
+  buyerId: number;
+  /** @nullable */
+  buyerName?: string | null;
+  grossAmountUsd: number;
+  platformFeeUsd: number;
+  brokerCommissionUsd: number;
+  netProducerAmountUsd: number;
+  promptDate: string;
+  paymentStatus: CoffeeLotSettlementPaymentStatus;
+  deliveryOrderStatus: CoffeeLotSettlementDeliveryOrderStatus;
+  acceptedBelowReserve?: number;
+  createdAt: string;
+}
+
+export type CoffeeLotListingType = typeof CoffeeLotListingType[keyof typeof CoffeeLotListingType];
+
+
+export const CoffeeLotListingType = {
+  AUCTION: 'AUCTION',
+  FIXED_PRICE: 'FIXED_PRICE',
+} as const;
+
+export type CoffeeLotCatalogueType = typeof CoffeeLotCatalogueType[keyof typeof CoffeeLotCatalogueType];
+
+
+export const CoffeeLotCatalogueType = {
+  WITH_VALUATION: 'WITH_VALUATION',
+  WITHOUT_VALUATION: 'WITHOUT_VALUATION',
+} as const;
+
+export type CoffeeLotStatus = typeof CoffeeLotStatus[keyof typeof CoffeeLotStatus];
+
+
+export const CoffeeLotStatus = {
+  DRAFT: 'DRAFT',
+  CATALOGUED: 'CATALOGUED',
+  DISPATCHED: 'DISPATCHED',
+  LIVE: 'LIVE',
+  SOLD: 'SOLD',
+  UNSOLD: 'UNSOLD',
+  WITHDRAWN: 'WITHDRAWN',
+  RESERVE_NOT_MET: 'RESERVE_NOT_MET',
+} as const;
+
+/**
+ * Bean size grade from eWR (coffee-specific)
+ * @nullable
+ */
+export type CoffeeLotCoffeeBeanSize = typeof CoffeeLotCoffeeBeanSize[keyof typeof CoffeeLotCoffeeBeanSize] | null;
+
+
+export const CoffeeLotCoffeeBeanSize = {
+  AA: 'AA',
+  AB: 'AB',
+  PB: 'PB',
+  C: 'C',
+} as const;
+
+export interface CoffeeLot {
+  id: number;
+  ewrId: number;
+  ownerId: number;
+  brokerId: number;
+  /** Coffee grade (e.g. AA, AB, PB, C or custom grade mark) */
+  grade: string;
+  /** Coffee lot mark / brand identifier */
+  gradeMark: string;
+  /** Geographic origin of the coffee (e.g. Ethiopia Yirgacheffe, Colombia Huila) */
+  giOrigin: string;
+  grossWeightKg: number;
+  netWeightKg: number;
+  tareWeightKg: number;
+  /** Packaging type (e.g. Jute Bag 60kg, GrainPro, Vacuum-sealed) */
+  packageType: string;
+  /** @nullable */
+  packingWeightKg?: number | null;
+  /**
+     * Cupping notes and taster observations (coffee-specific)
+     * @nullable
+     */
+  cuppingRemarks?: string | null;
+  /**
+     * Processing method — Washed / Natural / Honey / Wet Hulled (coffee-specific)
+     * @nullable
+     */
+  processingMethod?: string | null;
+  /**
+     * Coffee varietal — Bourbon / Geisha / SL28 / Heirloom etc. (coffee-specific)
+     * @nullable
+     */
+  varietal?: string | null;
+  /**
+     * Farm altitude in metres above sea level (coffee-specific)
+     * @nullable
+     */
+  altitude?: number | null;
+  certifications: string[];
+  /** @nullable */
+  storageStatus?: string | null;
+  listingType: CoffeeLotListingType;
+  catalogueType: CoffeeLotCatalogueType;
+  /** @nullable */
+  reservePriceUsd?: number | null;
+  /** @nullable */
+  brokerValuationUsd?: number | null;
+  /** @nullable */
+  fixedPricePerKgUsd?: number | null;
+  commissionRate: number;
+  tickTiers: TickTier[];
+  antiSnipeConfig: AntiSnipeConfig;
+  bidSecurityPct: number;
+  status: CoffeeLotStatus;
+  /** @nullable */
+  publishedAt?: string | null;
+  /** @nullable */
+  warehouseCode?: string | null;
+  /**
+     * Bean size grade from eWR (coffee-specific)
+     * @nullable
+     */
+  coffeeBeanSize?: CoffeeLotCoffeeBeanSize;
+  /**
+     * Cupping score from eWR (coffee-specific)
+     * @nullable
+     */
+  coffeeCuppingScore?: number | null;
+  /** @nullable */
+  warehouseProfile?: WarehouseProfile | null;
+  /** @nullable */
+  sessionId?: number | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * @nullable
+ */
+export type CoffeeLotDetailEwr = {
+  ewrsReceiptId?: string;
+  commodityType?: string;
+  weightMt?: number;
+  harvestSeason?: string;
+  state?: string;
+  /** @nullable */
+  coffeeBeanSize?: 'AA' | 'AB' | 'PB' | 'C' | null;
+  /** @nullable */
+  coffeeCuppingScore?: number | null;
+} | null;
+
+export type CoffeeLotDetail = CoffeeLot & ({
+  /** @nullable */
+  ownerName?: string | null;
+  /** @nullable */
+  brokerName?: string | null;
+  /** @nullable */
+  ewr?: CoffeeLotDetailEwr;
+});
+
+export type CreateCoffeeLotRequestListingType = typeof CreateCoffeeLotRequestListingType[keyof typeof CreateCoffeeLotRequestListingType];
+
+
+export const CreateCoffeeLotRequestListingType = {
+  AUCTION: 'AUCTION',
+  FIXED_PRICE: 'FIXED_PRICE',
+} as const;
+
+export type CreateCoffeeLotRequestCatalogueType = typeof CreateCoffeeLotRequestCatalogueType[keyof typeof CreateCoffeeLotRequestCatalogueType];
+
+
+export const CreateCoffeeLotRequestCatalogueType = {
+  WITH_VALUATION: 'WITH_VALUATION',
+  WITHOUT_VALUATION: 'WITHOUT_VALUATION',
+} as const;
+
+export interface CreateCoffeeLotRequest {
+  ewrId: number;
+  /**
+     * Coffee grade (AA, AB, PB, C or custom)
+     * @minLength 1
+     */
+  grade: string;
+  /**
+     * Lot mark / brand identifier
+     * @minLength 1
+     */
+  gradeMark: string;
+  /**
+     * Geographic origin (e.g. Ethiopia Yirgacheffe)
+     * @minLength 1
+     */
+  giOrigin: string;
+  /**
+     * @minimum 0
+     * @exclusiveMinimum true
+     */
+  grossWeightKg: number;
+  /**
+     * @minimum 0
+     * @exclusiveMinimum true
+     */
+  netWeightKg: number;
+  /** @minimum 0 */
+  tareWeightKg: number;
+  /** @minLength 1 */
+  packageType: string;
+  packingWeightKg?: number;
+  /** Cupping notes (coffee-specific) */
+  cuppingRemarks?: string;
+  /** Washed / Natural / Honey / Wet Hulled (coffee-specific) */
+  processingMethod?: string;
+  /** Bourbon / Geisha / SL28 / Heirloom etc. (coffee-specific) */
+  varietal?: string;
+  /** Farm altitude in metres above sea level (coffee-specific) */
+  altitude?: number;
+  certifications?: string[];
+  storageStatus?: string;
+  listingType?: CreateCoffeeLotRequestListingType;
+  catalogueType?: CreateCoffeeLotRequestCatalogueType;
+  /** Required for AUCTION lots */
+  reservePriceUsd?: number;
+  brokerValuationUsd?: number;
+  /** Required for FIXED_PRICE lots */
+  fixedPricePerKgUsd?: number;
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  commissionRate?: number;
+  tickTiers?: TickTier[];
+  antiSnipeConfig?: AntiSnipeConfig;
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  bidSecurityPct?: number;
+}
+
+export type UpdateCoffeeLotRequestListingType = typeof UpdateCoffeeLotRequestListingType[keyof typeof UpdateCoffeeLotRequestListingType];
+
+
+export const UpdateCoffeeLotRequestListingType = {
+  AUCTION: 'AUCTION',
+  FIXED_PRICE: 'FIXED_PRICE',
+} as const;
+
+export type UpdateCoffeeLotRequestCatalogueType = typeof UpdateCoffeeLotRequestCatalogueType[keyof typeof UpdateCoffeeLotRequestCatalogueType];
+
+
+export const UpdateCoffeeLotRequestCatalogueType = {
+  WITH_VALUATION: 'WITH_VALUATION',
+  WITHOUT_VALUATION: 'WITHOUT_VALUATION',
+} as const;
+
+/**
+ * All fields are optional; only the provided fields are updated
+ */
+export interface UpdateCoffeeLotRequest {
+  grade?: string;
+  gradeMark?: string;
+  giOrigin?: string;
+  grossWeightKg?: number;
+  netWeightKg?: number;
+  tareWeightKg?: number;
+  packageType?: string;
+  packingWeightKg?: number;
+  /** Cupping notes (coffee-specific) */
+  cuppingRemarks?: string;
+  /** Processing method (coffee-specific) */
+  processingMethod?: string;
+  /** Coffee varietal (coffee-specific) */
+  varietal?: string;
+  /** Farm altitude masl (coffee-specific) */
+  altitude?: number;
+  certifications?: string[];
+  storageStatus?: string;
+  listingType?: UpdateCoffeeLotRequestListingType;
+  catalogueType?: UpdateCoffeeLotRequestCatalogueType;
+  reservePriceUsd?: number;
+  brokerValuationUsd?: number;
+  fixedPricePerKgUsd?: number;
+  commissionRate?: number;
+  tickTiers?: TickTier[];
+  antiSnipeConfig?: AntiSnipeConfig;
+  bidSecurityPct?: number;
+}
+
+export type CoffeeDispatchDocDocType = typeof CoffeeDispatchDocDocType[keyof typeof CoffeeDispatchDocDocType];
+
+
+export const CoffeeDispatchDocDocType = {
+  PRE_AUCTION_DISPATCH: 'PRE_AUCTION_DISPATCH',
+  WEIGHMENT_REPORT: 'WEIGHMENT_REPORT',
+  DELIVERY_ORDER: 'DELIVERY_ORDER',
+} as const;
+
+export type CoffeeDispatchDocDocData = { [key: string]: unknown };
+
+export interface CoffeeDispatchDoc {
+  id: number;
+  lotId: number;
+  docType: CoffeeDispatchDocDocType;
+  submittedBy: number;
+  /** @nullable */
+  submitterName?: string | null;
+  docData: CoffeeDispatchDocDocData;
+  createdAt: string;
+}
+
 export type BrokerMandateCommodityType = typeof BrokerMandateCommodityType[keyof typeof BrokerMandateCommodityType];
 
 
@@ -1824,4 +2219,216 @@ export const ListTeaLotsStatus = {
   WITHDRAWN: 'WITHDRAWN',
   RESERVE_NOT_MET: 'RESERVE_NOT_MET',
 } as const;
+
+export type ListCoffeeAuctionSessionsParams = {
+status?: ListCoffeeAuctionSessionsStatus;
+};
+
+export type ListCoffeeAuctionSessionsStatus = typeof ListCoffeeAuctionSessionsStatus[keyof typeof ListCoffeeAuctionSessionsStatus];
+
+
+export const ListCoffeeAuctionSessionsStatus = {
+  SCHEDULED: 'SCHEDULED',
+  LIVE: 'LIVE',
+  CLOSED: 'CLOSED',
+  COMPLETED: 'COMPLETED',
+} as const;
+
+export type AddLotsToCoffeeAuctionSessionBody = {
+  /** @minItems 1 */
+  lotIds: number[];
+};
+
+export type StartCoffeeAuctionSessionBody = {
+  /** Minutes each lot runs before closing */
+  durationMins?: number;
+};
+
+export type StartCoffeeAuctionSession200 = {
+  sessionId?: number;
+  currentLotId?: number;
+  auctionEndAt?: string;
+};
+
+export type AcceptCoffeeLotBelowReserve200 = {
+  lotId?: number;
+  status?: string;
+  acceptedBelowReserve?: boolean;
+  grossAmountUsd?: number;
+  promptDate?: string;
+};
+
+export type ListCoffeeLotsParams = {
+grade?: string;
+giOrigin?: string;
+certification?: string;
+listingType?: ListCoffeeLotsListingType;
+status?: ListCoffeeLotsStatus;
+brokerId?: number;
+ownerId?: number;
+};
+
+export type ListCoffeeLotsListingType = typeof ListCoffeeLotsListingType[keyof typeof ListCoffeeLotsListingType];
+
+
+export const ListCoffeeLotsListingType = {
+  AUCTION: 'AUCTION',
+  FIXED_PRICE: 'FIXED_PRICE',
+} as const;
+
+export type ListCoffeeLotsStatus = typeof ListCoffeeLotsStatus[keyof typeof ListCoffeeLotsStatus];
+
+
+export const ListCoffeeLotsStatus = {
+  DRAFT: 'DRAFT',
+  CATALOGUED: 'CATALOGUED',
+  DISPATCHED: 'DISPATCHED',
+  LIVE: 'LIVE',
+  SOLD: 'SOLD',
+  UNSOLD: 'UNSOLD',
+  WITHDRAWN: 'WITHDRAWN',
+  RESERVE_NOT_MET: 'RESERVE_NOT_MET',
+} as const;
+
+export type ListCoffeeRfqs200Item = { [key: string]: unknown };
+
+export type CreateCoffeeRfqBody = { [key: string]: unknown };
+
+export type CreateCoffeeRfq201 = { [key: string]: unknown };
+
+export type GetCoffeeRfq200 = { [key: string]: unknown };
+
+export type SendCoffeeRfqMessageBodySenderRole = typeof SendCoffeeRfqMessageBodySenderRole[keyof typeof SendCoffeeRfqMessageBodySenderRole];
+
+
+export const SendCoffeeRfqMessageBodySenderRole = {
+  factory: 'factory',
+  buyer: 'buyer',
+} as const;
+
+export type SendCoffeeRfqMessageBodyAttachmentsItem = { [key: string]: unknown };
+
+export type SendCoffeeRfqMessageBody = {
+  content: string;
+  senderRole?: SendCoffeeRfqMessageBodySenderRole;
+  attachments?: SendCoffeeRfqMessageBodyAttachmentsItem[];
+};
+
+export type SendCoffeeRfqMessage201 = { [key: string]: unknown };
+
+export type SubmitCoffeeRfqQuotationBody = {
+  offerPriceUsdPerKg: number;
+  offerQuantityKg: number;
+  incoterms?: string;
+  leadTimeDays?: number;
+  validUntil?: string;
+  notes?: string;
+  commercialPitch?: string;
+  /** Coffee-specific — cupping score of offered lot */
+  cuppingScore?: number;
+  /** Coffee-specific — Washed / Natural / Honey */
+  processingMethod?: string;
+  /** Coffee-specific — Bourbon / Geisha / SL28 etc. */
+  varietal?: string;
+};
+
+export type SubmitCoffeeRfqQuotation201 = { [key: string]: unknown };
+
+export type UpdateCoffeeRfqStatusBodyStatus = typeof UpdateCoffeeRfqStatusBodyStatus[keyof typeof UpdateCoffeeRfqStatusBodyStatus];
+
+
+export const UpdateCoffeeRfqStatusBodyStatus = {
+  open: 'open',
+  quoted: 'quoted',
+  negotiating: 'negotiating',
+  accepted: 'accepted',
+  rejected: 'rejected',
+  expired: 'expired',
+  converted: 'converted',
+} as const;
+
+export type UpdateCoffeeRfqStatusBody = {
+  status: UpdateCoffeeRfqStatusBodyStatus;
+};
+
+export type UpdateCoffeeRfqStatus200 = { [key: string]: unknown };
+
+export type ListCoffeeShipments200Item = { [key: string]: unknown };
+
+export type CreateCoffeeShipmentBody = {
+  shipmentRef: string;
+  lotId?: number;
+  rfqId?: number;
+  blNumber?: string;
+  containerNumber?: string;
+  portOfLoading?: string;
+  portOfDischarge?: string;
+  incoterms?: string;
+  buyerCompany?: string;
+  buyerCountry?: string;
+  etd?: string;
+  eta?: string;
+  /** Coffee grade (AA, AB, PB, C) */
+  coffeeGrade?: string;
+  cuppingScore?: number;
+  processingMethod?: string;
+  phytosanitaryCertNo?: string;
+  gcaContractRef?: string;
+};
+
+export type CreateCoffeeShipment201 = { [key: string]: unknown };
+
+export type GetCoffeeShipment200 = { [key: string]: unknown };
+
+export type UpdateCoffeeShipmentBody = { [key: string]: unknown };
+
+export type UpdateCoffeeShipment200 = { [key: string]: unknown };
+
+export type AddCoffeeShipmentMilestoneBody = {
+  date: string;
+  event: string;
+  location?: string;
+  notes?: string;
+};
+
+export type AddCoffeeShipmentMilestone201 = { [key: string]: unknown };
+
+export type AttachCoffeeShipmentDocBody = {
+  docType: string;
+  docName: string;
+  fileUrl?: string;
+  issuedAt?: string;
+  issuedBy?: string;
+};
+
+export type AttachCoffeeShipmentDoc201 = { [key: string]: unknown };
+
+export type ListCoffeeEsgReports200Item = { [key: string]: unknown };
+
+export type CreateCoffeeEsgReportBodyCertificationsItem = { [key: string]: unknown };
+
+export type CreateCoffeeEsgReportBody = {
+  reportingPeriod: string;
+  co2KgTotal?: number;
+  co2KgPerKg?: number;
+  certifications?: CreateCoffeeEsgReportBodyCertificationsItem[];
+  /** Coffee-specific — percentage of shade-grown crop */
+  shadeGrownPct?: number;
+  /** Coffee-specific — companion plants / intercrop species */
+  intercropSpecies?: string[];
+  /** Coffee-specific — 0-10 soil health composite score */
+  soilHealthScore?: number;
+  /** Coffee-specific — income premium paid above market per farmer */
+  farmerIncomePremiumUsd?: number;
+  /** Coffee-specific — list of training programmes run */
+  farmerTrainingProgrammes?: string[];
+};
+
+export type CreateCoffeeEsgReport201 = { [key: string]: unknown };
+
+export type GetCoffeeEsgReport200 = { [key: string]: unknown };
+
+export type UpdateCoffeeEsgReportBody = { [key: string]: unknown };
+
+export type UpdateCoffeeEsgReport200 = { [key: string]: unknown };
 

@@ -27,6 +27,11 @@ import teaProductsRouter from "./tea-products";
 import teaRfqsRouter from "./tea-rfqs";
 import teaShipmentsRouter from "./tea-shipments";
 import teaEsgRouter from "./tea-esg";
+import coffeeLotsRouter from "./coffee-lots";
+import coffeeAuctionsRouter from "./coffee-auctions";
+import coffeeRfqsRouter from "./coffee-rfqs";
+import coffeeShipmentsRouter from "./coffee-shipments";
+import coffeeEsgRouter from "./coffee-esg";
 import listingPublicationsRouter from "./listing-publications";
 
 const router: IRouter = Router();
@@ -91,6 +96,11 @@ router.use(teaProductsRouter);
 router.use(teaRfqsRouter);
 router.use(teaShipmentsRouter);
 router.use(teaEsgRouter);
+router.use(coffeeLotsRouter);
+router.use(coffeeAuctionsRouter);
+router.use(coffeeRfqsRouter);
+router.use(coffeeShipmentsRouter);
+router.use(coffeeEsgRouter);
 router.use(listingPublicationsRouter);
 
 export default router;

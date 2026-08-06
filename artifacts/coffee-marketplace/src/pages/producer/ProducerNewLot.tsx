@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useCreateTeaLot, useListEwrs, useGetMe } from "@workspace/api-client-react";
+import { useCreateCoffeeLot, useListEwrs, useGetMe } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
@@ -17,22 +17,24 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 const origins = ["Ethiopia", "Colombia", "Kenya", "Guatemala", "Brazil", "Rwanda", "Tanzania", "Burundi", "Peru", "Honduras"];
 const processingMethods = ["Washed", "Natural", "Honey", "Wet Hulled"];
-const varietals = ["Bourbon", "Typica", "Geisha", "SL28", "SL34", "Heirloom", "Catuai", "Caturra"];
-const certificationsList = ["Fair Trade", "Rainforest Alliance", "Organic", "UTZ", "Cup of Excellence", "Bird Friendly"];
+const varietals = ["Bourbon", "Typica", "Geisha", "SL28", "SL34", "Heirloom", "Catuai", "Caturra", "Red Bourbon", "Pink Bourbon"];
+const packageTypes = ["Jute Bag 60kg", "GrainPro Bag", "Vacuum Sealed", "Grain Bag"];
+const coffeeGrades = ["AA", "AB", "PB", "C", "E (Elephant)", "T (Triage)", "Custom"];
+const certificationsList = ["Fair Trade", "Rainforest Alliance", "Organic", "UTZ", "Cup of Excellence", "Bird Friendly", "Direct Trade"];
 
 const lotSchema = z.object({
   ewrId: z.coerce.number().min(1, "Please select an eWR"),
-  lotName: z.string().min(5, "Name must be at least 5 characters"),
-  description: z.string().min(10, "Description is required"),
-  reservePriceUsd: z.coerce.number().min(1, "Reserve price is required"),
-  openingBidUsd: z.coerce.number().min(1, "Opening bid is required"),
-  
-  // These aren't in the base TeaLotInput but we'll encode them into description or custom fields if possible.
-  // For the sake of the exercise, we will assume the backend accepts them or we pack them into description.
+  grade: z.string().min(1, "Grade is required"),
+  gradeMark: z.string().min(2, "Lot mark must be at least 2 characters"),
+  giOrigin: z.string().min(1, "Origin is required"),
+  packageType: z.string().min(1, "Package type is required"),
+  tareWeightKg: z.coerce.number().min(0, "Tare weight must be non-negative"),
+  reservePriceUsd: z.coerce.number().min(0.01, "Reserve price is required"),
+  // Coffee-specific
   processingMethod: z.string().min(1, "Processing method is required"),
-  origin: z.string().min(1, "Origin is required"),
-  varietal: z.string().min(1, "Varietal is required"),
-  altitude: z.coerce.number().min(500, "Altitude must be reasonable"),
+  varietal: z.string().optional(),
+  altitude: z.coerce.number().min(500).max(3000).optional(),
+  cuppingRemarks: z.string().optional(),
   certifications: z.array(z.string()).default([]),
 });
 
@@ -42,56 +44,63 @@ export default function ProducerNewLot() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { data: ewrs, isLoading: isLoadingEwrs } = useListEwrs({ commodityType: "COFFEE" } as any);
-  const createLot = useCreateTeaLot();
+  const createLot = useCreateCoffeeLot();
   const { data: me } = useGetMe();
 
   const form = useForm<LotFormValues>({
     resolver: zodResolver(lotSchema),
     defaultValues: {
       certifications: [],
+      packageType: "Jute Bag 60kg",
+      grade: "AA",
+      tareWeightKg: 0,
     },
   });
 
   const availableEwrs = ewrs?.filter(e => e.state === "INGESTED") || [];
+  const selectedEwrId = form.watch("ewrId");
+  const selectedEwr = availableEwrs.find(e => e.id === selectedEwrId);
+
+  // Derive gross weight from selected eWR
+  const grossWeightKg = selectedEwr ? selectedEwr.weightMt * 1000 : 0;
+  const tareWeightKg = form.watch("tareWeightKg") || 0;
+  const netWeightKg = Math.max(0, grossWeightKg - tareWeightKg);
 
   const onSubmit = (data: LotFormValues) => {
-    // Since TeaLot might not have explicit fields for all coffee attributes in this API version,
-    // we format a rich description that includes them, or pass them if the schema allows.
-    // Looking at CreateTeaLotRequest: ewrId, lotName, description, reservePriceUsd, openingBidUsd, weightMt.
-    
-    const selectedEwr = availableEwrs.find(e => e.id === data.ewrId);
-    if (!selectedEwr) return;
-
-    const richDescription = `
-      ${data.description}
-      
-      ---
-      Origin: ${data.origin}
-      Processing: ${data.processingMethod}
-      Varietal: ${data.varietal}
-      Altitude: ${data.altitude} masl
-      Certifications: ${data.certifications.join(", ") || "None"}
-    `.trim();
+    const ewr = availableEwrs.find(e => e.id === data.ewrId);
+    if (!ewr) return;
 
     createLot.mutate(
       {
         data: {
           ewrId: data.ewrId,
-          lotName: data.lotName,
-          description: richDescription,
+          grade: data.grade,
+          gradeMark: data.gradeMark,
+          giOrigin: data.giOrigin,
+          grossWeightKg: ewr.weightMt * 1000,
+          netWeightKg: Math.max(0.1, ewr.weightMt * 1000 - data.tareWeightKg),
+          tareWeightKg: data.tareWeightKg,
+          packageType: data.packageType,
+          cuppingRemarks: data.cuppingRemarks,
+          processingMethod: data.processingMethod,
+          varietal: data.varietal,
+          altitude: data.altitude,
+          certifications: data.certifications,
+          listingType: "AUCTION",
           reservePriceUsd: data.reservePriceUsd,
-          openingBidUsd: data.openingBidUsd,
-          weightMt: selectedEwr.weightMt, // Inherit from EWR
-        } as any // Cast for now if types mismatch slightly
+          commissionRate: 0.01,
+          bidSecurityPct: 0.1,
+          tickTiers: [],
+        },
       },
       {
-        onSuccess: () => {
-          toast({ title: "Lot Created", description: "Your lot has been successfully created." });
+        onSuccess: (lot) => {
+          toast({ title: "Lot Created", description: `Lot "${lot.gradeMark}" has been created successfully.` });
           setLocation("/producer/products");
         },
-        onError: (err) => {
-          toast({ title: "Error", description: err.error || "Failed to create lot", variant: "destructive" });
-        }
+        onError: (err: any) => {
+          toast({ title: "Error", description: err?.error || "Failed to create lot", variant: "destructive" });
+        },
       }
     );
   };
@@ -103,67 +112,95 @@ export default function ProducerNewLot() {
           <Button variant="ghost" size="icon" className="shrink-0"><ArrowLeft className="w-4 h-4" /></Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Create Green Coffee Lot</h1>
-          <p className="text-muted-foreground mt-1">List your inventory on the spot market or an upcoming auction.</p>
+          <h1 className="text-3xl font-bold tracking-tight">Create New Coffee Lot</h1>
+          <p className="text-muted-foreground mt-1">Catalogue a green coffee lot from an existing eWR.</p>
         </div>
       </div>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+
+          {/* eWR Selection */}
           <Card>
             <CardHeader>
-              <CardTitle>Source Inventory</CardTitle>
-              <CardDescription>Select an available eWR to back this lot.</CardDescription>
+              <CardTitle>Electronic Warehouse Receipt</CardTitle>
+              <CardDescription>Select the COFFEE eWR to back this lot.</CardDescription>
             </CardHeader>
             <CardContent>
               <FormField control={form.control} name="ewrId" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Electronic Warehouse Receipt (eWR)</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value?.toString()}>
+                  <FormLabel>eWR</FormLabel>
+                  <Select onValueChange={(v) => field.onChange(parseInt(v))} value={field.value?.toString()}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder={isLoadingEwrs ? "Loading..." : "Select an eWR"} />
+                        <SelectValue placeholder={isLoadingEwrs ? "Loading eWRs..." : "Select an eWR"} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {availableEwrs.length === 0 && !isLoadingEwrs ? (
-                        <SelectItem value="0" disabled>No available eWRs found</SelectItem>
-                      ) : (
-                        availableEwrs.map(ewr => (
-                          <SelectItem key={ewr.id} value={ewr.id.toString()}>
-                            {ewr.ewrsReceiptId} — {ewr.weightMt} MT ({ewr.coffeeBeanSize || ewr.grade})
-                          </SelectItem>
-                        ))
-                      )}
+                      {availableEwrs.map((ewr) => (
+                        <SelectItem key={ewr.id} value={ewr.id.toString()}>
+                          {ewr.ewrsReceiptId} — {ewr.weightMt} MT · {ewr.grade} · {ewr.warehouseCode}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
-                  <FormDescription>Only ingested eWRs without active liens can be listed.</FormDescription>
+                  {selectedEwr && (
+                    <div className="mt-2 p-3 bg-muted/50 rounded-lg text-sm">
+                      <div className="grid grid-cols-3 gap-2">
+                        <div><span className="text-muted-foreground">Gross Weight:</span> <span className="font-mono font-medium">{grossWeightKg.toFixed(0)} kg</span></div>
+                        <div><span className="text-muted-foreground">Net Weight:</span> <span className="font-mono font-medium">{netWeightKg.toFixed(0)} kg</span></div>
+                        {selectedEwr.coffeeBeanSize && <div><span className="text-muted-foreground">Bean Size:</span> <span className="font-medium">{selectedEwr.coffeeBeanSize}</span></div>}
+                        {selectedEwr.coffeeCuppingScore && <div><span className="text-muted-foreground">Cupping Score:</span> <span className="font-medium">{selectedEwr.coffeeCuppingScore}</span></div>}
+                      </div>
+                    </div>
+                  )}
                   <FormMessage />
                 </FormItem>
               )} />
+
+              <div className="mt-4">
+                <FormField control={form.control} name="tareWeightKg" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tare Weight (kg)</FormLabel>
+                    <FormControl><Input type="number" step="0.1" min="0" {...field} /></FormControl>
+                    <FormDescription>Packaging/sack weight deducted from gross to get net weight.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+              </div>
             </CardContent>
           </Card>
 
+          {/* Lot Identification */}
           <Card>
             <CardHeader>
-              <CardTitle>Lot Details</CardTitle>
-              <CardDescription>Marketing information that buyers will see.</CardDescription>
+              <CardTitle>Lot Identification</CardTitle>
+              <CardDescription>Grade, mark, and geographic origin of this coffee.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <FormField control={form.control} name="lotName" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Lot Name</FormLabel>
-                  <FormControl><Input {...field} placeholder="e.g. Yirgacheffe Washed Grade 1" /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
-
               <div className="grid grid-cols-2 gap-4">
-                <FormField control={form.control} name="origin" render={({ field }) => (
+                <FormField control={form.control} name="grade" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Origin</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl><SelectTrigger><SelectValue placeholder="Select country" /></SelectTrigger></FormControl>
+                    <FormLabel>Coffee Grade</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger><SelectValue placeholder="Select grade" /></SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {coffeeGrades.map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+
+                <FormField control={form.control} name="giOrigin" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Geographic Origin</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger><SelectValue placeholder="Select origin" /></SelectTrigger>
+                      </FormControl>
                       <SelectContent>
                         {origins.map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
                       </SelectContent>
@@ -171,12 +208,49 @@ export default function ProducerNewLot() {
                     <FormMessage />
                   </FormItem>
                 )} />
+              </div>
 
+              <FormField control={form.control} name="gradeMark" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Lot Mark / Brand</FormLabel>
+                  <FormControl><Input placeholder="e.g. Yirgacheffe Grade 1 Natural" {...field} /></FormControl>
+                  <FormDescription>The identifying name or brand mark for this lot in the auction catalogue.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )} />
+
+              <FormField control={form.control} name="packageType" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Package Type</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger><SelectValue placeholder="Select package" /></SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {packageTypes.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )} />
+            </CardContent>
+          </Card>
+
+          {/* Coffee Profile */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Coffee Profile</CardTitle>
+              <CardDescription>Processing, varietal, altitude, and cupping notes.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
                 <FormField control={form.control} name="processingMethod" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Processing Method</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl><SelectTrigger><SelectValue placeholder="Select method" /></SelectTrigger></FormControl>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger><SelectValue placeholder="Select method" /></SelectTrigger>
+                      </FormControl>
                       <SelectContent>
                         {processingMethods.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
                       </SelectContent>
@@ -184,14 +258,14 @@ export default function ProducerNewLot() {
                     <FormMessage />
                   </FormItem>
                 )} />
-              </div>
 
-              <div className="grid grid-cols-2 gap-4">
                 <FormField control={form.control} name="varietal" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Varietal</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl><SelectTrigger><SelectValue placeholder="Select varietal" /></SelectTrigger></FormControl>
+                    <FormLabel>Varietal <span className="text-muted-foreground text-xs">(optional)</span></FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger><SelectValue placeholder="Select varietal" /></SelectTrigger>
+                      </FormControl>
                       <SelectContent>
                         {varietals.map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}
                       </SelectContent>
@@ -199,90 +273,72 @@ export default function ProducerNewLot() {
                     <FormMessage />
                   </FormItem>
                 )} />
-
-                <FormField control={form.control} name="altitude" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Altitude (masl)</FormLabel>
-                    <FormControl><Input type="number" {...field} placeholder="1800" /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
               </div>
 
-              <FormField control={form.control} name="certifications" render={() => (
+              <FormField control={form.control} name="altitude" render={({ field }) => (
                 <FormItem>
-                  <div className="mb-4">
-                    <FormLabel className="text-base">Certifications</FormLabel>
-                    <FormDescription>Select all that apply to this lot.</FormDescription>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    {certificationsList.map((cert) => (
-                      <FormField
-                        key={cert}
-                        control={form.control}
-                        name="certifications"
-                        render={({ field }) => {
-                          return (
-                            <FormItem key={cert} className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3 shadow-sm bg-background">
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value?.includes(cert)}
-                                  onCheckedChange={(checked) => {
-                                    return checked
-                                      ? field.onChange([...field.value, cert])
-                                      : field.onChange(field.value?.filter((value) => value !== cert))
-                                  }}
-                                />
-                              </FormControl>
-                              <FormLabel className="font-normal text-sm">{cert}</FormLabel>
-                            </FormItem>
-                          )
-                        }}
-                      />
-                    ))}
-                  </div>
+                  <FormLabel>Altitude (masl) <span className="text-muted-foreground text-xs">(optional)</span></FormLabel>
+                  <FormControl><Input type="number" placeholder="e.g. 1800" {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
 
-              <FormField control={form.control} name="description" render={({ field }) => (
+              <FormField control={form.control} name="cuppingRemarks" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tasting Notes & Description</FormLabel>
+                  <FormLabel>Cupping Notes <span className="text-muted-foreground text-xs">(optional)</span></FormLabel>
                   <FormControl>
-                    <Textarea className="min-h-[120px]" placeholder="Describe the cup profile, farm story, and any other relevant details..." {...field} />
+                    <Textarea className="min-h-[100px]" placeholder="Describe the cup profile — acidity, body, flavour notes, aftertaste..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
+
+              {/* Certifications */}
+              <div>
+                <FormLabel className="text-sm font-medium">Certifications</FormLabel>
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  {certificationsList.map((cert) => (
+                    <FormField key={cert} control={form.control} name="certifications" render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value?.includes(cert)}
+                            onCheckedChange={(checked) => {
+                              const updated = checked
+                                ? [...(field.value || []), cert]
+                                : (field.value || []).filter((v: string) => v !== cert);
+                              field.onChange(updated);
+                            }}
+                          />
+                        </FormControl>
+                        <FormLabel className="font-normal text-sm">{cert}</FormLabel>
+                      </FormItem>
+                    )} />
+                  ))}
+                </div>
+              </div>
             </CardContent>
           </Card>
 
+          {/* Pricing */}
           <Card>
             <CardHeader>
               <CardTitle>Pricing</CardTitle>
-              <CardDescription>Set your market expectations in USD per Metric Ton.</CardDescription>
+              <CardDescription>Set your auction reserve price in USD per kilogram.</CardDescription>
             </CardHeader>
-            <CardContent className="grid grid-cols-2 gap-4">
+            <CardContent>
               <FormField control={form.control} name="reservePriceUsd" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Reserve Price ($/MT)</FormLabel>
-                  <FormControl><Input type="number" {...field} /></FormControl>
-                  <FormDescription>Minimum price you are willing to accept.</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )} />
-              <FormField control={form.control} name="openingBidUsd" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Opening Bid ($/MT)</FormLabel>
-                  <FormControl><Input type="number" {...field} /></FormControl>
-                  <FormDescription>Starting price for auction sessions.</FormDescription>
+                  <FormLabel>Reserve Price ($/kg)</FormLabel>
+                  <FormControl><Input type="number" step="0.01" min="0.01" {...field} /></FormControl>
+                  <FormDescription>Minimum price per kilogram you are willing to accept at auction.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )} />
             </CardContent>
             <CardFooter className="bg-muted/50 py-4 px-6 mt-4 flex justify-between items-center border-t border-border">
               <p className="text-sm text-muted-foreground flex items-center gap-2">
-                <Coffee className="w-4 h-4" /> Platform fee is 1.5% upon successful settlement.
+                <Coffee className="w-4 h-4" /> Platform fee is 0.5% upon successful settlement.
               </p>
               <Button type="submit" size="lg" disabled={createLot.isPending}>
                 {createLot.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -290,6 +346,7 @@ export default function ProducerNewLot() {
               </Button>
             </CardFooter>
           </Card>
+
         </form>
       </Form>
     </div>

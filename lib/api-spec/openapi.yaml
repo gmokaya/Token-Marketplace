@@ -38,6 +38,8 @@ tags:
     description: Compliance audit trail
   - name: tea
     description: Tea lot catalogue and dispatch documents
+  - name: coffee
+    description: Coffee lot catalogue, auctions, RFQs, shipments and ESG reports
   - name: broker-mandates
     description: Broker mandate grants and revocations
 
@@ -1997,6 +1999,1040 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorEnvelope"
 
+  # ── Coffee Auction Sessions ────────────────────────────────────────────────
+
+  /coffee/auctions:
+    get:
+      operationId: listCoffeeAuctionSessions
+      tags: [coffee]
+      summary: List coffee auction sessions
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [SCHEDULED, LIVE, CLOSED, COMPLETED]
+      responses:
+        "200":
+          description: List of coffee auction sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CoffeeAuctionSession"
+    post:
+      operationId: createCoffeeAuctionSession
+      tags: [coffee]
+      summary: Admin creates a coffee auction session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCoffeeAuctionSessionRequest"
+      responses:
+        "201":
+          description: Session created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoffeeAuctionSession"
+        "403":
+          description: Not an admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /coffee/auctions/{sessionId}:
+    get:
+      operationId: getCoffeeAuctionSession
+      tags: [coffee]
+      summary: Get coffee session detail with ordered lot list, current bids, and countdown timers
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Session detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoffeeAuctionSessionDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /coffee/auctions/{sessionId}/lots:
+    post:
+      operationId: addLotsToCoffeeAuctionSession
+      tags: [coffee]
+      summary: Broker submits COFFEE lots to a scheduled session
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [lotIds]
+              properties:
+                lotIds:
+                  type: array
+                  items:
+                    type: integer
+                  minItems: 1
+      responses:
+        "200":
+          description: Lots added to session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoffeeAuctionSession"
+        "400":
+          description: Session not SCHEDULED, lots ineligible, or non-COFFEE lots
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: Not the mandate broker or admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /coffee/auctions/{sessionId}/start:
+    post:
+      operationId: startCoffeeAuctionSession
+      tags: [coffee]
+      summary: Start the coffee session — moves the first lot to LIVE
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                durationMins:
+                  type: integer
+                  default: 7
+                  description: Minutes each lot runs before closing
+      responses:
+        "200":
+          description: Session started; first lot is LIVE
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessionId:
+                    type: integer
+                  currentLotId:
+                    type: integer
+                  auctionEndAt:
+                    type: string
+                    format: date-time
+        "400":
+          description: Session not SCHEDULED or no lots
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: Not admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /coffee/lots/{lotId}/bids:
+    post:
+      operationId: placeCoffeeLotBid
+      tags: [coffee]
+      summary: Place a bid on a LIVE coffee lot (OFF_TAKER only). Enforces tiered tick sizes and anti-snipe extension.
+      parameters:
+        - name: lotId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CoffeeLotBidInput"
+      responses:
+        "201":
+          description: Bid placed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoffeeLotBidResult"
+        "400":
+          description: Lot not LIVE or bid below minimum
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: Not an OFF_TAKER or owner bidding on own lot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /coffee/lots/{lotId}/take-out:
+    post:
+      operationId: coffeeLotTakeOut
+      tags: [coffee]
+      summary: Broker withdraws a RESERVE_NOT_MET coffee lot
+      parameters:
+        - name: lotId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Lot withdrawn
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoffeeLot"
+        "400":
+          description: Lot not in RESERVE_NOT_MET status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: Not the mandate broker or admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /coffee/lots/{lotId}/accept-below-reserve:
+    post:
+      operationId: acceptCoffeeLotBelowReserve
+      tags: [coffee]
+      summary: Broker accepts the highest bid even though it is below reserve
+      parameters:
+        - name: lotId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Accepted; lot moves to SOLD
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  lotId:
+                    type: integer
+                  status:
+                    type: string
+                  acceptedBelowReserve:
+                    type: boolean
+                  grossAmountUsd:
+                    type: number
+                  promptDate:
+                    type: string
+                    format: date
+        "400":
+          description: Lot not in RESERVE_NOT_MET status or no bids
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: Not the mandate broker or admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /coffee/lots/{lotId}/settle:
+    post:
+      operationId: settleCoffeeLot
+      tags: [coffee]
+      summary: Admin confirms payment received — marks delivery order issuable
+      parameters:
+        - name: lotId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Settlement confirmed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoffeeLotSettlement"
+        "400":
+          description: Payment already confirmed or no settlement record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: Not admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /coffee/lots/{lotId}/settlement:
+    get:
+      operationId: getCoffeeLotSettlement
+      tags: [coffee]
+      summary: Get settlement detail for a coffee lot
+      parameters:
+        - name: lotId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Settlement record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoffeeLotSettlement"
+        "404":
+          description: Lot or settlement not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  # ── Coffee Lots ────────────────────────────────────────────────────────────
+
+  /coffee/lots:
+    get:
+      operationId: listCoffeeLots
+      tags: [coffee]
+      summary: List coffee lots (filterable by grade, origin, certification, listing type, status)
+      parameters:
+        - name: grade
+          in: query
+          schema:
+            type: string
+        - name: giOrigin
+          in: query
+          schema:
+            type: string
+        - name: certification
+          in: query
+          schema:
+            type: string
+        - name: listingType
+          in: query
+          schema:
+            type: string
+            enum: [AUCTION, FIXED_PRICE]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [DRAFT, CATALOGUED, DISPATCHED, LIVE, SOLD, UNSOLD, WITHDRAWN, RESERVE_NOT_MET]
+        - name: brokerId
+          in: query
+          schema:
+            type: integer
+        - name: ownerId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of coffee lots
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CoffeeLot"
+    post:
+      operationId: createCoffeeLot
+      tags: [coffee]
+      summary: Broker or producer creates a coffee lot catalogue entry (active COFFEE mandate required for brokers)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCoffeeLotRequest"
+      responses:
+        "201":
+          description: Coffee lot created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoffeeLot"
+        "400":
+          description: Validation error, AUCTION lot missing reserve price, or eWR is not COFFEE commodity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: No active COFFEE mandate or not an ENABLER/PRODUCER account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: eWR not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /coffee/lots/{lotId}:
+    get:
+      operationId: getCoffeeLot
+      tags: [coffee]
+      summary: Get full coffee lot detail including coffee-specific eWR fields (coffeeBeanSize, coffeeCuppingScore)
+      parameters:
+        - name: lotId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Coffee lot detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoffeeLotDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+    patch:
+      operationId: updateCoffeeLot
+      tags: [coffee]
+      summary: Broker or owner updates a DRAFT/CATALOGUED coffee lot
+      parameters:
+        - name: lotId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCoffeeLotRequest"
+      responses:
+        "200":
+          description: Updated coffee lot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoffeeLot"
+        "400":
+          description: Lot not in updatable status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: Not the mandate broker or owner
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /coffee/lots/{lotId}/dispatch:
+    get:
+      operationId: getCoffeeLotDispatchDocs
+      tags: [coffee]
+      summary: Retrieve dispatch documents for a coffee lot
+      parameters:
+        - name: lotId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Dispatch documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CoffeeDispatchDoc"
+        "404":
+          description: Lot not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+    post:
+      operationId: attachCoffeeDispatchDoc
+      tags: [coffee]
+      summary: Attach a dispatch document to a coffee lot
+      parameters:
+        - name: lotId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AttachDispatchDocRequest"
+      responses:
+        "201":
+          description: Document attached
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoffeeDispatchDoc"
+        "400":
+          description: Delivery order only allowed on SOLD lots
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: Not the mandate broker or owner
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  # ── Coffee RFQs ────────────────────────────────────────────────────────────
+
+  /coffee/rfqs:
+    get:
+      operationId: listCoffeeRfqs
+      tags: [coffee]
+      summary: List coffee RFQs where I am owner or buyer
+      responses:
+        "200":
+          description: List of RFQs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+    post:
+      operationId: createCoffeeRfq
+      tags: [coffee]
+      summary: Create a coffee RFQ
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "201":
+          description: RFQ created
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /coffee/rfqs/{rfqId}:
+    get:
+      operationId: getCoffeeRfq
+      tags: [coffee]
+      summary: Get coffee RFQ detail with messages and quotations
+      parameters:
+        - name: rfqId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: RFQ detail
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /coffee/rfqs/{rfqId}/messages:
+    post:
+      operationId: sendCoffeeRfqMessage
+      tags: [coffee]
+      summary: Send a message on a coffee RFQ
+      parameters:
+        - name: rfqId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content]
+              properties:
+                content:
+                  type: string
+                senderRole:
+                  type: string
+                  enum: [factory, buyer]
+                attachments:
+                  type: array
+                  items:
+                    type: object
+      responses:
+        "201":
+          description: Message sent
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /coffee/rfqs/{rfqId}/quotations:
+    post:
+      operationId: submitCoffeeRfqQuotation
+      tags: [coffee]
+      summary: Submit a quotation on a coffee RFQ
+      parameters:
+        - name: rfqId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [offerPriceUsdPerKg, offerQuantityKg]
+              properties:
+                offerPriceUsdPerKg:
+                  type: number
+                offerQuantityKg:
+                  type: number
+                incoterms:
+                  type: string
+                leadTimeDays:
+                  type: integer
+                validUntil:
+                  type: string
+                notes:
+                  type: string
+                commercialPitch:
+                  type: string
+                cuppingScore:
+                  type: number
+                  description: Coffee-specific — cupping score of offered lot
+                processingMethod:
+                  type: string
+                  description: Coffee-specific — Washed / Natural / Honey
+                varietal:
+                  type: string
+                  description: Coffee-specific — Bourbon / Geisha / SL28 etc.
+      responses:
+        "201":
+          description: Quotation submitted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /coffee/rfqs/{rfqId}/status:
+    patch:
+      operationId: updateCoffeeRfqStatus
+      tags: [coffee]
+      summary: Update coffee RFQ status
+      parameters:
+        - name: rfqId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [open, quoted, negotiating, accepted, rejected, expired, converted]
+      responses:
+        "200":
+          description: Updated RFQ
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  # ── Coffee Shipments ───────────────────────────────────────────────────────
+
+  /coffee/shipments:
+    get:
+      operationId: listCoffeeShipments
+      tags: [coffee]
+      summary: List my coffee shipments
+      responses:
+        "200":
+          description: List of shipments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+    post:
+      operationId: createCoffeeShipment
+      tags: [coffee]
+      summary: Create a coffee shipment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [shipmentRef]
+              properties:
+                shipmentRef:
+                  type: string
+                lotId:
+                  type: integer
+                rfqId:
+                  type: integer
+                blNumber:
+                  type: string
+                containerNumber:
+                  type: string
+                portOfLoading:
+                  type: string
+                portOfDischarge:
+                  type: string
+                incoterms:
+                  type: string
+                buyerCompany:
+                  type: string
+                buyerCountry:
+                  type: string
+                etd:
+                  type: string
+                eta:
+                  type: string
+                coffeeGrade:
+                  type: string
+                  description: Coffee grade (AA, AB, PB, C)
+                cuppingScore:
+                  type: number
+                processingMethod:
+                  type: string
+                phytosanitaryCertNo:
+                  type: string
+                gcaContractRef:
+                  type: string
+      responses:
+        "201":
+          description: Shipment created
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /coffee/shipments/{id}:
+    get:
+      operationId: getCoffeeShipment
+      tags: [coffee]
+      summary: Get coffee shipment detail
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Shipment detail
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+    patch:
+      operationId: updateCoffeeShipment
+      tags: [coffee]
+      summary: Update coffee shipment fields
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: Updated shipment
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /coffee/shipments/{id}/milestones:
+    post:
+      operationId: addCoffeeShipmentMilestone
+      tags: [coffee]
+      summary: Append a milestone event to a coffee shipment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [date, event]
+              properties:
+                date:
+                  type: string
+                event:
+                  type: string
+                location:
+                  type: string
+                notes:
+                  type: string
+      responses:
+        "201":
+          description: Milestone appended
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /coffee/shipments/{id}/docs:
+    post:
+      operationId: attachCoffeeShipmentDoc
+      tags: [coffee]
+      summary: Attach an export document to a coffee shipment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [docType, docName]
+              properties:
+                docType:
+                  type: string
+                docName:
+                  type: string
+                fileUrl:
+                  type: string
+                issuedAt:
+                  type: string
+                issuedBy:
+                  type: string
+      responses:
+        "201":
+          description: Document attached
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  # ── Coffee ESG ─────────────────────────────────────────────────────────────
+
+  /coffee/esg:
+    get:
+      operationId: listCoffeeEsgReports
+      tags: [coffee]
+      summary: List my coffee ESG reports
+      responses:
+        "200":
+          description: List of ESG reports
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+    post:
+      operationId: createCoffeeEsgReport
+      tags: [coffee]
+      summary: Create a coffee ESG report (supports coffee-specific indicators)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reportingPeriod]
+              properties:
+                reportingPeriod:
+                  type: string
+                co2KgTotal:
+                  type: number
+                co2KgPerKg:
+                  type: number
+                certifications:
+                  type: array
+                  items:
+                    type: object
+                shadeGrownPct:
+                  type: number
+                  description: Coffee-specific — percentage of shade-grown crop
+                intercropSpecies:
+                  type: array
+                  items:
+                    type: string
+                  description: Coffee-specific — companion plants / intercrop species
+                soilHealthScore:
+                  type: number
+                  description: Coffee-specific — 0-10 soil health composite score
+                farmerIncomePremiumUsd:
+                  type: number
+                  description: Coffee-specific — income premium paid above market per farmer
+                farmerTrainingProgrammes:
+                  type: array
+                  items:
+                    type: string
+                  description: Coffee-specific — list of training programmes run
+      responses:
+        "201":
+          description: ESG report created
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /coffee/esg/{id}:
+    get:
+      operationId: getCoffeeEsgReport
+      tags: [coffee]
+      summary: Get coffee ESG report detail
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: ESG report
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+    patch:
+      operationId: updateCoffeeEsgReport
+      tags: [coffee]
+      summary: Update a coffee ESG report
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: Updated ESG report
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
   /broker-mandates:
     post:
       operationId: createBrokerMandate
@@ -3709,6 +4745,436 @@ components:
           type: object
           additionalProperties: true
           default: {}
+
+    # ── Coffee Auction & Lot schemas ──────────────────────────────────────
+
+    CreateCoffeeAuctionSessionRequest:
+      type: object
+      required: [auctionDate]
+      properties:
+        auctionDate:
+          type: string
+          format: date
+          description: Planned date of the auction session (YYYY-MM-DD)
+
+    CoffeeAuctionSession:
+      type: object
+      required: [id, createdByBrokerId, auctionDate, catalogueOrder, status, createdAt, updatedAt]
+      properties:
+        id:
+          type: integer
+        createdByBrokerId:
+          type: integer
+        brokerName:
+          type: ["string", "null"]
+        auctionDate:
+          type: string
+          format: date
+        catalogueOrder:
+          type: array
+          items:
+            type: integer
+        currentLotId:
+          type: ["integer", "null"]
+        status:
+          type: string
+          enum: [SCHEDULED, LIVE, CLOSED, COMPLETED]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CoffeeAuctionSessionDetail:
+      allOf:
+        - $ref: "#/components/schemas/CoffeeAuctionSession"
+        - type: object
+          properties:
+            lots:
+              type: array
+              items:
+                type: object
+                description: CoffeeLot enriched with currentHighBidUsd, bidCount, secsRemaining, minNextBidUsd
+
+    CoffeeLotBidInput:
+      type: object
+      required: [amountUsd]
+      properties:
+        amountUsd:
+          type: number
+          minimum: 0
+          exclusiveMinimum: true
+
+    CoffeeLotBid:
+      type: object
+      required: [id, lotId, sessionId, bidderId, amountUsd, isWinning, placedAt]
+      properties:
+        id:
+          type: integer
+        lotId:
+          type: integer
+        sessionId:
+          type: integer
+        bidderId:
+          type: integer
+        amountUsd:
+          type: number
+        isWinning:
+          type: boolean
+        placedAt:
+          type: string
+          format: date-time
+
+    CoffeeLotBidResult:
+      type: object
+      required: [bid, antiSnipeTriggered, bidSecurityHeldUsd]
+      properties:
+        bid:
+          $ref: "#/components/schemas/CoffeeLotBid"
+        antiSnipeTriggered:
+          type: boolean
+        newEndAt:
+          type: ["string", "null"]
+          format: date-time
+        bidSecurityHeldUsd:
+          type: number
+
+    CoffeeLotSettlement:
+      type: object
+      required: [id, lotId, sessionId, winningBidId, buyerId, grossAmountUsd, platformFeeUsd, brokerCommissionUsd, netProducerAmountUsd, promptDate, paymentStatus, deliveryOrderStatus, createdAt]
+      properties:
+        id:
+          type: integer
+        lotId:
+          type: integer
+        sessionId:
+          type: integer
+        winningBidId:
+          type: integer
+        buyerId:
+          type: integer
+        buyerName:
+          type: ["string", "null"]
+        grossAmountUsd:
+          type: number
+        platformFeeUsd:
+          type: number
+        brokerCommissionUsd:
+          type: number
+        netProducerAmountUsd:
+          type: number
+        promptDate:
+          type: string
+          format: date
+        paymentStatus:
+          type: string
+          enum: [PENDING, PAID, DEFAULTED]
+        deliveryOrderStatus:
+          type: string
+          enum: [NOT_ISSUABLE, ISSUABLE, ISSUED]
+        acceptedBelowReserve:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+
+    CoffeeLot:
+      type: object
+      required: [id, ewrId, ownerId, brokerId, grade, gradeMark, giOrigin, grossWeightKg, netWeightKg, tareWeightKg, packageType, certifications, listingType, catalogueType, commissionRate, tickTiers, antiSnipeConfig, bidSecurityPct, status, createdAt, updatedAt]
+      properties:
+        id:
+          type: integer
+        ewrId:
+          type: integer
+        ownerId:
+          type: integer
+        brokerId:
+          type: integer
+        grade:
+          type: string
+          description: Coffee grade (e.g. AA, AB, PB, C or custom grade mark)
+        gradeMark:
+          type: string
+          description: Coffee lot mark / brand identifier
+        giOrigin:
+          type: string
+          description: Geographic origin of the coffee (e.g. Ethiopia Yirgacheffe, Colombia Huila)
+        grossWeightKg:
+          type: number
+        netWeightKg:
+          type: number
+        tareWeightKg:
+          type: number
+        packageType:
+          type: string
+          description: Packaging type (e.g. Jute Bag 60kg, GrainPro, Vacuum-sealed)
+        packingWeightKg:
+          type: ["number", "null"]
+        cuppingRemarks:
+          type: ["string", "null"]
+          description: Cupping notes and taster observations (coffee-specific)
+        processingMethod:
+          type: ["string", "null"]
+          description: Processing method — Washed / Natural / Honey / Wet Hulled (coffee-specific)
+        varietal:
+          type: ["string", "null"]
+          description: Coffee varietal — Bourbon / Geisha / SL28 / Heirloom etc. (coffee-specific)
+        altitude:
+          type: ["number", "null"]
+          description: Farm altitude in metres above sea level (coffee-specific)
+        certifications:
+          type: array
+          items:
+            type: string
+        storageStatus:
+          type: ["string", "null"]
+        listingType:
+          type: string
+          enum: [AUCTION, FIXED_PRICE]
+        catalogueType:
+          type: string
+          enum: [WITH_VALUATION, WITHOUT_VALUATION]
+        reservePriceUsd:
+          type: ["number", "null"]
+        brokerValuationUsd:
+          type: ["number", "null"]
+        fixedPricePerKgUsd:
+          type: ["number", "null"]
+        commissionRate:
+          type: number
+        tickTiers:
+          type: array
+          items:
+            $ref: "#/components/schemas/TickTier"
+        antiSnipeConfig:
+          $ref: "#/components/schemas/AntiSnipeConfig"
+        bidSecurityPct:
+          type: number
+        status:
+          type: string
+          enum: [DRAFT, CATALOGUED, DISPATCHED, LIVE, SOLD, UNSOLD, WITHDRAWN, RESERVE_NOT_MET]
+        publishedAt:
+          type: ["string", "null"]
+          format: date-time
+        warehouseCode:
+          type: ["string", "null"]
+        coffeeBeanSize:
+          type: ["string", "null"]
+          enum: [AA, AB, PB, C, null]
+          description: Bean size grade from eWR (coffee-specific)
+        coffeeCuppingScore:
+          type: ["number", "null"]
+          description: Cupping score from eWR (coffee-specific)
+        warehouseProfile:
+          type: ["object", "null"]
+          $ref: "#/components/schemas/WarehouseProfile"
+        sessionId:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CoffeeLotDetail:
+      allOf:
+        - $ref: "#/components/schemas/CoffeeLot"
+        - type: object
+          properties:
+            ownerName:
+              type: ["string", "null"]
+            brokerName:
+              type: ["string", "null"]
+            ewr:
+              type: ["object", "null"]
+              properties:
+                ewrsReceiptId:
+                  type: string
+                commodityType:
+                  type: string
+                weightMt:
+                  type: number
+                harvestSeason:
+                  type: string
+                state:
+                  type: string
+                coffeeBeanSize:
+                  type: ["string", "null"]
+                  enum: [AA, AB, PB, C, null]
+                coffeeCuppingScore:
+                  type: ["number", "null"]
+
+    CreateCoffeeLotRequest:
+      type: object
+      required: [ewrId, grade, gradeMark, giOrigin, grossWeightKg, netWeightKg, tareWeightKg, packageType]
+      properties:
+        ewrId:
+          type: integer
+        grade:
+          type: string
+          minLength: 1
+          description: Coffee grade (AA, AB, PB, C or custom)
+        gradeMark:
+          type: string
+          minLength: 1
+          description: Lot mark / brand identifier
+        giOrigin:
+          type: string
+          minLength: 1
+          description: Geographic origin (e.g. Ethiopia Yirgacheffe)
+        grossWeightKg:
+          type: number
+          minimum: 0
+          exclusiveMinimum: true
+        netWeightKg:
+          type: number
+          minimum: 0
+          exclusiveMinimum: true
+        tareWeightKg:
+          type: number
+          minimum: 0
+        packageType:
+          type: string
+          minLength: 1
+        packingWeightKg:
+          type: number
+        cuppingRemarks:
+          type: string
+          description: Cupping notes (coffee-specific)
+        processingMethod:
+          type: string
+          description: Washed / Natural / Honey / Wet Hulled (coffee-specific)
+        varietal:
+          type: string
+          description: Bourbon / Geisha / SL28 / Heirloom etc. (coffee-specific)
+        altitude:
+          type: number
+          description: Farm altitude in metres above sea level (coffee-specific)
+        certifications:
+          type: array
+          items:
+            type: string
+          default: []
+        storageStatus:
+          type: string
+        listingType:
+          type: string
+          enum: [AUCTION, FIXED_PRICE]
+          default: AUCTION
+        catalogueType:
+          type: string
+          enum: [WITH_VALUATION, WITHOUT_VALUATION]
+          default: WITHOUT_VALUATION
+        reservePriceUsd:
+          type: number
+          description: Required for AUCTION lots
+        brokerValuationUsd:
+          type: number
+        fixedPricePerKgUsd:
+          type: number
+          description: Required for FIXED_PRICE lots
+        commissionRate:
+          type: number
+          minimum: 0
+          maximum: 1
+          default: 0.01
+        tickTiers:
+          type: array
+          items:
+            $ref: "#/components/schemas/TickTier"
+          default: []
+        antiSnipeConfig:
+          $ref: "#/components/schemas/AntiSnipeConfig"
+        bidSecurityPct:
+          type: number
+          minimum: 0
+          maximum: 1
+          default: 0.1
+
+    UpdateCoffeeLotRequest:
+      type: object
+      description: All fields are optional; only the provided fields are updated
+      properties:
+        grade:
+          type: string
+        gradeMark:
+          type: string
+        giOrigin:
+          type: string
+        grossWeightKg:
+          type: number
+        netWeightKg:
+          type: number
+        tareWeightKg:
+          type: number
+        packageType:
+          type: string
+        packingWeightKg:
+          type: number
+        cuppingRemarks:
+          type: string
+          description: Cupping notes (coffee-specific)
+        processingMethod:
+          type: string
+          description: Processing method (coffee-specific)
+        varietal:
+          type: string
+          description: Coffee varietal (coffee-specific)
+        altitude:
+          type: number
+          description: Farm altitude masl (coffee-specific)
+        certifications:
+          type: array
+          items:
+            type: string
+        storageStatus:
+          type: string
+        listingType:
+          type: string
+          enum: [AUCTION, FIXED_PRICE]
+        catalogueType:
+          type: string
+          enum: [WITH_VALUATION, WITHOUT_VALUATION]
+        reservePriceUsd:
+          type: number
+        brokerValuationUsd:
+          type: number
+        fixedPricePerKgUsd:
+          type: number
+        commissionRate:
+          type: number
+        tickTiers:
+          type: array
+          items:
+            $ref: "#/components/schemas/TickTier"
+        antiSnipeConfig:
+          $ref: "#/components/schemas/AntiSnipeConfig"
+        bidSecurityPct:
+          type: number
+
+    CoffeeDispatchDoc:
+      type: object
+      required: [id, lotId, docType, submittedBy, docData, createdAt]
+      properties:
+        id:
+          type: integer
+        lotId:
+          type: integer
+        docType:
+          type: string
+          enum: [PRE_AUCTION_DISPATCH, WEIGHMENT_REPORT, DELIVERY_ORDER]
+        submittedBy:
+          type: integer
+        submitterName:
+          type: ["string", "null"]
+        docData:
+          type: object
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
 
     # ── Broker Mandates ────────────────────────────────────────────────────
 

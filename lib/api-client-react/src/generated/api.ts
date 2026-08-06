@@ -20,9 +20,15 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AcceptCoffeeLotBelowReserve200,
   AcceptTeaLotBelowReserve200,
   ActivityItem,
+  AddCoffeeShipmentMilestone201,
+  AddCoffeeShipmentMilestoneBody,
+  AddLotsToCoffeeAuctionSessionBody,
   AddLotsToTeaAuctionSessionBody,
+  AttachCoffeeShipmentDoc201,
+  AttachCoffeeShipmentDocBody,
   AttachDispatchDocRequest,
   Auction,
   AuctionBid,
@@ -31,12 +37,28 @@ import type {
   AuditLogEntry,
   BidInput,
   BrokerMandate,
+  CoffeeAuctionSession,
+  CoffeeAuctionSessionDetail,
+  CoffeeDispatchDoc,
+  CoffeeLot,
+  CoffeeLotBidInput,
+  CoffeeLotBidResult,
+  CoffeeLotDetail,
+  CoffeeLotSettlement,
   CommodityStat,
   CoopMember,
   CoopMemberInput,
   CooperativeProfile,
   CooperativeProfileInput,
   CreateBrokerMandateRequest,
+  CreateCoffeeAuctionSessionRequest,
+  CreateCoffeeEsgReport201,
+  CreateCoffeeEsgReportBody,
+  CreateCoffeeLotRequest,
+  CreateCoffeeRfq201,
+  CreateCoffeeRfqBody,
+  CreateCoffeeShipment201,
+  CreateCoffeeShipmentBody,
   CreateEwrRequest,
   CreateTeaAuctionSessionRequest,
   CreateTeaLotRequest,
@@ -49,6 +71,9 @@ import type {
   FinancingRequestInput,
   ForwardContract,
   ForwardContractInput,
+  GetCoffeeEsgReport200,
+  GetCoffeeRfq200,
+  GetCoffeeShipment200,
   GetPlatformEarningsParams,
   GetPriceTrendsParams,
   GetRecentActivityParams,
@@ -58,6 +83,11 @@ import type {
   IntakeLogInput,
   ListAuctionsParams,
   ListAuditLogParams,
+  ListCoffeeAuctionSessionsParams,
+  ListCoffeeEsgReports200Item,
+  ListCoffeeLotsParams,
+  ListCoffeeRfqs200Item,
+  ListCoffeeShipments200Item,
   ListEwrsParams,
   ListFinancingRequestsParams,
   ListForwardContractsParams,
@@ -77,6 +107,8 @@ import type {
   PriceTrendItem,
   RequestEwrForLotBody,
   ResolveDefaultBody,
+  SendCoffeeRfqMessage201,
+  SendCoffeeRfqMessageBody,
   Settlement,
   SettlementInput,
   SplitEwr201,
@@ -84,8 +116,12 @@ import type {
   SpotListing,
   SpotListingDetail,
   SpotListingInput,
+  StartCoffeeAuctionSession200,
+  StartCoffeeAuctionSessionBody,
   StartTeaAuctionSession200,
   StartTeaAuctionSessionBody,
+  SubmitCoffeeRfqQuotation201,
+  SubmitCoffeeRfqQuotationBody,
   TeaAuctionSession,
   TeaAuctionSessionDetail,
   TeaDispatchDoc,
@@ -96,6 +132,13 @@ import type {
   TeaLotSettlement,
   TopBidder,
   TransferEwrBody,
+  UpdateCoffeeEsgReport200,
+  UpdateCoffeeEsgReportBody,
+  UpdateCoffeeLotRequest,
+  UpdateCoffeeRfqStatus200,
+  UpdateCoffeeRfqStatusBody,
+  UpdateCoffeeShipment200,
+  UpdateCoffeeShipmentBody,
   UpdateTeaLotRequest,
   UploadUrlRequest,
   UploadUrlResponse,
@@ -6067,6 +6110,2373 @@ export const useAttachTeaDispatchDoc = <TError = ErrorType<ErrorEnvelope>,
         TContext
       > => {
       return useMutation(getAttachTeaDispatchDocMutationOptions(options));
+    }
+
+export const getListCoffeeAuctionSessionsUrl = (params?: ListCoffeeAuctionSessionsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/coffee/auctions?${stringifiedParams}` : `/api/coffee/auctions`
+}
+
+/**
+ * @summary List coffee auction sessions
+ */
+export const listCoffeeAuctionSessions = async (params?: ListCoffeeAuctionSessionsParams, options?: RequestInit): Promise<CoffeeAuctionSession[]> => {
+
+  return customFetch<CoffeeAuctionSession[]>(getListCoffeeAuctionSessionsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListCoffeeAuctionSessionsQueryKey = (params?: ListCoffeeAuctionSessionsParams,) => {
+    return [
+    `/api/coffee/auctions`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListCoffeeAuctionSessionsQueryOptions = <TData = Awaited<ReturnType<typeof listCoffeeAuctionSessions>>, TError = ErrorType<unknown>>(params?: ListCoffeeAuctionSessionsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCoffeeAuctionSessions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListCoffeeAuctionSessionsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listCoffeeAuctionSessions>>> = ({ signal }) => listCoffeeAuctionSessions(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listCoffeeAuctionSessions>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListCoffeeAuctionSessionsQueryResult = NonNullable<Awaited<ReturnType<typeof listCoffeeAuctionSessions>>>
+export type ListCoffeeAuctionSessionsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List coffee auction sessions
+ */
+
+export function useListCoffeeAuctionSessions<TData = Awaited<ReturnType<typeof listCoffeeAuctionSessions>>, TError = ErrorType<unknown>>(
+ params?: ListCoffeeAuctionSessionsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCoffeeAuctionSessions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListCoffeeAuctionSessionsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCreateCoffeeAuctionSessionUrl = () => {
+
+
+
+
+  return `/api/coffee/auctions`
+}
+
+/**
+ * @summary Admin creates a coffee auction session
+ */
+export const createCoffeeAuctionSession = async (createCoffeeAuctionSessionRequest: CreateCoffeeAuctionSessionRequest, options?: RequestInit): Promise<CoffeeAuctionSession> => {
+
+  return customFetch<CoffeeAuctionSession>(getCreateCoffeeAuctionSessionUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      createCoffeeAuctionSessionRequest,)
+  }
+);}
+
+
+
+
+export const getCreateCoffeeAuctionSessionMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCoffeeAuctionSession>>, TError,{data: BodyType<CreateCoffeeAuctionSessionRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createCoffeeAuctionSession>>, TError,{data: BodyType<CreateCoffeeAuctionSessionRequest>}, TContext> => {
+
+const mutationKey = ['createCoffeeAuctionSession'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createCoffeeAuctionSession>>, {data: BodyType<CreateCoffeeAuctionSessionRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createCoffeeAuctionSession(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateCoffeeAuctionSessionMutationResult = NonNullable<Awaited<ReturnType<typeof createCoffeeAuctionSession>>>
+    export type CreateCoffeeAuctionSessionMutationBody = BodyType<CreateCoffeeAuctionSessionRequest>
+    export type CreateCoffeeAuctionSessionMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Admin creates a coffee auction session
+ */
+export const useCreateCoffeeAuctionSession = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCoffeeAuctionSession>>, TError,{data: BodyType<CreateCoffeeAuctionSessionRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createCoffeeAuctionSession>>,
+        TError,
+        {data: BodyType<CreateCoffeeAuctionSessionRequest>},
+        TContext
+      > => {
+      return useMutation(getCreateCoffeeAuctionSessionMutationOptions(options));
+    }
+
+export const getGetCoffeeAuctionSessionUrl = (sessionId: number,) => {
+
+
+
+
+  return `/api/coffee/auctions/${sessionId}`
+}
+
+/**
+ * @summary Get coffee session detail with ordered lot list, current bids, and countdown timers
+ */
+export const getCoffeeAuctionSession = async (sessionId: number, options?: RequestInit): Promise<CoffeeAuctionSessionDetail> => {
+
+  return customFetch<CoffeeAuctionSessionDetail>(getGetCoffeeAuctionSessionUrl(sessionId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCoffeeAuctionSessionQueryKey = (sessionId: number,) => {
+    return [
+    `/api/coffee/auctions/${sessionId}`
+    ] as const;
+    }
+
+
+export const getGetCoffeeAuctionSessionQueryOptions = <TData = Awaited<ReturnType<typeof getCoffeeAuctionSession>>, TError = ErrorType<ErrorEnvelope>>(sessionId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCoffeeAuctionSession>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCoffeeAuctionSessionQueryKey(sessionId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCoffeeAuctionSession>>> = ({ signal }) => getCoffeeAuctionSession(sessionId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(sessionId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCoffeeAuctionSession>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCoffeeAuctionSessionQueryResult = NonNullable<Awaited<ReturnType<typeof getCoffeeAuctionSession>>>
+export type GetCoffeeAuctionSessionQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary Get coffee session detail with ordered lot list, current bids, and countdown timers
+ */
+
+export function useGetCoffeeAuctionSession<TData = Awaited<ReturnType<typeof getCoffeeAuctionSession>>, TError = ErrorType<ErrorEnvelope>>(
+ sessionId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCoffeeAuctionSession>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCoffeeAuctionSessionQueryOptions(sessionId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getAddLotsToCoffeeAuctionSessionUrl = (sessionId: number,) => {
+
+
+
+
+  return `/api/coffee/auctions/${sessionId}/lots`
+}
+
+/**
+ * @summary Broker submits COFFEE lots to a scheduled session
+ */
+export const addLotsToCoffeeAuctionSession = async (sessionId: number,
+    addLotsToCoffeeAuctionSessionBody: AddLotsToCoffeeAuctionSessionBody, options?: RequestInit): Promise<CoffeeAuctionSession> => {
+
+  return customFetch<CoffeeAuctionSession>(getAddLotsToCoffeeAuctionSessionUrl(sessionId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      addLotsToCoffeeAuctionSessionBody,)
+  }
+);}
+
+
+
+
+export const getAddLotsToCoffeeAuctionSessionMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addLotsToCoffeeAuctionSession>>, TError,{sessionId: number;data: BodyType<AddLotsToCoffeeAuctionSessionBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof addLotsToCoffeeAuctionSession>>, TError,{sessionId: number;data: BodyType<AddLotsToCoffeeAuctionSessionBody>}, TContext> => {
+
+const mutationKey = ['addLotsToCoffeeAuctionSession'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof addLotsToCoffeeAuctionSession>>, {sessionId: number;data: BodyType<AddLotsToCoffeeAuctionSessionBody>}> = (props) => {
+          const {sessionId,data} = props ?? {};
+
+          return  addLotsToCoffeeAuctionSession(sessionId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AddLotsToCoffeeAuctionSessionMutationResult = NonNullable<Awaited<ReturnType<typeof addLotsToCoffeeAuctionSession>>>
+    export type AddLotsToCoffeeAuctionSessionMutationBody = BodyType<AddLotsToCoffeeAuctionSessionBody>
+    export type AddLotsToCoffeeAuctionSessionMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Broker submits COFFEE lots to a scheduled session
+ */
+export const useAddLotsToCoffeeAuctionSession = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addLotsToCoffeeAuctionSession>>, TError,{sessionId: number;data: BodyType<AddLotsToCoffeeAuctionSessionBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof addLotsToCoffeeAuctionSession>>,
+        TError,
+        {sessionId: number;data: BodyType<AddLotsToCoffeeAuctionSessionBody>},
+        TContext
+      > => {
+      return useMutation(getAddLotsToCoffeeAuctionSessionMutationOptions(options));
+    }
+
+export const getStartCoffeeAuctionSessionUrl = (sessionId: number,) => {
+
+
+
+
+  return `/api/coffee/auctions/${sessionId}/start`
+}
+
+/**
+ * @summary Start the coffee session — moves the first lot to LIVE
+ */
+export const startCoffeeAuctionSession = async (sessionId: number,
+    startCoffeeAuctionSessionBody?: StartCoffeeAuctionSessionBody, options?: RequestInit): Promise<StartCoffeeAuctionSession200> => {
+
+  return customFetch<StartCoffeeAuctionSession200>(getStartCoffeeAuctionSessionUrl(sessionId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      startCoffeeAuctionSessionBody,)
+  }
+);}
+
+
+
+
+export const getStartCoffeeAuctionSessionMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof startCoffeeAuctionSession>>, TError,{sessionId: number;data?: BodyType<StartCoffeeAuctionSessionBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof startCoffeeAuctionSession>>, TError,{sessionId: number;data?: BodyType<StartCoffeeAuctionSessionBody>}, TContext> => {
+
+const mutationKey = ['startCoffeeAuctionSession'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof startCoffeeAuctionSession>>, {sessionId: number;data?: BodyType<StartCoffeeAuctionSessionBody>}> = (props) => {
+          const {sessionId,data} = props ?? {};
+
+          return  startCoffeeAuctionSession(sessionId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type StartCoffeeAuctionSessionMutationResult = NonNullable<Awaited<ReturnType<typeof startCoffeeAuctionSession>>>
+    export type StartCoffeeAuctionSessionMutationBody = BodyType<StartCoffeeAuctionSessionBody> | undefined
+    export type StartCoffeeAuctionSessionMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Start the coffee session — moves the first lot to LIVE
+ */
+export const useStartCoffeeAuctionSession = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof startCoffeeAuctionSession>>, TError,{sessionId: number;data?: BodyType<StartCoffeeAuctionSessionBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof startCoffeeAuctionSession>>,
+        TError,
+        {sessionId: number;data?: BodyType<StartCoffeeAuctionSessionBody>},
+        TContext
+      > => {
+      return useMutation(getStartCoffeeAuctionSessionMutationOptions(options));
+    }
+
+export const getPlaceCoffeeLotBidUrl = (lotId: number,) => {
+
+
+
+
+  return `/api/coffee/lots/${lotId}/bids`
+}
+
+/**
+ * @summary Place a bid on a LIVE coffee lot (OFF_TAKER only). Enforces tiered tick sizes and anti-snipe extension.
+ */
+export const placeCoffeeLotBid = async (lotId: number,
+    coffeeLotBidInput: CoffeeLotBidInput, options?: RequestInit): Promise<CoffeeLotBidResult> => {
+
+  return customFetch<CoffeeLotBidResult>(getPlaceCoffeeLotBidUrl(lotId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      coffeeLotBidInput,)
+  }
+);}
+
+
+
+
+export const getPlaceCoffeeLotBidMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof placeCoffeeLotBid>>, TError,{lotId: number;data: BodyType<CoffeeLotBidInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof placeCoffeeLotBid>>, TError,{lotId: number;data: BodyType<CoffeeLotBidInput>}, TContext> => {
+
+const mutationKey = ['placeCoffeeLotBid'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof placeCoffeeLotBid>>, {lotId: number;data: BodyType<CoffeeLotBidInput>}> = (props) => {
+          const {lotId,data} = props ?? {};
+
+          return  placeCoffeeLotBid(lotId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PlaceCoffeeLotBidMutationResult = NonNullable<Awaited<ReturnType<typeof placeCoffeeLotBid>>>
+    export type PlaceCoffeeLotBidMutationBody = BodyType<CoffeeLotBidInput>
+    export type PlaceCoffeeLotBidMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Place a bid on a LIVE coffee lot (OFF_TAKER only). Enforces tiered tick sizes and anti-snipe extension.
+ */
+export const usePlaceCoffeeLotBid = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof placeCoffeeLotBid>>, TError,{lotId: number;data: BodyType<CoffeeLotBidInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof placeCoffeeLotBid>>,
+        TError,
+        {lotId: number;data: BodyType<CoffeeLotBidInput>},
+        TContext
+      > => {
+      return useMutation(getPlaceCoffeeLotBidMutationOptions(options));
+    }
+
+export const getCoffeeLotTakeOutUrl = (lotId: number,) => {
+
+
+
+
+  return `/api/coffee/lots/${lotId}/take-out`
+}
+
+/**
+ * @summary Broker withdraws a RESERVE_NOT_MET coffee lot
+ */
+export const coffeeLotTakeOut = async (lotId: number, options?: RequestInit): Promise<CoffeeLot> => {
+
+  return customFetch<CoffeeLot>(getCoffeeLotTakeOutUrl(lotId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getCoffeeLotTakeOutMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof coffeeLotTakeOut>>, TError,{lotId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof coffeeLotTakeOut>>, TError,{lotId: number}, TContext> => {
+
+const mutationKey = ['coffeeLotTakeOut'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof coffeeLotTakeOut>>, {lotId: number}> = (props) => {
+          const {lotId} = props ?? {};
+
+          return  coffeeLotTakeOut(lotId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CoffeeLotTakeOutMutationResult = NonNullable<Awaited<ReturnType<typeof coffeeLotTakeOut>>>
+
+    export type CoffeeLotTakeOutMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Broker withdraws a RESERVE_NOT_MET coffee lot
+ */
+export const useCoffeeLotTakeOut = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof coffeeLotTakeOut>>, TError,{lotId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof coffeeLotTakeOut>>,
+        TError,
+        {lotId: number},
+        TContext
+      > => {
+      return useMutation(getCoffeeLotTakeOutMutationOptions(options));
+    }
+
+export const getAcceptCoffeeLotBelowReserveUrl = (lotId: number,) => {
+
+
+
+
+  return `/api/coffee/lots/${lotId}/accept-below-reserve`
+}
+
+/**
+ * @summary Broker accepts the highest bid even though it is below reserve
+ */
+export const acceptCoffeeLotBelowReserve = async (lotId: number, options?: RequestInit): Promise<AcceptCoffeeLotBelowReserve200> => {
+
+  return customFetch<AcceptCoffeeLotBelowReserve200>(getAcceptCoffeeLotBelowReserveUrl(lotId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getAcceptCoffeeLotBelowReserveMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof acceptCoffeeLotBelowReserve>>, TError,{lotId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof acceptCoffeeLotBelowReserve>>, TError,{lotId: number}, TContext> => {
+
+const mutationKey = ['acceptCoffeeLotBelowReserve'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof acceptCoffeeLotBelowReserve>>, {lotId: number}> = (props) => {
+          const {lotId} = props ?? {};
+
+          return  acceptCoffeeLotBelowReserve(lotId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AcceptCoffeeLotBelowReserveMutationResult = NonNullable<Awaited<ReturnType<typeof acceptCoffeeLotBelowReserve>>>
+
+    export type AcceptCoffeeLotBelowReserveMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Broker accepts the highest bid even though it is below reserve
+ */
+export const useAcceptCoffeeLotBelowReserve = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof acceptCoffeeLotBelowReserve>>, TError,{lotId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof acceptCoffeeLotBelowReserve>>,
+        TError,
+        {lotId: number},
+        TContext
+      > => {
+      return useMutation(getAcceptCoffeeLotBelowReserveMutationOptions(options));
+    }
+
+export const getSettleCoffeeLotUrl = (lotId: number,) => {
+
+
+
+
+  return `/api/coffee/lots/${lotId}/settle`
+}
+
+/**
+ * @summary Admin confirms payment received — marks delivery order issuable
+ */
+export const settleCoffeeLot = async (lotId: number, options?: RequestInit): Promise<CoffeeLotSettlement> => {
+
+  return customFetch<CoffeeLotSettlement>(getSettleCoffeeLotUrl(lotId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getSettleCoffeeLotMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof settleCoffeeLot>>, TError,{lotId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof settleCoffeeLot>>, TError,{lotId: number}, TContext> => {
+
+const mutationKey = ['settleCoffeeLot'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof settleCoffeeLot>>, {lotId: number}> = (props) => {
+          const {lotId} = props ?? {};
+
+          return  settleCoffeeLot(lotId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SettleCoffeeLotMutationResult = NonNullable<Awaited<ReturnType<typeof settleCoffeeLot>>>
+
+    export type SettleCoffeeLotMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Admin confirms payment received — marks delivery order issuable
+ */
+export const useSettleCoffeeLot = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof settleCoffeeLot>>, TError,{lotId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof settleCoffeeLot>>,
+        TError,
+        {lotId: number},
+        TContext
+      > => {
+      return useMutation(getSettleCoffeeLotMutationOptions(options));
+    }
+
+export const getGetCoffeeLotSettlementUrl = (lotId: number,) => {
+
+
+
+
+  return `/api/coffee/lots/${lotId}/settlement`
+}
+
+/**
+ * @summary Get settlement detail for a coffee lot
+ */
+export const getCoffeeLotSettlement = async (lotId: number, options?: RequestInit): Promise<CoffeeLotSettlement> => {
+
+  return customFetch<CoffeeLotSettlement>(getGetCoffeeLotSettlementUrl(lotId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCoffeeLotSettlementQueryKey = (lotId: number,) => {
+    return [
+    `/api/coffee/lots/${lotId}/settlement`
+    ] as const;
+    }
+
+
+export const getGetCoffeeLotSettlementQueryOptions = <TData = Awaited<ReturnType<typeof getCoffeeLotSettlement>>, TError = ErrorType<ErrorEnvelope>>(lotId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCoffeeLotSettlement>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCoffeeLotSettlementQueryKey(lotId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCoffeeLotSettlement>>> = ({ signal }) => getCoffeeLotSettlement(lotId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(lotId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCoffeeLotSettlement>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCoffeeLotSettlementQueryResult = NonNullable<Awaited<ReturnType<typeof getCoffeeLotSettlement>>>
+export type GetCoffeeLotSettlementQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary Get settlement detail for a coffee lot
+ */
+
+export function useGetCoffeeLotSettlement<TData = Awaited<ReturnType<typeof getCoffeeLotSettlement>>, TError = ErrorType<ErrorEnvelope>>(
+ lotId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCoffeeLotSettlement>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCoffeeLotSettlementQueryOptions(lotId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getListCoffeeLotsUrl = (params?: ListCoffeeLotsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/coffee/lots?${stringifiedParams}` : `/api/coffee/lots`
+}
+
+/**
+ * @summary List coffee lots (filterable by grade, origin, certification, listing type, status)
+ */
+export const listCoffeeLots = async (params?: ListCoffeeLotsParams, options?: RequestInit): Promise<CoffeeLot[]> => {
+
+  return customFetch<CoffeeLot[]>(getListCoffeeLotsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListCoffeeLotsQueryKey = (params?: ListCoffeeLotsParams,) => {
+    return [
+    `/api/coffee/lots`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListCoffeeLotsQueryOptions = <TData = Awaited<ReturnType<typeof listCoffeeLots>>, TError = ErrorType<unknown>>(params?: ListCoffeeLotsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCoffeeLots>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListCoffeeLotsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listCoffeeLots>>> = ({ signal }) => listCoffeeLots(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listCoffeeLots>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListCoffeeLotsQueryResult = NonNullable<Awaited<ReturnType<typeof listCoffeeLots>>>
+export type ListCoffeeLotsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List coffee lots (filterable by grade, origin, certification, listing type, status)
+ */
+
+export function useListCoffeeLots<TData = Awaited<ReturnType<typeof listCoffeeLots>>, TError = ErrorType<unknown>>(
+ params?: ListCoffeeLotsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCoffeeLots>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListCoffeeLotsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCreateCoffeeLotUrl = () => {
+
+
+
+
+  return `/api/coffee/lots`
+}
+
+/**
+ * @summary Broker or producer creates a coffee lot catalogue entry (active COFFEE mandate required for brokers)
+ */
+export const createCoffeeLot = async (createCoffeeLotRequest: CreateCoffeeLotRequest, options?: RequestInit): Promise<CoffeeLot> => {
+
+  return customFetch<CoffeeLot>(getCreateCoffeeLotUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      createCoffeeLotRequest,)
+  }
+);}
+
+
+
+
+export const getCreateCoffeeLotMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCoffeeLot>>, TError,{data: BodyType<CreateCoffeeLotRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createCoffeeLot>>, TError,{data: BodyType<CreateCoffeeLotRequest>}, TContext> => {
+
+const mutationKey = ['createCoffeeLot'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createCoffeeLot>>, {data: BodyType<CreateCoffeeLotRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createCoffeeLot(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateCoffeeLotMutationResult = NonNullable<Awaited<ReturnType<typeof createCoffeeLot>>>
+    export type CreateCoffeeLotMutationBody = BodyType<CreateCoffeeLotRequest>
+    export type CreateCoffeeLotMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Broker or producer creates a coffee lot catalogue entry (active COFFEE mandate required for brokers)
+ */
+export const useCreateCoffeeLot = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCoffeeLot>>, TError,{data: BodyType<CreateCoffeeLotRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createCoffeeLot>>,
+        TError,
+        {data: BodyType<CreateCoffeeLotRequest>},
+        TContext
+      > => {
+      return useMutation(getCreateCoffeeLotMutationOptions(options));
+    }
+
+export const getGetCoffeeLotUrl = (lotId: number,) => {
+
+
+
+
+  return `/api/coffee/lots/${lotId}`
+}
+
+/**
+ * @summary Get full coffee lot detail including coffee-specific eWR fields (coffeeBeanSize, coffeeCuppingScore)
+ */
+export const getCoffeeLot = async (lotId: number, options?: RequestInit): Promise<CoffeeLotDetail> => {
+
+  return customFetch<CoffeeLotDetail>(getGetCoffeeLotUrl(lotId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCoffeeLotQueryKey = (lotId: number,) => {
+    return [
+    `/api/coffee/lots/${lotId}`
+    ] as const;
+    }
+
+
+export const getGetCoffeeLotQueryOptions = <TData = Awaited<ReturnType<typeof getCoffeeLot>>, TError = ErrorType<ErrorEnvelope>>(lotId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCoffeeLot>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCoffeeLotQueryKey(lotId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCoffeeLot>>> = ({ signal }) => getCoffeeLot(lotId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(lotId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCoffeeLot>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCoffeeLotQueryResult = NonNullable<Awaited<ReturnType<typeof getCoffeeLot>>>
+export type GetCoffeeLotQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary Get full coffee lot detail including coffee-specific eWR fields (coffeeBeanSize, coffeeCuppingScore)
+ */
+
+export function useGetCoffeeLot<TData = Awaited<ReturnType<typeof getCoffeeLot>>, TError = ErrorType<ErrorEnvelope>>(
+ lotId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCoffeeLot>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCoffeeLotQueryOptions(lotId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getUpdateCoffeeLotUrl = (lotId: number,) => {
+
+
+
+
+  return `/api/coffee/lots/${lotId}`
+}
+
+/**
+ * @summary Broker or owner updates a DRAFT/CATALOGUED coffee lot
+ */
+export const updateCoffeeLot = async (lotId: number,
+    updateCoffeeLotRequest: UpdateCoffeeLotRequest, options?: RequestInit): Promise<CoffeeLot> => {
+
+  return customFetch<CoffeeLot>(getUpdateCoffeeLotUrl(lotId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      updateCoffeeLotRequest,)
+  }
+);}
+
+
+
+
+export const getUpdateCoffeeLotMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCoffeeLot>>, TError,{lotId: number;data: BodyType<UpdateCoffeeLotRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateCoffeeLot>>, TError,{lotId: number;data: BodyType<UpdateCoffeeLotRequest>}, TContext> => {
+
+const mutationKey = ['updateCoffeeLot'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateCoffeeLot>>, {lotId: number;data: BodyType<UpdateCoffeeLotRequest>}> = (props) => {
+          const {lotId,data} = props ?? {};
+
+          return  updateCoffeeLot(lotId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateCoffeeLotMutationResult = NonNullable<Awaited<ReturnType<typeof updateCoffeeLot>>>
+    export type UpdateCoffeeLotMutationBody = BodyType<UpdateCoffeeLotRequest>
+    export type UpdateCoffeeLotMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Broker or owner updates a DRAFT/CATALOGUED coffee lot
+ */
+export const useUpdateCoffeeLot = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCoffeeLot>>, TError,{lotId: number;data: BodyType<UpdateCoffeeLotRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateCoffeeLot>>,
+        TError,
+        {lotId: number;data: BodyType<UpdateCoffeeLotRequest>},
+        TContext
+      > => {
+      return useMutation(getUpdateCoffeeLotMutationOptions(options));
+    }
+
+export const getGetCoffeeLotDispatchDocsUrl = (lotId: number,) => {
+
+
+
+
+  return `/api/coffee/lots/${lotId}/dispatch`
+}
+
+/**
+ * @summary Retrieve dispatch documents for a coffee lot
+ */
+export const getCoffeeLotDispatchDocs = async (lotId: number, options?: RequestInit): Promise<CoffeeDispatchDoc[]> => {
+
+  return customFetch<CoffeeDispatchDoc[]>(getGetCoffeeLotDispatchDocsUrl(lotId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCoffeeLotDispatchDocsQueryKey = (lotId: number,) => {
+    return [
+    `/api/coffee/lots/${lotId}/dispatch`
+    ] as const;
+    }
+
+
+export const getGetCoffeeLotDispatchDocsQueryOptions = <TData = Awaited<ReturnType<typeof getCoffeeLotDispatchDocs>>, TError = ErrorType<ErrorEnvelope>>(lotId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCoffeeLotDispatchDocs>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCoffeeLotDispatchDocsQueryKey(lotId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCoffeeLotDispatchDocs>>> = ({ signal }) => getCoffeeLotDispatchDocs(lotId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(lotId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCoffeeLotDispatchDocs>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCoffeeLotDispatchDocsQueryResult = NonNullable<Awaited<ReturnType<typeof getCoffeeLotDispatchDocs>>>
+export type GetCoffeeLotDispatchDocsQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary Retrieve dispatch documents for a coffee lot
+ */
+
+export function useGetCoffeeLotDispatchDocs<TData = Awaited<ReturnType<typeof getCoffeeLotDispatchDocs>>, TError = ErrorType<ErrorEnvelope>>(
+ lotId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCoffeeLotDispatchDocs>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCoffeeLotDispatchDocsQueryOptions(lotId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getAttachCoffeeDispatchDocUrl = (lotId: number,) => {
+
+
+
+
+  return `/api/coffee/lots/${lotId}/dispatch`
+}
+
+/**
+ * @summary Attach a dispatch document to a coffee lot
+ */
+export const attachCoffeeDispatchDoc = async (lotId: number,
+    attachDispatchDocRequest: AttachDispatchDocRequest, options?: RequestInit): Promise<CoffeeDispatchDoc> => {
+
+  return customFetch<CoffeeDispatchDoc>(getAttachCoffeeDispatchDocUrl(lotId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      attachDispatchDocRequest,)
+  }
+);}
+
+
+
+
+export const getAttachCoffeeDispatchDocMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof attachCoffeeDispatchDoc>>, TError,{lotId: number;data: BodyType<AttachDispatchDocRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof attachCoffeeDispatchDoc>>, TError,{lotId: number;data: BodyType<AttachDispatchDocRequest>}, TContext> => {
+
+const mutationKey = ['attachCoffeeDispatchDoc'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof attachCoffeeDispatchDoc>>, {lotId: number;data: BodyType<AttachDispatchDocRequest>}> = (props) => {
+          const {lotId,data} = props ?? {};
+
+          return  attachCoffeeDispatchDoc(lotId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AttachCoffeeDispatchDocMutationResult = NonNullable<Awaited<ReturnType<typeof attachCoffeeDispatchDoc>>>
+    export type AttachCoffeeDispatchDocMutationBody = BodyType<AttachDispatchDocRequest>
+    export type AttachCoffeeDispatchDocMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Attach a dispatch document to a coffee lot
+ */
+export const useAttachCoffeeDispatchDoc = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof attachCoffeeDispatchDoc>>, TError,{lotId: number;data: BodyType<AttachDispatchDocRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof attachCoffeeDispatchDoc>>,
+        TError,
+        {lotId: number;data: BodyType<AttachDispatchDocRequest>},
+        TContext
+      > => {
+      return useMutation(getAttachCoffeeDispatchDocMutationOptions(options));
+    }
+
+export const getListCoffeeRfqsUrl = () => {
+
+
+
+
+  return `/api/coffee/rfqs`
+}
+
+/**
+ * @summary List coffee RFQs where I am owner or buyer
+ */
+export const listCoffeeRfqs = async ( options?: RequestInit): Promise<ListCoffeeRfqs200Item[]> => {
+
+  return customFetch<ListCoffeeRfqs200Item[]>(getListCoffeeRfqsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListCoffeeRfqsQueryKey = () => {
+    return [
+    `/api/coffee/rfqs`
+    ] as const;
+    }
+
+
+export const getListCoffeeRfqsQueryOptions = <TData = Awaited<ReturnType<typeof listCoffeeRfqs>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCoffeeRfqs>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListCoffeeRfqsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listCoffeeRfqs>>> = ({ signal }) => listCoffeeRfqs({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listCoffeeRfqs>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListCoffeeRfqsQueryResult = NonNullable<Awaited<ReturnType<typeof listCoffeeRfqs>>>
+export type ListCoffeeRfqsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List coffee RFQs where I am owner or buyer
+ */
+
+export function useListCoffeeRfqs<TData = Awaited<ReturnType<typeof listCoffeeRfqs>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCoffeeRfqs>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListCoffeeRfqsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCreateCoffeeRfqUrl = () => {
+
+
+
+
+  return `/api/coffee/rfqs`
+}
+
+/**
+ * @summary Create a coffee RFQ
+ */
+export const createCoffeeRfq = async (createCoffeeRfqBody: CreateCoffeeRfqBody, options?: RequestInit): Promise<CreateCoffeeRfq201> => {
+
+  return customFetch<CreateCoffeeRfq201>(getCreateCoffeeRfqUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      createCoffeeRfqBody,)
+  }
+);}
+
+
+
+
+export const getCreateCoffeeRfqMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCoffeeRfq>>, TError,{data: BodyType<CreateCoffeeRfqBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createCoffeeRfq>>, TError,{data: BodyType<CreateCoffeeRfqBody>}, TContext> => {
+
+const mutationKey = ['createCoffeeRfq'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createCoffeeRfq>>, {data: BodyType<CreateCoffeeRfqBody>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createCoffeeRfq(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateCoffeeRfqMutationResult = NonNullable<Awaited<ReturnType<typeof createCoffeeRfq>>>
+    export type CreateCoffeeRfqMutationBody = BodyType<CreateCoffeeRfqBody>
+    export type CreateCoffeeRfqMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Create a coffee RFQ
+ */
+export const useCreateCoffeeRfq = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCoffeeRfq>>, TError,{data: BodyType<CreateCoffeeRfqBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createCoffeeRfq>>,
+        TError,
+        {data: BodyType<CreateCoffeeRfqBody>},
+        TContext
+      > => {
+      return useMutation(getCreateCoffeeRfqMutationOptions(options));
+    }
+
+export const getGetCoffeeRfqUrl = (rfqId: number,) => {
+
+
+
+
+  return `/api/coffee/rfqs/${rfqId}`
+}
+
+/**
+ * @summary Get coffee RFQ detail with messages and quotations
+ */
+export const getCoffeeRfq = async (rfqId: number, options?: RequestInit): Promise<GetCoffeeRfq200> => {
+
+  return customFetch<GetCoffeeRfq200>(getGetCoffeeRfqUrl(rfqId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCoffeeRfqQueryKey = (rfqId: number,) => {
+    return [
+    `/api/coffee/rfqs/${rfqId}`
+    ] as const;
+    }
+
+
+export const getGetCoffeeRfqQueryOptions = <TData = Awaited<ReturnType<typeof getCoffeeRfq>>, TError = ErrorType<ErrorEnvelope>>(rfqId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCoffeeRfq>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCoffeeRfqQueryKey(rfqId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCoffeeRfq>>> = ({ signal }) => getCoffeeRfq(rfqId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(rfqId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCoffeeRfq>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCoffeeRfqQueryResult = NonNullable<Awaited<ReturnType<typeof getCoffeeRfq>>>
+export type GetCoffeeRfqQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary Get coffee RFQ detail with messages and quotations
+ */
+
+export function useGetCoffeeRfq<TData = Awaited<ReturnType<typeof getCoffeeRfq>>, TError = ErrorType<ErrorEnvelope>>(
+ rfqId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCoffeeRfq>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCoffeeRfqQueryOptions(rfqId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getSendCoffeeRfqMessageUrl = (rfqId: number,) => {
+
+
+
+
+  return `/api/coffee/rfqs/${rfqId}/messages`
+}
+
+/**
+ * @summary Send a message on a coffee RFQ
+ */
+export const sendCoffeeRfqMessage = async (rfqId: number,
+    sendCoffeeRfqMessageBody: SendCoffeeRfqMessageBody, options?: RequestInit): Promise<SendCoffeeRfqMessage201> => {
+
+  return customFetch<SendCoffeeRfqMessage201>(getSendCoffeeRfqMessageUrl(rfqId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      sendCoffeeRfqMessageBody,)
+  }
+);}
+
+
+
+
+export const getSendCoffeeRfqMessageMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sendCoffeeRfqMessage>>, TError,{rfqId: number;data: BodyType<SendCoffeeRfqMessageBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof sendCoffeeRfqMessage>>, TError,{rfqId: number;data: BodyType<SendCoffeeRfqMessageBody>}, TContext> => {
+
+const mutationKey = ['sendCoffeeRfqMessage'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof sendCoffeeRfqMessage>>, {rfqId: number;data: BodyType<SendCoffeeRfqMessageBody>}> = (props) => {
+          const {rfqId,data} = props ?? {};
+
+          return  sendCoffeeRfqMessage(rfqId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SendCoffeeRfqMessageMutationResult = NonNullable<Awaited<ReturnType<typeof sendCoffeeRfqMessage>>>
+    export type SendCoffeeRfqMessageMutationBody = BodyType<SendCoffeeRfqMessageBody>
+    export type SendCoffeeRfqMessageMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Send a message on a coffee RFQ
+ */
+export const useSendCoffeeRfqMessage = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sendCoffeeRfqMessage>>, TError,{rfqId: number;data: BodyType<SendCoffeeRfqMessageBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof sendCoffeeRfqMessage>>,
+        TError,
+        {rfqId: number;data: BodyType<SendCoffeeRfqMessageBody>},
+        TContext
+      > => {
+      return useMutation(getSendCoffeeRfqMessageMutationOptions(options));
+    }
+
+export const getSubmitCoffeeRfqQuotationUrl = (rfqId: number,) => {
+
+
+
+
+  return `/api/coffee/rfqs/${rfqId}/quotations`
+}
+
+/**
+ * @summary Submit a quotation on a coffee RFQ
+ */
+export const submitCoffeeRfqQuotation = async (rfqId: number,
+    submitCoffeeRfqQuotationBody: SubmitCoffeeRfqQuotationBody, options?: RequestInit): Promise<SubmitCoffeeRfqQuotation201> => {
+
+  return customFetch<SubmitCoffeeRfqQuotation201>(getSubmitCoffeeRfqQuotationUrl(rfqId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      submitCoffeeRfqQuotationBody,)
+  }
+);}
+
+
+
+
+export const getSubmitCoffeeRfqQuotationMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitCoffeeRfqQuotation>>, TError,{rfqId: number;data: BodyType<SubmitCoffeeRfqQuotationBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof submitCoffeeRfqQuotation>>, TError,{rfqId: number;data: BodyType<SubmitCoffeeRfqQuotationBody>}, TContext> => {
+
+const mutationKey = ['submitCoffeeRfqQuotation'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof submitCoffeeRfqQuotation>>, {rfqId: number;data: BodyType<SubmitCoffeeRfqQuotationBody>}> = (props) => {
+          const {rfqId,data} = props ?? {};
+
+          return  submitCoffeeRfqQuotation(rfqId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SubmitCoffeeRfqQuotationMutationResult = NonNullable<Awaited<ReturnType<typeof submitCoffeeRfqQuotation>>>
+    export type SubmitCoffeeRfqQuotationMutationBody = BodyType<SubmitCoffeeRfqQuotationBody>
+    export type SubmitCoffeeRfqQuotationMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Submit a quotation on a coffee RFQ
+ */
+export const useSubmitCoffeeRfqQuotation = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitCoffeeRfqQuotation>>, TError,{rfqId: number;data: BodyType<SubmitCoffeeRfqQuotationBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof submitCoffeeRfqQuotation>>,
+        TError,
+        {rfqId: number;data: BodyType<SubmitCoffeeRfqQuotationBody>},
+        TContext
+      > => {
+      return useMutation(getSubmitCoffeeRfqQuotationMutationOptions(options));
+    }
+
+export const getUpdateCoffeeRfqStatusUrl = (rfqId: number,) => {
+
+
+
+
+  return `/api/coffee/rfqs/${rfqId}/status`
+}
+
+/**
+ * @summary Update coffee RFQ status
+ */
+export const updateCoffeeRfqStatus = async (rfqId: number,
+    updateCoffeeRfqStatusBody: UpdateCoffeeRfqStatusBody, options?: RequestInit): Promise<UpdateCoffeeRfqStatus200> => {
+
+  return customFetch<UpdateCoffeeRfqStatus200>(getUpdateCoffeeRfqStatusUrl(rfqId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      updateCoffeeRfqStatusBody,)
+  }
+);}
+
+
+
+
+export const getUpdateCoffeeRfqStatusMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCoffeeRfqStatus>>, TError,{rfqId: number;data: BodyType<UpdateCoffeeRfqStatusBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateCoffeeRfqStatus>>, TError,{rfqId: number;data: BodyType<UpdateCoffeeRfqStatusBody>}, TContext> => {
+
+const mutationKey = ['updateCoffeeRfqStatus'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateCoffeeRfqStatus>>, {rfqId: number;data: BodyType<UpdateCoffeeRfqStatusBody>}> = (props) => {
+          const {rfqId,data} = props ?? {};
+
+          return  updateCoffeeRfqStatus(rfqId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateCoffeeRfqStatusMutationResult = NonNullable<Awaited<ReturnType<typeof updateCoffeeRfqStatus>>>
+    export type UpdateCoffeeRfqStatusMutationBody = BodyType<UpdateCoffeeRfqStatusBody>
+    export type UpdateCoffeeRfqStatusMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Update coffee RFQ status
+ */
+export const useUpdateCoffeeRfqStatus = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCoffeeRfqStatus>>, TError,{rfqId: number;data: BodyType<UpdateCoffeeRfqStatusBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateCoffeeRfqStatus>>,
+        TError,
+        {rfqId: number;data: BodyType<UpdateCoffeeRfqStatusBody>},
+        TContext
+      > => {
+      return useMutation(getUpdateCoffeeRfqStatusMutationOptions(options));
+    }
+
+export const getListCoffeeShipmentsUrl = () => {
+
+
+
+
+  return `/api/coffee/shipments`
+}
+
+/**
+ * @summary List my coffee shipments
+ */
+export const listCoffeeShipments = async ( options?: RequestInit): Promise<ListCoffeeShipments200Item[]> => {
+
+  return customFetch<ListCoffeeShipments200Item[]>(getListCoffeeShipmentsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListCoffeeShipmentsQueryKey = () => {
+    return [
+    `/api/coffee/shipments`
+    ] as const;
+    }
+
+
+export const getListCoffeeShipmentsQueryOptions = <TData = Awaited<ReturnType<typeof listCoffeeShipments>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCoffeeShipments>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListCoffeeShipmentsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listCoffeeShipments>>> = ({ signal }) => listCoffeeShipments({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listCoffeeShipments>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListCoffeeShipmentsQueryResult = NonNullable<Awaited<ReturnType<typeof listCoffeeShipments>>>
+export type ListCoffeeShipmentsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List my coffee shipments
+ */
+
+export function useListCoffeeShipments<TData = Awaited<ReturnType<typeof listCoffeeShipments>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCoffeeShipments>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListCoffeeShipmentsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCreateCoffeeShipmentUrl = () => {
+
+
+
+
+  return `/api/coffee/shipments`
+}
+
+/**
+ * @summary Create a coffee shipment
+ */
+export const createCoffeeShipment = async (createCoffeeShipmentBody: CreateCoffeeShipmentBody, options?: RequestInit): Promise<CreateCoffeeShipment201> => {
+
+  return customFetch<CreateCoffeeShipment201>(getCreateCoffeeShipmentUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      createCoffeeShipmentBody,)
+  }
+);}
+
+
+
+
+export const getCreateCoffeeShipmentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCoffeeShipment>>, TError,{data: BodyType<CreateCoffeeShipmentBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createCoffeeShipment>>, TError,{data: BodyType<CreateCoffeeShipmentBody>}, TContext> => {
+
+const mutationKey = ['createCoffeeShipment'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createCoffeeShipment>>, {data: BodyType<CreateCoffeeShipmentBody>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createCoffeeShipment(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateCoffeeShipmentMutationResult = NonNullable<Awaited<ReturnType<typeof createCoffeeShipment>>>
+    export type CreateCoffeeShipmentMutationBody = BodyType<CreateCoffeeShipmentBody>
+    export type CreateCoffeeShipmentMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Create a coffee shipment
+ */
+export const useCreateCoffeeShipment = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCoffeeShipment>>, TError,{data: BodyType<CreateCoffeeShipmentBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createCoffeeShipment>>,
+        TError,
+        {data: BodyType<CreateCoffeeShipmentBody>},
+        TContext
+      > => {
+      return useMutation(getCreateCoffeeShipmentMutationOptions(options));
+    }
+
+export const getGetCoffeeShipmentUrl = (id: number,) => {
+
+
+
+
+  return `/api/coffee/shipments/${id}`
+}
+
+/**
+ * @summary Get coffee shipment detail
+ */
+export const getCoffeeShipment = async (id: number, options?: RequestInit): Promise<GetCoffeeShipment200> => {
+
+  return customFetch<GetCoffeeShipment200>(getGetCoffeeShipmentUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCoffeeShipmentQueryKey = (id: number,) => {
+    return [
+    `/api/coffee/shipments/${id}`
+    ] as const;
+    }
+
+
+export const getGetCoffeeShipmentQueryOptions = <TData = Awaited<ReturnType<typeof getCoffeeShipment>>, TError = ErrorType<ErrorEnvelope>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCoffeeShipment>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCoffeeShipmentQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCoffeeShipment>>> = ({ signal }) => getCoffeeShipment(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCoffeeShipment>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCoffeeShipmentQueryResult = NonNullable<Awaited<ReturnType<typeof getCoffeeShipment>>>
+export type GetCoffeeShipmentQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary Get coffee shipment detail
+ */
+
+export function useGetCoffeeShipment<TData = Awaited<ReturnType<typeof getCoffeeShipment>>, TError = ErrorType<ErrorEnvelope>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCoffeeShipment>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCoffeeShipmentQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getUpdateCoffeeShipmentUrl = (id: number,) => {
+
+
+
+
+  return `/api/coffee/shipments/${id}`
+}
+
+/**
+ * @summary Update coffee shipment fields
+ */
+export const updateCoffeeShipment = async (id: number,
+    updateCoffeeShipmentBody: UpdateCoffeeShipmentBody, options?: RequestInit): Promise<UpdateCoffeeShipment200> => {
+
+  return customFetch<UpdateCoffeeShipment200>(getUpdateCoffeeShipmentUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      updateCoffeeShipmentBody,)
+  }
+);}
+
+
+
+
+export const getUpdateCoffeeShipmentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCoffeeShipment>>, TError,{id: number;data: BodyType<UpdateCoffeeShipmentBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateCoffeeShipment>>, TError,{id: number;data: BodyType<UpdateCoffeeShipmentBody>}, TContext> => {
+
+const mutationKey = ['updateCoffeeShipment'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateCoffeeShipment>>, {id: number;data: BodyType<UpdateCoffeeShipmentBody>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateCoffeeShipment(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateCoffeeShipmentMutationResult = NonNullable<Awaited<ReturnType<typeof updateCoffeeShipment>>>
+    export type UpdateCoffeeShipmentMutationBody = BodyType<UpdateCoffeeShipmentBody>
+    export type UpdateCoffeeShipmentMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Update coffee shipment fields
+ */
+export const useUpdateCoffeeShipment = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCoffeeShipment>>, TError,{id: number;data: BodyType<UpdateCoffeeShipmentBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateCoffeeShipment>>,
+        TError,
+        {id: number;data: BodyType<UpdateCoffeeShipmentBody>},
+        TContext
+      > => {
+      return useMutation(getUpdateCoffeeShipmentMutationOptions(options));
+    }
+
+export const getAddCoffeeShipmentMilestoneUrl = (id: number,) => {
+
+
+
+
+  return `/api/coffee/shipments/${id}/milestones`
+}
+
+/**
+ * @summary Append a milestone event to a coffee shipment
+ */
+export const addCoffeeShipmentMilestone = async (id: number,
+    addCoffeeShipmentMilestoneBody: AddCoffeeShipmentMilestoneBody, options?: RequestInit): Promise<AddCoffeeShipmentMilestone201> => {
+
+  return customFetch<AddCoffeeShipmentMilestone201>(getAddCoffeeShipmentMilestoneUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      addCoffeeShipmentMilestoneBody,)
+  }
+);}
+
+
+
+
+export const getAddCoffeeShipmentMilestoneMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addCoffeeShipmentMilestone>>, TError,{id: number;data: BodyType<AddCoffeeShipmentMilestoneBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof addCoffeeShipmentMilestone>>, TError,{id: number;data: BodyType<AddCoffeeShipmentMilestoneBody>}, TContext> => {
+
+const mutationKey = ['addCoffeeShipmentMilestone'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof addCoffeeShipmentMilestone>>, {id: number;data: BodyType<AddCoffeeShipmentMilestoneBody>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  addCoffeeShipmentMilestone(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AddCoffeeShipmentMilestoneMutationResult = NonNullable<Awaited<ReturnType<typeof addCoffeeShipmentMilestone>>>
+    export type AddCoffeeShipmentMilestoneMutationBody = BodyType<AddCoffeeShipmentMilestoneBody>
+    export type AddCoffeeShipmentMilestoneMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Append a milestone event to a coffee shipment
+ */
+export const useAddCoffeeShipmentMilestone = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addCoffeeShipmentMilestone>>, TError,{id: number;data: BodyType<AddCoffeeShipmentMilestoneBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof addCoffeeShipmentMilestone>>,
+        TError,
+        {id: number;data: BodyType<AddCoffeeShipmentMilestoneBody>},
+        TContext
+      > => {
+      return useMutation(getAddCoffeeShipmentMilestoneMutationOptions(options));
+    }
+
+export const getAttachCoffeeShipmentDocUrl = (id: number,) => {
+
+
+
+
+  return `/api/coffee/shipments/${id}/docs`
+}
+
+/**
+ * @summary Attach an export document to a coffee shipment
+ */
+export const attachCoffeeShipmentDoc = async (id: number,
+    attachCoffeeShipmentDocBody: AttachCoffeeShipmentDocBody, options?: RequestInit): Promise<AttachCoffeeShipmentDoc201> => {
+
+  return customFetch<AttachCoffeeShipmentDoc201>(getAttachCoffeeShipmentDocUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      attachCoffeeShipmentDocBody,)
+  }
+);}
+
+
+
+
+export const getAttachCoffeeShipmentDocMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof attachCoffeeShipmentDoc>>, TError,{id: number;data: BodyType<AttachCoffeeShipmentDocBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof attachCoffeeShipmentDoc>>, TError,{id: number;data: BodyType<AttachCoffeeShipmentDocBody>}, TContext> => {
+
+const mutationKey = ['attachCoffeeShipmentDoc'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof attachCoffeeShipmentDoc>>, {id: number;data: BodyType<AttachCoffeeShipmentDocBody>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  attachCoffeeShipmentDoc(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AttachCoffeeShipmentDocMutationResult = NonNullable<Awaited<ReturnType<typeof attachCoffeeShipmentDoc>>>
+    export type AttachCoffeeShipmentDocMutationBody = BodyType<AttachCoffeeShipmentDocBody>
+    export type AttachCoffeeShipmentDocMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Attach an export document to a coffee shipment
+ */
+export const useAttachCoffeeShipmentDoc = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof attachCoffeeShipmentDoc>>, TError,{id: number;data: BodyType<AttachCoffeeShipmentDocBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof attachCoffeeShipmentDoc>>,
+        TError,
+        {id: number;data: BodyType<AttachCoffeeShipmentDocBody>},
+        TContext
+      > => {
+      return useMutation(getAttachCoffeeShipmentDocMutationOptions(options));
+    }
+
+export const getListCoffeeEsgReportsUrl = () => {
+
+
+
+
+  return `/api/coffee/esg`
+}
+
+/**
+ * @summary List my coffee ESG reports
+ */
+export const listCoffeeEsgReports = async ( options?: RequestInit): Promise<ListCoffeeEsgReports200Item[]> => {
+
+  return customFetch<ListCoffeeEsgReports200Item[]>(getListCoffeeEsgReportsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListCoffeeEsgReportsQueryKey = () => {
+    return [
+    `/api/coffee/esg`
+    ] as const;
+    }
+
+
+export const getListCoffeeEsgReportsQueryOptions = <TData = Awaited<ReturnType<typeof listCoffeeEsgReports>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCoffeeEsgReports>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListCoffeeEsgReportsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listCoffeeEsgReports>>> = ({ signal }) => listCoffeeEsgReports({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listCoffeeEsgReports>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListCoffeeEsgReportsQueryResult = NonNullable<Awaited<ReturnType<typeof listCoffeeEsgReports>>>
+export type ListCoffeeEsgReportsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List my coffee ESG reports
+ */
+
+export function useListCoffeeEsgReports<TData = Awaited<ReturnType<typeof listCoffeeEsgReports>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCoffeeEsgReports>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListCoffeeEsgReportsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCreateCoffeeEsgReportUrl = () => {
+
+
+
+
+  return `/api/coffee/esg`
+}
+
+/**
+ * @summary Create a coffee ESG report (supports coffee-specific indicators)
+ */
+export const createCoffeeEsgReport = async (createCoffeeEsgReportBody: CreateCoffeeEsgReportBody, options?: RequestInit): Promise<CreateCoffeeEsgReport201> => {
+
+  return customFetch<CreateCoffeeEsgReport201>(getCreateCoffeeEsgReportUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      createCoffeeEsgReportBody,)
+  }
+);}
+
+
+
+
+export const getCreateCoffeeEsgReportMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCoffeeEsgReport>>, TError,{data: BodyType<CreateCoffeeEsgReportBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createCoffeeEsgReport>>, TError,{data: BodyType<CreateCoffeeEsgReportBody>}, TContext> => {
+
+const mutationKey = ['createCoffeeEsgReport'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createCoffeeEsgReport>>, {data: BodyType<CreateCoffeeEsgReportBody>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createCoffeeEsgReport(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateCoffeeEsgReportMutationResult = NonNullable<Awaited<ReturnType<typeof createCoffeeEsgReport>>>
+    export type CreateCoffeeEsgReportMutationBody = BodyType<CreateCoffeeEsgReportBody>
+    export type CreateCoffeeEsgReportMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Create a coffee ESG report (supports coffee-specific indicators)
+ */
+export const useCreateCoffeeEsgReport = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCoffeeEsgReport>>, TError,{data: BodyType<CreateCoffeeEsgReportBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createCoffeeEsgReport>>,
+        TError,
+        {data: BodyType<CreateCoffeeEsgReportBody>},
+        TContext
+      > => {
+      return useMutation(getCreateCoffeeEsgReportMutationOptions(options));
+    }
+
+export const getGetCoffeeEsgReportUrl = (id: number,) => {
+
+
+
+
+  return `/api/coffee/esg/${id}`
+}
+
+/**
+ * @summary Get coffee ESG report detail
+ */
+export const getCoffeeEsgReport = async (id: number, options?: RequestInit): Promise<GetCoffeeEsgReport200> => {
+
+  return customFetch<GetCoffeeEsgReport200>(getGetCoffeeEsgReportUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCoffeeEsgReportQueryKey = (id: number,) => {
+    return [
+    `/api/coffee/esg/${id}`
+    ] as const;
+    }
+
+
+export const getGetCoffeeEsgReportQueryOptions = <TData = Awaited<ReturnType<typeof getCoffeeEsgReport>>, TError = ErrorType<ErrorEnvelope>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCoffeeEsgReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCoffeeEsgReportQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCoffeeEsgReport>>> = ({ signal }) => getCoffeeEsgReport(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCoffeeEsgReport>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCoffeeEsgReportQueryResult = NonNullable<Awaited<ReturnType<typeof getCoffeeEsgReport>>>
+export type GetCoffeeEsgReportQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary Get coffee ESG report detail
+ */
+
+export function useGetCoffeeEsgReport<TData = Awaited<ReturnType<typeof getCoffeeEsgReport>>, TError = ErrorType<ErrorEnvelope>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCoffeeEsgReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCoffeeEsgReportQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getUpdateCoffeeEsgReportUrl = (id: number,) => {
+
+
+
+
+  return `/api/coffee/esg/${id}`
+}
+
+/**
+ * @summary Update a coffee ESG report
+ */
+export const updateCoffeeEsgReport = async (id: number,
+    updateCoffeeEsgReportBody: UpdateCoffeeEsgReportBody, options?: RequestInit): Promise<UpdateCoffeeEsgReport200> => {
+
+  return customFetch<UpdateCoffeeEsgReport200>(getUpdateCoffeeEsgReportUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      updateCoffeeEsgReportBody,)
+  }
+);}
+
+
+
+
+export const getUpdateCoffeeEsgReportMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCoffeeEsgReport>>, TError,{id: number;data: BodyType<UpdateCoffeeEsgReportBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateCoffeeEsgReport>>, TError,{id: number;data: BodyType<UpdateCoffeeEsgReportBody>}, TContext> => {
+
+const mutationKey = ['updateCoffeeEsgReport'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateCoffeeEsgReport>>, {id: number;data: BodyType<UpdateCoffeeEsgReportBody>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateCoffeeEsgReport(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateCoffeeEsgReportMutationResult = NonNullable<Awaited<ReturnType<typeof updateCoffeeEsgReport>>>
+    export type UpdateCoffeeEsgReportMutationBody = BodyType<UpdateCoffeeEsgReportBody>
+    export type UpdateCoffeeEsgReportMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Update a coffee ESG report
+ */
+export const useUpdateCoffeeEsgReport = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCoffeeEsgReport>>, TError,{id: number;data: BodyType<UpdateCoffeeEsgReportBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateCoffeeEsgReport>>,
+        TError,
+        {id: number;data: BodyType<UpdateCoffeeEsgReportBody>},
+        TContext
+      > => {
+      return useMutation(getUpdateCoffeeEsgReportMutationOptions(options));
     }
 
 export const getCreateBrokerMandateUrl = () => {

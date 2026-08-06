@@ -1,4 +1,4 @@
-import { useListTeaAuctionSessions } from "@workspace/api-client-react";
+import { useListCoffeeAuctionSessions } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -8,13 +8,13 @@ import { Link } from "wouter";
 import { ArrowUpRight } from "lucide-react";
 
 export default function BrokerAuctions() {
-  const { data: sessions, isLoading } = useListTeaAuctionSessions();
+  const { data: sessions, isLoading } = useListCoffeeAuctionSessions();
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">My Auction Sessions</h1>
-        <p className="text-muted-foreground mt-1">Manage live and scheduled auction rooms.</p>
+        <h1 className="text-3xl font-bold tracking-tight">My Coffee Auction Sessions</h1>
+        <p className="text-muted-foreground mt-1">Manage live and scheduled coffee auction rooms.</p>
       </div>
 
       <Card>
@@ -34,7 +34,7 @@ export default function BrokerAuctions() {
                       </Badge>
                     </div>
                     <div className="text-sm text-muted-foreground mt-1">
-                      Scheduled: {format(new Date(session.auctionDate), 'MMM d, yyyy')}
+                      Scheduled: {format(new Date(session.auctionDate), 'MMM d, yyyy')} · {session.catalogueOrder?.length ?? 0} lot(s)
                     </div>
                   </div>
                   <div>
@@ -49,7 +49,7 @@ export default function BrokerAuctions() {
             </div>
           ) : (
             <div className="text-center py-12 text-muted-foreground border border-dashed rounded-lg bg-muted/30">
-              No auction sessions assigned to you.
+              No coffee auction sessions assigned to you.
             </div>
           )}
         </CardContent>
