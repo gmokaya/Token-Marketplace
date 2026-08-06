@@ -1,94 +1,113 @@
-import { ArrowRight } from "lucide-react";
 import { SignIn } from "@clerk/react";
+import { Link } from "wouter";
 
-const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
-
-const appearance = {
+const clerkAppearance = {
   variables: {
-    colorPrimary: "#17624f",
-    colorForeground: "#0a2f2b",
-    colorMutedForeground: "#68827b",
+    colorPrimary: "#155e3a",
+    colorForeground: "#111827",
+    colorMutedForeground: "#6b7280",
     colorBackground: "#ffffff",
-    colorInput: "#f8fbfa",
-    colorInputForeground: "#0a2f2b",
-    colorNeutral: "#dceae5",
-    fontFamily: "'Futura', sans-serif",
-    borderRadius: "0.35rem",
+    colorInput: "#f9fafb",
+    colorInputForeground: "#111827",
+    colorNeutral: "#f3f4f6",
+    fontFamily: "'Futura', 'Century Gothic', sans-serif",
+    borderRadius: "0.375rem",
   },
   elements: {
     rootBox: "w-full",
-    cardBox: "!w-full !max-w-none !shadow-none !border-0 !rounded-none !bg-transparent",
-    card: "!w-full !shadow-none !border-0 !bg-transparent !p-0",
+    cardBox: "!shadow-none !border-0 !rounded-none !w-full !bg-transparent",
+    card: "!shadow-none !border-0 !bg-transparent !p-0",
     header: "!hidden",
     logoBox: "!hidden",
     socialButtonsBlockButton:
-      "!h-11 !rounded-sm !border !border-[#dceae5] !bg-white !text-[#0a2f2b] !text-sm !font-medium !shadow-none hover:!bg-[#f8fbfa] hover:!border-[#a9cabe] transition-colors",
-    socialButtonsBlockButtonText: "!text-[#0a2f2b] !font-medium",
-    dividerRow: "!text-[#7b9890] !text-xs",
+      "!border !border-gray-200 !bg-white !text-gray-800 !text-sm !font-medium !shadow-none !rounded-md !h-11 hover:!bg-gray-50 hover:!border-gray-300 transition-colors",
+    socialButtonsBlockButtonText: "!text-gray-800 !font-medium",
+    dividerRow: "!text-gray-400 !text-xs",
     dividerText: "!bg-white !px-3",
-    formFieldLabel: "!text-sm !text-[#2e5a4e] !font-medium !mb-1.5",
+    formFieldLabel: "!text-sm !text-gray-700 !font-medium !mb-1",
     formFieldInput:
-      "!h-11 !rounded-sm !bg-[#f8fbfa] !border !border-[#dceae5] !text-[#0a2f2b] !placeholder-[#7b9890] focus:!ring-2 focus:!ring-[#17624f]/20 focus:!border-[#17624f] transition-colors",
-    formFieldInputShowPasswordButton: "!text-[#7b9890] hover:!text-[#17624f]",
+      "!bg-white !border !border-gray-200 !text-gray-900 !placeholder-gray-400 !rounded-md !h-11 focus:!ring-2 focus:!ring-green-700/20 focus:!border-green-700 transition-colors",
     formButtonPrimary:
-      "!h-11 !rounded-sm !bg-[#17624f] !text-white !font-semibold !shadow-none hover:!bg-[#0f4a3b] transition-colors",
+      "!bg-gray-900 !text-white !font-semibold !h-11 !rounded-md !shadow-none hover:!bg-gray-800 transition-colors !mt-1",
     footer: "!hidden",
-    identityPreviewText: "!text-[#2e5a4e]",
-    identityPreviewEditButton: "!text-[#17624f]",
-    formResendCodeLink: "!text-[#17624f]",
-    otpCodeFieldInput: "!border-[#dceae5] !rounded-sm",
-    alert: "!rounded-sm",
+    identityPreviewText: "!text-gray-700",
+    identityPreviewEditButton: "!text-green-800",
+    formResendCodeLink: "!text-green-800",
+    otpCodeFieldInput: "!border-gray-200 !rounded-md",
+    alert: "!rounded-md",
   },
 };
 
 export default function SignInPage() {
-  return (
-    <main className="min-h-[100dvh] bg-[#f1f7f4] px-5 py-8 text-[#0a2f2b]">
-      <div className="mx-auto flex min-h-[calc(100dvh-4rem)] w-full max-w-[440px] flex-col justify-center">
-        <div className="mb-8 text-center">
-          <img
-            src={`${basePath}/logo-dark.png`}
-            alt="TokenHarvest Tea"
-            className="mx-auto mb-8 h-9 w-auto object-contain"
-          />
-          <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.24em] text-[#23806a]">
-            TokenHarvest Tea
-          </p>
-          <h1 className="text-3xl font-semibold tracking-tight text-[#0a2f2b]">
-            Sign in to your account
-          </h1>
-          <p className="mt-2 text-sm text-[#68827b]">
-            Access the tea marketplace.
-          </p>
-        </div>
+  const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-        <section className="rounded-sm border border-[#dceae5] bg-white p-7 shadow-[0_16px_50px_rgba(19,83,66,0.08)] sm:p-9">
+  return (
+    <div className="relative w-screen h-screen overflow-hidden flex items-center justify-end">
+
+      {/* Full-screen background */}
+      <img
+        src={`${basePath}/photos/signin-bg.jpg`}
+        alt=""
+        className="absolute inset-0 w-full h-full object-cover object-center"
+        fetchPriority="high"
+      />
+
+      {/* Subtle right-side darkening so the card sits cleanly */}
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-black/10 to-black/30" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/20" />
+
+      {/* Logo, top left */}
+      <div className="absolute top-8 left-8 md:left-12 z-20">
+        <Link href="/">
+          <img
+            src={`${basePath}/logo-white.png`}
+            alt="TokenHarvest"
+            className="h-7 w-auto cursor-pointer opacity-90"
+          />
+        </Link>
+      </div>
+
+      {/* Floating form card, right-aligned */}
+      <div className="relative z-10 w-full max-w-[420px] mr-8 md:mr-16 xl:mr-24">
+        <div className="bg-white p-10 shadow-2xl">
+          <div className="mb-7">
+            <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">
+              Sign in to TokenHarvest Tea
+            </h1>
+            <p className="text-sm text-gray-500 mt-1.5">
+              Welcome back! Please sign in to continue.
+            </p>
+          </div>
+
           <SignIn
             routing="path"
             path={`${basePath}/sign-in`}
             signUpUrl={`${basePath}/sign-up`}
             fallbackRedirectUrl={`${basePath}/broker`}
-            signUpFallbackRedirectUrl={`${basePath}/broker`}
-            appearance={appearance}
+            appearance={clerkAppearance}
           />
-          <p className="mt-6 text-center text-sm text-[#68827b]">
-            Don&apos;t have an account?{" "}
+
+          <p className="mt-5 text-center text-sm text-gray-500">
+            Don't have an account?{" "}
             <a
               href={`${basePath}/sign-up`}
-              className="font-semibold text-[#17624f] hover:text-[#0f4a3b]"
+              className="font-semibold text-green-800 hover:text-green-700 transition-colors"
             >
-              Create one
+              Sign up
             </a>
           </p>
-        </section>
+        </div>
+      </div>
 
+      {/* Back link */}
+      <div className="absolute bottom-6 left-0 right-0 text-center z-20">
         <a
           href={basePath || "/"}
-          className="mx-auto mt-7 inline-flex items-center gap-2 text-xs text-[#7b9890] transition-colors hover:text-[#17624f]"
+          className="text-xs text-white/50 hover:text-white/80 transition-colors"
         >
-          Back to marketplace <ArrowRight className="h-3.5 w-3.5" />
+          Back to home
         </a>
       </div>
-    </main>
+    </div>
   );
 }
