@@ -606,3 +606,58 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 12px !important;
   }
 }
+
+/* Taller tablet/compact-desktop viewports: use the lower hero space intentionally. */
+@media (min-width: 721px) and (max-width: 980px) and (min-height: 621px) {
+  .homepage-hero {
+    height: calc(100vh - 44px) !important;
+    min-height: 0 !important;
+    padding-top: 150px !important;
+    padding-bottom: 18px !important;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .homepage-hero-content {
+    padding-left: 9vw !important;
+    padding-right: 9vw !important;
+  }
+
+  .homepage-hero-badge {
+    margin-top: 0 !important;
+    margin-bottom: 26px !important;
+  }
+
+  .homepage-hero-badge span {
+    letter-spacing: 0.25em !important;
+  }
+
+  .homepage-hero-heading {
+    font-size: clamp(4rem, 10vw, 6.5rem) !important;
+    line-height: 1.02 !important;
+    letter-spacing: -0.02em !important;
+    margin-bottom: 44px !important;
+  }
+
+  .homepage-hero-content > .homepage-hero-inner > div[style*="width: 56px"] {
+    margin-bottom: 40px !important;
+  }
+
+  .homepage-hero-subheadline {
+    font-size: 17px !important;
+    line-height: 1.65 !important;
+    letter-spacing: 0.008em !important;
+    margin-bottom: 54px !important;
+  }
+
+  .homepage-hero-actions {
+    gap: 16px !important;
+  }
+
+  .homepage-hero-actions a,
+  .homepage-hero-actions button {
+    padding-top: 18px !important;
+    padding-bottom: 18px !important;
+    letter-spacing: 0.01em !important;
+  }
+}
