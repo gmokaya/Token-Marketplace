@@ -369,3 +369,19 @@
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Simplo', 'Futura', sans-serif;
 }
+
+.coffee-hero-title {
+  font-family: 'Simplo', 'Futura', sans-serif;
+  font-size: clamp(3.25rem, 6.2vw, 5.5rem);
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+
+@media (max-width: 767px) {
+  .coffee-hero-title {
+    font-size: clamp(2.75rem, 12vw, 4.5rem);
+    line-height: 1;
+  }
+}

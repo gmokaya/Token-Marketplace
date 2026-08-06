@@ -656,14 +656,14 @@ export default function Home() {
       <div style={{ fontFamily: "'Futura', sans-serif", color: "#353535" }}>
 
           {/* ══ NAVBAR ══════════════════════════════════════════════ */}
-          <header style={{
+          <header className="homepage-header" style={{
             position: "fixed", top: 0, left: 0, right: 0, zIndex: 200,
             background: scrolled ? "rgba(22,22,22,0.97)" : "transparent",
             backdropFilter: scrolled ? "blur(10px)" : "none",
             transition: "background 0.3s",
           }}>
             {/* thin top bar */}
-            <div style={{ background: "rgba(0,0,0,0.6)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+            <div className="homepage-topbar" style={{ background: "rgba(0,0,0,0.6)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
               <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", height: 36, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div style={{ display: "flex", gap: 24 }}>
                   {["Investors", "API Docs", "Contact"].map(t => (
@@ -677,18 +677,18 @@ export default function Home() {
               </div>
             </div>
             {/* main nav */}
-            <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", height: 68, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div className="homepage-main-nav" style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", height: 68, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               {/* logo */}
               <Link href="/" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
                 <span
-                  className="tokenharvest-wordmark"
+                  className="homepage-logo tokenharvest-wordmark"
                   style={{ color: "#fff", fontSize: 42, marginLeft: -14 }}
                 >
                   TokenHarvest
                 </span>
               </Link>
               {/* numbered links */}
-              <nav style={{ display: "flex", gap: 32, alignItems: "center" }}>
+              <nav className="homepage-nav-links" style={{ display: "flex", gap: 32, alignItems: "center" }}>
                 {([ ["01","Platform","platform"], ["02","Services","services"], ["03","About","about"], ["04","Contact","cta"] ] as const).map(([n, label, id]) => (
                   <button key={n} onClick={() => scrollTo(id)}
                     style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.72)", fontSize: 14, fontWeight: 500, display: "flex", gap: 5, alignItems: "center", fontFamily: "'Futura',sans-serif", padding: 0 }}>
@@ -697,7 +697,7 @@ export default function Home() {
                 ))}
               </nav>
               {/* auth buttons */}
-              <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+              <div className="homepage-auth-actions" style={{ display: "flex", gap: 12, alignItems: "center" }}>
                 {isSignedIn ? (
                   <Link href="/dashboard"
                     style={{ background: ACCENT, color: "#fff", padding: "10px 22px", textDecoration: "none", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 7 }}>

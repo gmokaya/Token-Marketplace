@@ -17,10 +17,10 @@ export default function Home() {
   return (
     <div className="relative w-screen h-screen overflow-hidden flex flex-col select-none">
 
-      {/* Background: shared commodity marketplace strip */}
+      {/* Background: green coffee storage */}
       <img
-        src={`${basePath}/marketplace-strip.png`}
-        alt="East African commodity markets including maize, rice, coffee, tea, avocado, and honey"
+        src={`${basePath}/photos/coffee-green-beans.jpg`}
+        alt="Green coffee beans in a storage sack"
         className="absolute inset-0 w-full h-full object-cover object-center"
         fetchPriority="high"
       />
@@ -60,7 +60,7 @@ export default function Home() {
           B2B Green Coffee Exchange
         </div>
 
-        <h1 className="text-5xl md:text-7xl font-bold text-white leading-[1.0] tracking-tight max-w-3xl">
+        <h1 className="coffee-hero-title text-5xl md:text-7xl font-bold text-white leading-[1.0] tracking-tight max-w-3xl">
           Where specialty coffee
           <br />
           <span className="text-white">meets global trade.</span>
