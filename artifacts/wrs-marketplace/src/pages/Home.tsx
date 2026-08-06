@@ -1,97 +1,101 @@
-import { useAuth } from "@clerk/react";
 import { Link } from "wouter";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, LogIn, LogOut } from "lucide-react";
+import { useAuth, useClerk } from "@clerk/react";
 
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-const STATS = [
-  { value: "6",    suffix: "",   label: "Grain Commodities" },
-  { value: "4",    suffix: "",   label: "Participant Tiers"  },
-  { value: "100",  suffix: "%",  label: "eWR Tokenised"     },
-  { value: "90",   suffix: "d",  label: "Certified Storage" },
+const stats = [
+  { value: "6",    label: "Grain Commodities" },
+  { value: "90d",  label: "Certified Storage" },
+  { value: "$1B+", label: "Annual Volume"      },
 ];
 
 export default function Home() {
   const { isSignedIn } = useAuth();
+  const { signOut } = useClerk();
 
   return (
-    <div className="relative min-h-[100dvh] w-full overflow-hidden bg-black">
-      {/* Hero photo */}
+    <div className="relative w-screen h-screen overflow-hidden flex flex-col select-none">
+
+      {/* Background: grain field */}
       <img
-        src={`${BASE}/photos/hero-soybean-farmer.jpg`}
+        src={`${basePath}/photos/hero-soybean-farmer.jpg`}
         alt=""
-        className="absolute inset-0 w-full h-full object-cover opacity-75"
+        className="absolute inset-0 w-full h-full object-cover object-center"
+        fetchPriority="high"
       />
 
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/35" />
+      {/* Layered gradients */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/15 to-black/80" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-transparent" />
 
-      {/* Nav */}
-      <nav className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-8 md:px-12 py-7">
-        <img
-          src={`${BASE}/logo-white.png`}
-          alt="GrainEx"
-          className="h-7 w-auto"
-        />
+      {/* Top nav */}
+      <nav className="relative z-10 flex items-center justify-between px-8 pt-8">
+        <Link href="/">
+          <img
+            src={`${basePath}/logo-white.png`}
+            alt="GrainEx"
+            className="h-14 w-auto cursor-pointer"
+          />
+        </Link>
         <div className="flex items-center gap-3">
           {isSignedIn ? (
-            <Link href="/dashboard">
-              <button className="flex items-center gap-2 bg-white text-[#1a0a00] text-sm font-semibold px-5 py-2.5 hover:bg-white/90 transition-colors">
-                Open Terminal <ArrowRight className="w-3.5 h-3.5" />
+            <button
+              onClick={() => signOut()}
+              title="Sign out"
+              className="w-10 h-10 flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              <LogOut className="w-5 h-5" />
+            </button>
+          ) : (
+            <Link href="/sign-in" title="Sign in">
+              <button className="w-10 h-10 flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition-colors">
+                <LogIn className="w-5 h-5" />
               </button>
             </Link>
-          ) : (
-            <>
-              <Link href="/sign-in">
-                <button className="text-white/75 text-sm font-medium hover:text-white transition-colors px-4 py-2.5">
-                  Sign In
-                </button>
-              </Link>
-              <Link href="/sign-up">
-                <button className="flex items-center gap-2 bg-white text-[#1a0a00] text-sm font-semibold px-5 py-2.5 hover:bg-white/90 transition-colors">
-                  Create Account <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </Link>
-            </>
           )}
         </div>
       </nav>
 
-      {/* Bottom content */}
-      <div className="absolute bottom-0 left-0 right-0 z-10 px-8 md:px-12 pb-10 md:pb-14">
-        {/* Badge */}
-        <div className="inline-flex items-center gap-2 bg-white/10 text-white/80 text-xs font-medium px-3 py-1.5 rounded-full mb-5 backdrop-blur-sm border border-white/10">
+      {/* Hero copy, bottom-left anchored */}
+      <div className="relative z-10 flex-1 flex flex-col justify-end px-8 md:px-14 pb-8">
+        <div className="inline-flex items-center gap-2 bg-white/10 text-white/75 text-xs font-medium px-3 py-1.5 rounded-full mb-4 w-fit backdrop-blur-sm border border-white/15">
           <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-          Grain Market · East Africa
+          B2B Grain Market · East Africa
         </div>
 
-        {/* Headline */}
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.05] tracking-tight mb-3 max-w-2xl">
-          East Africa's grain<br />market infrastructure.
+        <h1 className="text-5xl md:text-7xl font-bold text-white leading-[1.0] tracking-tight max-w-3xl">
+          Where grain warrants
+          <br />
+          <span className="text-white">meet global buyers.</span>
         </h1>
-        <p className="text-white/55 text-base md:text-lg max-w-xl mb-8 leading-relaxed">
-          Trade tokenised warehouse receipts for Maize, Rice, Wheat, Barley, Soybean and Sorghum —
-          with compliance-grade eWR issuance and forward contract settlement.
+
+        <p className="mt-3 text-white/55 text-sm md:text-base leading-relaxed max-w-xl">
+          Every harvest begins in the field. GrainEx is the trusted B2B marketplace for tokenised warehouse receipts — connecting East African grain producers and off-takers through compliance-grade eWR issuance, live auctions, forward contracts, and embedded trade finance.
         </p>
 
-        <Link href={isSignedIn ? "/dashboard" : "/sign-up"}>
-          <button className="flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-black text-sm font-bold px-6 py-3 transition-colors mb-10">
-            {isSignedIn ? "Open Terminal" : "Enter Platform"}{" "}
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </Link>
-
-        {/* Stats */}
-        <div className="flex flex-wrap items-end gap-x-8 gap-y-4 border-t border-white/10 pt-6">
-          {STATS.map((s) => (
-            <div key={s.label}>
-              <p className="text-xl md:text-2xl font-bold text-white leading-none">
-                {s.value}{s.suffix}
-              </p>
-              <p className="text-xs text-white/45 mt-1">{s.label}</p>
-            </div>
-          ))}
+        <div className="mt-5 flex items-center gap-4">
+          <Link href="/sign-in">
+            <button className="text-sm font-semibold bg-white text-[#1a0a00] hover:bg-white/90 transition-colors px-6 py-3 flex items-center gap-2">
+              Sign in to Terminal <ArrowRight className="w-4 h-4" />
+            </button>
+          </Link>
+          <Link href="/sign-up">
+            <button className="text-sm font-medium text-white/80 hover:text-white border border-white/20 hover:border-white/40 transition-colors px-6 py-3 backdrop-blur-sm">
+              Create Account
+            </button>
+          </Link>
         </div>
+      </div>
+
+      {/* Stats bar */}
+      <div className="relative z-10 flex items-center gap-12 md:gap-20 px-8 md:px-14 pb-6 pt-4 border-t border-white/10">
+        {stats.map((s) => (
+          <div key={s.label}>
+            <p className="text-xl font-bold text-white">{s.value}</p>
+            <p className="text-white/40 text-xs tracking-widest uppercase mt-0.5">{s.label}</p>
+          </div>
+        ))}
       </div>
     </div>
   );
