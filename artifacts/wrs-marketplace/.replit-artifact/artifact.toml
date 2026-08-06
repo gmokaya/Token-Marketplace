@@ -1,6 +1,6 @@
 kind = "web"
-previewPath = "/"
-title = "WRS Marketplace"
+previewPath = "/grain/"
+title = "Grain Market"
 version = "1.0.0"
 id = "artifacts/wrs-marketplace"
 router = "path"
@@ -11,7 +11,7 @@ version = "1.0.0"
 
 [[services]]
 name = "web"
-paths = [ "/" ]
+paths = [ "/grain/" ]
 localPort = 26227
 
 [services.development]
@@ -28,4 +28,4 @@ to = "/index.html"
 
 [services.env]
 PORT = "26227"
-BASE_PATH = "/"
+BASE_PATH = "/grain/"

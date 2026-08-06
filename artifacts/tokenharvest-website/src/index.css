@@ -76,47 +76,47 @@
   --elevate-1: rgba(0,0,0, .03);
   --elevate-2: rgba(0,0,0, .08);
 
-  --background: 45 25% 97%;
-  --foreground: 35 75% 10%;
-  --border: 38 20% 85%;
+  --background: 40 20% 97%;
+  --foreground: 155 100% 12%;
+  --border: 155 20% 85%;
 
   --card: 0 0% 100%;
-  --card-foreground: 35 75% 10%;
-  --card-border: 38 20% 85%;
+  --card-foreground: 155 100% 12%;
+  --card-border: 155 20% 85%;
 
-  --sidebar: 35 75% 10%;
-  --sidebar-foreground: 45 20% 97%;
-  --sidebar-border: 35 60% 14%;
-  --sidebar-primary: 45 20% 97%;
-  --sidebar-primary-foreground: 35 75% 10%;
-  --sidebar-accent: 35 60% 14%;
-  --sidebar-accent-foreground: 45 20% 97%;
-  --sidebar-ring: 45 20% 97%;
+  --sidebar: 155 100% 12%;
+  --sidebar-foreground: 40 20% 97%;
+  --sidebar-border: 155 80% 15%;
+  --sidebar-primary: 40 20% 97%;
+  --sidebar-primary-foreground: 155 100% 12%;
+  --sidebar-accent: 155 80% 15%;
+  --sidebar-accent-foreground: 40 20% 97%;
+  --sidebar-ring: 40 20% 97%;
 
   --popover: 0 0% 100%;
-  --popover-foreground: 35 75% 10%;
-  --popover-border: 38 20% 85%;
+  --popover-foreground: 155 100% 12%;
+  --popover-border: 155 20% 85%;
 
-  --primary: 35 75% 10%;
-  --primary-foreground: 45 20% 97%;
+  --primary: 180 62% 10%;
+  --primary-foreground: 40 20% 97%;
 
   --secondary: 40 30% 90%;
-  --secondary-foreground: 35 60% 10%;
+  --secondary-foreground: 180 62% 8%;
 
   --muted: 40 20% 92%;
-  --muted-foreground: 35 30% 42%;
+  --muted-foreground: 180 20% 40%;
 
-  --accent: 35 60% 14%;
-  --accent-foreground: 45 20% 97%;
+  --accent: 180 62% 14%;
+  --accent-foreground: 40 20% 97%;
 
   --destructive: 0 84% 40%;
   --destructive-foreground: 0 0% 100%;
 
-  --input: 38 20% 85%;
-  --ring: 35 75% 10%;
+  --input: 180 20% 85%;
+  --ring: 180 62% 10%;
 
-  --chart-1: 35 75% 10%;
-  --chart-2: 38 80% 50%;
+  --chart-1: 180 62% 10%;
+  --chart-2: 40 80% 40%;
   --chart-3: 200 80% 40%;
   --chart-4: 300 80% 40%;
   --chart-5: 0 80% 40%;
@@ -135,47 +135,47 @@
   --elevate-1: rgba(255,255,255, .04);
   --elevate-2: rgba(255,255,255, .09);
 
-  --background: 35 50% 5%;
-  --foreground: 45 20% 97%;
-  --border: 35 40% 10%;
+  --background: 180 62% 5%;
+  --foreground: 40 20% 97%;
+  --border: 180 40% 10%;
 
-  --card: 35 50% 6%;
-  --card-foreground: 45 20% 97%;
-  --card-border: 35 40% 10%;
+  --card: 180 62% 6%;
+  --card-foreground: 40 20% 97%;
+  --card-border: 180 40% 10%;
 
-  --sidebar: 35 50% 4%;
-  --sidebar-foreground: 45 20% 97%;
-  --sidebar-border: 35 40% 10%;
-  --sidebar-primary: 35 60% 14%;
-  --sidebar-primary-foreground: 45 20% 97%;
-  --sidebar-accent: 35 50% 8%;
-  --sidebar-accent-foreground: 45 20% 97%;
-  --sidebar-ring: 45 20% 97%;
+  --sidebar: 180 62% 4%;
+  --sidebar-foreground: 40 20% 97%;
+  --sidebar-border: 180 40% 10%;
+  --sidebar-primary: 180 62% 14%;
+  --sidebar-primary-foreground: 40 20% 97%;
+  --sidebar-accent: 180 62% 8%;
+  --sidebar-accent-foreground: 40 20% 97%;
+  --sidebar-ring: 40 20% 97%;
 
-  --popover: 35 50% 6%;
-  --popover-foreground: 45 20% 97%;
-  --popover-border: 35 40% 10%;
+  --popover: 180 62% 6%;
+  --popover-foreground: 40 20% 97%;
+  --popover-border: 180 40% 10%;
 
-  --primary: 45 20% 97%;
-  --primary-foreground: 35 50% 8%;
+  --primary: 40 20% 97%;
+  --primary-foreground: 180 62% 8%;
 
-  --secondary: 35 50% 9%;
-  --secondary-foreground: 45 20% 97%;
+  --secondary: 180 62% 9%;
+  --secondary-foreground: 40 20% 97%;
 
-  --muted: 35 50% 8%;
+  --muted: 180 62% 8%;
   --muted-foreground: 40 10% 60%;
 
-  --accent: 35 60% 14%;
-  --accent-foreground: 45 20% 97%;
+  --accent: 180 62% 14%;
+  --accent-foreground: 40 20% 97%;
 
   --destructive: 0 60% 40%;
   --destructive-foreground: 0 0% 100%;
 
-  --input: 35 40% 10%;
-  --ring: 45 20% 97%;
+  --input: 180 40% 10%;
+  --ring: 40 20% 97%;
 
-  --chart-1: 38 80% 60%;
-  --chart-2: 35 60% 40%;
+  --chart-1: 40 80% 60%;
+  --chart-2: 180 50% 40%;
   --chart-3: 200 80% 60%;
   --chart-4: 300 80% 60%;
   --chart-5: 0 80% 60%;
@@ -197,10 +197,10 @@ html {
   .bg-auth-gradient {
     background: linear-gradient(
       135deg,
-      hsl(35 60% 6%) 0%,
-      hsl(35 60% 10%) 30%,
-      hsl(35 50% 14%) 60%,
-      hsl(35 40% 18%) 100%
+      hsl(180 62% 6%) 0%,
+      hsl(180 62% 10%) 30%,
+      hsl(180 50% 14%) 60%,
+      hsl(180 40% 18%) 100%
     );
   }
 

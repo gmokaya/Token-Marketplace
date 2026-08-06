@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "TokenHarvest Website"
+description = "The public-facing TokenHarvest corporate website with CMS. Features the full marketing landing page (hero, services, about, how it works, stats, markets, contact) and an admin homepage CMS editor backed by the shared API server."
+version = "1.0.0"
+id = "artifacts/tokenharvest-website"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24068
+
+[services.development]
+run = "pnpm --filter @workspace/tokenharvest-website run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/tokenharvest-website", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/tokenharvest-website/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24068"
+BASE_PATH = "/"

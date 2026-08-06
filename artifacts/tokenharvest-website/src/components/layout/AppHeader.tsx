@@ -57,7 +57,7 @@ export function AppHeader({ collapsed, onToggle }: AppHeaderProps) {
         <Link href="/" className="flex items-center -ml-2.5">
           <img
             src={`${basePath}/logo-dark.png`}
-            alt="GrainEx"
+            alt="TokenHarvest"
             className="h-18 w-auto shrink-0"
           />
         </Link>
