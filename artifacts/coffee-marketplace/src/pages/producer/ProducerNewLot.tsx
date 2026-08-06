@@ -139,7 +139,7 @@ export default function ProducerNewLot() {
                     <SelectContent>
                       {availableEwrs.map((ewr) => (
                         <SelectItem key={ewr.id} value={ewr.id.toString()}>
-                          {ewr.ewrsReceiptId} — {ewr.weightMt} MT · {ewr.grade} · {ewr.warehouseCode}
+                          {ewr.ewrsReceiptId} - {ewr.weightMt} MT · {ewr.grade} · {ewr.warehouseCode}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -287,7 +287,7 @@ export default function ProducerNewLot() {
                 <FormItem>
                   <FormLabel>Cupping Notes <span className="text-muted-foreground text-xs">(optional)</span></FormLabel>
                   <FormControl>
-                    <Textarea className="min-h-[100px]" placeholder="Describe the cup profile — acidity, body, flavour notes, aftertaste..." {...field} />
+                    <Textarea className="min-h-[100px]" placeholder="Describe the cup profile - acidity, body, flavour notes, aftertaste..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

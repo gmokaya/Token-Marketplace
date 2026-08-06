@@ -71,7 +71,7 @@ export default function Home() {
         </h1>
 
         <p className="mt-3 text-white/55 text-sm md:text-base leading-relaxed max-w-xl">
-          Every harvest begins in the field. GrainEx is the trusted B2B marketplace for tokenised warehouse receipts — connecting East African grain producers and off-takers through compliance-grade eWR issuance, live auctions, forward contracts, and embedded trade finance.
+          Every harvest begins in the field. GrainEx is the trusted B2B marketplace for tokenised warehouse receipts, connecting East African grain producers and off-takers through compliance-grade eWR issuance, live auctions, forward contracts, and embedded trade finance.
         </p>
 
         <div className="mt-5 flex items-center gap-4">

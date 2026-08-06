@@ -504,7 +504,7 @@ export default function LotDetail() {
 
               {/* Action buttons */}
               <div className="pt-1 space-y-2">
-                {/* Publish button — shown when not yet published or unpublished */}
+                {/* Publish button - shown when not yet published or unpublished */}
                 {canPublish && ["not_published", "unpublished"].includes(pubStatus) && (
                   <Button
                     className="w-full rounded-none gap-2 h-9 text-xs"
@@ -516,7 +516,7 @@ export default function LotDetail() {
                   </Button>
                 )}
 
-                {/* Retry button — shown only for failed publications */}
+                {/* Retry button - shown only for failed publications */}
                 {canPublish && pubStatus === "failed" && (
                   <Button
                     variant="destructive"
@@ -529,7 +529,7 @@ export default function LotDetail() {
                   </Button>
                 )}
 
-                {/* Pending — show spinner note */}
+                {/* Pending - show spinner note */}
                 {["pending", "update_pending"].includes(pubStatus) && (
                   <div className="flex items-center gap-2 text-xs text-amber-700">
                     <RefreshCw className="w-3 h-3 animate-spin" />

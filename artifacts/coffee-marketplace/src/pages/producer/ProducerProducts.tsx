@@ -77,7 +77,7 @@ function LotCard({ lot }: { lot: CoffeeLot }) {
           {lot.status}
         </Badge>
         <div className="font-mono text-lg font-bold">
-          {lot.reservePriceUsd != null ? `$${lot.reservePriceUsd}` : lot.fixedPricePerKgUsd != null ? `$${lot.fixedPricePerKgUsd}/kg` : '—'}
+          {lot.reservePriceUsd != null ? `$${lot.reservePriceUsd}` : lot.fixedPricePerKgUsd != null ? `$${lot.fixedPricePerKgUsd}/kg` : '-'}
           {lot.reservePriceUsd != null && <span className="text-xs text-muted-foreground font-sans font-normal"> / kg</span>}
         </div>
       </div>

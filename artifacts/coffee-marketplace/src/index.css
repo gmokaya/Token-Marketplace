@@ -164,7 +164,7 @@
   --elevate-1: rgba(0,0,0, .03);
   --elevate-2: rgba(0,0,0, .08);
 
-  /* Light mode — warm cream background, deep espresso text */
+  /* Light mode - warm cream background, deep espresso text */
   --background: 40 20% 97%;
   --foreground: 25 80% 12%;
   --border: 25 20% 85%;

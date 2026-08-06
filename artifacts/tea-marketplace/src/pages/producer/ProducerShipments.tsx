@@ -157,7 +157,7 @@ export default function ProducerShipments() {
                     <Badge variant="outline" className={`text-[10px] ${STATUS_COLOR[s.status] ?? ""}`}>{s.status.replace(/_/g, " ")}</Badge>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {s.portOfLoading || "—"} → {s.portOfDischarge || "—"}
+                    {s.portOfLoading || "-"} → {s.portOfDischarge || "-"}
                     {s.vesselName ? ` · ${s.vesselName}` : ""}
                     {s.blNumber ? ` · BL: ${s.blNumber}` : ""}
                   </p>

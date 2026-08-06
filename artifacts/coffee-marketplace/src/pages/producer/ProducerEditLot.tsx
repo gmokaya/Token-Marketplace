@@ -118,7 +118,7 @@ export default function ProducerEditLot() {
       <Card>
         <CardHeader>
           <CardTitle>Lot Summary</CardTitle>
-          <CardDescription>Details inherited from the eWR — not editable here.</CardDescription>
+          <CardDescription>Details inherited from the eWR - not editable here.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
@@ -221,7 +221,7 @@ export default function ProducerEditLot() {
                 <FormItem>
                   <FormLabel>Cupping Notes</FormLabel>
                   <FormControl>
-                    <Textarea className="min-h-[120px]" placeholder="Describe the cup profile — acidity, body, flavour notes..." {...field} />
+                    <Textarea className="min-h-[120px]" placeholder="Describe the cup profile - acidity, body, flavour notes..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

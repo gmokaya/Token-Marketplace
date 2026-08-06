@@ -103,7 +103,7 @@ function ClerkProviderWithRoutes() {
             </Route>
             <Route path="*">
               <div className="flex items-center justify-center h-screen text-muted-foreground text-sm">
-                404 — Page not found
+                404 - Page not found
               </div>
             </Route>
           </Switch>

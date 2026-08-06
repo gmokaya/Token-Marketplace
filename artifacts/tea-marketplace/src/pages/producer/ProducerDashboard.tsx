@@ -19,7 +19,7 @@ const STATUS_COLORS: Record<string, string> = {
   RESERVE_NOT_MET: "bg-red-50 text-red-700 border-red-200",
 };
 
-// Publication status visual config — compact badge variant
+// Publication status visual config - compact badge variant
 const PUB_BADGE: Record<string, { label: string; className: string; icon: React.ElementType }> = {
   live:          { label: "Live",    className: "bg-green-50 text-green-700 border-green-200", icon: Radio },
   pending:       { label: "Pending", className: "bg-amber-50 text-amber-700 border-amber-200", icon: Clock },
@@ -53,7 +53,7 @@ export default function ProducerDashboard() {
     },
   });
 
-  // Fetch all publication records for this producer — scoped server-side to owned/brokered lots
+  // Fetch all publication records for this producer - scoped server-side to owned/brokered lots
   const { data: publications = [] } = useQuery<any[]>({
     queryKey: ["/api/listing-publications", "factory", me?.id],
     queryFn: async ({ signal }) => {
@@ -159,7 +159,7 @@ export default function ProducerDashboard() {
         )}
       </div>
 
-      {/* My lots — with per-lot marketplace publication badge */}
+      {/* My lots - with per-lot marketplace publication badge */}
       <div>
         <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2 mb-3">
           <Leaf className="w-4 h-4" /> My Tea Lots
