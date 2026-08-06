@@ -179,50 +179,51 @@
   --elevate-1: rgba(0,0,0, .03);
   --elevate-2: rgba(0,0,0, .08);
 
-  --background: 45 25% 97%;
-  --foreground: 35 75% 10%;
-  --border: 38 20% 85%;
+  /* Grain dashboard palette: warm ivory surfaces with espresso navigation. */
+  --background: 42 25% 96%;
+  --foreground: 31 42% 15%;
+  --border: 39 18% 86%;
 
-  --card: 0 0% 100%;
-  --card-foreground: 35 75% 10%;
-  --card-border: 38 20% 85%;
+  --card: 40 33% 99%;
+  --card-foreground: 31 42% 15%;
+  --card-border: 39 18% 86%;
 
-  --sidebar: 35 75% 10%;
-  --sidebar-foreground: 45 20% 97%;
-  --sidebar-border: 35 60% 14%;
-  --sidebar-primary: 45 20% 97%;
-  --sidebar-primary-foreground: 35 75% 10%;
-  --sidebar-accent: 35 60% 14%;
-  --sidebar-accent-foreground: 45 20% 97%;
-  --sidebar-ring: 45 20% 97%;
+  --sidebar: 31 51% 12%;
+  --sidebar-foreground: 40 30% 95%;
+  --sidebar-border: 31 45% 18%;
+  --sidebar-primary: 39 46% 92%;
+  --sidebar-primary-foreground: 31 51% 12%;
+  --sidebar-accent: 31 45% 19%;
+  --sidebar-accent-foreground: 40 30% 95%;
+  --sidebar-ring: 39 46% 92%;
 
-  --popover: 0 0% 100%;
-  --popover-foreground: 35 75% 10%;
-  --popover-border: 38 20% 85%;
+  --popover: 40 33% 99%;
+  --popover-foreground: 31 42% 15%;
+  --popover-border: 39 18% 86%;
 
-  --primary: 35 75% 10%;
-  --primary-foreground: 45 20% 97%;
+  --primary: 31 51% 12%;
+  --primary-foreground: 39 46% 95%;
 
-  --secondary: 40 30% 90%;
-  --secondary-foreground: 35 60% 10%;
+  --secondary: 39 25% 91%;
+  --secondary-foreground: 31 45% 16%;
 
-  --muted: 40 20% 92%;
-  --muted-foreground: 35 30% 42%;
+  --muted: 39 22% 91%;
+  --muted-foreground: 31 18% 45%;
 
-  --accent: 35 60% 14%;
-  --accent-foreground: 45 20% 97%;
+  --accent: 35 46% 19%;
+  --accent-foreground: 40 30% 95%;
 
   --destructive: 0 84% 40%;
   --destructive-foreground: 0 0% 100%;
 
-  --input: 38 20% 85%;
-  --ring: 35 75% 10%;
+  --input: 39 18% 86%;
+  --ring: 35 54% 34%;
 
-  --chart-1: 35 75% 10%;
-  --chart-2: 38 80% 50%;
-  --chart-3: 200 80% 40%;
-  --chart-4: 300 80% 40%;
-  --chart-5: 0 80% 40%;
+  --chart-1: 31 51% 12%;
+  --chart-2: 38 65% 48%;
+  --chart-3: 145 35% 42%;
+  --chart-4: 205 45% 48%;
+  --chart-5: 8 55% 54%;
 
   --app-font-sans: 'Futura', sans-serif;
   --app-font-serif: Georgia, serif;
@@ -238,50 +239,50 @@
   --elevate-1: rgba(255,255,255, .04);
   --elevate-2: rgba(255,255,255, .09);
 
-  --background: 35 50% 5%;
-  --foreground: 45 20% 97%;
-  --border: 35 40% 10%;
+  --background: 31 24% 8%;
+  --foreground: 39 30% 95%;
+  --border: 31 24% 18%;
 
-  --card: 35 50% 6%;
-  --card-foreground: 45 20% 97%;
-  --card-border: 35 40% 10%;
+  --card: 31 25% 11%;
+  --card-foreground: 39 30% 95%;
+  --card-border: 31 24% 19%;
 
-  --sidebar: 35 50% 4%;
-  --sidebar-foreground: 45 20% 97%;
-  --sidebar-border: 35 40% 10%;
-  --sidebar-primary: 35 60% 14%;
-  --sidebar-primary-foreground: 45 20% 97%;
-  --sidebar-accent: 35 50% 8%;
-  --sidebar-accent-foreground: 45 20% 97%;
-  --sidebar-ring: 45 20% 97%;
+  --sidebar: 31 51% 7%;
+  --sidebar-foreground: 39 30% 95%;
+  --sidebar-border: 31 40% 14%;
+  --sidebar-primary: 39 30% 95%;
+  --sidebar-primary-foreground: 31 51% 10%;
+  --sidebar-accent: 31 45% 16%;
+  --sidebar-accent-foreground: 39 30% 95%;
+  --sidebar-ring: 39 30% 95%;
 
-  --popover: 35 50% 6%;
-  --popover-foreground: 45 20% 97%;
-  --popover-border: 35 40% 10%;
+  --popover: 31 25% 11%;
+  --popover-foreground: 39 30% 95%;
+  --popover-border: 31 24% 19%;
 
-  --primary: 45 20% 97%;
-  --primary-foreground: 35 50% 8%;
+  --primary: 39 30% 95%;
+  --primary-foreground: 31 51% 10%;
 
-  --secondary: 35 50% 9%;
-  --secondary-foreground: 45 20% 97%;
+  --secondary: 31 24% 16%;
+  --secondary-foreground: 39 30% 95%;
 
-  --muted: 35 50% 8%;
-  --muted-foreground: 40 10% 60%;
+  --muted: 31 24% 16%;
+  --muted-foreground: 39 16% 64%;
 
-  --accent: 35 60% 14%;
-  --accent-foreground: 45 20% 97%;
+  --accent: 31 45% 16%;
+  --accent-foreground: 39 30% 95%;
 
   --destructive: 0 60% 40%;
   --destructive-foreground: 0 0% 100%;
 
-  --input: 35 40% 10%;
-  --ring: 45 20% 97%;
+  --input: 31 24% 19%;
+  --ring: 39 30% 95%;
 
-  --chart-1: 38 80% 60%;
-  --chart-2: 35 60% 40%;
-  --chart-3: 200 80% 60%;
-  --chart-4: 300 80% 60%;
-  --chart-5: 0 80% 60%;
+  --chart-1: 38 65% 56%;
+  --chart-2: 31 50% 52%;
+  --chart-3: 145 35% 52%;
+  --chart-4: 205 45% 58%;
+  --chart-5: 8 55% 62%;
 }
 
 /* Smooth scroll - outside any layer so it always wins over Tailwind preflight */
@@ -300,10 +301,10 @@ html {
   .bg-auth-gradient {
     background: linear-gradient(
       135deg,
-      hsl(35 60% 6%) 0%,
-      hsl(35 60% 10%) 30%,
-      hsl(35 50% 14%) 60%,
-      hsl(35 40% 18%) 100%
+      hsl(31 51% 8%) 0%,
+      hsl(31 48% 12%) 30%,
+      hsl(31 42% 16%) 60%,
+      hsl(31 35% 21%) 100%
     );
   }
 
