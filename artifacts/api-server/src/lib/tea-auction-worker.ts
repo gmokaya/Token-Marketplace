@@ -11,6 +11,7 @@
  */
 
 import { db, pool, withTxRetry } from "@workspace/db";
+import { logger } from "./logger";
 import {
   teaLotsTable,
   teaLotBidsTable,
@@ -276,7 +277,7 @@ async function runTeaAuctionWorker(): Promise<void> {
     for (const lot of expiredLots) {
       if (lot.sessionId) {
         await closeLot(lot.id, lot.sessionId, now).catch((err) =>
-          console.error(`[TeaWorker] Error closing lot ${lot.id}:`, err)
+          logger.error({ err, lotId: lot.id }, "[TeaWorker] Error closing lot")
         );
       }
     }
@@ -323,7 +324,7 @@ async function runTeaAuctionWorker(): Promise<void> {
 export function startTeaAuctionWorker(): void {
   setInterval(() => {
     runTeaAuctionWorker().catch((err) =>
-      console.error("[TeaWorker] Unhandled error:", err)
+      logger.error({ err }, "[TeaWorker] Unhandled error")
     );
   }, POLL_INTERVAL_MS);
 }

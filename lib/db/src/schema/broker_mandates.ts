@@ -1,4 +1,4 @@
-import { pgTable, serial, integer, timestamp, boolean, numeric, pgEnum, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, serial, integer, timestamp, boolean, numeric, pgEnum, jsonb, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./users";
@@ -33,7 +33,16 @@ export const brokerMandatesTable = pgTable("broker_mandates", {
   revokedAt: timestamp("revoked_at", { withTimezone: true }),
 
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (table) => ({
+  ownerIdIdx:  index("broker_mandates_owner_id_idx").on(table.ownerId),
+  brokerIdIdx: index("broker_mandates_broker_id_idx").on(table.brokerId),
+  // Hot path: active-mandate lookup (brokerId + commodityType + revoked)
+  brokerCommodityRevokedIdx: index("broker_mandates_broker_commodity_revoked_idx")
+    .on(table.brokerId, table.commodityType, table.revoked),
+  // Owner-side lookup (duplicate-check, given-mandates list)
+  ownerBrokerCommodityIdx: index("broker_mandates_owner_broker_commodity_idx")
+    .on(table.ownerId, table.brokerId, table.commodityType),
+}));
 
 export const insertBrokerMandateSchema = createInsertSchema(brokerMandatesTable).omit({
   id: true,

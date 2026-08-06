@@ -1,4 +1,4 @@
-import { pgTable, serial, integer, timestamp, numeric, pgEnum, boolean } from "drizzle-orm/pg-core";
+import { pgTable, serial, integer, timestamp, numeric, pgEnum, boolean, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./users";
@@ -18,7 +18,11 @@ export const auctionsTable = pgTable("auctions", {
   winningBidId: integer("winning_bid_id"),
   settlementDeadlineAt: timestamp("settlement_deadline_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (table) => ({
+  ewrIdIdx:    index("auctions_ewr_id_idx").on(table.ewrId),
+  sellerIdIdx: index("auctions_seller_id_idx").on(table.sellerId),
+  statusIdx:   index("auctions_status_idx").on(table.status),
+}));
 
 export const insertAuctionSchema = createInsertSchema(auctionsTable).omit({ id: true, createdAt: true });
 export type InsertAuction = z.infer<typeof insertAuctionSchema>;

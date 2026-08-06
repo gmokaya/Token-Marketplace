@@ -1,4 +1,4 @@
-import { pgTable, serial, integer, numeric, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, serial, integer, numeric, timestamp, boolean, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./users";
@@ -26,7 +26,13 @@ export const teaLotBidsTable = pgTable("tea_lot_bids", {
   isWinning: boolean("is_winning").notNull().default(false),
 
   placedAt: timestamp("placed_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (table) => ({
+  lotIdIdx:      index("tea_lot_bids_lot_id_idx").on(table.lotId),
+  sessionIdIdx:  index("tea_lot_bids_session_id_idx").on(table.sessionId),
+  bidderIdIdx:   index("tea_lot_bids_bidder_id_idx").on(table.bidderId),
+  // Hot path: find winning bid — lot + isWinning filter is extremely frequent
+  lotWinningIdx: index("tea_lot_bids_lot_winning_idx").on(table.lotId, table.isWinning),
+}));
 
 export const insertTeaLotBidSchema = createInsertSchema(teaLotBidsTable).omit({
   id: true,

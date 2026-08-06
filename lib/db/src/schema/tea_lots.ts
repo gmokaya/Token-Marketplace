@@ -1,4 +1,4 @@
-import { pgTable, serial, text, integer, timestamp, boolean, numeric, pgEnum, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, integer, timestamp, boolean, numeric, pgEnum, jsonb, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./users";
@@ -94,7 +94,15 @@ export const teaLotsTable = pgTable("tea_lots", {
   publishedAt: timestamp("published_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (table) => ({
+  ewrIdIdx:      index("tea_lots_ewr_id_idx").on(table.ewrId),
+  ownerIdIdx:    index("tea_lots_owner_id_idx").on(table.ownerId),
+  brokerIdIdx:   index("tea_lots_broker_id_idx").on(table.brokerId),
+  statusIdx:     index("tea_lots_status_idx").on(table.status),
+  sessionIdIdx:  index("tea_lots_session_id_idx").on(table.sessionId),
+  // Worker scans open lots by auctionEndAt — compound with status keeps the scan tight
+  statusEndAtIdx: index("tea_lots_status_end_at_idx").on(table.status, table.auctionEndAt),
+}));
 
 export const insertTeaLotSchema = createInsertSchema(teaLotsTable).omit({
   id: true,

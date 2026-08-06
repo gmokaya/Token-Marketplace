@@ -1,5 +1,5 @@
 import {
-  pgTable, serial, integer, text, timestamp, jsonb, pgEnum,
+  pgTable, serial, integer, text, timestamp, jsonb, pgEnum, index,
 } from "drizzle-orm/pg-core";
 import { usersTable } from "./users";
 import { teaLotsTable } from "./tea_lots";
@@ -69,7 +69,12 @@ export const teaShipmentsTable = pgTable("tea_shipments", {
 
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (table) => ({
+  lotIdIdx:   index("tea_shipments_lot_id_idx").on(table.lotId),
+  rfqIdIdx:   index("tea_shipments_rfq_id_idx").on(table.rfqId),
+  ownerIdIdx: index("tea_shipments_owner_id_idx").on(table.ownerId),
+  statusIdx:  index("tea_shipments_status_idx").on(table.status),
+}));
 
 export type TeaShipment    = typeof teaShipmentsTable.$inferSelect;
 export type NewTeaShipment = typeof teaShipmentsTable.$inferInsert;

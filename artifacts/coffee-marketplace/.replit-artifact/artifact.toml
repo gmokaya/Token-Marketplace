@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/coffee/"
+title = "Coffee Marketplace"
+description = "A B2B specialty coffee trading portal for producers, brokers, and buyers. Mirrors the Tea Producer Portal architecture but tailored entirely for green coffee: cupping scores, processing methods (Washed/Natural/Honey), GI origins (Ethiopia, Colombia, Kenya, Guatemala), ICO grades, and coffee-specific certifications (Fair Trade, Rainforest Alliance, Organic, Cup of Excellence). Roles include Producer (coffee farm/washing station), Broker (ENABLER tier), Trader (OFF_TAKER), and Exchange Admin."
+version = "1.0.0"
+id = "artifacts/coffee-marketplace"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/coffee/" ]
+localPort = 20423
+
+[services.development]
+run = "pnpm --filter @workspace/coffee-marketplace run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/coffee-marketplace", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/coffee-marketplace/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20423"
+BASE_PATH = "/coffee/"

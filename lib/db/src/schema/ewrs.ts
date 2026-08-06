@@ -1,4 +1,4 @@
-import { pgTable, serial, text, integer, timestamp, boolean, numeric, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, integer, timestamp, boolean, numeric, pgEnum, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./users";
@@ -52,7 +52,15 @@ export const ewrsTable = pgTable("ewrs", {
 
   // ── Fungible pooling (Maize / Rice silos) ────────────────────────────
   poolGroupId: text("pool_group_id"),
-});
+}, (table) => ({
+  // Hot query paths: broker-available (ownerId+state+commodityType), avocado worker (commodityType+state)
+  ownerIdIdx:       index("ewrs_owner_id_idx").on(table.ownerId),
+  stateIdx:         index("ewrs_state_idx").on(table.state),
+  lienHolderIdx:    index("ewrs_lien_holder_id_idx").on(table.lienHolderId),
+  warehouseCodeIdx: index("ewrs_warehouse_code_idx").on(table.warehouseCode),
+  // Compound: broker-available filter hits ownerId+commodityType+state together
+  ownerCommodityStateIdx: index("ewrs_owner_commodity_state_idx").on(table.ownerId, table.commodityType, table.state),
+}));
 
 export const insertEwrSchema = createInsertSchema(ewrsTable).omit({ id: true, issuedAt: true });
 export type InsertEwr = z.infer<typeof insertEwrSchema>;

@@ -1,9 +1,18 @@
 import { Router } from "express";
 import { getAuth } from "@clerk/express";
 import { db, withTxRetry } from "@workspace/db";
-import { ordersTable, spotListingsTable, ewrsTable, usersTable, reputationEventsTable, auditLogTable } from "@workspace/db";
-import { eq, and, SQL, sql } from "drizzle-orm";
-import { sha256, auditEntry } from "../lib/audit";
+import {
+  ordersTable,
+  spotListingsTable,
+  ewrsTable,
+  usersTable,
+  reputationEventsTable,
+  auditLogTable,
+} from "@workspace/db";
+import { eq, and, lte, SQL, sql } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
+import { auditEntry } from "../lib/audit";
+import { logger } from "../lib/logger";
 
 const PLATFORM_FEE_RATE = 0.02;
 const ESCROW_FEE_RATE = 0.005;
@@ -12,23 +21,69 @@ const EXPIRY_REPUTATION_PENALTY = 5;
 
 const router = Router();
 
-async function enrichOrder(order: typeof ordersTable.$inferSelect) {
-  const [listing] = await db.select().from(spotListingsTable).where(eq(spotListingsTable.id, order.listingId)).limit(1);
-  const ewr = listing ? (await db.select().from(ewrsTable).where(eq(ewrsTable.id, listing.ewrId)).limit(1))[0] : null;
-  const [buyer] = await db.select({ name: usersTable.name }).from(usersTable).where(eq(usersTable.id, order.buyerId)).limit(1);
-  const [seller] = listing ? (await db.select({ name: usersTable.name }).from(usersTable).where(eq(usersTable.id, listing.sellerId)).limit(1)) : [null];
+// ── Shared aliases for buyer / seller self-join on users ──────────────────────
+const buyerAlias  = alias(usersTable, "buyer");
+const sellerAlias = alias(usersTable, "seller");
 
-  return {
-    ...order,
-    buyerName: buyer?.name ?? null,
-    sellerName: seller?.name ?? null,
-    commodityType: ewr?.commodityType ?? null,
-    grade: ewr?.grade ?? null,
-    weightMt: ewr?.weightMt ?? null,
-    warehouseCode: ewr?.warehouseCode ?? null,
-    pricePerMt: listing?.pricePerMt ?? null,
-  };
+type EnrichedOrder = {
+  id: number;
+  listingId: number;
+  buyerId: number;
+  lockedAt: Date;
+  expiresAt: Date;
+  settledAt: Date | null;
+  status: typeof ordersTable.$inferSelect["status"];
+  totalUsd: string;
+  platformFeeUsd: string;
+  escrowFeeUsd: string;
+  createdAt: Date;
+  buyerName: string | null;
+  sellerName: string | null;
+  commodityType: string | null;
+  grade: string | null;
+  weightMt: string | null;
+  warehouseCode: string | null;
+  pricePerMt: string | null;
+};
+
+/**
+ * Enriches order rows in a single JOIN — replaces the old per-row `enrichOrder()`
+ * function which fired 3–4 sequential queries per order (N+1).
+ *
+ * Handles both list (pass one condition per buyer) and single-row (add an
+ * ordersTable.id = X condition) use cases.
+ */
+async function queryEnrichedOrders(conditions: SQL[]): Promise<EnrichedOrder[]> {
+  return db
+    .select({
+      id:           ordersTable.id,
+      listingId:    ordersTable.listingId,
+      buyerId:      ordersTable.buyerId,
+      lockedAt:     ordersTable.lockedAt,
+      expiresAt:    ordersTable.expiresAt,
+      settledAt:    ordersTable.settledAt,
+      status:       ordersTable.status,
+      totalUsd:     ordersTable.totalUsd,
+      platformFeeUsd: ordersTable.platformFeeUsd,
+      escrowFeeUsd:   ordersTable.escrowFeeUsd,
+      createdAt:    ordersTable.createdAt,
+      buyerName:    buyerAlias.name,
+      sellerName:   sellerAlias.name,
+      commodityType: ewrsTable.commodityType,
+      grade:         ewrsTable.grade,
+      weightMt:      ewrsTable.weightMt,
+      warehouseCode: ewrsTable.warehouseCode,
+      pricePerMt:    spotListingsTable.pricePerMt,
+    })
+    .from(ordersTable)
+    .leftJoin(buyerAlias,        eq(ordersTable.buyerId,          buyerAlias.id))
+    .leftJoin(spotListingsTable,  eq(ordersTable.listingId,        spotListingsTable.id))
+    .leftJoin(ewrsTable,          eq(spotListingsTable.ewrId,      ewrsTable.id))
+    .leftJoin(sellerAlias,        eq(spotListingsTable.sellerId,   sellerAlias.id))
+    .where(and(...conditions));
 }
+
+// ── Routes ────────────────────────────────────────────────────────────────────
 
 router.get("/orders", async (req, res) => {
   const { userId: clerkId } = getAuth(req);
@@ -41,8 +96,7 @@ router.get("/orders", async (req, res) => {
   const conditions: SQL[] = [eq(ordersTable.buyerId, user.id)];
   if (status) conditions.push(eq(ordersTable.status, status as typeof ordersTable.$inferSelect["status"]));
 
-  const orders = await db.select().from(ordersTable).where(and(...conditions));
-  const enriched = await Promise.all(orders.map(enrichOrder));
+  const enriched = await queryEnrichedOrders(conditions);
   return res.json(enriched);
 });
 
@@ -104,7 +158,7 @@ router.post("/orders", async (req, res) => {
       return newOrder;
     }));
 
-    const enriched = await enrichOrder(order);
+    const [enriched] = await queryEnrichedOrders([eq(ordersTable.id, order.id)]);
     return res.status(201).json(enriched);
   } catch (err: any) {
     const statusCode = err.statusCode ?? 500;
@@ -121,13 +175,15 @@ router.get("/orders/:orderId", async (req, res) => {
   const orderId = parseInt(req.params.orderId);
   if (isNaN(orderId)) return res.status(400).json({ error: "Invalid order ID" });
 
-  const [order] = await db.select().from(ordersTable).where(eq(ordersTable.id, orderId)).limit(1);
-  if (!order) return res.status(404).json({ error: "Order not found" });
-
   const [user] = await db.select().from(usersTable).where(eq(usersTable.clerkId, clerkId)).limit(1);
-  if (!user || order.buyerId !== user.id) return res.status(403).json({ error: "Forbidden" });
+  if (!user) return res.status(404).json({ error: "User not found" });
 
-  const enriched = await enrichOrder(order);
+  const [enriched] = await queryEnrichedOrders([
+    eq(ordersTable.id, orderId),
+    eq(ordersTable.buyerId, user.id),
+  ]);
+
+  if (!enriched) return res.status(404).json({ error: "Order not found" });
   return res.json(enriched);
 });
 
@@ -147,7 +203,7 @@ router.patch("/orders/:orderId", async (req, res) => {
   }
 
   try {
-    const updated = await withTxRetry(() => db.transaction(async (tx) => {
+    await withTxRetry(() => db.transaction(async (tx) => {
       await tx.execute(sql`SET TRANSACTION ISOLATION LEVEL SERIALIZABLE`);
 
       const [lockedOrder] = await tx
@@ -170,11 +226,10 @@ router.patch("/orders/:orderId", async (req, res) => {
         .limit(1);
 
       // CANCELLED only — SETTLED is handled exclusively by POST /settlements (split engine)
-      const [result] = await tx
+      await tx
         .update(ordersTable)
         .set({ status: "CANCELLED" })
-        .where(eq(ordersTable.id, orderId))
-        .returning();
+        .where(eq(ordersTable.id, orderId));
 
       if (listing) {
         await tx.update(spotListingsTable).set({ status: "ACTIVE" }).where(eq(spotListingsTable.id, listing.id));
@@ -191,10 +246,9 @@ router.patch("/orders/:orderId", async (req, res) => {
           { reason: "buyer_cancelled" }
         )
       );
-      return result;
     }));
 
-    const enriched = await enrichOrder(updated);
+    const [enriched] = await queryEnrichedOrders([eq(ordersTable.id, orderId)]);
     return res.json(enriched);
   } catch (err: any) {
     const statusCode = err.statusCode ?? 500;
@@ -204,57 +258,87 @@ router.patch("/orders/:orderId", async (req, res) => {
   }
 });
 
+// ── Order expiry background worker ────────────────────────────────────────────
+
 export function startOrderExpiryWorker() {
   setInterval(async () => {
     try {
       const now = new Date();
+
+      // Filter expired orders at the DB level — uses the compound index
+      // (status, expires_at) added to the schema. Avoids loading the full
+      // PENDING_SETTLEMENT set and filtering in JS (was O(all-pending) per tick).
       const expiredOrders = await db
         .select()
         .from(ordersTable)
-        .where(eq(ordersTable.status, "PENDING_SETTLEMENT"));
+        .where(
+          and(
+            eq(ordersTable.status, "PENDING_SETTLEMENT"),
+            lte(ordersTable.expiresAt, now),
+          )
+        );
 
       for (const order of expiredOrders) {
-        if (order.expiresAt <= now) {
-          await db.transaction(async (tx) => {
-            const affected = await tx
-              .update(ordersTable)
-              .set({ status: "EXPIRED" })
-              .where(
-                sql`${ordersTable.id} = ${order.id}
-                    AND ${ordersTable.status} = 'PENDING_SETTLEMENT'
-                    AND ${ordersTable.expiresAt} <= ${now.toISOString()}`
+        await db.transaction(async (tx) => {
+          // Atomic claim: skip if a concurrent worker already transitioned this row
+          const affected = await tx
+            .update(ordersTable)
+            .set({ status: "EXPIRED" })
+            .where(
+              and(
+                eq(ordersTable.id, order.id),
+                eq(ordersTable.status, "PENDING_SETTLEMENT"),
               )
-              .returning({ id: ordersTable.id });
+            )
+            .returning({ id: ordersTable.id });
 
-            if (affected.length === 0) return;
+          if (affected.length === 0) return;
 
-            const [listing] = await tx.select().from(spotListingsTable).where(eq(spotListingsTable.id, order.listingId)).limit(1);
-            if (listing) {
-              await tx.update(spotListingsTable).set({ status: "ACTIVE" }).where(eq(spotListingsTable.id, listing.id));
-              await tx.update(ewrsTable).set({ state: "MARKET_LISTED" }).where(eq(ewrsTable.id, listing.ewrId));
-            }
+          const [listing] = await tx
+            .select()
+            .from(spotListingsTable)
+            .where(eq(spotListingsTable.id, order.listingId))
+            .limit(1);
 
-            await tx.insert(reputationEventsTable).values({
-              userId: order.buyerId,
-              delta: -EXPIRY_REPUTATION_PENALTY,
-              reason: `Missed settlement window for order #${order.id}`,
-            });
+          if (listing) {
+            await tx
+              .update(spotListingsTable)
+              .set({ status: "ACTIVE" })
+              .where(eq(spotListingsTable.id, listing.id));
 
-            await tx.execute(
-              sql`UPDATE users SET reputation_score = GREATEST(0, reputation_score - ${EXPIRY_REPUTATION_PENALTY}) WHERE id = ${order.buyerId}`
-            );
+            const [ewrRow] = await tx
+              .select({ isLienActive: ewrsTable.isLienActive })
+              .from(ewrsTable)
+              .where(eq(ewrsTable.id, listing.ewrId))
+              .limit(1);
 
-            await tx.insert(auditLogTable).values(
-              auditEntry("ORDER", order.id, "ORDER_EXPIRED", null,
-                { orderId: order.id, buyerId: order.buyerId, expiredAt: now.toISOString() },
-                { reputationPenalty: EXPIRY_REPUTATION_PENALTY }
-              )
-            );
+            await tx
+              .update(ewrsTable)
+              .set({ state: ewrRow?.isLienActive ? "ENCUMBERED" : "MARKET_LISTED" })
+              .where(eq(ewrsTable.id, listing.ewrId));
+          }
+
+          await tx.insert(reputationEventsTable).values({
+            userId: order.buyerId,
+            delta: -EXPIRY_REPUTATION_PENALTY,
+            reason: `Missed settlement window for order #${order.id}`,
           });
-        }
+
+          await tx.execute(
+            sql`UPDATE users SET reputation_score = GREATEST(0, reputation_score - ${EXPIRY_REPUTATION_PENALTY}) WHERE id = ${order.buyerId}`
+          );
+
+          await tx.insert(auditLogTable).values(
+            auditEntry(
+              "ORDER", order.id, "ORDER_EXPIRED", null,
+              { orderId: order.id, buyerId: order.buyerId, expiredAt: now.toISOString() },
+              { reputationPenalty: EXPIRY_REPUTATION_PENALTY }
+            )
+          );
+        });
       }
     } catch (err) {
-      console.error("[ExpiryWorker] Error processing expired orders:", err);
+      logger.error({ err }, "[ExpiryWorker] Error processing expired orders");
     }
   }, 60_000);
 }

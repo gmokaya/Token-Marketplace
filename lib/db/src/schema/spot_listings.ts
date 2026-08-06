@@ -1,4 +1,4 @@
-import { pgTable, serial, integer, timestamp, numeric, text, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, serial, integer, timestamp, numeric, text, pgEnum, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./users";
@@ -14,7 +14,11 @@ export const spotListingsTable = pgTable("spot_listings", {
   currency: text("currency").notNull().default("USD"),
   status: listingStatusEnum("status").notNull().default("ACTIVE"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (table) => ({
+  ewrIdIdx:    index("spot_listings_ewr_id_idx").on(table.ewrId),
+  sellerIdIdx: index("spot_listings_seller_id_idx").on(table.sellerId),
+  statusIdx:   index("spot_listings_status_idx").on(table.status),
+}));
 
 export const insertSpotListingSchema = createInsertSchema(spotListingsTable).omit({ id: true, createdAt: true });
 export type InsertSpotListing = z.infer<typeof insertSpotListingSchema>;

@@ -1,4 +1,4 @@
-import { pgTable, serial, integer, timestamp, numeric, pgEnum, text } from "drizzle-orm/pg-core";
+import { pgTable, serial, integer, timestamp, numeric, pgEnum, text, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./users";
@@ -20,7 +20,12 @@ export const forwardContractsTable = pgTable("forward_contracts", {
   contractStatus: contractStatusEnum("contract_status").notNull().default("PENDING_SIGNATURE"),
   signedAt: timestamp("signed_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (table) => ({
+  ewrIdIdx:        index("fwd_contracts_ewr_id_idx").on(table.ewrId),
+  sellerIdIdx:     index("fwd_contracts_seller_id_idx").on(table.sellerId),
+  buyerIdIdx:      index("fwd_contracts_buyer_id_idx").on(table.buyerId),
+  contractStatusIdx: index("fwd_contracts_status_idx").on(table.contractStatus),
+}));
 
 export const insertForwardContractSchema = createInsertSchema(forwardContractsTable).omit({ id: true, createdAt: true });
 export type InsertForwardContract = z.infer<typeof insertForwardContractSchema>;

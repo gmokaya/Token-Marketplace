@@ -1,4 +1,4 @@
-import { pgTable, serial, integer, numeric, timestamp, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, serial, integer, numeric, timestamp, pgEnum, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./users";
@@ -33,7 +33,13 @@ export const bidSecurityHoldsTable = pgTable("bid_security_holds", {
 
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   resolvedAt: timestamp("resolved_at", { withTimezone: true }),
-});
+}, (table) => ({
+  lotIdIdx:        index("bid_sec_holds_lot_id_idx").on(table.lotId),
+  bidderIdIdx:     index("bid_sec_holds_bidder_id_idx").on(table.bidderId),
+  bidIdIdx:        index("bid_sec_holds_bid_id_idx").on(table.bidId),
+  // Frequent: release HELD holds for a lot — compound covers the most common WHERE
+  lotStatusIdx:    index("bid_sec_holds_lot_status_idx").on(table.lotId, table.status),
+}));
 
 export const insertBidSecurityHoldSchema = createInsertSchema(bidSecurityHoldsTable).omit({
   id: true,

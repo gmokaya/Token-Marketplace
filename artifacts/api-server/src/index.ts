@@ -28,6 +28,13 @@ if (Number.isNaN(port) || port <= 0) {
 }
 
 const server: Server = app.listen(port, async (err) => {
+  // Must be set before any client connects. keepAliveTimeout must be greater
+  // than the upstream load-balancer / proxy idle timeout (typically 60 s) to
+  // prevent "connection reset" errors under sustained load. headersTimeout
+  // must be strictly greater than keepAliveTimeout.
+  server.keepAliveTimeout = 65_000;   // 65 s > typical LB 60 s idle timeout
+  server.headersTimeout   = 66_000;   // 1 s grace above keepAliveTimeout
+
   if (err) {
     logger.error({ err }, "Error listening on port");
     process.exit(1);

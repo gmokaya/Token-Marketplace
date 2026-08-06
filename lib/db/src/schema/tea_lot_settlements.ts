@@ -1,4 +1,4 @@
-import { pgTable, serial, integer, numeric, date, timestamp, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, serial, integer, numeric, date, timestamp, pgEnum, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./users";
@@ -54,7 +54,13 @@ export const teaLotSettlementsTable = pgTable("tea_lot_settlements", {
 
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (table) => ({
+  sessionIdIdx:   index("tea_lot_settlements_session_id_idx").on(table.sessionId),
+  buyerIdIdx:     index("tea_lot_settlements_buyer_id_idx").on(table.buyerId),
+  winningBidIdx:  index("tea_lot_settlements_winning_bid_id_idx").on(table.winningBidId),
+  // Worker scans PENDING settlements past their promptDate every 10 s
+  paymentPromptIdx: index("tea_lot_settlements_payment_prompt_idx").on(table.paymentStatus, table.promptDate),
+}));
 
 export const insertTeaLotSettlementSchema = createInsertSchema(teaLotSettlementsTable).omit({
   id: true,

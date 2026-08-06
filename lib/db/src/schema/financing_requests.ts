@@ -1,4 +1,4 @@
-import { pgTable, serial, integer, timestamp, numeric, pgEnum, text } from "drizzle-orm/pg-core";
+import { pgTable, serial, integer, timestamp, numeric, pgEnum, text, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./users";
@@ -25,7 +25,12 @@ export const financingRequestsTable = pgTable("financing_requests", {
   disbursedAt: timestamp("disbursed_at", { withTimezone: true }),
   notes: text("notes"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (table) => ({
+  ewrIdIdx:       index("fin_requests_ewr_id_idx").on(table.ewrId),
+  requesterIdIdx: index("fin_requests_requester_id_idx").on(table.requesterId),
+  lenderIdIdx:    index("fin_requests_lender_id_idx").on(table.lenderId),
+  statusIdx:      index("fin_requests_status_idx").on(table.status),
+}));
 
 export const insertFinancingRequestSchema = createInsertSchema(financingRequestsTable).omit({ id: true, createdAt: true });
 export type InsertFinancingRequest = z.infer<typeof insertFinancingRequestSchema>;
