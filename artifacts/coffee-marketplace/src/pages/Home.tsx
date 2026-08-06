@@ -19,7 +19,7 @@ export default function Home() {
 
       {/* Background: green coffee storage */}
       <img
-        src={`${basePath}/photos/coffee-green-beans.jpg`}
+        src={`${basePath}/photos/cafe-imports-coffee-storage.jpg`}
         alt="Green coffee beans in a storage sack"
         className="absolute inset-0 w-full h-full object-cover object-center"
         fetchPriority="high"
