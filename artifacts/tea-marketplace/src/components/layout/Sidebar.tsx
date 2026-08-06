@@ -146,7 +146,9 @@ export function Sidebar({ collapsed }: SidebarProps) {
       {collapsed && (
         <div className="flex justify-center pt-3 pb-1">
           <Link href="/">
-            <img src={`${basePath}/logo-white.png`} alt="TokenHarvest Tea" className="h-6 w-auto opacity-80 cursor-pointer" />
+            <span className="tokenharvest-wordmark text-xl text-white opacity-80 cursor-pointer">
+              TokenHarvest
+            </span>
           </Link>
         </div>
       )}

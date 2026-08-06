@@ -288,7 +288,9 @@ export function Onboarding() {
       <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-6">
         <div className="max-w-2xl w-full">
           <div className="text-center mb-8">
-            <img src={`${basePath}/logo-dark.png`} alt="TokenHarvest" className="h-10 w-auto mx-auto mb-6" />
+            <span className="tokenharvest-wordmark text-3xl text-gray-900 inline-block mx-auto mb-6">
+              TokenHarvest
+            </span>
             <StepIndicator current="tier" />
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">Choose your role</h1>
             <p className="text-muted-foreground mt-2 text-sm">
@@ -353,7 +355,9 @@ export function Onboarding() {
       <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-6">
         <div className="max-w-md w-full">
           <div className="text-center mb-6">
-            <img src={`${basePath}/logo-dark.png`} alt="TokenHarvest" className="h-9 w-auto mx-auto mb-5" />
+            <span className="tokenharvest-wordmark text-2xl text-gray-900 inline-block mx-auto mb-5">
+              TokenHarvest
+            </span>
             <StepIndicator current="user" />
             {meta && Icon && (
               <div className="flex items-center justify-center gap-2 mb-3">
@@ -425,7 +429,9 @@ export function Onboarding() {
       <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-6">
         <div className="max-w-md w-full">
           <div className="text-center mb-6">
-            <img src={`${basePath}/logo-dark.png`} alt="TokenHarvest" className="h-9 w-auto mx-auto mb-5" />
+            <span className="tokenharvest-wordmark text-2xl text-gray-900 inline-block mx-auto mb-5">
+              TokenHarvest
+            </span>
             <StepIndicator current="profile" />
             <h1 className="text-2xl font-bold">{tierName} Compliance Profile</h1>
             <p className="text-muted-foreground text-sm mt-1">
@@ -831,7 +837,9 @@ export function Onboarding() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col items-center justify-center p-6">
       <div className="max-w-sm w-full text-center">
-        <img src={`${basePath}/logo-dark.png`} alt="TokenHarvest" className="h-9 w-auto mx-auto mb-6" />
+        <span className="tokenharvest-wordmark text-2xl text-gray-900 inline-block mx-auto mb-6">
+          TokenHarvest
+        </span>
         <StepIndicator current="done" />
 
         {skipped ? (

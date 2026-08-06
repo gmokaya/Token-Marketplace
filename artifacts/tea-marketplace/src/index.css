@@ -7,6 +7,21 @@
 @custom-variant dark (&:is(.dark *));
 
 @font-face {
+  font-family: 'Belleza';
+  src: url('/tea/fonts/Belleza-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+.tokenharvest-wordmark {
+  font-family: 'Belleza', sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.047em;
+  line-height: 1;
+}
+
+@font-face {
   font-family: 'Futura';
   src: url('/tea/fonts/Futura_Light_font_1783759911952.ttf') format('truetype');
   font-weight: 300;

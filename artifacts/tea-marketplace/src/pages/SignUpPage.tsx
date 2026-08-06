@@ -57,7 +57,7 @@ export default function SignUpPage() {
 
       <div className="absolute top-8 left-8 md:left-12 z-20">
         <Link href="/">
-          <span className="text-white font-semibold text-base tracking-wide cursor-pointer">TokenHarvest</span>
+          <span className="tokenharvest-wordmark text-white text-2xl cursor-pointer">TokenHarvest</span>
         </Link>
       </div>
 

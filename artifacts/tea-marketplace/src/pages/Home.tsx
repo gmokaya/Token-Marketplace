@@ -34,11 +34,7 @@ export default function Home() {
       {/* ── Top nav ── */}
       <nav className="relative z-10 flex items-center justify-between px-8 pt-8">
         <Link href="/">
-          <img
-            src={`${basePath}/logo-white.png`}
-            alt="TokenHarvest"
-            className="h-14 w-auto cursor-pointer"
-          />
+          <span className="tokenharvest-wordmark text-white text-4xl cursor-pointer">TokenHarvest</span>
         </Link>
         <div className="flex items-center gap-3">
           {isSignedIn ? (

@@ -32,24 +32,7 @@ export default function Home() {
       {/* Top nav */}
       <nav className="relative z-10 flex items-center justify-between px-8 pt-8">
         <Link href="/">
-          <img
-            src={`${basePath}/logo-white.png`}
-            alt="CoffeeXchange"
-            className="h-14 w-auto cursor-pointer"
-            onError={(e) => {
-              // Fallback to text if logo image fails
-              const target = e.currentTarget;
-              target.style.display = "none";
-              const sibling = target.nextElementSibling as HTMLElement | null;
-              if (sibling) sibling.style.display = "block";
-            }}
-          />
-          <span
-            className="text-white font-bold text-2xl tracking-tight hidden"
-            style={{ display: "none" }}
-          >
-            CoffeeXchange
-          </span>
+          <span className="tokenharvest-wordmark text-white text-4xl cursor-pointer">TokenHarvest</span>
         </Link>
         <div className="flex items-center gap-3">
           {isSignedIn ? (
