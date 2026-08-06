@@ -3,13 +3,13 @@ import { Link } from "wouter";
 
 const clerkAppearance = {
   variables: {
-    colorPrimary: "#0a2a2a",
-    colorForeground: "#111827",
-    colorMutedForeground: "#6b7280",
-    colorBackground: "#ffffff",
-    colorInput: "#f9fafb",
+    colorPrimary: "#5eead4",
+    colorForeground: "#ffffff",
+    colorMutedForeground: "rgba(255,255,255,0.65)",
+    colorBackground: "transparent",
+    colorInput: "rgba(255,255,255,0.88)",
     colorInputForeground: "#111827",
-    colorNeutral: "#f3f4f6",
+    colorNeutral: "rgba(255,255,255,0.2)",
     fontFamily: "'Jost', sans-serif",
     borderRadius: "0.375rem",
   },
@@ -20,21 +20,24 @@ const clerkAppearance = {
     header: "!hidden",
     logoBox: "!hidden",
     socialButtonsBlockButton:
-      "!border !border-gray-200 !bg-white !text-gray-800 !text-sm !font-medium !shadow-none !rounded-md !h-11 hover:!bg-gray-50 hover:!border-gray-300 transition-colors",
-    socialButtonsBlockButtonText: "!text-gray-800 !font-medium",
-    dividerRow: "!text-gray-400 !text-xs",
-    dividerText: "!bg-white !px-3",
-    formFieldLabel: "!text-sm !text-gray-700 !font-medium !mb-1",
+      "!border !border-white/30 !bg-white/15 !text-white !text-sm !font-medium !shadow-none !rounded-md !h-11 hover:!bg-white/25 transition-colors",
+    socialButtonsBlockButtonText: "!text-white !font-medium",
+    socialButtonsBlockButtonArrow: "!text-white",
+    dividerRow: "!text-white/50 !text-xs",
+    dividerLine: "!bg-white/20",
+    dividerText: "!bg-transparent !text-white/50 !px-3",
+    formFieldLabel: "!text-sm !text-white/80 !font-medium !mb-1",
     formFieldInput:
-      "!bg-white !border !border-gray-200 !text-gray-900 !placeholder-gray-400 !rounded-md !h-11 focus:!ring-2 focus:!ring-teal-700/20 focus:!border-teal-700 transition-colors",
+      "!bg-white/88 !border !border-white/30 !text-gray-900 !placeholder-gray-400 !rounded-md !h-11 focus:!ring-2 focus:!ring-white/40 focus:!border-white/60 transition-colors",
     formButtonPrimary:
-      "!bg-gray-900 !text-white !font-semibold !h-11 !rounded-md !shadow-none hover:!bg-gray-800 transition-colors !mt-1",
+      "!bg-white !text-gray-900 !font-semibold !h-11 !rounded-md !shadow-none hover:!bg-white/90 transition-colors !mt-1",
     footer: "!hidden",
-    identityPreviewText: "!text-gray-700",
-    identityPreviewEditButton: "!text-teal-800",
-    formResendCodeLink: "!text-teal-800",
-    otpCodeFieldInput: "!border-gray-200 !rounded-md",
-    alert: "!rounded-md",
+    identityPreviewText: "!text-white",
+    identityPreviewEditButton: "!text-teal-300",
+    formResendCodeLink: "!text-teal-300",
+    otpCodeFieldInput: "!border-white/30 !rounded-md !bg-white/88",
+    alert: "!rounded-md !bg-white/10 !border-white/20",
+    alertText: "!text-white",
   },
 };
 
@@ -43,27 +46,26 @@ export default function SignUpPage() {
 
   return (
     <div className="relative w-screen h-screen overflow-hidden flex items-center justify-end">
-
       <img
         src={`${bp}/photos/signin-bg.jpg`}
         alt=""
         className="absolute inset-0 w-full h-full object-cover object-center"
         fetchPriority="high"
       />
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-black/10 to-black/30" />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/20" />
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-black/20 to-black/50" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-black/25" />
 
       <div className="absolute top-8 left-8 md:left-12 z-20">
         <Link href="/">
-          <img src={`${bp}/logo-white.png`} alt="TokenHarvest" className="h-7 w-auto cursor-pointer opacity-90" />
+          <span className="text-white font-semibold text-base tracking-wide cursor-pointer">TokenHarvest</span>
         </Link>
       </div>
 
       <div className="relative z-10 w-full max-w-[420px] mr-8 md:mr-16 xl:mr-24">
-        <div className="bg-white p-10 shadow-2xl overflow-y-auto max-h-[calc(100vh-4rem)]">
+        <div className="bg-white/10 backdrop-blur-2xl border border-white/25 shadow-2xl p-10 overflow-y-auto max-h-[calc(100vh-4rem)]">
           <div className="mb-7">
-            <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">Create your account</h1>
-            <p className="text-sm text-gray-500 mt-1.5">Join the TokenHarvest platform today.</p>
+            <h1 className="text-2xl font-semibold text-white tracking-tight">Create your account</h1>
+            <p className="text-sm text-white/65 mt-1.5">Join the TokenHarvest platform today.</p>
           </div>
 
           <SignUp
@@ -74,9 +76,9 @@ export default function SignUpPage() {
             appearance={clerkAppearance}
           />
 
-          <p className="mt-5 text-center text-sm text-gray-500">
+          <p className="mt-5 text-center text-sm text-white/60">
             Already have an account?{" "}
-            <a href={`${bp}/sign-in`} className="font-semibold text-teal-800 hover:text-teal-700 transition-colors">
+            <a href={`${bp}/sign-in`} className="font-semibold text-teal-300 hover:text-teal-200 transition-colors">
               Sign in
             </a>
           </p>
@@ -84,7 +86,7 @@ export default function SignUpPage() {
       </div>
 
       <div className="absolute bottom-6 left-0 right-0 text-center z-20">
-        <a href={bp || "/"} className="text-xs text-white/50 hover:text-white/80 transition-colors">
+        <a href={bp || "/"} className="text-xs text-white/40 hover:text-white/70 transition-colors">
           Back to website
         </a>
       </div>
