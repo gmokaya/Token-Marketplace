@@ -17,7 +17,11 @@ import {
   ShieldCheck, 
   Home, 
   Menu,
-  Briefcase
+  Briefcase,
+  PlusCircle,
+  List,
+  TrendingUp,
+  ShoppingCart
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -126,6 +130,7 @@ function SidebarNav({ role }: { role?: string }) {
           <NavItem href="/producer" icon={LineChart} label="Overview" />
           <NavItem href="/producer/ewrs" icon={ScrollText} label="My eWRs" />
           <NavItem href="/producer/products" icon={Box} label="Lot Pipeline" />
+          <NavItem href="/producer/lots/new" icon={PlusCircle} label="List New Lot" />
           <NavItem href="/producer/rfqs" icon={Briefcase} label="RFQ Inbox" />
           <NavItem href="/producer/shipments" icon={Ship} label="Shipments" />
           <NavItem href="/producer/esg" icon={Leaf} label="ESG & Co-op" />
@@ -136,26 +141,49 @@ function SidebarNav({ role }: { role?: string }) {
       {role === "ENABLER" && (
         <NavGroup title="Brokerage">
           <NavItem href="/broker" icon={LineChart} label="Overview" />
+          <NavItem href="/broker/lots" icon={List} label="My Lots" />
+          <NavItem href="/broker/lots/new" icon={PlusCircle} label="List New Lot" />
           <NavItem href="/broker/mandates" icon={ShieldCheck} label="Mandates" />
           <NavItem href="/broker/auctions" icon={Gavel} label="My Auctions" />
         </NavGroup>
       )}
 
-      {(role === "FINANCIER" || role === "PRODUCER") && (
+      {role === "OFF_TAKER" && (
+        <NavGroup title="Trading">
+          <NavItem href="/market" icon={BarChart4} label="Spot Market" />
+          <NavItem href="/admin/auctions" icon={Gavel} label="Live Auctions" />
+          <NavItem href="/forwards" icon={TrendingUp} label="Forward Contracts" />
+        </NavGroup>
+      )}
+
+      {role === "FINANCIER" && (
+        <NavGroup title="Capital Markets">
+          <NavItem href="/financing" icon={Landmark} label="Financing" />
+          <NavItem href="/admin/auctions" icon={Gavel} label="Auction Sessions" />
+          <NavItem href="/market" icon={BarChart4} label="Market Overview" />
+          <NavItem href="/mandates" icon={ShieldCheck} label="Mandates" />
+        </NavGroup>
+      )}
+
+      {(role === "PRODUCER") && (
         <NavGroup title="Capital">
           <NavItem href="/financing" icon={Landmark} label="Financing" />
         </NavGroup>
       )}
 
-      {(role === "OFF_TAKER" || role === "PRODUCER") && (
+      {role === "PRODUCER" && (
         <NavGroup title="Contracts">
-          <NavItem href="/forwards" icon={ScrollText} label="Forward Contracts" />
+          <NavItem href="/forwards" icon={TrendingUp} label="Forward Contracts" />
         </NavGroup>
       )}
 
       {role === "ADMIN" && (
         <NavGroup title="Exchange Admin">
           <NavItem href="/admin/auctions" icon={Gavel} label="Auction Sessions" />
+          <NavItem href="/admin/auctions/new" icon={PlusCircle} label="New Auction" />
+          <NavItem href="/market" icon={BarChart4} label="Market Overview" />
+          <NavItem href="/broker" icon={List} label="Lots Overview" />
+          <NavItem href="/mandates" icon={ShieldCheck} label="Mandates" />
           <NavItem href="/admin/earnings" icon={Landmark} label="Earnings" />
           <NavItem href="/admin/audit" icon={ShieldCheck} label="Audit Log" />
         </NavGroup>
