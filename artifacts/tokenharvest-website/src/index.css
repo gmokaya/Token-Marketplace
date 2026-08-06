@@ -303,6 +303,34 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Simplo', 'Futura', sans-serif;
 }
 
+/* Desktop hero content starts below the fixed header, never beneath it. */
+@media (min-width: 981px) {
+  .homepage-hero {
+    height: 100vh !important;
+    min-height: 660px !important;
+    align-items: flex-start !important;
+    padding-top: 140px !important;
+    box-sizing: border-box;
+  }
+
+  .homepage-hero-content {
+    padding-top: 0 !important;
+  }
+
+  .homepage-hero-badge {
+    margin-top: 0 !important;
+    margin-bottom: 24px !important;
+  }
+
+  .homepage-hero-heading {
+    margin-bottom: 34px !important;
+  }
+
+  .homepage-hero-subheadline {
+    margin-bottom: 40px !important;
+  }
+}
+
 @media (max-width: 720px) {
   .homepage-hero {
     height: auto !important;
