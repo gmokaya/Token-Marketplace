@@ -27,6 +27,7 @@ import {
 } from "@workspace/db";
 import { eq, and, sql, lte } from "drizzle-orm";
 import { z } from "zod";
+import { logger } from "../lib/logger";
 import { calcMinBid, DEFAULT_LOT_DURATION_MS, type TickTier } from "../lib/tea-auction-worker";
 import { calcPromptDate } from "../lib/prompt-date";
 import { broadcastSseEvent } from "./auctions";
@@ -612,7 +613,7 @@ router.post("/tea/lots/:id/bids", async (req, res) => {
     if (statusCode < 500) {
       return res.status(statusCode).json({ error: err.message, minBidUsd: err.minBidUsd });
     }
-    console.error("[tea-auctions] Bid error:", err);
+    logger.error({ err }, "[tea-auctions] Bid error");
     return res.status(500).json({ error: "Internal server error" });
   }
 });

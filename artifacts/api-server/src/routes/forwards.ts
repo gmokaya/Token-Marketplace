@@ -11,6 +11,7 @@ import {
 } from "@workspace/db";
 import { eq, and, sql } from "drizzle-orm";
 import { sha256, auditEntry } from "../lib/audit";
+import { logger } from "../lib/logger";
 
 const router = Router();
 const BOND_RATE = 0.15;
@@ -457,7 +458,7 @@ export function startForwardMaturityWorker() {
         console.log(`[ForwardMaturityWorker] Auto-matured contract #${contract.id}`);
       }
     } catch (err) {
-      console.error("[ForwardMaturityWorker] Error:", err);
+      logger.error({ err }, "[ForwardMaturityWorker] Error");
     }
   }, 60_000);
 }

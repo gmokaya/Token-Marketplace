@@ -13,6 +13,7 @@ import {
 } from "@workspace/db";
 import { eq, desc, and, sql, count } from "drizzle-orm";
 import { sha256, auditEntry } from "../lib/audit";
+import { logger } from "../lib/logger";
 
 const router = Router();
 
@@ -648,7 +649,7 @@ export async function startAuctionExpiryWorker() {
         });
       }
     } catch (err) {
-      console.error("[AuctionExpiryWorker] Error:", err);
+      logger.error({ err }, "[AuctionExpiryWorker] Error");
     } finally {
       // Release the advisory lock on the same physical connection that acquired
       // it, then return that connection to the pool.
@@ -663,7 +664,7 @@ export async function startAuctionExpiryWorker() {
               console.warn("[AuctionExpiryWorker] pg_advisory_unlock returned false — possible session mismatch");
             }
           } catch (unlockErr) {
-            console.error("[AuctionExpiryWorker] Failed to release advisory lock:", unlockErr);
+            logger.error({ err: unlockErr }, "[AuctionExpiryWorker] Failed to release advisory lock");
           }
         }
         lockClient.release();

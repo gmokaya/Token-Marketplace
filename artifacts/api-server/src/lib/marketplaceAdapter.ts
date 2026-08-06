@@ -44,6 +44,19 @@ export interface MarketplaceAdapter {
 }
 
 /**
+ * Thrown by any MarketplaceAdapter method that has not yet been implemented.
+ * Using a typed error (instead of returning undefined or a silent stub) ensures
+ * integration gaps surface immediately as an alertable exception rather than
+ * causing silent data corruption downstream.
+ */
+export class NotImplementedError extends Error {
+  constructor(method: string) {
+    super(`MarketplaceAdapter.${method} is not implemented`);
+    this.name = "NotImplementedError";
+  }
+}
+
+/**
  * Stub implementation — simulates a successful external push.
  *
  * Behaviour:

@@ -11,6 +11,7 @@ import {
 } from "@workspace/db";
 import { eq, and, inArray, ne, SQL } from "drizzle-orm";
 import { z } from "zod";
+import { logger } from "../lib/logger";
 
 const router = Router();
 
@@ -466,7 +467,7 @@ export function startAvocadoDegradationWorker() {
       if (avocadoEwrs.length > 0)
         console.log(`[DegradationWorker] Updated ${avocadoEwrs.length} avocado eWR(s)`);
     } catch (err) {
-      console.error("[DegradationWorker] Error:", err);
+      logger.error({ err }, "[DegradationWorker] Error");
     }
   }, RUN_EVERY_MS);
 }
