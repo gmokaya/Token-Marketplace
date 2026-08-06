@@ -154,7 +154,7 @@ function SidebarNav({ role }: { role?: string }) {
       )}
 
       {role === "ADMIN" && (
-        <NavGroup title="Platform Admin">
+        <NavGroup title="Exchange Admin">
           <NavItem href="/admin/auctions" icon={Gavel} label="Auction Sessions" />
           <NavItem href="/admin/earnings" icon={Landmark} label="Earnings" />
           <NavItem href="/admin/audit" icon={ShieldCheck} label="Audit Log" />
