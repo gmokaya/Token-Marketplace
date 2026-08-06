@@ -30,13 +30,13 @@ const TIER_COLORS: Record<string, string> = {
   PRODUCER:  "bg-green-100 text-green-800",
   OFF_TAKER: "bg-blue-100 text-blue-800",
   ENABLER:   "bg-purple-100 text-purple-800",
-  FINANCIER: "bg-amber-100 text-amber-800",
+  FINANCIER: "bg-slate-100 text-slate-700",
   COOPERATIVE: "bg-cyan-100 text-cyan-800",
   ADMIN:     "bg-red-100 text-red-800",
 };
 
 const KYB_COLORS: Record<string, string> = {
-  PENDING:  "bg-yellow-100 text-yellow-800",
+  PENDING:  "bg-slate-100 text-slate-700",
   APPROVED: "bg-green-100 text-green-800",
   REJECTED: "bg-red-100 text-red-800",
 };

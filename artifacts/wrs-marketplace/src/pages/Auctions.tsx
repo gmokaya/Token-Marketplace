@@ -25,7 +25,7 @@ function AuctionCountdown({ endAt }: { endAt: string }) {
   const secs = Math.floor((msLeft % 60000) / 1000);
   const isUrgent = msLeft < 10 * 60 * 1000;
   return (
-    <span className={`font-mono text-xs font-semibold ${isUrgent ? "text-red-600" : "text-amber-700"}`}>
+    <span className={`font-mono text-xs font-semibold ${isUrgent ? "text-red-600" : "text-slate-700"}`}>
       {days > 0 ? `${days}d ` : ""}{hours > 0 ? `${hours}h ` : ""}{mins}m {secs}s
     </span>
   );
@@ -168,7 +168,7 @@ export default function Auctions() {
                 className={`flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border transition-colors ${
                   liveConnected
                     ? "bg-green-50 text-green-700 border-green-200"
-                    : "bg-yellow-50 text-yellow-700 border-yellow-200"
+                    : "bg-slate-50 text-slate-700 border-slate-200"
                 }`}
               >
                 <Radio className="w-3 h-3" />

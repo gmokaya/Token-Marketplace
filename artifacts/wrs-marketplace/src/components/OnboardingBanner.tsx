@@ -16,15 +16,15 @@ export function OnboardingBanner() {
 
   if (status === "PENDING_KYB_APPROVAL") {
     return (
-      <div className="rounded-lg border border-amber-200 bg-amber-50/80 p-4 flex items-start gap-3">
-        <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+      <div className="rounded-lg border border-slate-200 bg-slate-50/80 p-4 flex items-start gap-3">
+        <AlertTriangle className="w-5 h-5 text-slate-500 shrink-0 mt-0.5" />
         <div className="flex-1">
-          <p className="text-sm font-medium text-amber-800">Complete your onboarding profile</p>
-          <p className="text-xs text-amber-700 mt-0.5">
+          <p className="text-sm font-medium text-slate-800">Complete your onboarding profile</p>
+          <p className="text-xs text-slate-700 mt-0.5">
             Your tier-specific KYB details are required before you can trade on the marketplace.
           </p>
         </div>
-        <Button asChild variant="outline" size="sm" className="border-amber-300 text-amber-800 hover:bg-amber-100">
+        <Button asChild variant="outline" size="sm" className="border-slate-300 text-slate-800 hover:bg-slate-100">
           <Link href="/profile">Complete Profile</Link>
         </Button>
       </div>

@@ -60,7 +60,7 @@ export default function Orders() {
         ) : (
           <div className="space-y-4">
             {orders?.map(order => (
-              <Card key={order.id} className={order.status === "PENDING_SETTLEMENT" ? "border-amber-500" : ""}>
+              <Card key={order.id} className={order.status === "PENDING_SETTLEMENT" ? "border-slate-500" : ""}>
                 <CardHeader className="py-3 flex flex-row items-center justify-between">
                   <div>
                     <CardTitle className="text-lg">Order #{order.id}</CardTitle>

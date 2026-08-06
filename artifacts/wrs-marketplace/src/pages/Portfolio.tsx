@@ -13,9 +13,9 @@ import { getGetMyPortfolioQueryKey, getListSpotListingsQueryKey } from "@workspa
 
 const getCommodityColor = (type: string) => {
   switch (type) {
-    case "MAIZE": return "bg-yellow-500/20 text-yellow-700 border-yellow-500/50";
+    case "MAIZE": return "bg-slate-500/20 text-slate-700 border-slate-500/50";
     case "RICE": return "bg-teal-500/20 text-teal-700 border-teal-500/50";
-    case "COFFEE": return "bg-amber-800/20 text-amber-900 border-amber-800/50";
+    case "COFFEE": return "bg-slate-700/20 text-slate-800 border-slate-700/50";
     case "TEA": return "bg-green-600/20 text-green-800 border-green-600/50";
     case "AVOCADO": return "bg-emerald-500/20 text-emerald-700 border-emerald-500/50";
     default: return "bg-gray-100 text-gray-800 border-gray-200";
@@ -28,9 +28,9 @@ const getStateColor = (state: string) => {
     case "MARKET_LISTED": return "bg-blue-100 text-blue-800";
     case "AUCTION_ACTIVE": return "bg-sky-100 text-sky-800";
     case "FORWARD_BOUND": return "bg-lime-100 text-lime-800";
-    case "LOCK_TRADING": return "bg-amber-100 text-amber-800";
+    case "LOCK_TRADING": return "bg-slate-100 text-slate-700";
     case "SETTLED": return "bg-gray-100 text-gray-600";
-    case "ENCUMBERED": return "bg-orange-100 text-orange-800";
+    case "ENCUMBERED": return "bg-slate-100 text-slate-700";
     default: return "bg-gray-100 text-gray-800";
   }
 };
@@ -99,7 +99,7 @@ function GradingPanel({ ewr }: { ewr: EwrItem }) {
         <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1">{standard}</p>
         <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs">
           <span className="text-muted-foreground">Moisture</span>
-          <span className={`font-medium text-right ${moistureWarning ? "text-amber-600" : ""}`}>{pct(ewr.moisturePct)} <span className="text-gray-400">/ {maxMoisture}%</span></span>
+          <span className={`font-medium text-right ${moistureWarning ? "text-slate-600" : ""}`}>{pct(ewr.moisturePct)} <span className="text-gray-400">/ {maxMoisture}%</span></span>
           <span className="text-muted-foreground">Foreign Matter</span>
           <span className="font-medium text-right">{pct(ewr.foreignMatterPct)} <span className="text-gray-400">/ 1%</span></span>
           <span className="text-muted-foreground">Broken Grains</span>
@@ -155,7 +155,7 @@ function GradingPanel({ ewr }: { ewr: EwrItem }) {
   if (ct === "AVOCADO") {
     const coeff = ewr.avocadoDegradationCoefficient != null ? parseFloat(String(ewr.avocadoDegradationCoefficient)) : null;
     const pctIntact = coeff != null ? Math.round(coeff * 100) : null;
-    const qualityColor = pctIntact != null ? (pctIntact > 70 ? "text-green-600" : pctIntact > 40 ? "text-amber-600" : "text-red-600") : "";
+    const qualityColor = pctIntact != null ? (pctIntact > 70 ? "text-green-600" : pctIntact > 40 ? "text-slate-600" : "text-red-600") : "";
     return (
       <div className="mt-2 pt-2 border-t border-dashed border-gray-200">
         <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1">EAS 19:2017 · CA Storage</p>
@@ -371,14 +371,14 @@ export default function Portfolio() {
                       {ewr.isLienActive && (
                         <div className="mt-1 space-y-1">
                           <div className="flex items-center gap-1.5">
-                            <span className="text-xs font-bold bg-orange-600 text-white px-1.5 py-0.5 rounded uppercase tracking-wide">LIEN</span>
+                            <span className="text-xs font-bold bg-slate-700 text-white px-1.5 py-0.5 rounded uppercase tracking-wide">LIEN</span>
                             {(ewr as any).lienLoanOutstandingUsd != null && (
-                              <span className="text-xs font-semibold text-orange-700">
+                              <span className="text-xs font-semibold text-slate-700">
                                 ${Number((ewr as any).lienLoanOutstandingUsd).toLocaleString(undefined, { maximumFractionDigits: 2 })} outstanding
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-orange-700">Lien follows receipt to new owner</p>
+                            <p className="text-xs text-slate-700">Lien follows receipt to new owner</p>
                         </div>
                       )}
                       <GradingPanel ewr={ewr as unknown as EwrItem} />
@@ -389,12 +389,12 @@ export default function Portfolio() {
                         const isUrgent = daysLeft < 7;
                         const isExpired = msLeft <= 0;
                         return (
-                          <div className={`mt-2 pt-2 border-t ${isUrgent ? "border-red-200" : "border-amber-200"}`}>
-                            <div className={`text-xs font-semibold flex justify-between ${isExpired ? "text-red-700" : isUrgent ? "text-red-600" : "text-amber-700"}`}>
+                          <div className={`mt-2 pt-2 border-t ${isUrgent ? "border-red-200" : "border-slate-200"}`}>
+                            <div className={`text-xs font-semibold flex justify-between ${isExpired ? "text-red-700" : isUrgent ? "text-red-600" : "text-slate-700"}`}>
                               <span>Expires:</span>
                               <span>{new Date(ewr.expiryAt).toLocaleDateString()}</span>
                             </div>
-                            <div className={`text-xs mt-0.5 font-medium ${isExpired ? "text-red-700" : isUrgent ? "text-red-500" : "text-amber-600"}`}>
+                            <div className={`text-xs mt-0.5 font-medium ${isExpired ? "text-red-700" : isUrgent ? "text-red-500" : "text-slate-600"}`}>
                               {isExpired
                                 ? "⚠ EXPIRED"
                                 : daysLeft > 0

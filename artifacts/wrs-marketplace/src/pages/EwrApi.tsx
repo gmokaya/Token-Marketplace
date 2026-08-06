@@ -14,7 +14,7 @@ const API_BASE = "/api";
 const METHOD_COLOR: Record<string, string> = {
   GET:    "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
   POST:   "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
-  PATCH:  "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
+  PATCH:  "bg-slate-100 text-slate-700 dark:bg-slate-800/40 dark:text-slate-300",
   DELETE: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
 };
 
@@ -51,7 +51,7 @@ const GROUPS: Group[] = [
   {
     title: "Registry-Sync Webhook  (§3.1)",
     icon: <Webhook className="h-4 w-4" />,
-    color: "border-orange-200 dark:border-orange-800",
+    color: "border-slate-200 dark:border-slate-800",
     endpoints: [
       {
         method: "POST",
@@ -194,7 +194,7 @@ const GROUPS: Group[] = [
   {
     title: "KOMEX Trading Platform",
     icon: <Zap className="h-4 w-4" />,
-    color: "border-amber-200 dark:border-amber-800",
+    color: "border-slate-200 dark:border-slate-800",
     endpoints: [
       {
         method: "POST",

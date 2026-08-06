@@ -25,7 +25,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Landmark, Clock, CheckCircle, XCircle, AlertCircle, ChevronRight, BanknoteIcon } from "lucide-react";
 
 const STATUS_STYLES: Record<string, string> = {
-  PENDING: "bg-yellow-100 text-yellow-800 border-yellow-200",
+  PENDING: "bg-slate-100 text-slate-700 border-slate-300",
   APPROVED: "bg-blue-100 text-blue-800 border-blue-200",
   REJECTED: "bg-red-100 text-red-800 border-red-200",
   DISBURSED: "bg-green-100 text-green-800 border-green-200",
@@ -33,13 +33,13 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 const LIEN_STYLES: Record<string, string> = {
-  ACTIVE: "bg-orange-100 text-orange-800 border-orange-200",
+  ACTIVE: "bg-slate-100 text-slate-700 border-slate-300",
   REPAID: "bg-green-100 text-green-800 border-green-200",
   DEFAULTED: "bg-red-100 text-red-800 border-red-200",
 };
 
 function StatusIcon({ status }: { status: string }) {
-  if (status === "PENDING") return <Clock className="w-4 h-4 text-yellow-600" />;
+  if (status === "PENDING") return <Clock className="w-4 h-4 text-slate-500" />;
   if (status === "APPROVED" || status === "DISBURSED") return <CheckCircle className="w-4 h-4 text-green-600" />;
   if (status === "REJECTED") return <XCircle className="w-4 h-4 text-red-600" />;
   return <AlertCircle className="w-4 h-4 text-gray-400" />;
@@ -230,7 +230,7 @@ export default function Financing() {
                       <div className="text-right shrink-0 space-y-0.5">
                         <div className="font-bold">${Number(loan.principalUsd).toLocaleString()}</div>
                         <div className="text-xs text-muted-foreground">principal</div>
-                        <div className="text-sm font-semibold text-orange-600">+${Number(loan.accruedInterestUsd).toLocaleString()} interest</div>
+                        <div className="text-sm font-semibold text-slate-700">+${Number(loan.accruedInterestUsd).toLocaleString()} interest</div>
                         <div className="text-xs text-muted-foreground">Total: ${Number(loan.totalRepayableUsd).toLocaleString()}</div>
                       </div>
                     </div>

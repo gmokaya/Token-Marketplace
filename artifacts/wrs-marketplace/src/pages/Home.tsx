@@ -56,7 +56,7 @@ export default function Home() {
       {/* Hero copy, bottom-left anchored */}
       <div className="relative z-10 flex-1 flex flex-col justify-end px-8 md:px-14 pb-8">
         <div className="inline-flex items-center gap-2 bg-white/10 text-white/75 text-xs font-medium px-3 py-1.5 rounded-full mb-4 w-fit backdrop-blur-sm border border-white/15">
-          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+          <span className="w-1.5 h-1.5 rounded-full bg-slate-300 animate-pulse" />
           B2B Grain Market · East Africa
         </div>
 

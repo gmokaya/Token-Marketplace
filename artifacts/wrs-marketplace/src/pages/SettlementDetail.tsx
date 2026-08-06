@@ -30,7 +30,7 @@ function PhaseIcon({ done, na, locked }: { done: boolean; na?: boolean; locked?:
   if (done) return <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0" />;
   if (na) return <div className="w-5 h-5 rounded-full border-2 border-gray-200 bg-gray-50 shrink-0" />;
   if (locked) return <Lock className="w-5 h-5 text-gray-300 shrink-0" />;
-  return <Circle className="w-5 h-5 text-yellow-500 shrink-0 animate-pulse" />;
+  return <Circle className="w-5 h-5 text-slate-500 shrink-0 animate-pulse" />;
 }
 
 export default function SettlementDetail() {
@@ -116,7 +116,7 @@ export default function SettlementDetail() {
     },
     {
       code: "SETTLE-P3",
-      icon: <Landmark className="w-4 h-4 text-orange-500" />,
+      icon: <Landmark className="w-4 h-4 text-slate-500" />,
       label: `Bank Liquidation Return (R_bank)`,
       description: rBank > 0
         ? `Bank routes R_bank = $${rBank.toLocaleString(undefined, { maximumFractionDigits: 2 })} to internal loan ledger. Principal + yield cleared. Lien Release: TRIGGERED.`
@@ -175,7 +175,7 @@ export default function SettlementDetail() {
               {settlement.entityType} #{settlement.entityId}
             </p>
           </div>
-          <span className={`text-xs px-2 py-1 rounded-full border font-medium ${isComplete ? "bg-green-100 text-green-800 border-green-200" : "bg-yellow-100 text-yellow-800 border-yellow-200"}`}>
+          <span className={`text-xs px-2 py-1 rounded-full border font-medium ${isComplete ? "bg-green-100 text-green-800 border-green-200" : "bg-slate-100 text-slate-700 border-slate-300"}`}>
             {isComplete ? "COMPLETED" : "IN PROGRESS"}
           </span>
         </div>
@@ -194,7 +194,7 @@ export default function SettlementDetail() {
             <div className="w-full h-6 rounded-full overflow-hidden flex">
               {rBank > 0 && (
                 <div
-                  className="bg-orange-400 h-full"
+                  className="bg-slate-500 h-full"
                   style={{ width: `${pctBank}%` }}
                   title={`Bank R_bank: $${rBank.toLocaleString()}`}
                 />
@@ -212,7 +212,7 @@ export default function SettlementDetail() {
             <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
               {rBank > 0 && (
                 <span className="flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-sm bg-orange-400 inline-block" />
+                  <span className="w-2 h-2 rounded-sm bg-slate-500 inline-block" />
                   R_bank {pctBank.toFixed(1)}% · ${rBank.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                 </span>
               )}
@@ -292,7 +292,7 @@ export default function SettlementDetail() {
               <div><p className="text-xs text-muted-foreground">Principal</p><p className="font-bold">${Number(loan.principalUsd).toLocaleString()}</p></div>
               <div><p className="text-xs text-muted-foreground">Rate</p><p className="font-bold">{(Number(loan.interestRate) * 100).toFixed(1)}% p.a.</p></div>
               <div><p className="text-xs text-muted-foreground">Start</p><p className="font-bold">{new Date(loan.startDate).toLocaleDateString()}</p></div>
-              <div><p className="text-xs text-muted-foreground">Status</p><p className={`font-bold ${loan.lienStatus === "REPAID" ? "text-green-600" : "text-orange-600"}`}>{loan.lienStatus}</p></div>
+              <div><p className="text-xs text-muted-foreground">Status</p><p className={`font-bold ${loan.lienStatus === "REPAID" ? "text-green-600" : "text-slate-600"}`}>{loan.lienStatus}</p></div>
             </CardContent>
           </Card>
         )}

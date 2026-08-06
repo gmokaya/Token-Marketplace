@@ -130,7 +130,7 @@ export default function MemberLedger() {
           </CardContent>
         </Card>
 
-        <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-xs">
+        <div className="flex items-start gap-2 p-3 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 text-xs">
           <Eye className="w-4 h-4 shrink-0 mt-0.5" />
           <span>
             Full name and national ID are stored encrypted and are only used to generate the opaque <strong>MEMBER_REF</strong>. 

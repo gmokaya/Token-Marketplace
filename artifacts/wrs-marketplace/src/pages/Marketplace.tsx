@@ -29,9 +29,9 @@ const WAREHOUSES = [
 
 const getCommodityColor = (type: string) => {
   switch (type) {
-    case "MAIZE": return "bg-yellow-500/20 text-yellow-700 border-yellow-500/50";
+    case "MAIZE": return "bg-slate-500/20 text-slate-700 border-slate-500/50";
     case "RICE": return "bg-teal-500/20 text-teal-700 border-teal-500/50";
-    case "COFFEE": return "bg-amber-800/20 text-amber-900 border-amber-800/50";
+    case "COFFEE": return "bg-slate-700/20 text-slate-800 border-slate-700/50";
     case "TEA": return "bg-green-600/20 text-green-800 border-green-600/50";
     case "AVOCADO": return "bg-emerald-500/20 text-emerald-700 border-emerald-500/50";
     default: return "bg-gray-100 text-gray-800 border-gray-200";

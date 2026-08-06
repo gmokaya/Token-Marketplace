@@ -22,7 +22,7 @@ const COMMODITIES = ["MAIZE", "RICE", "COFFEE", "TEA", "AVOCADO"];
 const STATUS_COLORS: Record<string, string> = {
   OPEN: "bg-green-100 text-green-800",
   FINALISED: "bg-blue-100 text-blue-800",
-  EWR_REQUESTED: "bg-yellow-100 text-yellow-800",
+  EWR_REQUESTED: "bg-slate-100 text-slate-700",
   EWR_ISSUED: "bg-emerald-100 text-emerald-800",
 };
 

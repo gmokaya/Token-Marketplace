@@ -3,7 +3,7 @@ import { Link } from "wouter";
 
 const clerkAppearance = {
   variables: {
-    colorPrimary: "#e2c97e",
+    colorPrimary: "#d9dee5",
     colorForeground: "#ffffff",
     colorMutedForeground: "rgba(255,255,255,0.65)",
     colorBackground: "transparent",
@@ -33,8 +33,8 @@ const clerkAppearance = {
       "!bg-white !text-gray-900 !font-semibold !h-11 !rounded-md !shadow-none hover:!bg-white/90 transition-colors !mt-1",
     footer: "!hidden",
     identityPreviewText: "!text-white",
-    identityPreviewEditButton: "!text-yellow-300",
-    formResendCodeLink: "!text-yellow-300",
+    identityPreviewEditButton: "!text-slate-200",
+    formResendCodeLink: "!text-slate-200",
     otpCodeFieldInput: "!border-white/30 !rounded-md !bg-white/88",
     alert: "!rounded-md !bg-white/10 !border-white/20",
     alertText: "!text-white",
@@ -82,7 +82,7 @@ export default function SignInPage() {
 
           <p className="mt-5 text-center text-sm text-white/60">
             Don't have an account?{" "}
-            <a href={`${bp}/sign-up`} className="font-semibold text-yellow-300 hover:text-yellow-200 transition-colors">
+            <a href={`${bp}/sign-up`} className="font-semibold text-slate-200 hover:text-white transition-colors">
               Sign up
             </a>
           </p>

@@ -19,7 +19,7 @@ const STATE_COLORS: Record<string, string> = {
   INGESTED: "bg-green-100 text-green-800",
   MARKET_LISTED: "bg-blue-100 text-blue-800",
   AUCTION_ACTIVE: "bg-sky-100 text-sky-800",
-  ENCUMBERED: "bg-orange-100 text-orange-800",
+  ENCUMBERED: "bg-slate-100 text-slate-700",
   EXTINGUISHED: "bg-gray-100 text-gray-500",
 };
 

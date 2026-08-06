@@ -21,18 +21,18 @@ function KybBanner() {
   if (status !== "PENDING_KYB_APPROVAL") return null;
 
   return (
-    <div className="flex items-center gap-3 bg-amber-50 border-b border-amber-200 px-4 py-2.5">
-      <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
-      <p className="text-xs text-amber-800 flex-1">
+    <div className="flex items-center gap-3 bg-slate-50 border-b border-slate-200 px-4 py-2.5">
+      <AlertTriangle className="w-4 h-4 text-slate-500 shrink-0" />
+      <p className="text-xs text-slate-800 flex-1">
         <strong>Compliance profile incomplete.</strong>{" "}
         Submit your KYB details to unlock full trading access.{" "}
-        <Link href="/profile" className="underline underline-offset-2 font-semibold hover:text-amber-900">
+        <Link href="/profile" className="underline underline-offset-2 font-semibold hover:text-slate-950">
           Complete now →
         </Link>
       </p>
       <button
         onClick={() => setDismissed(true)}
-        className="text-amber-400 hover:text-amber-600 transition-colors ml-2"
+        className="text-slate-500 hover:text-slate-800 transition-colors ml-2"
         aria-label="Dismiss"
       >
         <X className="w-4 h-4" />

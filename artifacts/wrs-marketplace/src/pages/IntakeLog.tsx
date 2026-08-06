@@ -17,9 +17,9 @@ const ACCENT = "hsl(180 62% 10%)";
 const COMMODITIES = ["MAIZE", "RICE", "COFFEE", "TEA", "AVOCADO"];
 
 const COMMODITY_COLORS: Record<string, string> = {
-  MAIZE: "bg-yellow-100 text-yellow-800 border-yellow-300",
+  MAIZE: "bg-slate-100 text-slate-700 border-slate-300",
   RICE: "bg-teal-100 text-teal-800 border-teal-300",
-  COFFEE: "bg-amber-100 text-amber-800 border-amber-300",
+  COFFEE: "bg-slate-100 text-slate-700 border-slate-300",
   TEA: "bg-green-100 text-green-800 border-green-300",
   AVOCADO: "bg-emerald-100 text-emerald-800 border-emerald-300",
 };

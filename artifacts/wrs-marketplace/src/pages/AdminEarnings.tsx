@@ -89,7 +89,7 @@ export default function AdminEarnings() {
                 value={`$${(earnings.totalEscrowFeesUsd ?? 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
                 sub="0.5% on spot orders"
                 icon={DollarSign}
-                color="text-orange-500"
+                color="text-slate-500"
               />
               <StatCard
                 title="Financing Facilitation"

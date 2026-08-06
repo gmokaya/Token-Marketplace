@@ -16,7 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, CheckCircle, XCircle, Landmark, BanknoteIcon, Clock, SendToBack } from "lucide-react";
 
 const STATUS_STYLES: Record<string, string> = {
-  PENDING: "bg-yellow-100 text-yellow-800 border-yellow-200",
+  PENDING: "bg-slate-100 text-slate-700 border-slate-300",
   APPROVED: "bg-blue-100 text-blue-800 border-blue-200",
   REJECTED: "bg-red-100 text-red-800 border-red-200",
   DISBURSED: "bg-green-100 text-green-800 border-green-200",
@@ -24,7 +24,7 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 const LIEN_STYLES: Record<string, string> = {
-  ACTIVE: "bg-orange-100 text-orange-800 border-orange-200",
+  ACTIVE: "bg-slate-100 text-slate-700 border-slate-300",
   REPAID: "bg-green-100 text-green-800 border-green-200",
   DEFAULTED: "bg-red-100 text-red-800 border-red-200",
 };
@@ -153,7 +153,7 @@ export default function FinancingDetail() {
               </div>
               <div>
                 <p className="text-muted-foreground text-xs">Accrued Interest ({daysElapsed}d)</p>
-                <p className="font-bold text-orange-600">+${accruedInterest.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                <p className="font-bold text-slate-700">+${accruedInterest.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
               </div>
               <div>
                 <p className="text-muted-foreground text-xs">Total Repayable</p>
@@ -170,7 +170,7 @@ export default function FinancingDetail() {
         {isFinancier && req.status === "PENDING" && (
           <Card>
             <CardContent className="p-4 flex gap-3 items-center">
-              <Clock className="w-5 h-5 text-yellow-600 shrink-0" />
+              <Clock className="w-5 h-5 text-slate-500 shrink-0" />
               <p className="text-sm flex-1">This request is awaiting your decision. Review the collateral and terms above before approving.</p>
               <div className="flex gap-2 shrink-0">
                 <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50" onClick={handleReject} disabled={rejecting || approving}>

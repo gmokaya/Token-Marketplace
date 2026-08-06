@@ -47,7 +47,7 @@ function Countdown({ endAt, status }: { endAt: string; status: string }) {
   const isUrgent = msLeft < 5 * 60 * 1000;
 
   return (
-    <div className={`font-mono text-2xl font-bold ${isUrgent ? "text-red-600 animate-pulse" : "text-amber-700"}`}>
+    <div className={`font-mono text-2xl font-bold ${isUrgent ? "text-red-600 animate-pulse" : "text-slate-700"}`}>
       {days > 0 ? `${days}d ` : ""}{hours > 0 ? `${String(hours).padStart(2, "0")}:` : "00:"}{String(mins).padStart(2, "0")}:{String(secs).padStart(2, "0")}
       {isUrgent && <span className="text-xs ml-2 font-normal text-red-500">⚡ Anti-snipe active</span>}
     </div>
@@ -255,7 +255,7 @@ export default function AuctionDetail() {
           <span className="text-muted-foreground">/</span>
           <span className="font-medium text-sm">Auction #{auction.id}</span>
           {auction.status === "OPEN" && (
-            <span className={`flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border ${liveConnected ? "bg-green-50 text-green-700 border-green-200" : "bg-yellow-50 text-yellow-700 border-yellow-200"}`}>
+            <span className={`flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border ${liveConnected ? "bg-green-50 text-green-700 border-green-200" : "bg-slate-50 text-slate-700 border-slate-200"}`}>
               <Radio className="w-3 h-3" />
               {liveConnected ? "Live" : "Connecting…"}
             </span>
@@ -300,10 +300,10 @@ export default function AuctionDetail() {
                   </div>
                 </div>
 
-                <div className="mt-4 flex items-center gap-3 p-3 rounded-lg bg-amber-50 border border-amber-200">
-                  <Clock className="w-5 h-5 text-amber-600 shrink-0" />
+                <div className="mt-4 flex items-center gap-3 p-3 rounded-lg bg-slate-50 border border-slate-200">
+                  <Clock className="w-5 h-5 text-slate-500 shrink-0" />
                   <div>
-                    <p className="text-xs text-amber-700 font-medium">Time Remaining</p>
+                    <p className="text-xs text-slate-700 font-medium">Time Remaining</p>
                     <Countdown endAt={String(auction.endAt)} status={auction.status} />
                   </div>
                 </div>

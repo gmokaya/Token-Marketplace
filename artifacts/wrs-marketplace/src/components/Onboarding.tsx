@@ -439,9 +439,9 @@ export function Onboarding() {
             </p>
           </div>
 
-          <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 mb-5 flex items-start gap-3">
-            <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-            <p className="text-xs text-amber-700">
+          <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 mb-5 flex items-start gap-3">
+            <Info className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
+            <p className="text-xs text-slate-700">
               <strong>Not ready yet?</strong> Skip this step to access your dashboard immediately. You can submit these details from your <strong>Profile</strong> page anytime. They're needed before you can trade.
             </p>
           </div>
@@ -851,15 +851,15 @@ export function Onboarding() {
             <p className="text-muted-foreground text-sm mb-6">
               Your account is ready. Complete your compliance profile from your Profile page to unlock full trading access.
             </p>
-            <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-left mb-6">
-              <p className="text-xs font-semibold text-amber-800 mb-2">What happens next</p>
+            <div className="bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-left mb-6">
+              <p className="text-xs font-semibold text-slate-800 mb-2">What happens next</p>
               <div className="space-y-2">
-                <div className="flex items-start gap-2 text-xs text-amber-700">
+                <div className="flex items-start gap-2 text-xs text-slate-700">
                   <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 text-primary shrink-0" />
                   <span>Dashboard access: available now</span>
                 </div>
-                <div className="flex items-start gap-2 text-xs text-amber-700">
-                  <Clock className="w-3.5 h-3.5 mt-0.5 text-amber-500 shrink-0" />
+                <div className="flex items-start gap-2 text-xs text-slate-700">
+                  <Clock className="w-3.5 h-3.5 mt-0.5 text-slate-500 shrink-0" />
                   <span>Full trading access: after KYB profile submission & review (1–2 days)</span>
                 </div>
               </div>
@@ -882,7 +882,7 @@ export function Onboarding() {
                   <span>Submission received</span>
                 </div>
                 <div className="flex items-start gap-2 text-xs text-gray-600">
-                  <Clock className="w-3.5 h-3.5 mt-0.5 text-amber-500 shrink-0" />
+                  <Clock className="w-3.5 h-3.5 mt-0.5 text-slate-500 shrink-0" />
                   <span>KYB review: 1–2 business days</span>
                 </div>
                 <div className="flex items-start gap-2 text-xs text-gray-600">

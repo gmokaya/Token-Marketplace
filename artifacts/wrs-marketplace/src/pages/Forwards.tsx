@@ -9,7 +9,7 @@ import { Link } from "wouter";
 import { CreateForwardDialog } from "@/components/CreateForwardDialog";
 
 const STATUS_COLORS: Record<string, string> = {
-  PENDING_SIGNATURE: "bg-amber-100 text-amber-800 border-amber-200",
+  PENDING_SIGNATURE: "bg-slate-100 text-slate-700 border-slate-300",
   ACTIVE: "bg-green-100 text-green-800 border-green-200",
   MATURED: "bg-blue-100 text-blue-800 border-blue-200",
   DEFAULTED: "bg-red-100 text-red-800 border-red-200",
@@ -17,7 +17,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 const BOND_COLORS: Record<string, string> = {
-  PENDING_BOND: "text-amber-600",
+  PENDING_BOND: "text-slate-600",
   ACTIVE: "text-green-600",
   FORFEITED: "text-red-600",
   RELEASED: "text-gray-500",

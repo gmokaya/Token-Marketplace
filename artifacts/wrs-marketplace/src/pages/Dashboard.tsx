@@ -72,7 +72,7 @@ function ProducerDashboard() {
               <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Trade Locked</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-amber-600">{lockedEwrs}</div>
+              <div className="text-3xl font-bold text-slate-700">{lockedEwrs}</div>
               <p className="text-xs text-muted-foreground mt-1">Pending settlement</p>
             </CardContent>
           </Card>
@@ -100,9 +100,9 @@ function ProducerDashboard() {
                       ewr.state === "MARKET_LISTED" ? "bg-blue-100 text-blue-800" :
                       ewr.state === "AUCTION_ACTIVE" ? "bg-sky-100 text-sky-800" :
                       ewr.state === "FORWARD_BOUND" ? "bg-lime-100 text-lime-800" :
-                      ewr.state === "LOCK_TRADING" ? "bg-amber-100 text-amber-800" :
+                      ewr.state === "LOCK_TRADING" ? "bg-slate-100 text-slate-700" :
                       ewr.state === "INGESTED" ? "bg-green-100 text-green-800" :
-                      ewr.state === "ENCUMBERED" ? "bg-orange-100 text-orange-800" : "bg-gray-100 text-gray-800"
+                      ewr.state === "ENCUMBERED" ? "bg-slate-100 text-slate-700" : "bg-gray-100 text-gray-800"
                     }>
                       {ewr.state.replace(/_/g, " ")}
                     </Badge>
@@ -192,7 +192,7 @@ function OffTakerDashboard() {
               <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Pending Orders</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-amber-600">{pendingOrders.length}</div>
+              <div className="text-3xl font-bold text-slate-700">{pendingOrders.length}</div>
               <p className="text-xs text-muted-foreground mt-1">Awaiting settlement</p>
             </CardContent>
           </Card>
@@ -235,7 +235,7 @@ function OffTakerDashboard() {
                       <p className="text-xs text-muted-foreground">${parseFloat(String(order.totalUsd ?? "0")).toLocaleString()} · {order.warehouseCode}</p>
                     </div>
                     <Badge variant="secondary" className={
-                      order.status === "PENDING_SETTLEMENT" ? "bg-amber-100 text-amber-800" :
+                      order.status === "PENDING_SETTLEMENT" ? "bg-slate-100 text-slate-700" :
                       order.status === "SETTLED" ? "bg-green-100 text-green-800" :
                       order.status === "EXPIRED" ? "bg-red-100 text-red-800" : "bg-gray-100 text-gray-800"
                     }>
@@ -373,12 +373,12 @@ function FinancierDashboard() {
           <div>
             <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Settlement Risk</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card className={risk && risk.pendingSettlementCount > 0 ? "border-amber-200 bg-amber-50/40" : ""}>
+              <Card className={risk && risk.pendingSettlementCount > 0 ? "border-slate-200 bg-slate-50/40" : ""}>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Pending Settlement</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className={`text-3xl font-bold ${risk && risk.pendingSettlementCount > 0 ? "text-amber-700" : ""}`} data-testid="dashboard-pending-settlement">
+                  <div className={`text-3xl font-bold ${risk && risk.pendingSettlementCount > 0 ? "text-slate-700" : ""}`} data-testid="dashboard-pending-settlement">
                     {risk?.pendingSettlementCount ?? 0}
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
@@ -568,7 +568,7 @@ function EnablerDashboard() {
                   <div className="flex items-center gap-2">
                     <div className={`w-3 h-3 rounded-full ${
                       (user?.reputationScore ?? 0) >= 80 ? "bg-green-500" :
-                      (user?.reputationScore ?? 0) >= 60 ? "bg-amber-500" : "bg-red-500"
+                       (user?.reputationScore ?? 0) >= 60 ? "bg-slate-500" : "bg-red-500"
                     }`} />
                     <p className="font-medium" data-testid="profile-reputation">{user?.reputationScore}</p>
                   </div>
@@ -607,13 +607,13 @@ const TIER_BADGE: Record<string, string> = {
   PRODUCER: "bg-green-100 text-green-800",
   OFF_TAKER: "bg-blue-100 text-blue-800",
   ENABLER: "bg-purple-100 text-purple-800",
-  FINANCIER: "bg-amber-100 text-amber-800",
+  FINANCIER: "bg-slate-100 text-slate-700",
   COOPERATIVE: "bg-cyan-100 text-cyan-800",
   ADMIN: "bg-red-100 text-red-800",
 };
 
 const KYB_BADGE: Record<string, string> = {
-  PENDING: "bg-yellow-100 text-yellow-800",
+  PENDING: "bg-slate-100 text-slate-700",
   APPROVED: "bg-green-100 text-green-800",
   REJECTED: "bg-red-100 text-red-800",
 };
