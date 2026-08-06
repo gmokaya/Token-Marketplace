@@ -643,8 +643,8 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .homepage-hero-heading {
-    font-size: clamp(4.5rem, 11.5vw, 7.25rem) !important;
-    line-height: 1.04 !important;
+    font-size: clamp(5rem, 13vw, 8.25rem) !important;
+    line-height: 1.12 !important;
     letter-spacing: -0.025em !important;
     margin-bottom: 38px !important;
   }
