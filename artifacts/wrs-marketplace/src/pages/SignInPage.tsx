@@ -1,141 +1,94 @@
+import { ArrowRight } from "lucide-react";
 import { SignIn } from "@clerk/react";
-import { Link } from "wouter";
 
-const clerkAppearance = {
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+const appearance = {
   variables: {
-    colorPrimary: "#3d2a00",
-    colorForeground: "#111827",
-    colorMutedForeground: "#6b7280",
+    colorPrimary: "#4a4a4a",
+    colorForeground: "#1f1f1f",
+    colorMutedForeground: "#777777",
     colorBackground: "#ffffff",
-    colorInput: "#f9fafb",
-    colorInputForeground: "#111827",
-    colorNeutral: "#f3f4f6",
-    fontFamily: "'Futura', 'Century Gothic', sans-serif",
-    borderRadius: "0rem",
+    colorInput: "#fafafa",
+    colorInputForeground: "#1f1f1f",
+    colorNeutral: "#e4e4e4",
+    fontFamily: "'Futura', sans-serif",
+    borderRadius: "0.35rem",
   },
   elements: {
     rootBox: "w-full",
-    cardBox: "!shadow-none !border-0 !rounded-none !w-full !bg-transparent",
-    card: "!shadow-none !border-0 !bg-transparent !p-0",
+    cardBox: "!w-full !max-w-none !shadow-none !border-0 !rounded-none !bg-transparent",
+    card: "!w-full !shadow-none !border-0 !bg-transparent !p-0",
     header: "!hidden",
     logoBox: "!hidden",
     socialButtonsBlockButton:
-      "!border !border-gray-200 !bg-white !text-gray-800 !text-sm !font-medium !shadow-none !rounded-lg !h-11 hover:!bg-gray-50 hover:!border-gray-300 transition-colors",
-    socialButtonsBlockButtonText: "!text-gray-800 !font-medium",
-    dividerRow: "!text-gray-400 !text-xs",
+      "!h-11 !rounded-sm !border !border-[#dedede] !bg-white !text-[#1f1f1f] !text-sm !font-medium !shadow-none hover:!bg-[#fafafa] hover:!border-[#bdbdbd] transition-colors",
+    socialButtonsBlockButtonText: "!text-[#1f1f1f] !font-medium",
+    dividerRow: "!text-[#8c8c8c] !text-xs",
     dividerText: "!bg-white !px-3",
-    formFieldLabel: "!text-sm !text-gray-700 !font-medium !mb-1.5",
+    formFieldLabel: "!text-sm !text-[#4a4a4a] !font-medium !mb-1.5",
     formFieldInput:
-      "!bg-gray-50 !border !border-gray-200 !text-gray-900 !placeholder-gray-400 !rounded-lg !h-11 focus:!ring-2 focus:!ring-amber-700/20 focus:!border-amber-700 transition-colors",
-    formFieldInputShowPasswordButton: "!text-gray-400 hover:!text-gray-600",
+      "!h-11 !rounded-sm !bg-[#fafafa] !border !border-[#dedede] !text-[#1f1f1f] !placeholder-[#999999] focus:!ring-2 focus:!ring-[#4a4a4a]/15 focus:!border-[#4a4a4a] transition-colors",
+    formFieldInputShowPasswordButton: "!text-[#8c8c8c] hover:!text-[#4a4a4a]",
     formButtonPrimary:
-      "!bg-gray-900 !text-white !font-semibold !h-11 !rounded-lg !shadow-none hover:!bg-gray-800 transition-colors !mt-1",
+      "!h-11 !rounded-sm !bg-[#4a4a4a] !text-white !font-semibold !shadow-none hover:!bg-[#303030] transition-colors",
     footer: "!hidden",
-    footerActionText: "!text-gray-500 !text-sm",
-    footerActionLink: "!text-amber-800 !font-semibold hover:!text-amber-700",
-    identityPreviewText: "!text-gray-700",
-    identityPreviewEditButton: "!text-amber-800",
-    formResendCodeLink: "!text-amber-800",
-    otpCodeFieldInput: "!border-gray-200 !rounded-lg",
-    alert: "!rounded-lg",
+    identityPreviewText: "!text-[#4a4a4a]",
+    identityPreviewEditButton: "!text-[#4a4a4a]",
+    formResendCodeLink: "!text-[#4a4a4a]",
+    otpCodeFieldInput: "!border-[#dedede] !rounded-sm",
+    alert: "!rounded-sm",
   },
 };
 
 export default function SignInPage() {
-  const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
-
   return (
-    <div className="min-h-[100dvh] flex">
-      {/* Left brand panel */}
-      <div className="hidden lg:flex lg:w-[52%] xl:w-[55%] relative flex-col overflow-hidden">
-        <img
-          src={`${basePath}/photos/hero-soybean-farmer.jpg`}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1a0a00]/90 via-[#3d2a00]/70 to-[#1a0a00]/50" />
-
-        <div className="relative z-10 flex flex-col h-full p-10 xl:p-14">
-          <div>
-            <Link href="/">
-              <img src={`${basePath}/logo-white.png`} alt="GrainEx" className="h-8 w-auto cursor-pointer" />
-            </Link>
-          </div>
-
-          <div className="flex-1 flex flex-col justify-center max-w-sm">
-            <div className="inline-flex items-center gap-2 bg-white/10 text-white/80 text-xs font-medium px-3 py-1.5 rounded-full mb-6 w-fit backdrop-blur-sm border border-white/10">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-              B2B Grain Market
-            </div>
-            <h1 className="text-3xl xl:text-4xl font-bold text-white leading-tight tracking-tight">
-              Trade grain warrants
-              <br />
-              <span className="text-amber-300">with confidence.</span>
-            </h1>
-            <p className="mt-4 text-white/60 text-sm leading-relaxed">
-              Digital eWR tokenisation, compliance-grade KYB, real-time auctions and forward contract settlement, all in one platform.
-            </p>
-          </div>
-
-          <div className="flex gap-8 border-t border-white/10 pt-6">
-            {[
-              { value: "4 tiers", label: "Participant classes" },
-              { value: "Real-time", label: "Auction engine" },
-              { value: "WRSC", label: "Compliance ready" },
-            ].map((s) => (
-              <div key={s.label}>
-                <p className="text-white font-semibold text-sm">{s.value}</p>
-                <p className="text-white/50 text-xs mt-0.5">{s.label}</p>
-              </div>
-            ))}
-          </div>
+    <main className="min-h-[100dvh] bg-[#f2f2f2] px-5 py-8 text-[#1f1f1f]">
+      <div className="mx-auto flex min-h-[calc(100dvh-4rem)] w-full max-w-[440px] flex-col justify-center">
+        <div className="mb-8 text-center">
+          <img
+            src={`${basePath}/logo-dark.png`}
+            alt="GrainEx"
+            className="mx-auto mb-8 h-9 w-auto object-contain"
+          />
+          <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.24em] text-[#666666]">
+            GrainEx
+          </p>
+          <h1 className="text-3xl font-semibold tracking-tight text-[#1f1f1f]">
+            Sign in to your account
+          </h1>
+          <p className="mt-2 text-sm text-[#777777]">
+            Access the grain market.
+          </p>
         </div>
+
+        <section className="rounded-sm border border-[#dedede] bg-white p-7 shadow-[0_16px_50px_rgba(0,0,0,0.07)] sm:p-9">
+          <SignIn
+            routing="path"
+            path={`${basePath}/sign-in`}
+            signUpUrl={`${basePath}/sign-up`}
+            fallbackRedirectUrl={`${basePath}/dashboard`}
+            signUpFallbackRedirectUrl={`${basePath}/dashboard`}
+            appearance={appearance}
+          />
+          <p className="mt-6 text-center text-sm text-[#777777]">
+            Don&apos;t have an account?{" "}
+            <a
+              href={`${basePath}/sign-up`}
+              className="font-semibold text-[#4a4a4a] hover:text-[#303030]"
+            >
+              Create one
+            </a>
+          </p>
+        </section>
+
+        <a
+          href={basePath || "/"}
+          className="mx-auto mt-7 inline-flex items-center gap-2 text-xs text-[#8c8c8c] transition-colors hover:text-[#4a4a4a]"
+        >
+          Back to marketplace <ArrowRight className="h-3.5 w-3.5" />
+        </a>
       </div>
-
-      {/* Right form panel */}
-      <div className="flex-1 flex flex-col bg-white">
-        <div className="flex items-center justify-between px-6 py-5 lg:hidden border-b border-gray-100">
-          <Link href="/">
-            <img src={`${basePath}/logo-dark.png`} alt="GrainEx" className="h-7 w-auto cursor-pointer" />
-          </Link>
-        </div>
-
-        <div className="flex-1 flex flex-col items-center justify-center px-8 py-12">
-          <div className="w-full max-w-[380px]">
-            <div className="mb-6">
-              <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">Sign in to GrainEx</h1>
-              <p className="text-sm text-gray-500 mt-1">Welcome back. Please sign in to continue.</p>
-            </div>
-
-            <SignIn
-              routing="path"
-              path={`${basePath}/sign-in`}
-              signUpUrl={`${basePath}/sign-up`}
-              fallbackRedirectUrl={`${basePath}/dashboard`}
-              appearance={clerkAppearance}
-            />
-
-            <p className="mt-6 text-center text-sm text-gray-500">
-              Don't have an account?{" "}
-              <a
-                href={`${basePath}/sign-up`}
-                className="font-semibold text-amber-800 hover:text-amber-700 transition-colors"
-              >
-                Sign up
-              </a>
-            </p>
-          </div>
-        </div>
-
-        <div className="px-8 pb-8 text-center">
-          <a
-            href={basePath || "/"}
-            className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            Back to home
-          </a>
-        </div>
-      </div>
-    </div>
+    </main>
   );
 }
