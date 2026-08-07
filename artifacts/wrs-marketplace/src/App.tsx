@@ -37,6 +37,7 @@ import MemberLedger from "@/pages/MemberLedger";
 import IntakeLog from "@/pages/IntakeLog";
 import MacroLots from "@/pages/MacroLots";
 import CoopInventory from "@/pages/CoopInventory";
+import ApiAccess from "@/pages/settings/ApiAccess";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 const clerkPubKey = publishableKeyFromHost(window.location.hostname, import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
@@ -149,6 +150,7 @@ function ClerkProviderWithRoutes() {
             <Route path="/coop/intake"><ProtectedRoute><IntakeLog /></ProtectedRoute></Route>
             <Route path="/coop/macro-lots"><ProtectedRoute><MacroLots /></ProtectedRoute></Route>
             <Route path="/coop/inventory"><ProtectedRoute><CoopInventory /></ProtectedRoute></Route>
+            <Route path="/settings/api-access"><ProtectedRoute><ApiAccess /></ProtectedRoute></Route>
             <Route path="*">
               <div className="flex items-center justify-center h-screen">404 Not Found</div>
             </Route>

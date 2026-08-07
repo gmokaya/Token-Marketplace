@@ -36,6 +36,7 @@ import AdminAuctions from "@/pages/admin/AdminAuctions";
 import NewAuction from "@/pages/admin/NewAuction";
 import BrokerAuctions from "@/pages/broker/BrokerAuctions";
 import Profile from "@/pages/Profile";
+import ApiAccess from "@/pages/settings/ApiAccess";
 
 const clerkPubKey = publishableKeyFromHost(window.location.hostname, import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
 const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL;
@@ -159,6 +160,8 @@ function ClerkProviderWithRoutes() {
 
                   <Route path="/admin/auctions"><ProtectedRoute><AdminAuctions /></ProtectedRoute></Route>
                   <Route path="/admin/auctions/new"><ProtectedRoute><NewAuction /></ProtectedRoute></Route>
+
+                  <Route path="/settings/api-access"><ProtectedRoute><ApiAccess /></ProtectedRoute></Route>
 
                   <Route>
                     <div className="flex items-center justify-center h-[50vh] text-muted-foreground">

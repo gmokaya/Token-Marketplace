@@ -3,7 +3,7 @@ import { useGetMe } from "@workspace/api-client-react";
 import {
   LayoutDashboard, Leaf, FileText, Gavel, BarChart2,
   ShoppingBag, User, Shield, PlusCircle, Warehouse, Users,
-  Package, MessageSquare, Ship, Wind,
+  Package, MessageSquare, Ship, Wind, Key,
 } from "lucide-react";
 import { formatTier } from "@/lib/formatTier";
 
@@ -34,6 +34,7 @@ const ACCOUNT_SECTIONS: AccountSection[] = [
       { href: "/mandates",                label: "My Mandates",       icon: FileText       },
       { href: "/broker/auctions",         label: "Auction Sessions",  icon: Gavel          },
       { href: "/market",                  label: "Spot Market",       icon: ShoppingBag    },
+      { href: "/settings/api-access",     label: "API Access",        icon: Key            },
       { href: "/profile",                 label: "Profile",           icon: User           },
     ],
   },
@@ -51,6 +52,7 @@ const ACCOUNT_SECTIONS: AccountSection[] = [
       { href: "/mandates",              label: "Mandates Given",   icon: FileText        },
       { href: "/admin/auctions",        label: "Auction Activity", icon: Gavel           },
       { href: "/market",                label: "Spot Market",      icon: ShoppingBag     },
+      { href: "/settings/api-access",   label: "API Access",       icon: Key             },
       { href: "/profile",               label: "Profile",          icon: User            },
     ],
   },
@@ -84,6 +86,7 @@ const ACCOUNT_SECTIONS: AccountSection[] = [
       { href: "/market",              label: "Market Overview",  icon: BarChart2      },
       { href: "/broker",              label: "Lots Overview",    icon: Leaf           },
       { href: "/mandates",            label: "Mandates",         icon: FileText       },
+      { href: "/settings/api-access", label: "API Access",       icon: Key            },
       { href: "/profile",             label: "Profile",          icon: User           },
     ],
   },

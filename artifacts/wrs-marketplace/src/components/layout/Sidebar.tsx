@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Wallet, ShoppingBag, List, BarChart3,
   User, ClipboardList, Package, Gavel, FileText, Landmark,
   TrendingUp, ShieldCheck, PackagePlus, Plug, Users, LayoutTemplate,
-  Building2, Layers, Wheat, Archive, Shield,
+  Building2, Layers, Wheat, Archive, Shield, Key,
 } from "lucide-react";
 import { formatTier } from "@/lib/formatTier";
 
@@ -33,7 +33,8 @@ const ADMIN_SECTIONS: NavSection[] = [
       { href: "/admin/earnings", label: "Platform Earnings",icon: TrendingUp,      tiers: ["ADMIN"] },
       { href: "/admin/audit",    label: "Audit Log",        icon: ShieldCheck,     tiers: ["ADMIN"] },
       { href: "/admin/ewr-api",  label: "API Integration",  icon: Plug,            tiers: ["ADMIN"] },
-      { href: "/admin/homepage", label: "Homepage Content", icon: LayoutTemplate,  tiers: ["ADMIN"] },
+      { href: "/admin/homepage",      label: "Homepage Content", icon: LayoutTemplate,  tiers: ["ADMIN"] },
+      { href: "/settings/api-access", label: "API Access",       icon: Key,             tiers: ["ADMIN"] },
     ],
   },
   {
@@ -92,8 +93,9 @@ const ALL_NAV_ITEMS: NavItem[] = [
   { href: "/admin/earnings",   label: "Platform Earnings",icon: TrendingUp,      tiers: ["ENABLER","FINANCIER"] },
   { href: "/admin/audit",      label: "Audit Log",        icon: ShieldCheck,     tiers: ["ENABLER","FINANCIER"] },
   { href: "/admin/ewr-api",    label: "API Integration",  icon: Plug,            tiers: ["ENABLER","FINANCIER"] },
-  { href: "/admin/homepage",   label: "Homepage Content", icon: LayoutTemplate,  tiers: ["ENABLER","FINANCIER"] },
-  { href: "/profile",          label: "Profile",          icon: User,            tiers: ["PRODUCER","OFF_TAKER","ENABLER","FINANCIER","COOPERATIVE","ADMIN"] },
+  { href: "/admin/homepage",      label: "Homepage Content", icon: LayoutTemplate,  tiers: ["ENABLER","FINANCIER"] },
+  { href: "/settings/api-access", label: "API Access",       icon: Key,             tiers: ["PRODUCER","ENABLER"] },
+  { href: "/profile",             label: "Profile",          icon: User,            tiers: ["PRODUCER","OFF_TAKER","ENABLER","FINANCIER","COOPERATIVE","ADMIN"] },
 ];
 
 function NavLink({ item, collapsed, location }: { item: NavItem; collapsed: boolean; location: string }) {
