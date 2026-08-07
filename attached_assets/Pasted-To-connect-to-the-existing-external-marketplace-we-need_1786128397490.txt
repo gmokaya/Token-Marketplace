@@ -1,0 +1,53 @@
+To connect to the existing external marketplace, we need the marketplace provider’s connection details. The current API specification does not include them: it only defines this app’s internal API at /api and does not specify an external server URL or authentication scheme.
+
+Please obtain these from the marketplace provider:
+
+Required
+External API base URL
+
+For example: https://api.marketplace.example.com/v1
+Separate sandbox and production URLs, if available.
+API documentation
+
+OpenAPI/Swagger file or developer documentation.
+We need the endpoints for:
+Publishing tea lots
+Publishing coffee lots
+Checking publication status
+Retrying failed publications
+Retrieving external listing IDs
+Authentication method
+
+API key
+OAuth 2.0 client credentials
+Signed requests
+JWT
+Or another method
+Credentials
+
+API key, or OAuth client ID and client secret
+Required scopes/permissions
+These should be added through Replit Secrets or an authorized integration, not pasted into chat.
+Marketplace account identifiers
+
+Marketplace account or tenant ID
+Factory/producer ID
+Broker ID, if required
+Any required marketplace or organization identifiers
+Helpful for a reliable production connection
+Sandbox/test account
+Example successful publish request and response
+Error response examples
+Required field mapping for tea and coffee
+Idempotency requirements
+Webhook URL and signing secret, if publication status is sent asynchronously
+Rate limits and timeout requirements
+What happens after we have this
+I would update the adapter so that clicking Publish:
+
+Sends the lot to the external marketplace.
+Stores the returned external listing ID.
+Records live, error, or another provider status in marketplace_sync.
+Retries safely without creating duplicate external listings.
+Optionally handles marketplace webhooks for status changes.
+The current local integration is ready for this connection, but it is currently an internal database-backed implementation. The missing information is specifically the external marketplace’s API URL, authentication, account IDs, and publishing contract.
