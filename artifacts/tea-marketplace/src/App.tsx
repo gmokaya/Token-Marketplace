@@ -14,28 +14,29 @@ import { Layout } from "@/components/layout/Layout";
 import Home from "@/pages/Home";
 import SignInPage from "@/pages/SignInPage";
 import SignUpPage from "@/pages/SignUpPage";
+import Dashboard from "@/pages/Dashboard";
+import Profile from "@/pages/Profile";
+
 import BrokerDashboard from "@/pages/broker/BrokerDashboard";
 import NewTeaLot from "@/pages/broker/NewTeaLot";
 import EditTeaLot from "@/pages/broker/EditTeaLot";
 import BrokerMandateHolders from "@/pages/broker/BrokerMandateHolders";
-import Dashboard from "@/pages/Dashboard";
-import ProducerDashboard from "@/pages/producer/ProducerDashboard";
-import ProducerNewLot from "@/pages/producer/ProducerNewLot";
-import ProducerEwrs from "@/pages/producer/ProducerEwrs";
-import ProducerEditLot from "@/pages/producer/ProducerEditLot";
-import ProducerProducts from "@/pages/producer/ProducerProducts";
-import ProducerRfqs from "@/pages/producer/ProducerRfqs";
-import ProducerShipments from "@/pages/producer/ProducerShipments";
-import ProducerEsg from "@/pages/producer/ProducerEsg";
+import BrokerAuctions from "@/pages/broker/BrokerAuctions";
+
 import LiveAuction from "@/pages/auction/LiveAuction";
 import Market from "@/pages/market/Market";
 import LotDetail from "@/pages/lots/LotDetail";
 import LotSettlement from "@/pages/lots/LotSettlement";
 import Mandates from "@/pages/mandates/Mandates";
+
 import AdminAuctions from "@/pages/admin/AdminAuctions";
 import NewAuction from "@/pages/admin/NewAuction";
-import BrokerAuctions from "@/pages/broker/BrokerAuctions";
-import Profile from "@/pages/Profile";
+import AdminLots from "@/pages/admin/AdminLots";
+import AdminEwrs from "@/pages/admin/AdminEwrs";
+import AdminUsers from "@/pages/admin/AdminUsers";
+import AdminEarnings from "@/pages/admin/AdminEarnings";
+import AdminAudit from "@/pages/admin/AdminAudit";
+
 import ApiAccess from "@/pages/settings/ApiAccess";
 
 const clerkPubKey = publishableKeyFromHost(window.location.hostname, import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
@@ -132,34 +133,34 @@ function ClerkProviderWithRoutes() {
               <Layout>
                 <Switch>
                   <Route path="/profile"><ProtectedRoute><Profile /></ProtectedRoute></Route>
+                  <Route path="/dashboard"><ProtectedRoute><Dashboard /></ProtectedRoute></Route>
 
+                  {/* Broker */}
                   <Route path="/broker"><ProtectedRoute><BrokerDashboard /></ProtectedRoute></Route>
                   <Route path="/broker/mandate-holders"><ProtectedRoute><BrokerMandateHolders /></ProtectedRoute></Route>
                   <Route path="/broker/auctions"><ProtectedRoute><BrokerAuctions /></ProtectedRoute></Route>
                   <Route path="/broker/lots/new"><ProtectedRoute><NewTeaLot /></ProtectedRoute></Route>
                   <Route path="/broker/lots/:lotId/edit"><ProtectedRoute><EditTeaLot /></ProtectedRoute></Route>
 
-                  <Route path="/dashboard"><ProtectedRoute><Dashboard /></ProtectedRoute></Route>
-
-                  <Route path="/producer"><ProtectedRoute><ProducerDashboard /></ProtectedRoute></Route>
-                  <Route path="/producer/lots/new"><ProtectedRoute><ProducerNewLot /></ProtectedRoute></Route>
-                  <Route path="/producer/lots/:lotId/edit"><ProtectedRoute><ProducerEditLot /></ProtectedRoute></Route>
-                  <Route path="/producer/ewrs"><ProtectedRoute><ProducerEwrs /></ProtectedRoute></Route>
-                  <Route path="/producer/products"><ProtectedRoute><ProducerProducts /></ProtectedRoute></Route>
-                  <Route path="/producer/rfqs"><ProtectedRoute><ProducerRfqs /></ProtectedRoute></Route>
-                  <Route path="/producer/shipments"><ProtectedRoute><ProducerShipments /></ProtectedRoute></Route>
-                  <Route path="/producer/esg"><ProtectedRoute><ProducerEsg /></ProtectedRoute></Route>
-
-                  <Route path="/auction/:sessionId"><ProtectedRoute><LiveAuction /></ProtectedRoute></Route>
+                  {/* Market */}
                   <Route path="/market"><ProtectedRoute><Market /></ProtectedRoute></Route>
-
                   <Route path="/lots/:lotId"><ProtectedRoute><LotDetail /></ProtectedRoute></Route>
                   <Route path="/lots/:lotId/settlement"><ProtectedRoute><LotSettlement /></ProtectedRoute></Route>
 
+                  {/* Auctions */}
+                  <Route path="/auction/:sessionId"><ProtectedRoute><LiveAuction /></ProtectedRoute></Route>
+
+                  {/* Mandates */}
                   <Route path="/mandates"><ProtectedRoute><Mandates /></ProtectedRoute></Route>
 
+                  {/* Admin */}
                   <Route path="/admin/auctions"><ProtectedRoute><AdminAuctions /></ProtectedRoute></Route>
                   <Route path="/admin/auctions/new"><ProtectedRoute><NewAuction /></ProtectedRoute></Route>
+                  <Route path="/admin/lots"><ProtectedRoute><AdminLots /></ProtectedRoute></Route>
+                  <Route path="/admin/ewrs"><ProtectedRoute><AdminEwrs /></ProtectedRoute></Route>
+                  <Route path="/admin/users"><ProtectedRoute><AdminUsers /></ProtectedRoute></Route>
+                  <Route path="/admin/earnings"><ProtectedRoute><AdminEarnings /></ProtectedRoute></Route>
+                  <Route path="/admin/audit"><ProtectedRoute><AdminAudit /></ProtectedRoute></Route>
 
                   <Route path="/settings/api-access"><ProtectedRoute><ApiAccess /></ProtectedRoute></Route>
 

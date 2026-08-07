@@ -1,6 +1,5 @@
 /**
- * Smart post-auth redirect.
- * Reads the current user's tier from the API and sends them to the right landing page.
+ * Post-auth smart redirect. Sends each role to their home screen.
  */
 import { useEffect } from "react";
 import { useLocation } from "wouter";
@@ -13,15 +12,11 @@ export default function Dashboard() {
   useEffect(() => {
     if (isLoading || !me) return;
     switch (me.tier) {
-      case "PRODUCER":
-        setLocation("/producer", { replace: true });
+      case "ADMIN":
+        setLocation("/admin/auctions", { replace: true });
         break;
       case "ENABLER":
         setLocation("/broker", { replace: true });
-        break;
-      case "ADMIN":
-      case "FINANCIER":
-        setLocation("/admin/auctions", { replace: true });
         break;
       default:
         setLocation("/market", { replace: true });

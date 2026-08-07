@@ -21,32 +21,16 @@ import Market from "@/pages/market/Market";
 import LotDetail from "@/pages/lots/LotDetail";
 import LotSettlement from "@/pages/lots/LotSettlement";
 
-import ProducerDashboard from "@/pages/producer/ProducerDashboard";
-import ProducerEwrs from "@/pages/producer/ProducerEwrs";
-import ProducerNewLot from "@/pages/producer/ProducerNewLot";
-import ProducerEditLot from "@/pages/producer/ProducerEditLot";
-import ProducerProducts from "@/pages/producer/ProducerProducts";
-import ProducerRfqs from "@/pages/producer/ProducerRfqs";
-import ProducerRfqDetail from "@/pages/producer/ProducerRfqDetail";
-import ProducerShipments from "@/pages/producer/ProducerShipments";
-import ProducerShipmentDetail from "@/pages/producer/ProducerShipmentDetail";
-import ProducerEsg from "@/pages/producer/ProducerEsg";
-
 import BrokerDashboard from "@/pages/broker/BrokerDashboard";
 import BrokerLots from "@/pages/broker/BrokerLots";
 import NewBrokeredLot from "@/pages/broker/NewBrokeredLot";
 import EditBrokeredLot from "@/pages/broker/EditBrokeredLot";
 import BrokerMandates from "@/pages/broker/BrokerMandates";
 import BrokerAuctions from "@/pages/broker/BrokerAuctions";
+import BrokerEarnings from "@/pages/broker/BrokerEarnings";
 
 import LiveAuction from "@/pages/auction/LiveAuction";
 import Mandates from "@/pages/mandates/Mandates";
-
-import Financing from "@/pages/financing/Financing";
-import FinancingDetail from "@/pages/financing/FinancingDetail";
-
-import Forwards from "@/pages/forwards/Forwards";
-import ForwardDetail from "@/pages/forwards/ForwardDetail";
 
 import AdminAuctions from "@/pages/admin/AdminAuctions";
 import NewAuction from "@/pages/admin/NewAuction";
@@ -54,8 +38,7 @@ import AdminEarnings from "@/pages/admin/AdminEarnings";
 import AdminAudit from "@/pages/admin/AdminAudit";
 import AdminUsers from "@/pages/admin/AdminUsers";
 import AdminLots from "@/pages/admin/AdminLots";
-
-import BrokerEarnings from "@/pages/broker/BrokerEarnings";
+import AdminEwrs from "@/pages/admin/AdminEwrs";
 
 import Warehouses from "@/pages/warehouses/Warehouses";
 import WarehouseDetail from "@/pages/warehouses/WarehouseDetail";
@@ -154,17 +137,7 @@ function ClerkProviderWithRoutes() {
                   <Route path="/profile"><ProtectedRoute><Profile /></ProtectedRoute></Route>
                   <Route path="/dashboard"><ProtectedRoute><Dashboard /></ProtectedRoute></Route>
 
-                  <Route path="/producer"><ProtectedRoute><ProducerDashboard /></ProtectedRoute></Route>
-                  <Route path="/producer/ewrs"><ProtectedRoute><ProducerEwrs /></ProtectedRoute></Route>
-                  <Route path="/producer/lots/new"><ProtectedRoute><ProducerNewLot /></ProtectedRoute></Route>
-                  <Route path="/producer/lots/:lotId/edit"><ProtectedRoute><ProducerEditLot /></ProtectedRoute></Route>
-                  <Route path="/producer/products"><ProtectedRoute><ProducerProducts /></ProtectedRoute></Route>
-                  <Route path="/producer/rfqs"><ProtectedRoute><ProducerRfqs /></ProtectedRoute></Route>
-                  <Route path="/producer/rfqs/:rfqId"><ProtectedRoute><ProducerRfqDetail /></ProtectedRoute></Route>
-                  <Route path="/producer/shipments"><ProtectedRoute><ProducerShipments /></ProtectedRoute></Route>
-                  <Route path="/producer/shipments/:shipmentId"><ProtectedRoute><ProducerShipmentDetail /></ProtectedRoute></Route>
-                  <Route path="/producer/esg"><ProtectedRoute><ProducerEsg /></ProtectedRoute></Route>
-
+                  {/* Broker */}
                   <Route path="/broker"><ProtectedRoute><BrokerDashboard /></ProtectedRoute></Route>
                   <Route path="/broker/lots"><ProtectedRoute><BrokerLots /></ProtectedRoute></Route>
                   <Route path="/broker/lots/new"><ProtectedRoute><NewBrokeredLot /></ProtectedRoute></Route>
@@ -173,26 +146,25 @@ function ClerkProviderWithRoutes() {
                   <Route path="/broker/auctions"><ProtectedRoute><BrokerAuctions /></ProtectedRoute></Route>
                   <Route path="/broker/earnings"><ProtectedRoute><BrokerEarnings /></ProtectedRoute></Route>
 
+                  {/* Market */}
                   <Route path="/market"><ProtectedRoute><Market /></ProtectedRoute></Route>
                   <Route path="/lots/:lotId"><ProtectedRoute><LotDetail /></ProtectedRoute></Route>
                   <Route path="/lots/:lotId/settlement"><ProtectedRoute><LotSettlement /></ProtectedRoute></Route>
 
+                  {/* Auctions */}
                   <Route path="/auction/:sessionId"><ProtectedRoute><LiveAuction /></ProtectedRoute></Route>
 
+                  {/* Mandates */}
                   <Route path="/mandates"><ProtectedRoute><Mandates /></ProtectedRoute></Route>
 
-                  <Route path="/financing"><ProtectedRoute><Financing /></ProtectedRoute></Route>
-                  <Route path="/financing/:requestId"><ProtectedRoute><FinancingDetail /></ProtectedRoute></Route>
-
-                  <Route path="/forwards"><ProtectedRoute><Forwards /></ProtectedRoute></Route>
-                  <Route path="/forwards/:contractId"><ProtectedRoute><ForwardDetail /></ProtectedRoute></Route>
-
+                  {/* Admin */}
                   <Route path="/admin/auctions"><ProtectedRoute><AdminAuctions /></ProtectedRoute></Route>
                   <Route path="/admin/auctions/new"><ProtectedRoute><NewAuction /></ProtectedRoute></Route>
+                  <Route path="/admin/lots"><ProtectedRoute><AdminLots /></ProtectedRoute></Route>
+                  <Route path="/admin/ewrs"><ProtectedRoute><AdminEwrs /></ProtectedRoute></Route>
+                  <Route path="/admin/users"><ProtectedRoute><AdminUsers /></ProtectedRoute></Route>
                   <Route path="/admin/earnings"><ProtectedRoute><AdminEarnings /></ProtectedRoute></Route>
                   <Route path="/admin/audit"><ProtectedRoute><AdminAudit /></ProtectedRoute></Route>
-                  <Route path="/admin/users"><ProtectedRoute><AdminUsers /></ProtectedRoute></Route>
-                  <Route path="/admin/lots"><ProtectedRoute><AdminLots /></ProtectedRoute></Route>
 
                   <Route path="/warehouses"><ProtectedRoute><Warehouses /></ProtectedRoute></Route>
                   <Route path="/warehouses/:code"><ProtectedRoute><WarehouseDetail /></ProtectedRoute></Route>
