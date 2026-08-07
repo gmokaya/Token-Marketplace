@@ -12,37 +12,18 @@ import Home from "@/pages/Home";
 import SignInPage from "@/pages/SignInPage";
 import SignUpPage from "@/pages/SignUpPage";
 import Dashboard from "@/pages/Dashboard";
-import Portfolio from "@/pages/Portfolio";
-import Marketplace from "@/pages/Marketplace";
-import ListingDetail from "@/pages/ListingDetail";
-import Orders from "@/pages/Orders";
-import MyListings from "@/pages/MyListings";
-import MarketStats from "@/pages/MarketStats";
 import Profile from "@/pages/Profile";
-import Auctions from "@/pages/Auctions";
-import AuctionDetail from "@/pages/AuctionDetail";
-import Forwards from "@/pages/Forwards";
-import ForwardDetail from "@/pages/ForwardDetail";
-import Financing from "@/pages/Financing";
-import FinancingDetail from "@/pages/FinancingDetail";
-import SettlementDetail from "@/pages/SettlementDetail";
 import AdminEarnings from "@/pages/AdminEarnings";
 import AdminUsers from "@/pages/AdminUsers";
-import AdminHomepage from "@/pages/AdminHomepage";
 import AuditLog from "@/pages/AuditLog";
-import Intake from "@/pages/Intake";
-import EwrApi from "@/pages/EwrApi";
-import CoopDashboard from "@/pages/CoopDashboard";
-import MemberLedger from "@/pages/MemberLedger";
-import IntakeLog from "@/pages/IntakeLog";
-import MacroLots from "@/pages/MacroLots";
-import CoopInventory from "@/pages/CoopInventory";
 import ApiAccess from "@/pages/settings/ApiAccess";
 
-// New Admin + Broker pages
+// Admin pages
 import AdminAuctions from "@/pages/admin/AdminAuctions";
 import AdminEwrs from "@/pages/admin/AdminEwrs";
 import AdminLots from "@/pages/admin/AdminLots";
+
+// Broker pages
 import BrokerDashboard from "@/pages/broker/BrokerDashboard";
 
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -51,13 +32,12 @@ const clerkPubKey = publishableKeyFromHost(window.location.hostname, import.meta
 const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL;
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-function stripBase(path: string) { 
-  return basePath && path.startsWith(basePath) ? path.slice(basePath.length) || "/" : path; 
+function stripBase(path: string) {
+  return basePath && path.startsWith(basePath) ? path.slice(basePath.length) || "/" : path;
 }
 
 const queryClient = new QueryClient();
 
-// helps user's webview stay up-to-date
 function ClerkQueryClientCacheInvalidator() {
   const { addListener } = useClerk();
   const queryClient = useQueryClient();
@@ -128,24 +108,15 @@ function ClerkProviderWithRoutes() {
         <AutoLogout />
         <TooltipProvider>
           <Switch>
+            {/* Public pages */}
             <Route path="/" component={Home} />
             <Route path="/sign-in/*?" component={SignInPage} />
             <Route path="/sign-up/*?" component={SignUpPage} />
+
+            {/* Authenticated pages */}
             <Route path="/dashboard"><ProtectedRoute><Dashboard /></ProtectedRoute></Route>
-            <Route path="/portfolio"><ProtectedRoute><Portfolio /></ProtectedRoute></Route>
-            <Route path="/marketplace"><ProtectedRoute><Marketplace /></ProtectedRoute></Route>
-            <Route path="/marketplace/:listingId"><ProtectedRoute><ListingDetail /></ProtectedRoute></Route>
-            <Route path="/orders"><ProtectedRoute><Orders /></ProtectedRoute></Route>
-            <Route path="/my-listings"><ProtectedRoute><MyListings /></ProtectedRoute></Route>
-            <Route path="/market-stats"><ProtectedRoute><MarketStats /></ProtectedRoute></Route>
             <Route path="/profile"><ProtectedRoute><Profile /></ProtectedRoute></Route>
-            <Route path="/auctions"><ProtectedRoute><Auctions /></ProtectedRoute></Route>
-            <Route path="/auctions/:auctionId"><ProtectedRoute><AuctionDetail /></ProtectedRoute></Route>
-            <Route path="/forwards"><ProtectedRoute><Forwards /></ProtectedRoute></Route>
-            <Route path="/forwards/:contractId"><ProtectedRoute><ForwardDetail /></ProtectedRoute></Route>
-            <Route path="/financing"><ProtectedRoute><Financing /></ProtectedRoute></Route>
-            <Route path="/financing/:requestId"><ProtectedRoute><FinancingDetail /></ProtectedRoute></Route>
-            <Route path="/settlements/:settlementId"><ProtectedRoute><SettlementDetail /></ProtectedRoute></Route>
+
             {/* Admin routes */}
             <Route path="/admin/auctions"><ProtectedRoute><AdminAuctions /></ProtectedRoute></Route>
             <Route path="/admin/ewrs"><ProtectedRoute><AdminEwrs /></ProtectedRoute></Route>
@@ -153,20 +124,17 @@ function ClerkProviderWithRoutes() {
             <Route path="/admin/users"><ProtectedRoute><AdminUsers /></ProtectedRoute></Route>
             <Route path="/admin/earnings"><ProtectedRoute><AdminEarnings /></ProtectedRoute></Route>
             <Route path="/admin/audit"><ProtectedRoute><AuditLog /></ProtectedRoute></Route>
-            <Route path="/admin/ewr-api"><ProtectedRoute><EwrApi /></ProtectedRoute></Route>
-            <Route path="/admin/homepage"><ProtectedRoute><AdminHomepage /></ProtectedRoute></Route>
+
             {/* Broker routes */}
             <Route path="/broker"><ProtectedRoute><BrokerDashboard /></ProtectedRoute></Route>
-            {/* Legacy / misc */}
-            <Route path="/intake"><ProtectedRoute><Intake /></ProtectedRoute></Route>
-            <Route path="/coop"><ProtectedRoute><CoopDashboard /></ProtectedRoute></Route>
-            <Route path="/coop/members"><ProtectedRoute><MemberLedger /></ProtectedRoute></Route>
-            <Route path="/coop/intake"><ProtectedRoute><IntakeLog /></ProtectedRoute></Route>
-            <Route path="/coop/macro-lots"><ProtectedRoute><MacroLots /></ProtectedRoute></Route>
-            <Route path="/coop/inventory"><ProtectedRoute><CoopInventory /></ProtectedRoute></Route>
+
+            {/* Settings */}
             <Route path="/settings/api-access"><ProtectedRoute><ApiAccess /></ProtectedRoute></Route>
-            <Route path="*">
-              <div className="flex items-center justify-center h-screen">404 Not Found</div>
+
+            <Route>
+              <div className="flex items-center justify-center h-screen text-muted-foreground">
+                404 Not Found
+              </div>
             </Route>
           </Switch>
         </TooltipProvider>

@@ -10,11 +10,6 @@ import {
   Shield,
   Key,
   Wheat,
-  BarChart3,
-  TrendingUp,
-  PackagePlus,
-  FileText,
-  Wallet,
   Activity,
 } from "lucide-react";
 
@@ -86,11 +81,6 @@ export function Sidebar({ collapsed }: SidebarProps) {
                 <NavItem href="/admin/earnings" icon={Landmark}   label="Earnings"         collapsed={collapsed} />
                 <NavItem href="/admin/audit"    icon={Shield}     label="Audit Log"        collapsed={collapsed} />
               </NavGroup>
-              <NavGroup title="Market" collapsed={collapsed}>
-                <NavItem href="/marketplace"  icon={Package}   label="Spot Market"        collapsed={collapsed} />
-                <NavItem href="/forwards"     icon={FileText}  label="Forward Contracts"  collapsed={collapsed} />
-                <NavItem href="/market-stats" icon={BarChart3} label="Market Stats"       collapsed={collapsed} />
-              </NavGroup>
               <NavGroup title="Settings" collapsed={collapsed}>
                 <NavItem href="/settings/api-access" icon={Key}   label="API Access"  collapsed={collapsed} />
                 <NavItem href="/profile"              icon={Users} label="My Profile"  collapsed={collapsed} />
@@ -102,17 +92,7 @@ export function Sidebar({ collapsed }: SidebarProps) {
           {role === "ENABLER" && (
             <>
               <NavGroup title="Brokerage" collapsed={collapsed}>
-                <NavItem href="/broker"       icon={Activity}    label="Overview"          collapsed={collapsed} />
-                <NavItem href="/portfolio"    icon={Wallet}      label="eWR Portfolio"     collapsed={collapsed} />
-                <NavItem href="/intake"       icon={PackagePlus} label="WMS Intake"        collapsed={collapsed} />
-                <NavItem href="/my-listings"  icon={Package}     label="My Listings"       collapsed={collapsed} />
-                <NavItem href="/auctions"     icon={Gavel}       label="Auctions"          collapsed={collapsed} />
-                <NavItem href="/forwards"     icon={FileText}    label="Forward Contracts" collapsed={collapsed} />
-                <NavItem href="/admin/earnings" icon={TrendingUp} label="Earnings"         collapsed={collapsed} />
-              </NavGroup>
-              <NavGroup title="Market" collapsed={collapsed}>
-                <NavItem href="/marketplace"  icon={Package}   label="Spot Market"   collapsed={collapsed} />
-                <NavItem href="/market-stats" icon={BarChart3} label="Market Stats"  collapsed={collapsed} />
+                <NavItem href="/broker" icon={Activity} label="Overview" collapsed={collapsed} />
               </NavGroup>
               <NavGroup title="Settings" collapsed={collapsed}>
                 <NavItem href="/settings/api-access" icon={Key}   label="API Access"  collapsed={collapsed} />
@@ -123,8 +103,8 @@ export function Sidebar({ collapsed }: SidebarProps) {
 
           {/* Fallback for other roles */}
           {role && role !== "ADMIN" && role !== "ENABLER" && (
-            <NavGroup title="Market" collapsed={collapsed}>
-              <NavItem href="/marketplace" icon={Package} label="Spot Market" collapsed={collapsed} />
+            <NavGroup title="Account" collapsed={collapsed}>
+              <NavItem href="/profile" icon={Users} label="My Profile" collapsed={collapsed} />
             </NavGroup>
           )}
 
