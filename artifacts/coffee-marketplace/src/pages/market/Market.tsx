@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { Search, SlidersHorizontal, ArrowUpRight, TrendingUp, X, Star } from "lucide-react";
+import { Search, SlidersHorizontal, ArrowUpRight, X, Star, BarChart3, Package2, Layers, Factory } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
@@ -230,37 +230,39 @@ export default function Market() {
       )}
 
       {/* Market Stats Bar */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="bg-primary text-primary-foreground border-primary/20 shadow-md">
-          <CardContent className="p-4 flex flex-col justify-center h-full">
-            <div className="text-sm font-medium text-primary-foreground/80 mb-1">Index Price</div>
-            <div className="text-2xl font-mono font-bold flex items-center gap-2">
-              ${(summary?.avgPricePerMt || 0).toLocaleString()}
-              <span className="text-xs font-sans text-emerald-400 flex items-center bg-emerald-400/10 px-1.5 py-0.5 rounded-sm">
-                <TrendingUp className="w-3 h-3 mr-1" /> +2.4%
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 flex flex-col justify-center h-full">
-            <div className="text-sm font-medium text-muted-foreground mb-1">Active Listings</div>
-            <div className="text-2xl font-mono font-bold">{summary?.totalActiveListings || 0}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 flex flex-col justify-center h-full">
-            <div className="text-sm font-medium text-muted-foreground mb-1">24H Volume</div>
-            <div className="text-2xl font-mono font-bold">${(summary?.totalVolumeUsd || 0).toLocaleString()}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 flex flex-col justify-center h-full">
-            <div className="text-sm font-medium text-muted-foreground mb-1">Available eWRs</div>
-            <div className="text-2xl font-mono font-bold">{summary?.totalEwrs || 0}</div>
-          </CardContent>
-        </Card>
-      </div>
+      {isLoadingSummary ? (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24 w-full rounded-xl" />)}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <StatCard
+            icon={<BarChart3 className="w-4 h-4" />}
+            label="Avg. Price / MT"
+            value={summary?.avgPricePerMt ? `$${Number(summary.avgPricePerMt).toLocaleString()}` : null}
+            sub="spot index"
+            accent
+          />
+          <StatCard
+            icon={<Layers className="w-4 h-4" />}
+            label="Active Listings"
+            value={summary?.totalActiveListings != null ? String(summary.totalActiveListings) : null}
+            sub="lots available"
+          />
+          <StatCard
+            icon={<Package2 className="w-4 h-4" />}
+            label="Total Volume"
+            value={summary?.totalVolumeUsd ? `$${Number(summary.totalVolumeUsd).toLocaleString()}` : null}
+            sub="settled USD"
+          />
+          <StatCard
+            icon={<Factory className="w-4 h-4" />}
+            label="Warehouse Receipts"
+            value={summary?.totalEwrs != null ? String(summary.totalEwrs) : null}
+            sub="eWRs on-platform"
+          />
+        </div>
+      )}
 
       {/* Listings Grid */}
       <div>
@@ -300,6 +302,38 @@ export default function Market() {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+function StatCard({
+  icon, label, value, sub, accent,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string | null;
+  sub: string;
+  accent?: boolean;
+}) {
+  const isEmpty = value === null || value === "$0" || value === "0";
+  return (
+    <div className={`relative rounded-xl border p-4 flex flex-col gap-2 overflow-hidden ${accent ? "bg-primary text-primary-foreground border-primary/10" : "bg-card"}`}>
+      {/* faint background icon */}
+      <div className={`absolute -right-2 -bottom-2 opacity-[0.06] scale-[3] ${accent ? "text-white" : "text-foreground"}`}>
+        {icon}
+      </div>
+      <div className={`flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider ${accent ? "text-primary-foreground/60" : "text-muted-foreground"}`}>
+        <span className={accent ? "text-primary-foreground/70" : "text-muted-foreground"}>{icon}</span>
+        {label}
+      </div>
+      <div className={`text-2xl font-mono font-bold leading-none ${accent ? "text-primary-foreground" : ""}`}>
+        {isEmpty ? (
+          <span className={`text-base font-medium ${accent ? "text-primary-foreground/40" : "text-muted-foreground/50"}`}>— no data</span>
+        ) : (
+          value
+        )}
+      </div>
+      <div className={`text-xs ${accent ? "text-primary-foreground/50" : "text-muted-foreground"}`}>{sub}</div>
     </div>
   );
 }
