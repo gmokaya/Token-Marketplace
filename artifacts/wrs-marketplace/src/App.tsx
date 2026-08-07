@@ -38,6 +38,13 @@ import IntakeLog from "@/pages/IntakeLog";
 import MacroLots from "@/pages/MacroLots";
 import CoopInventory from "@/pages/CoopInventory";
 import ApiAccess from "@/pages/settings/ApiAccess";
+
+// New Admin + Broker pages
+import AdminAuctions from "@/pages/admin/AdminAuctions";
+import AdminEwrs from "@/pages/admin/AdminEwrs";
+import AdminLots from "@/pages/admin/AdminLots";
+import BrokerDashboard from "@/pages/broker/BrokerDashboard";
+
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 const clerkPubKey = publishableKeyFromHost(window.location.hostname, import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
@@ -139,12 +146,19 @@ function ClerkProviderWithRoutes() {
             <Route path="/financing"><ProtectedRoute><Financing /></ProtectedRoute></Route>
             <Route path="/financing/:requestId"><ProtectedRoute><FinancingDetail /></ProtectedRoute></Route>
             <Route path="/settlements/:settlementId"><ProtectedRoute><SettlementDetail /></ProtectedRoute></Route>
+            {/* Admin routes */}
+            <Route path="/admin/auctions"><ProtectedRoute><AdminAuctions /></ProtectedRoute></Route>
+            <Route path="/admin/ewrs"><ProtectedRoute><AdminEwrs /></ProtectedRoute></Route>
+            <Route path="/admin/lots"><ProtectedRoute><AdminLots /></ProtectedRoute></Route>
             <Route path="/admin/users"><ProtectedRoute><AdminUsers /></ProtectedRoute></Route>
             <Route path="/admin/earnings"><ProtectedRoute><AdminEarnings /></ProtectedRoute></Route>
             <Route path="/admin/audit"><ProtectedRoute><AuditLog /></ProtectedRoute></Route>
-            <Route path="/intake"><ProtectedRoute><Intake /></ProtectedRoute></Route>
             <Route path="/admin/ewr-api"><ProtectedRoute><EwrApi /></ProtectedRoute></Route>
             <Route path="/admin/homepage"><ProtectedRoute><AdminHomepage /></ProtectedRoute></Route>
+            {/* Broker routes */}
+            <Route path="/broker"><ProtectedRoute><BrokerDashboard /></ProtectedRoute></Route>
+            {/* Legacy / misc */}
+            <Route path="/intake"><ProtectedRoute><Intake /></ProtectedRoute></Route>
             <Route path="/coop"><ProtectedRoute><CoopDashboard /></ProtectedRoute></Route>
             <Route path="/coop/members"><ProtectedRoute><MemberLedger /></ProtectedRoute></Route>
             <Route path="/coop/intake"><ProtectedRoute><IntakeLog /></ProtectedRoute></Route>
