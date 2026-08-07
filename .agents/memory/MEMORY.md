@@ -8,3 +8,4 @@
 - [Sub-path artifact Clerk redirects](subpath-artifact-clerk-redirect.md) — non-root artifact needs signInFallbackRedirectUrl=basePath + redirectToSignIn({redirectUrl}) or auth bounces to the root app
 - [Grain visual palette](grain-visual-palette.md) — Grain uses coal, graphite, platinum, and slate accents; avoid the warm coffee/amber palette
 - [Marketplace CMS asset normalization](marketplace-cms-asset-normalization.md) — homepage CMS market cards can override local defaults; normalize known commodity links and photos at render time
+- [First-party marketplace provider API](marketplace-provider-api.md) — TokenHarvest owns the external listing contract; keep provider auth/config separate from publication queue state

@@ -30,6 +30,7 @@ export * from "./bid_security_holds";
 export * from "./tea_lot_settlements";
 export * from "./tea_products";
 export * from "./listing_publications";
+export * from "./marketplace_provider_listings";
 export * from "./tea_rfqs";
 export * from "./tea_shipments";
 export * from "./tea_esg_reports";

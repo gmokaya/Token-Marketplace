@@ -34,6 +34,7 @@ import coffeeShipmentsRouter from "./coffee-shipments";
 import coffeeEsgRouter from "./coffee-esg";
 import listingPublicationsRouter from "./listing-publications";
 import integrationCredentialsRouter, { resolveApiKeyUser } from "./integration-credentials";
+import providerMarketplaceRouter from "./provider-marketplace";
 
 const router: IRouter = Router();
 
@@ -90,6 +91,8 @@ router.use(apiKeyPreAuth);
 
 // eWR external API + registry-sync webhook — own auth, must come before Clerk requireAuth
 router.use(healthRouter);
+// First-party external marketplace provider contract — Bearer-token auth
+router.use(providerMarketplaceRouter);
 // In production this pre-auth surface is only mounted when its secrets are explicitly
 // configured; otherwise it stays disabled so it can never run with default secrets.
 if (EWR_API_SECURELY_CONFIGURED) {

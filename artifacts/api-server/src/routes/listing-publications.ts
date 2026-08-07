@@ -25,6 +25,7 @@ import { db } from "@workspace/db";
 import {
   listingPublicationsTable,
   teaLotsTable,
+  ewrsTable,
   usersTable,
 } from "@workspace/db";
 import { eq, and, or, sql } from "drizzle-orm";
@@ -51,8 +52,22 @@ async function callAdapterAndSettle(
   lot: typeof teaLotsTable.$inferSelect,
 ): Promise<typeof listingPublicationsTable.$inferSelect | null> {
   try {
+    const [ewr] = await db
+      .select({
+        id: ewrsTable.id,
+        warehouseCode: ewrsTable.warehouseCode,
+      })
+      .from(ewrsTable)
+      .where(eq(ewrsTable.id, lot.ewrId))
+      .limit(1);
+
     const result = await marketplaceAdapter.publishListing({
       lotId:              lot.id,
+      ewrId:               ewr?.id,
+      commodityType:       "TEA",
+      ownerId:             lot.ownerId,
+      brokerId:             lot.brokerId,
+      warehouseCode:       ewr?.warehouseCode,
       grade:              lot.grade,
       gradeMark:          lot.gradeMark,
       giOrigin:           lot.giOrigin,
