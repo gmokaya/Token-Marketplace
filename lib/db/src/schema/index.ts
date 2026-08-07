@@ -34,3 +34,4 @@ export * from "./tea_rfqs";
 export * from "./tea_shipments";
 export * from "./tea_esg_reports";
 export * from "./integration_credentials";
+export * from "./mandate_requests";

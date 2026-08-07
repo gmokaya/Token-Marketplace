@@ -58,7 +58,7 @@ export async function resolveApiKeyUser(rawKey: string) {
 // ── POST /integrations/credentials ────────────────────────────────────────────
 const createSchema = z.object({
   name:     z.string().min(1).max(100),
-  scopes:   z.array(z.enum(["ewr:push", "wrsc:intake"])).min(1),
+  scopes:   z.array(z.enum(["ewr:push", "wrsc:intake", "mandates:confirm"])).min(1),
   expiresAt: z.string().datetime().optional(),
 });
 

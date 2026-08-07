@@ -46,6 +46,7 @@ import type {
   CoffeeLotDetail,
   CoffeeLotSettlement,
   CommodityStat,
+  ConfirmMandateRequestBody,
   CoopMember,
   CoopMemberInput,
   CooperativeProfile,
@@ -62,6 +63,7 @@ import type {
   CreateEwrRequest,
   CreateIntegrationCredentialRequest,
   CreateIntegrationCredentialResponse,
+  CreateMandateRequestBody,
   CreateTeaAuctionSessionRequest,
   CreateTeaLotRequest,
   DigitalReleaseToken,
@@ -101,6 +103,7 @@ import type {
   Loan,
   MacroLot,
   MacroLotInput,
+  MandateRequest,
   MarketSummary,
   Order,
   OrderInput,
@@ -8484,6 +8487,303 @@ export const useUpdateCoffeeEsgReport = <TError = ErrorType<unknown>,
       return useMutation(getUpdateCoffeeEsgReportMutationOptions(options));
     }
 
+export const getCreateMandateRequestUrl = () => {
+
+
+
+
+  return `/api/broker-mandates/request`
+}
+
+/**
+ * The broker calls this endpoint to generate an opaque token they can share with a producer
+out-of-band (email, phone, etc.). The producer then calls POST /broker-mandates/confirm
+with that token and their API key to grant the mandate — no producer UI required.
+
+ * @summary Broker generates a shareable mandate-request token (ENABLER only)
+ */
+export const createMandateRequest = async (createMandateRequestBody: CreateMandateRequestBody, options?: RequestInit): Promise<MandateRequest> => {
+
+  return customFetch<MandateRequest>(getCreateMandateRequestUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      createMandateRequestBody,)
+  }
+);}
+
+
+
+
+export const getCreateMandateRequestMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMandateRequest>>, TError,{data: BodyType<CreateMandateRequestBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createMandateRequest>>, TError,{data: BodyType<CreateMandateRequestBody>}, TContext> => {
+
+const mutationKey = ['createMandateRequest'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createMandateRequest>>, {data: BodyType<CreateMandateRequestBody>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createMandateRequest(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateMandateRequestMutationResult = NonNullable<Awaited<ReturnType<typeof createMandateRequest>>>
+    export type CreateMandateRequestMutationBody = BodyType<CreateMandateRequestBody>
+    export type CreateMandateRequestMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Broker generates a shareable mandate-request token (ENABLER only)
+ */
+export const useCreateMandateRequest = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMandateRequest>>, TError,{data: BodyType<CreateMandateRequestBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createMandateRequest>>,
+        TError,
+        {data: BodyType<CreateMandateRequestBody>},
+        TContext
+      > => {
+      return useMutation(getCreateMandateRequestMutationOptions(options));
+    }
+
+export const getListMandateRequestsUrl = () => {
+
+
+
+
+  return `/api/broker-mandates/requests`
+}
+
+/**
+ * @summary Broker lists their mandate requests (newest first)
+ */
+export const listMandateRequests = async ( options?: RequestInit): Promise<MandateRequest[]> => {
+
+  return customFetch<MandateRequest[]>(getListMandateRequestsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListMandateRequestsQueryKey = () => {
+    return [
+    `/api/broker-mandates/requests`
+    ] as const;
+    }
+
+
+export const getListMandateRequestsQueryOptions = <TData = Awaited<ReturnType<typeof listMandateRequests>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMandateRequests>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListMandateRequestsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listMandateRequests>>> = ({ signal }) => listMandateRequests({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listMandateRequests>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListMandateRequestsQueryResult = NonNullable<Awaited<ReturnType<typeof listMandateRequests>>>
+export type ListMandateRequestsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Broker lists their mandate requests (newest first)
+ */
+
+export function useListMandateRequests<TData = Awaited<ReturnType<typeof listMandateRequests>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMandateRequests>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListMandateRequestsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCancelMandateRequestUrl = (requestId: number,) => {
+
+
+
+
+  return `/api/broker-mandates/requests/${requestId}`
+}
+
+/**
+ * @summary Broker cancels a pending mandate request
+ */
+export const cancelMandateRequest = async (requestId: number, options?: RequestInit): Promise<MandateRequest> => {
+
+  return customFetch<MandateRequest>(getCancelMandateRequestUrl(requestId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getCancelMandateRequestMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cancelMandateRequest>>, TError,{requestId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof cancelMandateRequest>>, TError,{requestId: number}, TContext> => {
+
+const mutationKey = ['cancelMandateRequest'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof cancelMandateRequest>>, {requestId: number}> = (props) => {
+          const {requestId} = props ?? {};
+
+          return  cancelMandateRequest(requestId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CancelMandateRequestMutationResult = NonNullable<Awaited<ReturnType<typeof cancelMandateRequest>>>
+
+    export type CancelMandateRequestMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Broker cancels a pending mandate request
+ */
+export const useCancelMandateRequest = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cancelMandateRequest>>, TError,{requestId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof cancelMandateRequest>>,
+        TError,
+        {requestId: number},
+        TContext
+      > => {
+      return useMutation(getCancelMandateRequestMutationOptions(options));
+    }
+
+export const getConfirmMandateRequestUrl = () => {
+
+
+
+
+  return `/api/broker-mandates/confirm`
+}
+
+/**
+ * The producer (PRODUCER or COOPERATIVE tier) confirms the mandate request the broker shared.
+Accepts either a Clerk session (cookie) or an API key in the X-Api-Key header.
+On success, a new broker mandate is created and the request is marked CONFIRMED.
+
+ * @summary Producer confirms a mandate request using the broker's token (Clerk or API key)
+ */
+export const confirmMandateRequest = async (confirmMandateRequestBody: ConfirmMandateRequestBody, options?: RequestInit): Promise<BrokerMandate> => {
+
+  return customFetch<BrokerMandate>(getConfirmMandateRequestUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      confirmMandateRequestBody,)
+  }
+);}
+
+
+
+
+export const getConfirmMandateRequestMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof confirmMandateRequest>>, TError,{data: BodyType<ConfirmMandateRequestBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof confirmMandateRequest>>, TError,{data: BodyType<ConfirmMandateRequestBody>}, TContext> => {
+
+const mutationKey = ['confirmMandateRequest'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof confirmMandateRequest>>, {data: BodyType<ConfirmMandateRequestBody>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  confirmMandateRequest(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ConfirmMandateRequestMutationResult = NonNullable<Awaited<ReturnType<typeof confirmMandateRequest>>>
+    export type ConfirmMandateRequestMutationBody = BodyType<ConfirmMandateRequestBody>
+    export type ConfirmMandateRequestMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Producer confirms a mandate request using the broker's token (Clerk or API key)
+ */
+export const useConfirmMandateRequest = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof confirmMandateRequest>>, TError,{data: BodyType<ConfirmMandateRequestBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof confirmMandateRequest>>,
+        TError,
+        {data: BodyType<ConfirmMandateRequestBody>},
+        TContext
+      > => {
+      return useMutation(getConfirmMandateRequestMutationOptions(options));
+    }
+
 export const getCreateBrokerMandateUrl = () => {
 
 
@@ -8493,7 +8793,7 @@ export const getCreateBrokerMandateUrl = () => {
 }
 
 /**
- * @summary Owner grants a broker mandate (PRODUCER or COOPERATIVE only)
+ * @summary Owner grants a broker mandate directly (PRODUCER or COOPERATIVE only)
  */
 export const createBrokerMandate = async (createBrokerMandateRequest: CreateBrokerMandateRequest, options?: RequestInit): Promise<BrokerMandate> => {
 
@@ -8542,7 +8842,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type CreateBrokerMandateMutationError = ErrorType<ErrorEnvelope>
 
     /**
- * @summary Owner grants a broker mandate (PRODUCER or COOPERATIVE only)
+ * @summary Owner grants a broker mandate directly (PRODUCER or COOPERATIVE only)
  */
 export const useCreateBrokerMandate = <TError = ErrorType<ErrorEnvelope>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createBrokerMandate>>, TError,{data: BodyType<CreateBrokerMandateRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}

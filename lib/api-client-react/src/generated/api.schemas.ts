@@ -1871,6 +1871,98 @@ export interface CoffeeDispatchDoc {
   createdAt: string;
 }
 
+export type MandateRequestCommodityType = typeof MandateRequestCommodityType[keyof typeof MandateRequestCommodityType];
+
+
+export const MandateRequestCommodityType = {
+  MAIZE: 'MAIZE',
+  RICE: 'RICE',
+  COFFEE: 'COFFEE',
+  TEA: 'TEA',
+  AVOCADO: 'AVOCADO',
+} as const;
+
+export type MandateRequestStatus = typeof MandateRequestStatus[keyof typeof MandateRequestStatus];
+
+
+export const MandateRequestStatus = {
+  PENDING: 'PENDING',
+  CONFIRMED: 'CONFIRMED',
+  CANCELLED: 'CANCELLED',
+  EXPIRED: 'EXPIRED',
+} as const;
+
+export type MandateRequestConfirmInstructionsBody = { [key: string]: unknown };
+
+/**
+ * Instructions for the producer to confirm the request
+ */
+export type MandateRequestConfirmInstructions = {
+  endpoint?: string;
+  authHeader?: string;
+  body?: MandateRequestConfirmInstructionsBody;
+};
+
+export interface MandateRequest {
+  id: number;
+  brokerId: number;
+  /** @nullable */
+  brokerName?: string | null;
+  commodityType: MandateRequestCommodityType;
+  /** Opaque UUID token to share with the producer */
+  token: string;
+  status: MandateRequestStatus;
+  expiresAt: string;
+  /** @nullable */
+  confirmedAt?: string | null;
+  /** @nullable */
+  confirmedMandateId?: number | null;
+  /** @nullable */
+  note?: string | null;
+  createdAt: string;
+  /** Instructions for the producer to confirm the request */
+  confirmInstructions?: MandateRequestConfirmInstructions;
+}
+
+export type CreateMandateRequestBodyCommodityType = typeof CreateMandateRequestBodyCommodityType[keyof typeof CreateMandateRequestBodyCommodityType];
+
+
+export const CreateMandateRequestBodyCommodityType = {
+  MAIZE: 'MAIZE',
+  RICE: 'RICE',
+  COFFEE: 'COFFEE',
+  TEA: 'TEA',
+  AVOCADO: 'AVOCADO',
+} as const;
+
+export interface CreateMandateRequestBody {
+  commodityType: CreateMandateRequestBodyCommodityType;
+  /**
+     * Optional note for context (e.g. producer name or deal reference)
+     * @maxLength 500
+     */
+  note?: string;
+  /**
+     * How many days until this token expires
+     * @minimum 1
+     * @maximum 30
+     */
+  expiryDays?: number;
+}
+
+export interface ConfirmMandateRequestBody {
+  /** The token the broker shared */
+  token: string;
+  permissions?: string[];
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  commissionRateOverride?: number;
+  validFrom?: string;
+  validTo?: string;
+}
+
 export type BrokerMandateCommodityType = typeof BrokerMandateCommodityType[keyof typeof BrokerMandateCommodityType];
 
 
@@ -1948,6 +2040,7 @@ export type CreateIntegrationCredentialRequestScopesItem = typeof CreateIntegrat
 export const CreateIntegrationCredentialRequestScopesItem = {
   'ewr:push': 'ewr:push',
   'wrsc:intake': 'wrsc:intake',
+  'mandates:confirm': 'mandates:confirm',
 } as const;
 
 export interface CreateIntegrationCredentialRequest {

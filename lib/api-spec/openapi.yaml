@@ -3035,11 +3035,151 @@ paths:
                 type: object
                 additionalProperties: true
 
+  /broker-mandates/request:
+    post:
+      operationId: createMandateRequest
+      tags: [broker-mandates]
+      summary: Broker generates a shareable mandate-request token (ENABLER only)
+      description: |
+        The broker calls this endpoint to generate an opaque token they can share with a producer
+        out-of-band (email, phone, etc.). The producer then calls POST /broker-mandates/confirm
+        with that token and their API key to grant the mandate — no producer UI required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMandateRequestBody"
+      responses:
+        "201":
+          description: Mandate request created — includes the token to share with the producer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MandateRequest"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: Caller is not an ENABLER-tier broker
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /broker-mandates/requests:
+    get:
+      operationId: listMandateRequests
+      tags: [broker-mandates]
+      summary: Broker lists their mandate requests (newest first)
+      responses:
+        "200":
+          description: List of mandate requests created by this broker
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MandateRequest"
+
+  /broker-mandates/requests/{requestId}:
+    delete:
+      operationId: cancelMandateRequest
+      tags: [broker-mandates]
+      summary: Broker cancels a pending mandate request
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Request cancelled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MandateRequest"
+        "400":
+          description: Request is not in PENDING status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: Not the broker who created this request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: Request not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /broker-mandates/confirm:
+    post:
+      operationId: confirmMandateRequest
+      tags: [broker-mandates]
+      summary: Producer confirms a mandate request using the broker's token (Clerk or API key)
+      description: |
+        The producer (PRODUCER or COOPERATIVE tier) confirms the mandate request the broker shared.
+        Accepts either a Clerk session (cookie) or an API key in the X-Api-Key header.
+        On success, a new broker mandate is created and the request is marked CONFIRMED.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConfirmMandateRequestBody"
+      responses:
+        "201":
+          description: Mandate created — the request is now CONFIRMED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BrokerMandate"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: Caller is not a PRODUCER or COOPERATIVE
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: Token not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: Already confirmed, cancelled, or an active mandate already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "410":
+          description: Token has expired
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
   /broker-mandates:
     post:
       operationId: createBrokerMandate
       tags: [broker-mandates]
-      summary: Owner grants a broker mandate (PRODUCER or COOPERATIVE only)
+      summary: Owner grants a broker mandate directly (PRODUCER or COOPERATIVE only)
       requestBody:
         required: true
         content:
@@ -5292,6 +5432,91 @@ components:
 
     # ── Broker Mandates ────────────────────────────────────────────────────
 
+    MandateRequest:
+      type: object
+      required: [id, brokerId, commodityType, token, status, expiresAt, createdAt]
+      properties:
+        id:
+          type: integer
+        brokerId:
+          type: integer
+        brokerName:
+          type: ["string", "null"]
+        commodityType:
+          type: string
+          enum: [MAIZE, RICE, COFFEE, TEA, AVOCADO]
+        token:
+          type: string
+          description: Opaque UUID token to share with the producer
+        status:
+          type: string
+          enum: [PENDING, CONFIRMED, CANCELLED, EXPIRED]
+        expiresAt:
+          type: string
+          format: date-time
+        confirmedAt:
+          type: ["string", "null"]
+          format: date-time
+        confirmedMandateId:
+          type: ["integer", "null"]
+        note:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        confirmInstructions:
+          type: object
+          description: Instructions for the producer to confirm the request
+          properties:
+            endpoint:
+              type: string
+            authHeader:
+              type: string
+            body:
+              type: object
+              additionalProperties: true
+
+    CreateMandateRequestBody:
+      type: object
+      required: [commodityType]
+      properties:
+        commodityType:
+          type: string
+          enum: [MAIZE, RICE, COFFEE, TEA, AVOCADO]
+        note:
+          type: string
+          maxLength: 500
+          description: Optional note for context (e.g. producer name or deal reference)
+        expiryDays:
+          type: integer
+          minimum: 1
+          maximum: 30
+          default: 7
+          description: How many days until this token expires
+
+    ConfirmMandateRequestBody:
+      type: object
+      required: [token]
+      properties:
+        token:
+          type: string
+          description: The token the broker shared
+        permissions:
+          type: array
+          items:
+            type: string
+          default: ["list", "accept_bids", "negotiate", "set_reserve"]
+        commissionRateOverride:
+          type: number
+          minimum: 0
+          maximum: 1
+        validFrom:
+          type: string
+          format: date-time
+        validTo:
+          type: string
+          format: date-time
+
     BrokerMandate:
       type: object
       required: [id, ownerId, brokerId, commodityType, permissions, validFrom, revoked, createdAt]
@@ -5397,7 +5622,7 @@ components:
           type: array
           items:
             type: string
-            enum: [ewr:push, wrsc:intake]
+            enum: [ewr:push, wrsc:intake, mandates:confirm]
           minItems: 1
         expiresAt:
           type: string

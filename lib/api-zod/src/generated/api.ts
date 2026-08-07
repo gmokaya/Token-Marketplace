@@ -2989,7 +2989,101 @@ export const UpdateCoffeeEsgReportResponse = zod.record(zod.string(), zod.unknow
 
 
 /**
- * @summary Owner grants a broker mandate (PRODUCER or COOPERATIVE only)
+ * The broker calls this endpoint to generate an opaque token they can share with a producer
+out-of-band (email, phone, etc.). The producer then calls POST /broker-mandates/confirm
+with that token and their API key to grant the mandate — no producer UI required.
+
+ * @summary Broker generates a shareable mandate-request token (ENABLER only)
+ */
+export const createMandateRequestBodyNoteMax = 500;
+
+export const createMandateRequestBodyExpiryDaysDefault = 7;
+export const createMandateRequestBodyExpiryDaysMax = 30;
+
+
+
+export const CreateMandateRequestBody = zod.object({
+  "commodityType": zod.enum(['MAIZE', 'RICE', 'COFFEE', 'TEA', 'AVOCADO']),
+  "note": zod.string().max(createMandateRequestBodyNoteMax).optional().describe('Optional note for context (e.g. producer name or deal reference)'),
+  "expiryDays": zod.number().min(1).max(createMandateRequestBodyExpiryDaysMax).default(createMandateRequestBodyExpiryDaysDefault).describe('How many days until this token expires')
+})
+
+
+/**
+ * @summary Broker lists their mandate requests (newest first)
+ */
+export const ListMandateRequestsResponseItem = zod.object({
+  "id": zod.number(),
+  "brokerId": zod.number(),
+  "brokerName": zod.string().nullish(),
+  "commodityType": zod.enum(['MAIZE', 'RICE', 'COFFEE', 'TEA', 'AVOCADO']),
+  "token": zod.string().describe('Opaque UUID token to share with the producer'),
+  "status": zod.enum(['PENDING', 'CONFIRMED', 'CANCELLED', 'EXPIRED']),
+  "expiresAt": zod.coerce.date(),
+  "confirmedAt": zod.coerce.date().nullish(),
+  "confirmedMandateId": zod.number().nullish(),
+  "note": zod.string().nullish(),
+  "createdAt": zod.coerce.date(),
+  "confirmInstructions": zod.object({
+  "endpoint": zod.string().optional(),
+  "authHeader": zod.string().optional(),
+  "body": zod.record(zod.string(), zod.unknown()).optional()
+}).optional().describe('Instructions for the producer to confirm the request')
+})
+export const ListMandateRequestsResponse = zod.array(ListMandateRequestsResponseItem)
+
+
+/**
+ * @summary Broker cancels a pending mandate request
+ */
+export const CancelMandateRequestParams = zod.object({
+  "requestId": zod.coerce.number()
+})
+
+export const CancelMandateRequestResponse = zod.object({
+  "id": zod.number(),
+  "brokerId": zod.number(),
+  "brokerName": zod.string().nullish(),
+  "commodityType": zod.enum(['MAIZE', 'RICE', 'COFFEE', 'TEA', 'AVOCADO']),
+  "token": zod.string().describe('Opaque UUID token to share with the producer'),
+  "status": zod.enum(['PENDING', 'CONFIRMED', 'CANCELLED', 'EXPIRED']),
+  "expiresAt": zod.coerce.date(),
+  "confirmedAt": zod.coerce.date().nullish(),
+  "confirmedMandateId": zod.number().nullish(),
+  "note": zod.string().nullish(),
+  "createdAt": zod.coerce.date(),
+  "confirmInstructions": zod.object({
+  "endpoint": zod.string().optional(),
+  "authHeader": zod.string().optional(),
+  "body": zod.record(zod.string(), zod.unknown()).optional()
+}).optional().describe('Instructions for the producer to confirm the request')
+})
+
+
+/**
+ * The producer (PRODUCER or COOPERATIVE tier) confirms the mandate request the broker shared.
+Accepts either a Clerk session (cookie) or an API key in the X-Api-Key header.
+On success, a new broker mandate is created and the request is marked CONFIRMED.
+
+ * @summary Producer confirms a mandate request using the broker's token (Clerk or API key)
+ */
+export const confirmMandateRequestBodyPermissionsDefault = [`list`, `accept_bids`, `negotiate`, `set_reserve`];
+export const confirmMandateRequestBodyCommissionRateOverrideMin = 0;
+export const confirmMandateRequestBodyCommissionRateOverrideMax = 1;
+
+
+
+export const ConfirmMandateRequestBody = zod.object({
+  "token": zod.string().describe('The token the broker shared'),
+  "permissions": zod.array(zod.string()).default(confirmMandateRequestBodyPermissionsDefault),
+  "commissionRateOverride": zod.number().min(confirmMandateRequestBodyCommissionRateOverrideMin).max(confirmMandateRequestBodyCommissionRateOverrideMax).optional(),
+  "validFrom": zod.coerce.date().optional(),
+  "validTo": zod.coerce.date().optional()
+})
+
+
+/**
+ * @summary Owner grants a broker mandate directly (PRODUCER or COOPERATIVE only)
  */
 export const createBrokerMandateBodyPermissionsDefault = [`list`, `accept_bids`, `negotiate`, `set_reserve`];
 export const createBrokerMandateBodyCommissionRateOverrideMin = 0;
@@ -3119,7 +3213,7 @@ export const createIntegrationCredentialBodyNameMax = 100;
 
 export const CreateIntegrationCredentialBody = zod.object({
   "name": zod.string().min(1).max(createIntegrationCredentialBodyNameMax),
-  "scopes": zod.array(zod.enum(['ewr:push', 'wrsc:intake'])).min(1),
+  "scopes": zod.array(zod.enum(['ewr:push', 'wrsc:intake', 'mandates:confirm'])).min(1),
   "expiresAt": zod.coerce.date().optional()
 })
 
