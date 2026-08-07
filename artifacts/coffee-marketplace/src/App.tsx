@@ -52,6 +52,13 @@ import AdminAuctions from "@/pages/admin/AdminAuctions";
 import NewAuction from "@/pages/admin/NewAuction";
 import AdminEarnings from "@/pages/admin/AdminEarnings";
 import AdminAudit from "@/pages/admin/AdminAudit";
+import AdminUsers from "@/pages/admin/AdminUsers";
+import AdminLots from "@/pages/admin/AdminLots";
+
+import BrokerEarnings from "@/pages/broker/BrokerEarnings";
+
+import Warehouses from "@/pages/warehouses/Warehouses";
+import WarehouseDetail from "@/pages/warehouses/WarehouseDetail";
 
 const clerkPubKey = publishableKeyFromHost(window.location.hostname, import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
 const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL;
@@ -163,6 +170,7 @@ function ClerkProviderWithRoutes() {
                   <Route path="/broker/lots/:lotId/edit"><ProtectedRoute><EditBrokeredLot /></ProtectedRoute></Route>
                   <Route path="/broker/mandates"><ProtectedRoute><BrokerMandates /></ProtectedRoute></Route>
                   <Route path="/broker/auctions"><ProtectedRoute><BrokerAuctions /></ProtectedRoute></Route>
+                  <Route path="/broker/earnings"><ProtectedRoute><BrokerEarnings /></ProtectedRoute></Route>
 
                   <Route path="/market"><ProtectedRoute><Market /></ProtectedRoute></Route>
                   <Route path="/lots/:lotId"><ProtectedRoute><LotDetail /></ProtectedRoute></Route>
@@ -182,6 +190,11 @@ function ClerkProviderWithRoutes() {
                   <Route path="/admin/auctions/new"><ProtectedRoute><NewAuction /></ProtectedRoute></Route>
                   <Route path="/admin/earnings"><ProtectedRoute><AdminEarnings /></ProtectedRoute></Route>
                   <Route path="/admin/audit"><ProtectedRoute><AdminAudit /></ProtectedRoute></Route>
+                  <Route path="/admin/users"><ProtectedRoute><AdminUsers /></ProtectedRoute></Route>
+                  <Route path="/admin/lots"><ProtectedRoute><AdminLots /></ProtectedRoute></Route>
+
+                  <Route path="/warehouses"><ProtectedRoute><Warehouses /></ProtectedRoute></Route>
+                  <Route path="/warehouses/:code"><ProtectedRoute><WarehouseDetail /></ProtectedRoute></Route>
 
                   <Route>
                     <div className="flex items-center justify-center h-[50vh] text-muted-foreground font-mono">

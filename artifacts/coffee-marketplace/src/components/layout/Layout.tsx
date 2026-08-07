@@ -21,7 +21,9 @@ import {
   PlusCircle,
   List,
   TrendingUp,
-  ShoppingCart
+  ShoppingCart,
+  Warehouse,
+  DollarSign
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -35,7 +37,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <div className="flex h-16 items-center px-6 border-b border-sidebar-border">
           <div className="flex items-center gap-2">
             <Coffee className="w-4 h-4 text-accent shrink-0" />
-            <span className="tokenharvest-wordmark text-xl text-white">Coffee Exchange</span>
+            <span className="tokenharvest-wordmark text-xl text-white">Specialty Coffee</span>
           </div>
         </div>
         <div className="p-4 h-[calc(100vh-4rem)] overflow-y-auto">
@@ -48,7 +50,7 @@ export function Layout({ children }: { children: ReactNode }) {
           {/* Desktop: wordmark in header far-left */}
           <div className="hidden lg:flex items-center gap-2">
             <Coffee className="w-4 h-4 text-accent shrink-0" />
-            <span className="tokenharvest-wordmark text-xl">Coffee Exchange</span>
+            <span className="tokenharvest-wordmark text-xl">Specialty Coffee</span>
           </div>
 
           {/* Mobile: hamburger + wordmark */}
@@ -63,7 +65,7 @@ export function Layout({ children }: { children: ReactNode }) {
                 <div className="flex h-16 items-center px-6 border-b border-sidebar-border">
                   <div className="flex items-center gap-2">
                     <Coffee className="w-4 h-4 text-accent shrink-0" />
-                    <span className="tokenharvest-wordmark text-xl text-white">Coffee Exchange</span>
+                    <span className="tokenharvest-wordmark text-xl text-white">Specialty Coffee</span>
                   </div>
                 </div>
                 <div className="p-4 overflow-y-auto">
@@ -73,7 +75,7 @@ export function Layout({ children }: { children: ReactNode }) {
             </Sheet>
             <div className="flex items-center gap-1.5">
               <Coffee className="w-4 h-4 text-accent" />
-              <span className="tokenharvest-wordmark text-lg">Coffee Exchange</span>
+              <span className="tokenharvest-wordmark text-lg">Specialty Coffee</span>
             </div>
           </div>
           
@@ -145,6 +147,8 @@ function SidebarNav({ role }: { role?: string }) {
           <NavItem href="/broker/lots/new" icon={PlusCircle} label="List New Lot" />
           <NavItem href="/broker/mandates" icon={ShieldCheck} label="Mandates" />
           <NavItem href="/broker/auctions" icon={Gavel} label="My Auctions" />
+          <NavItem href="/broker/earnings" icon={DollarSign} label="Earnings" />
+          <NavItem href="/warehouses" icon={Warehouse} label="Warehouses" />
         </NavGroup>
       )}
 
@@ -153,6 +157,7 @@ function SidebarNav({ role }: { role?: string }) {
           <NavItem href="/market" icon={BarChart4} label="Spot Market" />
           <NavItem href="/admin/auctions" icon={Gavel} label="Live Auctions" />
           <NavItem href="/forwards" icon={TrendingUp} label="Forward Contracts" />
+          <NavItem href="/warehouses" icon={Warehouse} label="Warehouses" />
         </NavGroup>
       )}
 
@@ -178,11 +183,13 @@ function SidebarNav({ role }: { role?: string }) {
       )}
 
       {role === "ADMIN" && (
-        <NavGroup title="Exchange Admin">
+        <NavGroup title="Platform Admin">
           <NavItem href="/admin/auctions" icon={Gavel} label="Auction Sessions" />
           <NavItem href="/admin/auctions/new" icon={PlusCircle} label="New Auction" />
+          <NavItem href="/admin/lots" icon={Coffee} label="All Lots" />
+          <NavItem href="/admin/users" icon={Users} label="Users" />
           <NavItem href="/market" icon={BarChart4} label="Market Overview" />
-          <NavItem href="/broker" icon={List} label="Lots Overview" />
+          <NavItem href="/warehouses" icon={Warehouse} label="Warehouses" />
           <NavItem href="/mandates" icon={ShieldCheck} label="Mandates" />
           <NavItem href="/admin/earnings" icon={Landmark} label="Earnings" />
           <NavItem href="/admin/audit" icon={ShieldCheck} label="Audit Log" />
