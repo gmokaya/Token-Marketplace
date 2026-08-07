@@ -1,7 +1,7 @@
 import { useAuth } from "@clerk/react";
 import { Link } from "wouter";
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, ChevronRight, X, Send } from "lucide-react";
+import { ArrowRight, ChevronRight, X, Send, Menu } from "lucide-react";
 import { PriceTicker } from "@/components/PriceTicker";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -292,7 +292,7 @@ function EsgSection() {
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", position: "relative", zIndex: 1 }}>
 
         {/* ─ Top layout: statement left, paragraph right ─ */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "end", marginBottom: 80 }}>
+        <div className="homepage-esg-header" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "end", marginBottom: 80 }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 16 }}>
               <div style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT }} />
@@ -322,7 +322,7 @@ function EsgSection() {
         </div>
 
         {/* ─ Three pillars ─ */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 2 }}>
+        <div className="homepage-esg-pillars" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 2 }}>
           {([
             {
               letter: "E",
@@ -632,6 +632,7 @@ export default function Home() {
   const [statsOn, setStatsOn]   = useState(false);
   const statsRef = useRef<HTMLDivElement>(null);
   const [contactOpen, setContactOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const [hp, setHp] = useState<Partial<HpContent>>({});
   const [activePillar, setActivePillar] = useState<number | null>(null);
@@ -749,8 +750,75 @@ export default function Home() {
                   </>
                 )}
               </div>
+              {/* Hamburger — hidden on desktop via CSS, shown on mobile */}
+              <button
+                className="homepage-hamburger"
+                onClick={() => setMobileMenuOpen(true)}
+                aria-label="Open navigation menu"
+                style={{ background: "none", border: "none", cursor: "pointer", color: "#fff", padding: "8px", display: "flex", alignItems: "center" }}
+              >
+                <Menu size={24} />
+              </button>
             </div>
           </header>
+
+          {/* ══ MOBILE NAV MENU ═════════════════════════════════════ */}
+          {mobileMenuOpen && (
+            <div style={{
+              position: "fixed", inset: 0, zIndex: 500,
+              background: "rgba(16,16,16,0.98)",
+              backdropFilter: "blur(12px)",
+              display: "flex", flexDirection: "column",
+              padding: "20px 24px 40px",
+              fontFamily: "'Futura', sans-serif",
+              overflowY: "auto",
+            }}>
+              {/* top row */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 40 }}>
+                <Link href="/" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: "none" }}>
+                  <span className="tokenharvest-wordmark" style={{ color: "#fff", fontSize: 28 }}>TokenHarvest</span>
+                </Link>
+                <button onClick={() => setMobileMenuOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.6)", padding: 8, display: "flex" }}>
+                  <X size={24} />
+                </button>
+              </div>
+              {/* nav links */}
+              <nav style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+                {([ ["Platform","platform"], ["Services","services"], ["About","about"], ["Contact","cta"] ] as const).map(([label, id]) => (
+                  <button key={id} onClick={() => { scrollTo(id); setMobileMenuOpen(false); }}
+                    style={{
+                      background: "none", border: "none", borderBottom: "1px solid rgba(255,255,255,0.07)",
+                      cursor: "pointer", color: "#fff", fontSize: 26, fontWeight: 300,
+                      fontFamily: "'Futura', sans-serif", textAlign: "left",
+                      padding: "18px 0", display: "flex", justifyContent: "space-between", alignItems: "center",
+                    }}>
+                    {label}
+                    <ArrowRight size={16} style={{ color: ACCENT_LIGHT, opacity: 0.7 }} />
+                  </button>
+                ))}
+              </nav>
+              {/* auth */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 32 }}>
+                {isSignedIn ? (
+                  <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}
+                    style={{ background: ACCENT, color: "#fff", padding: "16px 24px", textDecoration: "none", fontSize: 15, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                    Go to Dashboard <ArrowRight size={16} />
+                  </Link>
+                ) : (
+                  <>
+                    <Link href="/sign-in" onClick={() => setMobileMenuOpen(false)}
+                      style={{ color: "rgba(255,255,255,0.7)", textDecoration: "none", fontSize: 15, fontWeight: 500, padding: "14px 24px", border: "1px solid rgba(255,255,255,0.15)", textAlign: "center", display: "block" }}>
+                      Sign In
+                    </Link>
+                    <Link href="/sign-up" onClick={() => setMobileMenuOpen(false)}
+                      style={{ background: ACCENT, color: "#fff", padding: "16px 24px", textDecoration: "none", fontSize: 15, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                      Get Started <ArrowRight size={16} />
+                    </Link>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* ══ HERO ════════════════════════════════════════════════ */}
           <section className="homepage-hero" style={{ position: "relative", height: "100vh", minHeight: 600, display: "flex", alignItems: "center" }}>
@@ -836,7 +904,7 @@ export default function Home() {
                   Trading Solutions
                 </h2>
               </div>
-              <div style={{
+              <div className="homepage-services-grid" style={{
                 display: "grid", gridTemplateColumns: "1fr 1fr 1fr",
                 background: "#fff", position: "relative", zIndex: 10,
                 boxShadow: "0 8px 40px rgba(0,0,0,0.10)",
@@ -877,7 +945,7 @@ export default function Home() {
 
           {/* ══ ABOUT ════════════════════════════════════════════════ */}
           <section id="about" style={{ background: "#e8e8e8", padding: "104px 0 112px" }}>
-            <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "stretch" }}>
+            <div className="homepage-about-grid" style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "stretch" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <img src={photo("about-planting.jpg")} alt="East African farmer planting in the field" style={{ width: "94%", display: "block", objectFit: "cover", aspectRatio: "4 / 3", maxHeight: 460, boxShadow: "0 8px 20px rgba(0,0,0,0.35), 0 24px 60px rgba(0,0,0,0.25), 0 48px 100px rgba(0,0,0,0.15)" }} />
               </div>
@@ -933,7 +1001,7 @@ export default function Home() {
                 </h2>
               </div>
               {/* 4-step grid */}
-              <div style={{ display: "grid", gridTemplateColumns: `repeat(${steps.length},1fr)`, gap: 0 }}>
+              <div className="homepage-steps-grid" style={{ display: "grid", gridTemplateColumns: `repeat(${steps.length},1fr)`, gap: 0 }}>
                 {steps.map(({ num, title, desc }, i) => (
                   <div key={num} style={{ padding: "40px 36px 40px", borderLeft: i > 0 ? "1px solid #f0f0f0" : undefined, position: "relative" }}>
                     <div style={{ fontSize: 52, fontWeight: 300, color: "rgba(0,0,0,0.06)", lineHeight: 1, marginBottom: 12 }}>{num}</div>
@@ -954,7 +1022,7 @@ export default function Home() {
           }}>
             <div style={{ position: "absolute", inset: 0, background: "rgba(12,12,12,0.82)" }} />
             <div style={{ position: "relative", zIndex: 1, maxWidth: 1200, margin: "0 auto", padding: "0 32px" }}>
-              <div style={{ display: "grid", gridTemplateColumns: `repeat(${hpStats.length},1fr)`, gap: 40, textAlign: "center" }}>
+              <div className="homepage-stats-grid" style={{ display: "grid", gridTemplateColumns: `repeat(${hpStats.length},1fr)`, gap: 40, textAlign: "center" }}>
                 {hpStats.map(({ target, suffix, label }) => (
                   <div key={label}>
                     <div style={{ fontSize: "clamp(2.4rem,4.5vw,4rem)", fontWeight: 300, color: "#fff", lineHeight: 1, marginBottom: 4 }}>
@@ -983,7 +1051,7 @@ export default function Home() {
             </div>
 
             {/* Full-bleed photo card strip */}
-            <div style={{ display: "flex", height: 500 }}>
+            <div className="homepage-markets-strip" style={{ display: "flex", height: 500 }}>
               {markets.map(card => <MarketCard key={card.num} {...card} />)}
             </div>
 
@@ -994,7 +1062,7 @@ export default function Home() {
 
           {/* ══ TRADE FINANCE & LIQUIDITY ════════════════════════ */}
           <section style={{ background: "#f7f7f7", padding: "96px 0" }}>
-            <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 72, alignItems: "center" }}>
+            <div className="homepage-finance-grid" style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 72, alignItems: "center" }}>
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
                   <div style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT }} />
@@ -1081,7 +1149,7 @@ export default function Home() {
           {/* ══ FOOTER ──────────────────────────────────────────── */}
           <footer style={{ background: "#0d0d0d", padding: "64px 0 0" }}>
             <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 48, paddingBottom: 52, borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+              <div className="homepage-footer-grid" style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 48, paddingBottom: 52, borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
                 <div>
                   <div style={{ marginBottom: 14 }}>
                     <Link href="/" style={{ display: "inline-flex" }}>
@@ -1117,7 +1185,7 @@ export default function Home() {
                   </div>
                 ))}
               </div>
-              <div style={{ padding: "22px 0 66px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div className="homepage-footer-bottom" style={{ padding: "22px 0 66px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <p style={{ color: "rgba(255,255,255,0.2)", fontSize: 12, margin: 0 }}>© 2025 WRS Marketplace. All rights reserved.</p>
                 <p style={{ color: "rgba(255,255,255,0.12)", fontSize: 12, margin: 0 }}>Regulated agricultural commodity trading platform.</p>
               </div>

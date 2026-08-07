@@ -607,6 +607,136 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+/* ═══════════════════════════════════════════════════════════
+   MOBILE RESPONSIVE — TokenHarvest Homepage
+   ═══════════════════════════════════════════════════════════ */
+
+/* Hamburger: hidden on desktop */
+.homepage-hamburger {
+  display: none !important;
+}
+
+@media (max-width: 720px) {
+  /* Hide top bar on mobile */
+  .homepage-topbar {
+    display: none !important;
+  }
+
+  /* Show hamburger, hide desktop nav */
+  .homepage-hamburger {
+    display: flex !important;
+  }
+  .homepage-auth-actions {
+    display: none !important;
+  }
+
+  /* ── Services ── */
+  .homepage-services-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .homepage-services-grid > div {
+    border-right: none !important;
+    border-top: 1px solid #f0f0f0 !important;
+    padding: 40px 24px 36px !important;
+  }
+  .homepage-services-grid > div:first-child {
+    border-top: none !important;
+  }
+
+  /* ── About ── */
+  .homepage-about-grid {
+    grid-template-columns: 1fr !important;
+    gap: 40px !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+  /* Text first, image second on mobile */
+  .homepage-about-grid > div:first-child {
+    order: 2 !important;
+  }
+  .homepage-about-grid > div:last-child {
+    order: 1 !important;
+  }
+
+  /* ── How It Works ── */
+  .homepage-steps-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  .homepage-steps-grid > div {
+    border-left: none !important;
+    border-bottom: 1px solid #f0f0f0 !important;
+    padding: 28px 20px !important;
+  }
+
+  /* ── Stats ── */
+  .homepage-stats-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 32px !important;
+  }
+
+  /* ── Available Markets — vertical stacked cards ── */
+  .homepage-markets-strip {
+    flex-direction: column !important;
+    height: auto !important;
+  }
+  .homepage-markets-strip > div {
+    flex: none !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    height: 160px !important;
+    min-height: 160px !important;
+  }
+
+  /* ── ESG ── */
+  .homepage-esg-header {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+    margin-bottom: 48px !important;
+  }
+  .homepage-esg-pillars {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  .homepage-esg-pillars > div {
+    border-left: none !important;
+    padding: 36px 28px 40px !important;
+  }
+
+  /* ── Trade Finance ── */
+  .homepage-finance-grid {
+    grid-template-columns: 1fr !important;
+    gap: 36px !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+
+  /* ── Footer ── */
+  .homepage-footer-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 32px 24px !important;
+  }
+  .homepage-footer-grid > div:first-child {
+    grid-column: 1 / -1 !important;
+  }
+  .homepage-footer-bottom {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 6px !important;
+    padding-bottom: 48px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  /* Narrow phones: steps go single column */
+  .homepage-steps-grid {
+    grid-template-columns: 1fr !important;
+  }
+  /* Footer links go single column */
+  .homepage-footer-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 /* Taller tablet/compact-desktop viewports: use the lower hero space intentionally. */
 @media (min-width: 721px) and (max-width: 980px) and (min-height: 621px) {
   .homepage-main-nav {
