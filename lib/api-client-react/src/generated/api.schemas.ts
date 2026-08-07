@@ -1928,6 +1928,44 @@ export interface CreateBrokerMandateRequest {
   validTo?: string;
 }
 
+export interface IntegrationCredential {
+  id: number;
+  name: string;
+  /** First 16 characters of the key, e.g. "sk_live_abcdefgh" */
+  keyPrefix: string;
+  scopes: string[];
+  enabled: boolean;
+  /** @nullable */
+  lastUsedAt?: string | null;
+  /** @nullable */
+  expiresAt?: string | null;
+  createdAt: string;
+}
+
+export type CreateIntegrationCredentialRequestScopesItem = typeof CreateIntegrationCredentialRequestScopesItem[keyof typeof CreateIntegrationCredentialRequestScopesItem];
+
+
+export const CreateIntegrationCredentialRequestScopesItem = {
+  'ewr:push': 'ewr:push',
+  'wrsc:intake': 'wrsc:intake',
+} as const;
+
+export interface CreateIntegrationCredentialRequest {
+  /**
+     * @minLength 1
+     * @maxLength 100
+     */
+  name: string;
+  /** @minItems 1 */
+  scopes: CreateIntegrationCredentialRequestScopesItem[];
+  expiresAt?: string;
+}
+
+export type CreateIntegrationCredentialResponse = IntegrationCredential & {
+  /** Plaintext API key — only present in this response, never again */
+  key: string;
+};
+
 export type ListEwrsParams = {
 ownerId?: number;
 state?: ListEwrsState;
@@ -2431,4 +2469,12 @@ export type GetCoffeeEsgReport200 = { [key: string]: unknown };
 export type UpdateCoffeeEsgReportBody = { [key: string]: unknown };
 
 export type UpdateCoffeeEsgReport200 = { [key: string]: unknown };
+
+export type RevokeIntegrationCredential200 = {
+  revoked?: boolean;
+};
+
+export type UpdateIntegrationCredentialBody = {
+  enabled: boolean;
+};
 

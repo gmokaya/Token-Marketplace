@@ -23,7 +23,8 @@ import {
   TrendingUp,
   ShoppingCart,
   Warehouse,
-  DollarSign
+  DollarSign,
+  Key
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -198,6 +199,9 @@ function SidebarNav({ role }: { role?: string }) {
       
       <NavGroup title="Settings">
         <NavItem href="/profile" icon={Users} label="My Profile" />
+        {(role === "PRODUCER" || role === "ENABLER" || role === "ADMIN") && (
+          <NavItem href="/settings/api-access" icon={Key} label="API Access" />
+        )}
       </NavGroup>
     </div>
   );

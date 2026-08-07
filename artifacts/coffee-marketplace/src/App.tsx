@@ -59,6 +59,7 @@ import BrokerEarnings from "@/pages/broker/BrokerEarnings";
 
 import Warehouses from "@/pages/warehouses/Warehouses";
 import WarehouseDetail from "@/pages/warehouses/WarehouseDetail";
+import ApiAccess from "@/pages/settings/ApiAccess";
 
 const clerkPubKey = publishableKeyFromHost(window.location.hostname, import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
 const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL;
@@ -195,6 +196,8 @@ function ClerkProviderWithRoutes() {
 
                   <Route path="/warehouses"><ProtectedRoute><Warehouses /></ProtectedRoute></Route>
                   <Route path="/warehouses/:code"><ProtectedRoute><WarehouseDetail /></ProtectedRoute></Route>
+
+                  <Route path="/settings/api-access"><ProtectedRoute><ApiAccess /></ProtectedRoute></Route>
 
                   <Route>
                     <div className="flex items-center justify-center h-[50vh] text-muted-foreground font-mono">

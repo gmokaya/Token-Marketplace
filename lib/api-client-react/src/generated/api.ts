@@ -60,6 +60,8 @@ import type {
   CreateCoffeeShipment201,
   CreateCoffeeShipmentBody,
   CreateEwrRequest,
+  CreateIntegrationCredentialRequest,
+  CreateIntegrationCredentialResponse,
   CreateTeaAuctionSessionRequest,
   CreateTeaLotRequest,
   DigitalReleaseToken,
@@ -81,6 +83,7 @@ import type {
   HealthStatus,
   IntakeLog,
   IntakeLogInput,
+  IntegrationCredential,
   ListAuctionsParams,
   ListAuditLogParams,
   ListCoffeeAuctionSessionsParams,
@@ -107,6 +110,7 @@ import type {
   PriceTrendItem,
   RequestEwrForLotBody,
   ResolveDefaultBody,
+  RevokeIntegrationCredential200,
   SendCoffeeRfqMessage201,
   SendCoffeeRfqMessageBody,
   Settlement,
@@ -139,6 +143,7 @@ import type {
   UpdateCoffeeRfqStatusBody,
   UpdateCoffeeShipment200,
   UpdateCoffeeShipmentBody,
+  UpdateIntegrationCredentialBody,
   UpdateTeaLotRequest,
   UploadUrlRequest,
   UploadUrlResponse,
@@ -8850,4 +8855,294 @@ export function useGetWarehouseProfileByCode<TData = Awaited<ReturnType<typeof g
 
 
 
+
+export const getListIntegrationCredentialsUrl = () => {
+
+
+
+
+  return `/api/integrations/credentials`
+}
+
+/**
+ * @summary List the caller's integration API keys (no plaintext keys)
+ */
+export const listIntegrationCredentials = async ( options?: RequestInit): Promise<IntegrationCredential[]> => {
+
+  return customFetch<IntegrationCredential[]>(getListIntegrationCredentialsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListIntegrationCredentialsQueryKey = () => {
+    return [
+    `/api/integrations/credentials`
+    ] as const;
+    }
+
+
+export const getListIntegrationCredentialsQueryOptions = <TData = Awaited<ReturnType<typeof listIntegrationCredentials>>, TError = ErrorType<ErrorEnvelope>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listIntegrationCredentials>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListIntegrationCredentialsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listIntegrationCredentials>>> = ({ signal }) => listIntegrationCredentials({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listIntegrationCredentials>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListIntegrationCredentialsQueryResult = NonNullable<Awaited<ReturnType<typeof listIntegrationCredentials>>>
+export type ListIntegrationCredentialsQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary List the caller's integration API keys (no plaintext keys)
+ */
+
+export function useListIntegrationCredentials<TData = Awaited<ReturnType<typeof listIntegrationCredentials>>, TError = ErrorType<ErrorEnvelope>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listIntegrationCredentials>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListIntegrationCredentialsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCreateIntegrationCredentialUrl = () => {
+
+
+
+
+  return `/api/integrations/credentials`
+}
+
+/**
+ * @summary Generate a new integration API key (returned once in plain)
+ */
+export const createIntegrationCredential = async (createIntegrationCredentialRequest: CreateIntegrationCredentialRequest, options?: RequestInit): Promise<CreateIntegrationCredentialResponse> => {
+
+  return customFetch<CreateIntegrationCredentialResponse>(getCreateIntegrationCredentialUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      createIntegrationCredentialRequest,)
+  }
+);}
+
+
+
+
+export const getCreateIntegrationCredentialMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createIntegrationCredential>>, TError,{data: BodyType<CreateIntegrationCredentialRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createIntegrationCredential>>, TError,{data: BodyType<CreateIntegrationCredentialRequest>}, TContext> => {
+
+const mutationKey = ['createIntegrationCredential'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createIntegrationCredential>>, {data: BodyType<CreateIntegrationCredentialRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createIntegrationCredential(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateIntegrationCredentialMutationResult = NonNullable<Awaited<ReturnType<typeof createIntegrationCredential>>>
+    export type CreateIntegrationCredentialMutationBody = BodyType<CreateIntegrationCredentialRequest>
+    export type CreateIntegrationCredentialMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Generate a new integration API key (returned once in plain)
+ */
+export const useCreateIntegrationCredential = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createIntegrationCredential>>, TError,{data: BodyType<CreateIntegrationCredentialRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createIntegrationCredential>>,
+        TError,
+        {data: BodyType<CreateIntegrationCredentialRequest>},
+        TContext
+      > => {
+      return useMutation(getCreateIntegrationCredentialMutationOptions(options));
+    }
+
+export const getRevokeIntegrationCredentialUrl = (id: number,) => {
+
+
+
+
+  return `/api/integrations/credentials/${id}`
+}
+
+/**
+ * @summary Revoke (disable) an integration credential
+ */
+export const revokeIntegrationCredential = async (id: number, options?: RequestInit): Promise<RevokeIntegrationCredential200> => {
+
+  return customFetch<RevokeIntegrationCredential200>(getRevokeIntegrationCredentialUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getRevokeIntegrationCredentialMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof revokeIntegrationCredential>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof revokeIntegrationCredential>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['revokeIntegrationCredential'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof revokeIntegrationCredential>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  revokeIntegrationCredential(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RevokeIntegrationCredentialMutationResult = NonNullable<Awaited<ReturnType<typeof revokeIntegrationCredential>>>
+
+    export type RevokeIntegrationCredentialMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Revoke (disable) an integration credential
+ */
+export const useRevokeIntegrationCredential = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof revokeIntegrationCredential>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof revokeIntegrationCredential>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getRevokeIntegrationCredentialMutationOptions(options));
+    }
+
+export const getUpdateIntegrationCredentialUrl = (id: number,) => {
+
+
+
+
+  return `/api/integrations/credentials/${id}`
+}
+
+/**
+ * @summary Enable or disable a credential
+ */
+export const updateIntegrationCredential = async (id: number,
+    updateIntegrationCredentialBody: UpdateIntegrationCredentialBody, options?: RequestInit): Promise<IntegrationCredential> => {
+
+  return customFetch<IntegrationCredential>(getUpdateIntegrationCredentialUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      updateIntegrationCredentialBody,)
+  }
+);}
+
+
+
+
+export const getUpdateIntegrationCredentialMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateIntegrationCredential>>, TError,{id: number;data: BodyType<UpdateIntegrationCredentialBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateIntegrationCredential>>, TError,{id: number;data: BodyType<UpdateIntegrationCredentialBody>}, TContext> => {
+
+const mutationKey = ['updateIntegrationCredential'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateIntegrationCredential>>, {id: number;data: BodyType<UpdateIntegrationCredentialBody>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateIntegrationCredential(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateIntegrationCredentialMutationResult = NonNullable<Awaited<ReturnType<typeof updateIntegrationCredential>>>
+    export type UpdateIntegrationCredentialMutationBody = BodyType<UpdateIntegrationCredentialBody>
+    export type UpdateIntegrationCredentialMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Enable or disable a credential
+ */
+export const useUpdateIntegrationCredential = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateIntegrationCredential>>, TError,{id: number;data: BodyType<UpdateIntegrationCredentialBody>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateIntegrationCredential>>,
+        TError,
+        {id: number;data: BodyType<UpdateIntegrationCredentialBody>},
+        TContext
+      > => {
+      return useMutation(getUpdateIntegrationCredentialMutationOptions(options));
+    }
 

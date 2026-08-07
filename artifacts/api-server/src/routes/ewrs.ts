@@ -80,10 +80,22 @@ const createEwrSchema = z.discriminatedUnion("commodityType", [
 
 // ── POST /ewrs — Intake with per-commodity grading validation ────────────────
 router.post("/ewrs", async (req, res) => {
-  const { userId: clerkId } = getAuth(req);
-  if (!clerkId) return res.status(401).json({ error: "Unauthorized" });
+  // Resolve caller: Clerk session OR API key (set by apiKeyPreAuth in routes/index.ts)
+  const apiKeyCtx = (req as any).__apiKeyUser as { user: typeof usersTable.$inferSelect; cred: { scopes: string[] } } | undefined;
+  let user: typeof usersTable.$inferSelect | undefined;
 
-  const [user] = await db.select().from(usersTable).where(eq(usersTable.clerkId, clerkId)).limit(1);
+  if (apiKeyCtx) {
+    if (!apiKeyCtx.cred.scopes.includes("ewr:push")) {
+      return res.status(403).json({ error: "API key does not have the 'ewr:push' scope" });
+    }
+    user = apiKeyCtx.user;
+  } else {
+    const { userId: clerkId } = getAuth(req);
+    if (!clerkId) return res.status(401).json({ error: "Unauthorized" });
+    const [found] = await db.select().from(usersTable).where(eq(usersTable.clerkId, clerkId)).limit(1);
+    user = found;
+  }
+
   if (!user) return res.status(404).json({ error: "User not found" });
   if (user.tier !== "PRODUCER" && user.tier !== "ENABLER") {
     return res.status(403).json({ error: "Only Producers and Enablers may submit eWR intake" });

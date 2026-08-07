@@ -3093,3 +3093,69 @@ export const GetWarehouseProfileByCodeResponse = zod.object({
 })
 
 
+/**
+ * @summary List the caller's integration API keys (no plaintext keys)
+ */
+export const ListIntegrationCredentialsResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "keyPrefix": zod.string().describe('First 16 characters of the key, e.g. \"sk_live_abcdefgh\"'),
+  "scopes": zod.array(zod.string()),
+  "enabled": zod.boolean(),
+  "lastUsedAt": zod.coerce.date().nullish(),
+  "expiresAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date()
+})
+export const ListIntegrationCredentialsResponse = zod.array(ListIntegrationCredentialsResponseItem)
+
+
+/**
+ * @summary Generate a new integration API key (returned once in plain)
+ */
+export const createIntegrationCredentialBodyNameMax = 100;
+
+
+
+
+export const CreateIntegrationCredentialBody = zod.object({
+  "name": zod.string().min(1).max(createIntegrationCredentialBodyNameMax),
+  "scopes": zod.array(zod.enum(['ewr:push', 'wrsc:intake'])).min(1),
+  "expiresAt": zod.coerce.date().optional()
+})
+
+
+/**
+ * @summary Revoke (disable) an integration credential
+ */
+export const RevokeIntegrationCredentialParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const RevokeIntegrationCredentialResponse = zod.object({
+  "revoked": zod.boolean().optional()
+})
+
+
+/**
+ * @summary Enable or disable a credential
+ */
+export const UpdateIntegrationCredentialParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateIntegrationCredentialBody = zod.object({
+  "enabled": zod.boolean()
+})
+
+export const UpdateIntegrationCredentialResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "keyPrefix": zod.string().describe('First 16 characters of the key, e.g. \"sk_live_abcdefgh\"'),
+  "scopes": zod.array(zod.string()),
+  "enabled": zod.boolean(),
+  "lastUsedAt": zod.coerce.date().nullish(),
+  "expiresAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date()
+})
+
+

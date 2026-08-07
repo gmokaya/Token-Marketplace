@@ -33,10 +33,41 @@ import coffeeRfqsRouter from "./coffee-rfqs";
 import coffeeShipmentsRouter from "./coffee-shipments";
 import coffeeEsgRouter from "./coffee-esg";
 import listingPublicationsRouter from "./listing-publications";
+import integrationCredentialsRouter, { resolveApiKeyUser } from "./integration-credentials";
 
 const router: IRouter = Router();
 
+/**
+ * Pre-auth: if a valid sk_* API key is present in X-Api-Key, resolve it and
+ * store the result on a custom request property.
+ *
+ * IMPORTANT: Do NOT touch req.auth — Clerk installs it as a callable function
+ * and overwriting it with a plain object causes getAuth(req) to throw a TypeError.
+ * Route handlers that accept API-key auth read from (req as any).__apiKeyUser instead.
+ */
+async function apiKeyPreAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
+  const rawKey = req.headers["x-api-key"];
+  if (typeof rawKey !== "string" || !rawKey.startsWith("sk_")) {
+    next();
+    return;
+  }
+  try {
+    const result = await resolveApiKeyUser(rawKey);
+    if (result) {
+      (req as any).__apiKeyUser = result;
+    }
+  } catch {
+    // On DB error, fall through — requireAuth will reject if Clerk auth is also absent
+  }
+  next();
+}
+
 function requireAuth(req: Request, res: Response, next: NextFunction): void {
+  // Accept either a Clerk session OR a valid API key resolved by apiKeyPreAuth
+  if ((req as any).__apiKeyUser) {
+    next();
+    return;
+  }
   const { userId } = getAuth(req);
   if (!userId) {
     res.status(401).json({ error: "Unauthorized" });
@@ -53,6 +84,9 @@ router.use(contactRouter);
 
 // Object storage — upload URL request is auth-gated inline; serving is public
 router.use(storageRouter);
+
+// API-key pre-auth: must run before requireAuth so X-Api-Key requests can pass Clerk gate
+router.use(apiKeyPreAuth);
 
 // eWR external API + registry-sync webhook — own auth, must come before Clerk requireAuth
 router.use(healthRouter);
@@ -102,5 +136,6 @@ router.use(coffeeRfqsRouter);
 router.use(coffeeShipmentsRouter);
 router.use(coffeeEsgRouter);
 router.use(listingPublicationsRouter);
+router.use(integrationCredentialsRouter);
 
 export default router;

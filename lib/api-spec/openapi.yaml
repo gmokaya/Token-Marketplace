@@ -42,6 +42,8 @@ tags:
     description: Coffee lot catalogue, auctions, RFQs, shipments and ESG reports
   - name: broker-mandates
     description: Broker mandate grants and revocations
+  - name: integrations
+    description: Self-service integration credentials for warehouses and producer portals
 
 paths:
   /storage/uploads/request-url:
@@ -3162,6 +3164,118 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorEnvelope"
 
+  # ── Integration Credentials ──────────────────────────────────────────────────
+  /integrations/credentials:
+    get:
+      operationId: listIntegrationCredentials
+      tags: [integrations]
+      summary: List the caller's integration API keys (no plaintext keys)
+      responses:
+        "200":
+          description: List of integration credentials
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/IntegrationCredential"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+    post:
+      operationId: createIntegrationCredential
+      tags: [integrations]
+      summary: Generate a new integration API key (returned once in plain)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateIntegrationCredentialRequest"
+      responses:
+        "201":
+          description: Credential created — plaintext key in response body, never again
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateIntegrationCredentialResponse"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: Tier not permitted to manage credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /integrations/credentials/{id}:
+    delete:
+      operationId: revokeIntegrationCredential
+      tags: [integrations]
+      summary: Revoke (disable) an integration credential
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Credential revoked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  revoked:
+                    type: boolean
+        "404":
+          description: Credential not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+    patch:
+      operationId: updateIntegrationCredential
+      tags: [integrations]
+      summary: Enable or disable a credential
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [enabled]
+              properties:
+                enabled:
+                  type: boolean
+      responses:
+        "200":
+          description: Updated credential state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IntegrationCredential"
+        "404":
+          description: Credential not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
 components:
   schemas:
     ErrorEnvelope:
@@ -5241,3 +5355,60 @@ components:
         validTo:
           type: string
           format: date-time
+
+    # ── Integration Credentials ────────────────────────────────────────────────
+
+    IntegrationCredential:
+      type: object
+      required: [id, name, keyPrefix, scopes, enabled, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        keyPrefix:
+          type: string
+          description: First 16 characters of the key, e.g. "sk_live_abcdefgh"
+        scopes:
+          type: array
+          items:
+            type: string
+        enabled:
+          type: boolean
+        lastUsedAt:
+          type: ["string", "null"]
+          format: date-time
+        expiresAt:
+          type: ["string", "null"]
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    CreateIntegrationCredentialRequest:
+      type: object
+      required: [name, scopes]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        scopes:
+          type: array
+          items:
+            type: string
+            enum: [ewr:push, wrsc:intake]
+          minItems: 1
+        expiresAt:
+          type: string
+          format: date-time
+
+    CreateIntegrationCredentialResponse:
+      allOf:
+        - $ref: "#/components/schemas/IntegrationCredential"
+        - type: object
+          required: [key]
+          properties:
+            key:
+              type: string
+              description: Plaintext API key — only present in this response, never again
