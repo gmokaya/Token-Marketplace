@@ -9,3 +9,4 @@
 - [Grain visual palette](grain-visual-palette.md) — Grain uses coal, graphite, platinum, and slate accents; avoid the warm coffee/amber palette
 - [Marketplace CMS asset normalization](marketplace-cms-asset-normalization.md) — homepage CMS market cards can override local defaults; normalize known commodity links and photos at render time
 - [First-party marketplace provider API](marketplace-provider-api.md) — TokenHarvest owns the external listing contract; keep provider auth/config separate from publication queue state
+- [Provider deployment secrets](provider-deployment-secrets.md) — production credentials only affect the published deployment serving the provider URL
