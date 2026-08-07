@@ -41,3 +41,8 @@ externalPort = 3000
 
 [objectStorage]
 defaultBucketID = "replit-objstore-1b1aca84-5e87-4067-a5b9-4032695c1b44"
+
+[userenv]
+
+[userenv.shared]
+MARKETPLACE_PROVIDER_URL = "https://tokenharvest.ke/api/provider/marketplace/v1"

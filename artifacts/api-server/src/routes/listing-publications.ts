@@ -50,6 +50,7 @@ async function resolveUser(clerkId: string) {
 async function callAdapterAndSettle(
   pubId: number,
   lot: typeof teaLotsTable.$inferSelect,
+  commodityType: "COFFEE" | "TEA" = "TEA",
 ): Promise<typeof listingPublicationsTable.$inferSelect | null> {
   try {
     const [ewr] = await db
@@ -61,10 +62,31 @@ async function callAdapterAndSettle(
       .where(eq(ewrsTable.id, lot.ewrId))
       .limit(1);
 
+    // For coffee lots, unpack coffee-specific metadata from tasterRemarks JSON
+    let coffeeFields: {
+      cuppingRemarks?: string | null;
+      processingMethod?: string | null;
+      varietal?: string | null;
+      altitude?: number | null;
+    } = {};
+    if (commodityType === "COFFEE" && lot.tasterRemarks) {
+      try {
+        const parsed = JSON.parse(lot.tasterRemarks);
+        coffeeFields = {
+          cuppingRemarks:   parsed.cuppingRemarks ?? null,
+          processingMethod: parsed.processingMethod ?? null,
+          varietal:         parsed.varietal ?? null,
+          altitude:         parsed.altitude ?? null,
+        };
+      } catch {
+        coffeeFields = { cuppingRemarks: lot.tasterRemarks };
+      }
+    }
+
     const result = await marketplaceAdapter.publishListing({
       lotId:              lot.id,
       ewrId:               ewr?.id,
-      commodityType:       "TEA",
+      commodityType,
       ownerId:             lot.ownerId,
       brokerId:             lot.brokerId,
       warehouseCode:       ewr?.warehouseCode,
@@ -76,7 +98,9 @@ async function callAdapterAndSettle(
       reservePriceUsd:    lot.reservePriceUsd,
       fixedPricePerKgUsd: lot.fixedPricePerKgUsd,
       certifications:     (lot.certifications as string[]) ?? [],
-      tasterRemarks:      lot.tasterRemarks,
+      // TEA: keep tasterRemarks as-is; COFFEE: use unpacked fields
+      tasterRemarks:      commodityType === "TEA" ? lot.tasterRemarks : null,
+      ...coffeeFields,
     });
 
     if (result.success) {
@@ -369,7 +393,172 @@ router.post("/tea/lots/:id/publish/retry", async (req, res) => {
     });
   }
 
-  const settled = await callAdapterAndSettle(pending.id, lot);
+  const settled = await callAdapterAndSettle(pending.id, lot, "TEA");
+  return res.json(settled ?? pending);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /coffee/lots/:id/publish
+// Mirrors the tea publish route but passes commodityType="COFFEE" to the adapter
+// so the provider issues the correct TH-COFFEE-LOT-{id} external listing ID.
+// ─────────────────────────────────────────────────────────────────────────────
+router.post("/coffee/lots/:id/publish", async (req, res) => {
+  if (!isPublicationConstraintReady()) {
+    return res.status(503).json({
+      error: "Marketplace publication is temporarily unavailable. The server is still initializing its database constraints. Please retry in a moment.",
+    });
+  }
+
+  const { userId: clerkId } = getAuth(req);
+  if (!clerkId) return res.status(401).json({ error: "Unauthorized" });
+
+  const lotId = parseInt(req.params.id);
+  if (isNaN(lotId)) return res.status(400).json({ error: "Invalid lot ID" });
+
+  const user = await resolveUser(clerkId);
+  if (!user) return res.status(404).json({ error: "User not found" });
+
+  const [lot] = await db
+    .select()
+    .from(teaLotsTable)
+    .where(eq(teaLotsTable.id, lotId))
+    .limit(1);
+
+  if (!lot) return res.status(404).json({ error: "Coffee lot not found" });
+
+  if (lot.ownerId !== user.id && lot.brokerId !== user.id) {
+    return res.status(403).json({ error: "Only the lot owner or mandate broker can publish this lot" });
+  }
+
+  const nonPublishableStatuses = ["DRAFT", "SOLD", "UNSOLD", "WITHDRAWN", "RESERVE_NOT_MET"];
+  if (nonPublishableStatuses.includes(lot.status)) {
+    return res.status(409).json({
+      error: `Lot in status ${lot.status} cannot be published. Catalogue the lot first.`,
+    });
+  }
+
+  const now = new Date();
+
+  const [publication] = await db
+    .insert(listingPublicationsTable)
+    .values({
+      listingId:       lotId,
+      factoryId:       user.id,
+      marketplaceName: "tokenharvest",
+      status:          "pending",
+      lastAttemptAt:   now,
+    })
+    .onConflictDoUpdate({
+      target: [listingPublicationsTable.listingId, listingPublicationsTable.marketplaceName],
+      set: {
+        status:        "pending",
+        factoryId:     user.id,
+        lastAttemptAt: now,
+        lastError:     null,
+        updatedAt:     now,
+      },
+      setWhere: sql`${listingPublicationsTable.status} NOT IN ('pending', 'live')`,
+    })
+    .returning();
+
+  if (!publication) {
+    const [current] = await db
+      .select()
+      .from(listingPublicationsTable)
+      .where(
+        and(
+          eq(listingPublicationsTable.listingId, lotId),
+          eq(listingPublicationsTable.marketplaceName, "tokenharvest"),
+        )
+      )
+      .limit(1);
+    return res.status(409).json({
+      error: current?.status === "live"
+        ? "Lot is already live on the marketplace."
+        : "A publication attempt is already in progress for this lot.",
+      publication: current ?? null,
+    });
+  }
+
+  const isNewRecord = publication.createdAt.getTime() === publication.updatedAt.getTime();
+  const settled = await callAdapterAndSettle(publication.id, lot, "COFFEE");
+
+  if (!settled) {
+    const [current] = await db
+      .select()
+      .from(listingPublicationsTable)
+      .where(eq(listingPublicationsTable.id, publication.id))
+      .limit(1);
+    return res.status(200).json(current);
+  }
+
+  return res.status(isNewRecord ? 201 : 200).json(settled);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /coffee/lots/:id/publish/retry  — retry a failed coffee publication
+// ─────────────────────────────────────────────────────────────────────────────
+router.post("/coffee/lots/:id/publish/retry", async (req, res) => {
+  const { userId: clerkId } = getAuth(req);
+  if (!clerkId) return res.status(401).json({ error: "Unauthorized" });
+
+  const lotId = parseInt(req.params.id);
+  if (isNaN(lotId)) return res.status(400).json({ error: "Invalid lot ID" });
+
+  const user = await resolveUser(clerkId);
+  if (!user) return res.status(404).json({ error: "User not found" });
+
+  const [lot] = await db
+    .select()
+    .from(teaLotsTable)
+    .where(eq(teaLotsTable.id, lotId))
+    .limit(1);
+
+  if (!lot) return res.status(404).json({ error: "Coffee lot not found" });
+
+  if (lot.ownerId !== user.id && lot.brokerId !== user.id) {
+    return res.status(403).json({ error: "Only the lot owner or mandate broker can retry publication" });
+  }
+
+  const [pending] = await db
+    .update(listingPublicationsTable)
+    .set({
+      status:        "pending",
+      lastAttemptAt: new Date(),
+      lastError:     null,
+      updatedAt:     new Date(),
+    })
+    .where(
+      and(
+        eq(listingPublicationsTable.listingId, lotId),
+        eq(listingPublicationsTable.marketplaceName, "tokenharvest"),
+        eq(listingPublicationsTable.status, "failed"),
+      )
+    )
+    .returning();
+
+  if (!pending) {
+    const [existing] = await db
+      .select()
+      .from(listingPublicationsTable)
+      .where(
+        and(
+          eq(listingPublicationsTable.listingId, lotId),
+          eq(listingPublicationsTable.marketplaceName, "tokenharvest"),
+        )
+      )
+      .limit(1);
+
+    if (!existing) {
+      return res.status(404).json({ error: "No publication record found. Use POST /coffee/lots/:id/publish first." });
+    }
+    return res.status(409).json({
+      error: `Publication is not in failed state (current: ${existing.status}). Retry is only available for failed publications.`,
+      publication: existing,
+    });
+  }
+
+  const settled = await callAdapterAndSettle(pending.id, lot, "COFFEE");
   return res.json(settled ?? pending);
 });
 
