@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/api-docs/"
+title = "TokenHarvest API Documentation"
+description = "Developer reference for the TokenHarvest marketplace APIs. Covers coffee and tea listing endpoints — cataloguing lots, querying the marketplace, publishing, auction sessions, and dispatch documents. Frontend-only documentation site with interactive endpoint reference, field tables, request/response examples, and lifecycle diagrams."
+version = "1.0.0"
+id = "artifacts/api-docs"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/api-docs/" ]
+localPort = 24034
+
+[services.development]
+run = "pnpm --filter @workspace/api-docs run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/api-docs", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/api-docs/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24034"
+BASE_PATH = "/api-docs/"
