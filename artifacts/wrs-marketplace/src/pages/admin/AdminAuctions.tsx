@@ -1,4 +1,4 @@
-import { useListAuctions } from "@workspace/api-client-react";
+import { useListAuctions, useGetMe } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,8 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function AdminAuctions() {
+  const { data: me } = useGetMe();
+  const isAdmin = me?.tier === "ADMIN";
   const { data: auctions, isLoading } = useListAuctions();
 
   const open      = (auctions ?? []).filter(a => a.status === "OPEN").length;
@@ -31,9 +33,11 @@ export default function AdminAuctions() {
             <h1 className="text-3xl font-bold tracking-tight">Auction Sessions</h1>
             <p className="text-muted-foreground mt-1">Manage and monitor all grain auctions on the platform.</p>
           </div>
-          <Link href="/auctions">
-            <Button className="gap-2"><Plus className="w-4 h-4" /> New Auction</Button>
-          </Link>
+          {isAdmin && (
+            <Link href="/admin/auctions/new">
+              <Button className="gap-2"><Plus className="w-4 h-4" /> New Auction</Button>
+            </Link>
+          )}
         </div>
 
         {!isLoading && (

@@ -53,6 +53,7 @@ async function resolveUser(clerkId: string) {
 
 const createSessionSchema = z.object({
   auctionDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "auctionDate must be YYYY-MM-DD"),
+  startTime: z.string().regex(/^\d{2}:\d{2}$/, "startTime must be HH:MM").optional(),
 });
 
 router.post("/tea/auctions", async (req, res) => {
@@ -70,13 +71,14 @@ router.post("/tea/auctions", async (req, res) => {
     return res.status(400).json({ error: "Validation failed", issues: parsed.error.issues });
   }
 
-  const { auctionDate } = parsed.data;
+  const { auctionDate, startTime } = parsed.data;
 
   const [session] = await db
     .insert(teaAuctionSessionsTable)
     .values({
       createdByBrokerId: user.id,   // stores the admin's user ID
       auctionDate,
+      scheduledStartTime: startTime ?? null,
       catalogueOrder: [],
       status: "SCHEDULED",
     })

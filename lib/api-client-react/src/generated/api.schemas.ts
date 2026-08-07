@@ -1054,6 +1054,8 @@ export interface AuditLogEntry {
 export interface CreateTeaAuctionSessionRequest {
   /** Planned date of the auction session (YYYY-MM-DD) */
   auctionDate: string;
+  /** Scheduled start time in HH:MM 24-hour format (e.g. "09:00") */
+  startTime?: string;
   /**
      * Optional initial lot IDs; lots can also be added via POST /tea/auctions/{sessionId}/lots
      * @minItems 1
@@ -1479,6 +1481,8 @@ export interface AttachDispatchDocRequest {
 export interface CreateCoffeeAuctionSessionRequest {
   /** Planned date of the auction session (YYYY-MM-DD) */
   auctionDate: string;
+  /** Scheduled start time in HH:MM 24-hour format (e.g. "09:00") */
+  startTime?: string;
 }
 
 export type CoffeeAuctionSessionStatus = typeof CoffeeAuctionSessionStatus[keyof typeof CoffeeAuctionSessionStatus];

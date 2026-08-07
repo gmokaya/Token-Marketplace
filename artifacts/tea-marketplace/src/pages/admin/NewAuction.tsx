@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useLocation } from "wouter";
-import { useCreateTeaAuctionSession } from "@workspace/api-client-react";
+import { useCreateTeaAuctionSession, useGetMe } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -11,20 +11,24 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { PageHeader } from "@/components/ui/page-header";
 import { Info } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const schema = z.object({
   auctionDate: z.string().min(1, "Date is required"),
+  startTime: z.string().regex(/^\d{2}:\d{2}$/, "Time is required"),
 });
 
 export default function NewAuction() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { data: me, isLoading: meLoading } = useGetMe();
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
       auctionDate: format(new Date(), "yyyy-MM-dd"),
+      startTime: "09:00",
     },
   });
 
@@ -41,8 +45,18 @@ export default function NewAuction() {
     },
   });
 
+  // Redirect non-admins
+  if (!meLoading && me?.tier !== "ADMIN") {
+    setLocation("/admin/auctions", { replace: true });
+    return null;
+  }
+
+  if (meLoading) {
+    return <Skeleton className="h-64 w-full max-w-2xl mx-auto" />;
+  }
+
   const onSubmit = (data: z.infer<typeof schema>) => {
-    createSession.mutate({ data });
+    createSession.mutate({ data: { auctionDate: data.auctionDate, startTime: data.startTime } });
   };
 
   return (
@@ -64,21 +78,38 @@ export default function NewAuction() {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="bg-card border border-border p-8 shadow-sm">
-            <FormField
-              control={form.control}
-              name="auctionDate"
-              render={({ field }) => (
-                <FormItem className="max-w-sm">
-                  <FormLabel className="text-xs uppercase tracking-widest text-primary font-bold mb-2 block">
-                    Auction Date
-                  </FormLabel>
-                  <FormControl>
-                    <Input type="date" {...field} className="rounded-none h-11" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="auctionDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs uppercase tracking-widest text-primary font-bold mb-2 block">
+                      Auction Date
+                    </FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} className="rounded-none h-11" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="startTime"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs uppercase tracking-widest text-primary font-bold mb-2 block">
+                      Start Time
+                    </FormLabel>
+                    <FormControl>
+                      <Input type="time" {...field} className="rounded-none h-11" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-border">

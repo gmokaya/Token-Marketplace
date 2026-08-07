@@ -1,14 +1,15 @@
 import { Link } from "wouter";
 import {
-  useListAuctions, useStartTeaAuctionSession, getListAuctionsQueryKey,
+  useListTeaAuctionSessions, useStartTeaAuctionSession, getListTeaAuctionSessionsQueryKey,
   useGetMe,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Play, Gavel, CalendarDays } from "lucide-react";
+import { Play, Gavel, CalendarDays, Clock } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
+import { format } from "date-fns";
 
 const STATUS_COLOR: Record<string, "default" | "destructive" | "secondary" | "outline"> = {
   SCHEDULED: "secondary",
@@ -19,18 +20,18 @@ const STATUS_COLOR: Record<string, "default" | "destructive" | "secondary" | "ou
 
 export default function AdminAuctions() {
   const { data: me } = useGetMe();
-  const canManage = me?.tier === "ADMIN" || me?.tier === "FINANCIER";
+  const isAdmin = me?.tier === "ADMIN";
 
-  const { data: auctions, isLoading, isError } = useListAuctions(
-    { commodityType: "TEA" },
-    { query: { queryKey: getListAuctionsQueryKey({ commodityType: "TEA" }) } }
+  const { data: auctions, isLoading, isError } = useListTeaAuctionSessions(
+    {},
+    { query: { queryKey: getListTeaAuctionSessionsQueryKey({}) } }
   );
 
   const queryClient = useQueryClient();
   const startAuction = useStartTeaAuctionSession({
     mutation: {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: getListAuctionsQueryKey({ commodityType: "TEA" }) });
+        queryClient.invalidateQueries({ queryKey: getListTeaAuctionSessionsQueryKey({}) });
       },
     },
   });
@@ -48,9 +49,9 @@ export default function AdminAuctions() {
     <div className="space-y-8 max-w-5xl mx-auto">
       <PageHeader
         title="Auction Sessions"
-        description={canManage ? "Schedule and manage tea auction sessions." : "Live auction activity for all scheduled sessions."}
+        description={isAdmin ? "Schedule and manage tea auction sessions." : "Live auction activity for all scheduled sessions."}
         actions={
-          canManage ? (
+          isAdmin ? (
             <Link href="/admin/auctions/new">
               <Button className="rounded-none gap-2 h-10 font-semibold text-sm">
                 <Gavel className="w-4 h-4" /> New Session
@@ -61,16 +62,16 @@ export default function AdminAuctions() {
       />
 
       <div className="space-y-3">
-        {auctions?.length === 0 ? (
+        {(auctions ?? []).length === 0 ? (
           <div className="flex flex-col items-center justify-center p-16 text-center border border-border bg-muted/5">
             <Gavel className="w-10 h-10 text-muted-foreground/30 mb-4" />
             <p className="text-base font-medium">No auction sessions yet</p>
             <p className="text-sm text-muted-foreground mt-1">
-              {canManage ? "Create a session to get started." : "Check back when the exchange schedules a session."}
+              {isAdmin ? "Create a session to get started." : "Check back when the exchange schedules a session."}
             </p>
           </div>
         ) : (
-          auctions?.map((auction: any) => (
+          (auctions ?? []).map((auction: any) => (
             <div
               key={auction.id}
               className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-border bg-card p-5 hover:border-primary/30 transition-colors"
@@ -83,28 +84,35 @@ export default function AdminAuctions() {
 
                 <div className="h-8 w-px bg-border shrink-0" />
 
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <CalendarDays className="w-3.5 h-3.5 shrink-0" />
-                  <span className="font-mono text-foreground font-medium">
-                    {auction.auctionDate || auction.startAt || "TBD"}
-                  </span>
-                </div>
-
-                {auction.catalogueOrder && (
-                  <>
-                    <div className="h-8 w-px bg-border shrink-0 hidden sm:block" />
-                    <span className="text-sm text-muted-foreground hidden sm:block">
-                      <span className="font-semibold text-foreground">{auction.catalogueOrder.length}</span> lots
+                <div className="space-y-1">
+                  <div className="flex items-center gap-3 text-sm">
+                    <CalendarDays className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                    <span className="font-mono text-foreground font-medium">
+                      {auction.auctionDate
+                        ? format(new Date(auction.auctionDate + "T12:00:00"), "EEE, MMM d yyyy")
+                        : "TBD"}
                     </span>
-                  </>
-                )}
-
-                <Badge
-                  variant={STATUS_COLOR[auction.status] ?? "secondary"}
-                  className="rounded-none px-2.5 py-0.5 text-[10px] tracking-widest uppercase font-bold"
-                >
-                  {auction.status}
-                </Badge>
+                    {auction.scheduledStartTime && (
+                      <>
+                        <Clock className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                        <span className="font-mono text-muted-foreground">{auction.scheduledStartTime}</span>
+                      </>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                    {auction.catalogueOrder && (
+                      <span>
+                        <span className="font-semibold text-foreground">{auction.catalogueOrder.length}</span> lots
+                      </span>
+                    )}
+                    <Badge
+                      variant={STATUS_COLOR[auction.status] ?? "secondary"}
+                      className="rounded-none px-2.5 py-0.5 text-[10px] tracking-widest uppercase font-bold"
+                    >
+                      {auction.status}
+                    </Badge>
+                  </div>
+                </div>
               </div>
 
               <div className="flex gap-2 shrink-0">
@@ -114,7 +122,7 @@ export default function AdminAuctions() {
                   </Button>
                 </Link>
 
-                {canManage && auction.status === "SCHEDULED" && (
+                {isAdmin && auction.status === "SCHEDULED" && (
                   <Button
                     className="rounded-none h-9 px-5 gap-1.5 text-sm font-semibold"
                     onClick={() => startAuction.mutate({ sessionId: auction.id })}

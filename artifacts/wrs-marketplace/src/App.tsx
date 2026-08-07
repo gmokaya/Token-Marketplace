@@ -22,6 +22,7 @@ import ApiAccess from "@/pages/settings/ApiAccess";
 import AdminAuctions from "@/pages/admin/AdminAuctions";
 import AdminEwrs from "@/pages/admin/AdminEwrs";
 import AdminLots from "@/pages/admin/AdminLots";
+import NewAuction from "@/pages/admin/NewAuction";
 
 // Broker pages
 import BrokerDashboard from "@/pages/broker/BrokerDashboard";
@@ -119,6 +120,7 @@ function ClerkProviderWithRoutes() {
 
             {/* Admin routes */}
             <Route path="/admin/auctions"><ProtectedRoute><AdminAuctions /></ProtectedRoute></Route>
+            <Route path="/admin/auctions/new"><ProtectedRoute><NewAuction /></ProtectedRoute></Route>
             <Route path="/admin/ewrs"><ProtectedRoute><AdminEwrs /></ProtectedRoute></Route>
             <Route path="/admin/lots"><ProtectedRoute><AdminLots /></ProtectedRoute></Route>
             <Route path="/admin/users"><ProtectedRoute><AdminUsers /></ProtectedRoute></Route>

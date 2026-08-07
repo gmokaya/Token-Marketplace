@@ -63,6 +63,7 @@ async function isCoffeeLot(lotId: number): Promise<boolean> {
 
 const createSessionSchema = z.object({
   auctionDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "auctionDate must be YYYY-MM-DD"),
+  startTime: z.string().regex(/^\d{2}:\d{2}$/, "startTime must be HH:MM").optional(),
 });
 
 router.post("/coffee/auctions", async (req, res) => {
@@ -80,13 +81,14 @@ router.post("/coffee/auctions", async (req, res) => {
     return res.status(400).json({ error: "Validation failed", issues: parsed.error.issues });
   }
 
-  const { auctionDate } = parsed.data;
+  const { auctionDate, startTime } = parsed.data;
 
   const [session] = await db
     .insert(teaAuctionSessionsTable)
     .values({
       createdByBrokerId: user.id,
       auctionDate,
+      scheduledStartTime: startTime ?? null,
       catalogueOrder: [],
       status: "SCHEDULED",
     })

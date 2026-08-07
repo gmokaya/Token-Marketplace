@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useCreateCoffeeAuctionSession, getListCoffeeAuctionSessionsQueryKey } from "@workspace/api-client-react";
+import { useCreateCoffeeAuctionSession, useGetMe, getListCoffeeAuctionSessionsQueryKey } from "@workspace/api-client-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,18 +9,27 @@ import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { format, addDays } from "date-fns";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function NewAuction() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { data: me, isLoading: meLoading } = useGetMe();
 
   // Default to 7 days from now
   const defaultDate = format(addDays(new Date(), 7), "yyyy-MM-dd");
   const [auctionDate, setAuctionDate] = useState(defaultDate);
+  const [startTime, setStartTime] = useState("09:00");
   const [submitted, setSubmitted] = useState(false);
 
   const create = useCreateCoffeeAuctionSession();
+
+  // Redirect non-admins
+  if (!meLoading && me?.tier !== "ADMIN") {
+    setLocation("/admin/auctions", { replace: true });
+    return null;
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,16 +37,17 @@ export default function NewAuction() {
       toast({ title: "Date required", description: "Please select a date for the auction session.", variant: "destructive" });
       return;
     }
-    if (new Date(auctionDate) <= new Date()) {
-      toast({ title: "Invalid date", description: "Auction date must be in the future.", variant: "destructive" });
+    const combined = new Date(`${auctionDate}T${startTime}:00`);
+    if (combined <= new Date()) {
+      toast({ title: "Invalid date/time", description: "Auction must be scheduled in the future.", variant: "destructive" });
       return;
     }
 
     create.mutate(
-      { data: { auctionDate } },
+      { data: { auctionDate, startTime } },
       {
-        onSuccess: (session: { id: number }) => {
-          toast({ title: "Session scheduled", description: `Auction session #${session.id} created for ${format(new Date(auctionDate), "MMMM d, yyyy")}.` });
+        onSuccess: (session: any) => {
+          toast({ title: "Session scheduled", description: `Session #${session.id} created for ${format(new Date(auctionDate + "T12:00:00"), "MMMM d, yyyy")} at ${startTime}.` });
           queryClient.invalidateQueries({ queryKey: getListCoffeeAuctionSessionsQueryKey() });
           setSubmitted(true);
         },
@@ -48,6 +58,10 @@ export default function NewAuction() {
     );
   };
 
+  if (meLoading) {
+    return <Skeleton className="h-64 w-full max-w-xl mx-auto" />;
+  }
+
   if (submitted) {
     return (
       <div className="max-w-xl mx-auto space-y-6">
@@ -57,15 +71,15 @@ export default function NewAuction() {
             <div>
               <h2 className="text-xl font-bold tracking-tight text-green-900">Session Scheduled</h2>
               <p className="text-sm text-green-700 mt-1.5">
-                Your auction session for <strong>{format(new Date(auctionDate), "MMMM d, yyyy")}</strong> has been created.
-                You can now view it in the Auction Sessions list.
+                Your auction session for <strong>{format(new Date(auctionDate + "T12:00:00"), "MMMM d, yyyy")}</strong> at{" "}
+                <strong>{startTime}</strong> has been created. Brokers can now submit lots to the catalogue.
               </p>
             </div>
             <div className="flex gap-3 mt-2">
               <Link href="/admin/auctions">
                 <Button variant="outline">View All Sessions</Button>
               </Link>
-              <Button onClick={() => { setSubmitted(false); setAuctionDate(defaultDate); }}>
+              <Button onClick={() => { setSubmitted(false); setAuctionDate(defaultDate); setStartTime("09:00"); }}>
                 Schedule Another
               </Button>
             </div>
@@ -94,25 +108,36 @@ export default function NewAuction() {
               <CalendarPlus className="w-4 h-4" /> Session Details
             </CardTitle>
             <CardDescription>
-              Set the date for this auction. Once created, you can add lots to the catalogue
-              from the session detail page.
+              Set the date and start time for this auction. Brokers can submit lots once the session is created.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="auctionDate">Auction Date</Label>
-              <Input
-                id="auctionDate"
-                type="date"
-                value={auctionDate}
-                onChange={e => setAuctionDate(e.target.value)}
-                min={format(addDays(new Date(), 1), "yyyy-MM-dd")}
-                required
-              />
-              <p className="text-xs text-muted-foreground">
-                The planned date of the live auction session. Buyers and sellers will be notified once lots are added.
-              </p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="auctionDate">Auction Date</Label>
+                <Input
+                  id="auctionDate"
+                  type="date"
+                  value={auctionDate}
+                  onChange={e => setAuctionDate(e.target.value)}
+                  min={format(addDays(new Date(), 1), "yyyy-MM-dd")}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="startTime">Start Time</Label>
+                <Input
+                  id="startTime"
+                  type="time"
+                  value={startTime}
+                  onChange={e => setStartTime(e.target.value)}
+                  required
+                />
+              </div>
             </div>
+            <p className="text-xs text-muted-foreground">
+              The planned date and time when the live auction will begin. You control the exact start using <em>Go Live</em> from the sessions list.
+            </p>
           </CardContent>
           <CardFooter className="bg-muted/50 border-t px-6 py-4">
             <Button type="submit" className="ml-auto gap-2" disabled={create.isPending}>
@@ -126,9 +151,8 @@ export default function NewAuction() {
       <Card className="bg-muted/30 border-dashed">
         <CardContent className="pt-4 pb-4">
           <p className="text-xs text-muted-foreground leading-relaxed">
-            <strong>Next steps after creating:</strong> open the session in the Auction Sessions list,
-            then use the lot-management panel to add lots to the catalogue. Once the catalogue is ready,
-            click <em>Go Live</em> to open bidding.
+            <strong>Next steps:</strong> After creating, brokers submit their catalogued lots from the Auction Sessions page.
+            When the catalogue is finalised, click <em>Start Live</em> to open bidding.
           </p>
         </CardContent>
       </Card>

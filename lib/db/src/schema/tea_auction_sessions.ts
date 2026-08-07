@@ -1,4 +1,4 @@
-import { pgTable, serial, integer, date, timestamp, pgEnum, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, serial, integer, date, timestamp, pgEnum, jsonb, text } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./users";
@@ -20,6 +20,9 @@ export const teaAuctionSessionsTable = pgTable("tea_auction_sessions", {
 
   // Planned date for this auction session (YYYY-MM-DD)
   auctionDate: date("auction_date").notNull(),
+
+  // Scheduled start time of day, e.g. "09:00" or "14:30" (HH:mm, 24-hour)
+  scheduledStartTime: text("scheduled_start_time"),
 
   // Ordered array of tea_lot IDs in catalogue sequence
   catalogueOrder: jsonb("catalogue_order").notNull().default([]),
