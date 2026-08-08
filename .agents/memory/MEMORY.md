@@ -10,3 +10,4 @@
 - [Marketplace CMS asset normalization](marketplace-cms-asset-normalization.md) — homepage CMS market cards can override local defaults; normalize known commodity links and photos at render time
 - [First-party marketplace provider API](marketplace-provider-api.md) — TokenHarvest owns the external listing contract; keep provider auth/config separate from publication queue state
 - [Provider deployment secrets](provider-deployment-secrets.md) — production credentials only affect the published deployment serving the provider URL
+- [Deployment Python dependency isolation](deployment-python-dependencies.md) — root Python dependencies install during Node deployments and can fail before artifact builds
