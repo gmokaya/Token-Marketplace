@@ -20,9 +20,3 @@ type = "pdf"
 title = "Tea Producer Portal — Marketplace Integration Guide"
 description = "Downloadable PDF covering direct producer listings, broker mandates, marketplace auction sessions, bidding, post-auction decisions, settlement, API routes, business rules, and errors."
 
-[[outputs]]
-id = "apYqBqroBwY4LndqxtVwA"
-uri = "file://docs-exports/tokenharvest-api-docs.pdf"
-type = "pdf"
-title = "TokenHarvest API Documentation"
-description = "Full developer reference — Coffee Lots, Coffee Auctions, Tea Lots, Tea Auctions, and Marketplace Publishing"
