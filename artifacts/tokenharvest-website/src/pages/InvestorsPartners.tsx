@@ -77,6 +77,41 @@ export default function InvestorsPartners() {
           </div>
         </section>
 
+        <section id="impact" className="bg-[#0b3032] text-[#f7f5ed]">
+          <div className="mx-auto max-w-6xl px-6 py-20 md:px-10 md:py-28">
+            <div className="grid gap-10 md:grid-cols-[0.75fr_1.25fr] md:gap-24">
+              <div>
+                <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-[#b9e8cf]">
+                  Impact
+                </p>
+                <h2 className="text-4xl font-light leading-tight tracking-[-0.05em] md:text-6xl">
+                  Better trade should create better outcomes.
+                </h2>
+              </div>
+              <div>
+                <p className="max-w-2xl text-base leading-8 text-white/65 md:text-lg">
+                  When origin data is trusted, market access is clearer, and capital arrives at
+                  the right point in the trade, value can move more fairly through the chain.
+                </p>
+                <div className="mt-10 grid gap-px border-t border-white/15 sm:grid-cols-2">
+                  {[
+                    ["01", "Producer access", "Verified origin networks can reach qualified buyers and formal trade finance."],
+                    ["02", "Working capital", "Eligible inventory and confirmed orders become easier to assess and fund."],
+                    ["03", "Traceable trade", "A shared record gives participants clearer visibility from source to settlement."],
+                    ["04", "Less friction", "Better coordination can reduce avoidable delays, duplication, and loss across the chain."],
+                  ].map(([number, title, description]) => (
+                    <article key={number} className="border-b border-white/15 py-6 sm:pr-8">
+                      <span className="text-xs font-semibold tracking-[0.18em] text-[#b9e8cf]">{number}</span>
+                      <h3 className="mt-3 text-xl font-medium tracking-[-0.02em]">{title}</h3>
+                      <p className="mt-3 text-sm leading-6 text-white/55">{description}</p>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section id="partner-opportunities" className="mx-auto max-w-6xl px-6 py-20 md:px-10 md:py-28">
           <div className="grid gap-10 md:grid-cols-[0.8fr_1.2fr] md:gap-24">
             <div>
