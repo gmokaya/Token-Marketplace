@@ -1,5 +1,6 @@
 import { SignIn } from "@clerk/react";
 import { Link } from "wouter";
+import { AuthBenefitCarousel } from "@/components/AuthBenefitCarousel";
 
 const clerkAppearance = {
   variables: {
@@ -45,55 +46,71 @@ export default function SignInPage() {
   const bp = import.meta.env.BASE_URL.replace(/\/$/, "");
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden flex items-center justify-end">
+    <div className="market-auth-shell market-auth-shell--grain">
       <img
-        src={`${bp}/photos/signin-bg.jpg`}
+        src={`${bp}/photos/hero-soybean-farmer.jpg`}
         alt=""
-        className="absolute inset-0 w-full h-full object-cover object-center"
+        className="market-auth-background"
         fetchPriority="high"
       />
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-black/20 to-black/50" />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-black/25" />
+      <div className="market-auth-overlay" />
 
-      <div className="absolute top-8 left-8 md:left-12 z-20">
+      <header className="market-auth-header">
         <Link href="/">
-          <span className="tokenharvest-wordmark text-white text-2xl cursor-pointer">TokenHarvest</span>
+          <span className="tokenharvest-wordmark market-auth-wordmark">TokenHarvest</span>
         </Link>
-      </div>
+      </header>
 
-      <div className="relative z-10 w-full max-w-[420px] mr-8 md:mr-16 xl:mr-24">
-        <div className="bg-white/10 backdrop-blur-2xl border border-white/25 shadow-2xl p-10">
-          <div className="mb-7">
-            <h1 className="text-2xl font-semibold text-white tracking-tight">
-              Sign in to Grain Marketplace
-            </h1>
-            <p className="text-sm text-white/65 mt-1.5">
-              Welcome back! Please sign in to continue.
+      <main className="market-auth-main">
+        <AuthBenefitCarousel
+          eyebrow="Grain sourcing desk · 03"
+          accentColor="#d7e0e8"
+          slides={[
+            {
+              eyebrow: "Certified storage",
+              title: "Know the lot\nbefore it moves.",
+              description: "See grade, volume, warehouse status, and a clear route from stored grain to delivery.",
+            },
+            {
+              eyebrow: "Finance-ready trade",
+              title: "Turn stored grain\ninto working capital.",
+              description: "Connect warehouse receipts with forward contracts and trade finance built for the real supply chain.",
+            },
+            {
+              eyebrow: "Market visibility",
+              title: "Buy with a record,\nnot a promise.",
+              description: "Compare verified East African supply through one sourcing desk made for serious grain buyers.",
+            },
+          ]}
+        />
+
+        <section className="market-auth-form-wrap">
+          <div className="market-auth-form-card">
+            <div className="market-auth-form-heading">
+              <p className="market-auth-form-kicker">Buyer access · Grain market</p>
+              <h1>Sign in to Grain Marketplace</h1>
+              <p>Access certified lots, warehouse receipts, and delivery-ready grain.</p>
+            </div>
+
+            <SignIn
+              routing="path"
+              path={`${bp}/sign-in`}
+              signUpUrl={`${bp}/sign-up`}
+              fallbackRedirectUrl={`${bp}/dashboard`}
+              appearance={clerkAppearance}
+            />
+
+            <p className="market-auth-form-switch">
+              Don&apos;t have an account?{" "}
+              <a href={`${bp}/sign-up`}>Sign up</a>
             </p>
           </div>
+        </section>
+      </main>
 
-          <SignIn
-            routing="path"
-            path={`${bp}/sign-in`}
-            signUpUrl={`${bp}/sign-up`}
-            fallbackRedirectUrl={`${bp}/dashboard`}
-            appearance={clerkAppearance}
-          />
-
-          <p className="mt-5 text-center text-sm text-white/60">
-            Don't have an account?{" "}
-            <a href={`${bp}/sign-up`} className="font-semibold text-slate-200 hover:text-white transition-colors">
-              Sign up
-            </a>
-          </p>
-        </div>
-      </div>
-
-      <div className="absolute bottom-6 left-0 right-0 text-center z-20">
-        <a href={bp || "/"} className="text-xs text-white/40 hover:text-white/70 transition-colors">
-          Back to home
-        </a>
-      </div>
+      <footer className="market-auth-footer">
+        <a href={bp || "/"}>Back to home</a>
+      </footer>
     </div>
   );
 }

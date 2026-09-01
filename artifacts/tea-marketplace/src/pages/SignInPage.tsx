@@ -1,5 +1,6 @@
 import { SignIn } from "@clerk/react";
 import { Link } from "wouter";
+import { AuthBenefitCarousel } from "@/components/AuthBenefitCarousel";
 
 const clerkAppearance = {
   variables: {
@@ -45,55 +46,71 @@ export default function SignInPage() {
   const bp = import.meta.env.BASE_URL.replace(/\/$/, "");
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden flex items-center justify-end">
+    <div className="market-auth-shell market-auth-shell--tea">
       <img
-        src={`${bp}/photos/signin-bg.jpg`}
+        src={`${bp}/photos/tea-plantation.jpg`}
         alt=""
-        className="absolute inset-0 w-full h-full object-cover object-center"
+        className="market-auth-background"
         fetchPriority="high"
       />
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-black/20 to-black/50" />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-black/25" />
+      <div className="market-auth-overlay" />
 
-      <div className="absolute top-8 left-8 md:left-12 z-20">
+      <header className="market-auth-header">
         <Link href="/">
-          <span className="tokenharvest-wordmark text-white text-2xl cursor-pointer">TokenHarvest</span>
+          <span className="tokenharvest-wordmark market-auth-wordmark">TokenHarvest</span>
         </Link>
-      </div>
+      </header>
 
-      <div className="relative z-10 w-full max-w-[420px] mr-8 md:mr-16 xl:mr-24">
-        <div className="bg-white/10 backdrop-blur-2xl border border-white/25 shadow-2xl p-10">
-          <div className="mb-7">
-            <h1 className="text-2xl font-semibold text-white tracking-tight">
-              Sign in to Tea Marketplace
-            </h1>
-            <p className="text-sm text-white/65 mt-1.5">
-              Access verified GI tea supply and traceable lot records.
+      <main className="market-auth-main">
+        <AuthBenefitCarousel
+          eyebrow="Tea house sourcing · 01"
+          accentColor="#86efac"
+          slides={[
+            {
+              eyebrow: "Origin with a signature",
+              title: "Know the leaf\nbefore it arrives.",
+              description: "Source speciality tea with origin, grade, harvest, and factory records in one clear view.",
+            },
+            {
+              eyebrow: "GI-protected supply",
+              title: "Distinctive tea,\nbacked by proof.",
+              description: "Find protected origins and verified factories for a buying process that respects what makes each tea unique.",
+            },
+            {
+              eyebrow: "One clear chain",
+              title: "From factory record\nto your shelf.",
+              description: "Follow each lot from East African origin through certification, shipment, and delivery.",
+            },
+          ]}
+        />
+
+        <section className="market-auth-form-wrap">
+          <div className="market-auth-form-card">
+            <div className="market-auth-form-heading">
+              <p className="market-auth-form-kicker">Buyer access · Tea market</p>
+              <h1>Sign in to Tea Marketplace</h1>
+              <p>Access verified GI tea supply and traceable lot records.</p>
+            </div>
+
+            <SignIn
+              routing="path"
+              path={`${bp}/sign-in`}
+              signUpUrl={`${bp}/sign-up`}
+              fallbackRedirectUrl={`${bp}/broker`}
+              appearance={clerkAppearance}
+            />
+
+            <p className="market-auth-form-switch">
+              Don&apos;t have an account?{" "}
+              <a href={`${bp}/sign-up`}>Sign up</a>
             </p>
           </div>
+        </section>
+      </main>
 
-          <SignIn
-            routing="path"
-            path={`${bp}/sign-in`}
-            signUpUrl={`${bp}/sign-up`}
-            fallbackRedirectUrl={`${bp}/broker`}
-            appearance={clerkAppearance}
-          />
-
-          <p className="mt-5 text-center text-sm text-white/60">
-            Don't have an account?{" "}
-            <a href={`${bp}/sign-up`} className="font-semibold text-green-300 hover:text-green-200 transition-colors">
-              Sign up
-            </a>
-          </p>
-        </div>
-      </div>
-
-      <div className="absolute bottom-6 left-0 right-0 text-center z-20">
-        <a href={bp || "/"} className="text-xs text-white/40 hover:text-white/70 transition-colors">
-          Back to home
-        </a>
-      </div>
+      <footer className="market-auth-footer">
+        <a href={bp || "/"}>Back to home</a>
+      </footer>
     </div>
   );
 }
