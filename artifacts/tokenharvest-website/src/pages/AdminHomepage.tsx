@@ -973,7 +973,7 @@ function MarketsTab({ markets, setMarkets }: { markets: MarketCard[]; setMarkets
   const addCard = () =>
     setMarkets(prev => [
       ...prev,
-      { num: String(prev.length + 1).padStart(2, "0"), name: "New Commodity", grade: "Grade A", desc: "", photo: "", link: "/sign-in" },
+      { num: String(prev.length + 1).padStart(2, "0"), name: "New Commodity", grade: "Grade A", desc: "", photo: "", link: "/grain/sign-in" },
     ]);
 
   const removeCard = (i: number) =>

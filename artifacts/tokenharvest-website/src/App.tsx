@@ -13,8 +13,6 @@ import { Layout } from "@/components/layout/Layout";
 import Home from "@/pages/Home";
 import GetStarted from "@/pages/GetStarted";
 import InvestorsPartners from "@/pages/InvestorsPartners";
-import SignInPage from "@/pages/SignInPage";
-import SignUpPage from "@/pages/SignUpPage";
 import AdminHomepage from "@/pages/AdminHomepage";
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -80,8 +78,8 @@ function ClerkProviderWithRoutes() {
     <ClerkProvider
       publishableKey={clerkPubKey}
       appearance={clerkAppearance}
-      signInUrl={`${basePath}/sign-in`}
-      signUpUrl={`${basePath}/sign-up`}
+      signInUrl={`${basePath}/grain/sign-in`}
+      signUpUrl={`${basePath}/grain/sign-up`}
       signInFallbackRedirectUrl={`${basePath}/admin/homepage`}
       signUpFallbackRedirectUrl={`${basePath}/admin/homepage`}
       routerPush={(to) => setLocation(stripBase(to))}
@@ -95,8 +93,6 @@ function ClerkProviderWithRoutes() {
             <Route path="/" component={Home} />
             <Route path="/get-started" component={GetStarted} />
             <Route path="/investors" component={InvestorsPartners} />
-            <Route path="/sign-in/*?" component={SignInPage} />
-            <Route path="/sign-up/*?" component={SignUpPage} />
             <Route path="/admin/homepage">
               <ProtectedRoute>
                 <Layout>
