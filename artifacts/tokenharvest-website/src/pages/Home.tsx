@@ -223,10 +223,11 @@ function normalizeMarkets(value: unknown): MarketCardData[] | undefined {
 function scrollTo(id: string) {
   const el = document.getElementById(id);
   if (!el) return;
-  const navHeight = 68;
-  const extraPad = 24;
-  const top = el.getBoundingClientRect().top + window.scrollY - navHeight - extraPad;
-  window.scrollTo({ top, behavior: "smooth" });
+  const header = document.querySelector<HTMLElement>(".homepage-header");
+  const headerBottom = header?.getBoundingClientRect().bottom ?? 0;
+  const top = Math.max(0, el.getBoundingClientRect().top + window.scrollY - headerBottom - 24);
+  const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+  window.scrollTo({ top, behavior });
 }
 
 /* ── animated counter ─────────────────────────────────────── */
@@ -540,20 +541,28 @@ function FinanceCard({
 
 function FinanceCarousel() {
   const [activeIndex, setActiveIndex] = useState(1);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
+    if (isPaused) return;
     const timer = window.setInterval(() => {
       setActiveIndex(index => (index + 1) % FINANCE_PRODUCTS.length);
     }, 5500);
     return () => window.clearInterval(timer);
-  }, []);
+  }, [isPaused]);
 
   const move = (direction: number) => {
     setActiveIndex(index => (index + direction + FINANCE_PRODUCTS.length) % FINANCE_PRODUCTS.length);
   };
 
   return (
-    <div className="homepage-finance-carousel">
+    <div
+      className="homepage-finance-carousel"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+      onFocus={() => setIsPaused(true)}
+      onBlur={() => setIsPaused(false)}
+    >
       <div className="homepage-finance-stage" aria-live="polite">
         {FINANCE_PRODUCTS.map((product, index) => {
           let position = index - activeIndex;
