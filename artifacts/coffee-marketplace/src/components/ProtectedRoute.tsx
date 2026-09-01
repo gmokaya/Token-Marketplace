@@ -1,6 +1,5 @@
-import { useAuth } from "@clerk/react";
-import { ReactNode } from "react";
-import { Redirect } from "wouter";
+import { useAuth, useClerk } from "@clerk/react";
+import { ReactNode, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 
 export function ProtectedRoute({ children }: { children: ReactNode }) {
@@ -15,8 +14,18 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   }
 
   if (!isSignedIn) {
-    return <Redirect to="/sign-in" />;
+    return <RedirectToSignIn />;
   }
 
   return <>{children}</>;
+}
+
+function RedirectToSignIn() {
+  const { redirectToSignIn } = useClerk();
+
+  useEffect(() => {
+    redirectToSignIn({ redirectUrl: window.location.href });
+  }, [redirectToSignIn]);
+
+  return null;
 }
