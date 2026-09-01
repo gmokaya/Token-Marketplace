@@ -964,11 +964,11 @@ export default function Home() {
           </section>
 
           {/* ══ PLATFORM / HOW IT WORKS ─────────────────────────── */}
-          <section id="platform" style={{ background: "#fff", padding: "96px 0 104px" }}>
+          <section id="platform" style={{ background: "#fff", padding: "64px 0 72px" }}>
             <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px" }}>
               {/* section header */}
-              <div style={{ textAlign: "center", marginBottom: 64 }}>
-                <div style={{ width: 2, height: 40, background: ACCENT, margin: "0 auto 28px" }} />
+              <div style={{ textAlign: "center", marginBottom: 38 }}>
+                <div style={{ width: 2, height: 28, background: ACCENT, margin: "0 auto 18px" }} />
                 <div style={{ display: "inline-flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
                   <div style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT }} />
                   <span style={{ color: ACCENT, fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase" }}>How It Works</span>
@@ -983,7 +983,7 @@ export default function Home() {
               {/* 4-step grid */}
               <div className="homepage-steps-grid" style={{ display: "grid", gridTemplateColumns: `repeat(${steps.length},1fr)`, gap: 0 }}>
                  {steps.map(({ num, title, subtitle, tagline, desc }, i) => (
-                  <div key={num} style={{ padding: "40px 36px 40px", borderLeft: i > 0 ? "1px solid #f0f0f0" : undefined, position: "relative" }}>
+                   <div key={num} style={{ padding: "26px 28px 28px", borderLeft: i > 0 ? "1px solid #f0f0f0" : undefined, position: "relative" }}>
                     <div style={{ fontSize: 52, fontWeight: 300, color: "rgba(0,0,0,0.06)", lineHeight: 1, marginBottom: 12 }}>{num}</div>
                     <div style={{ width: 28, height: 2, background: ACCENT, marginBottom: 14 }} />
                      <h4 style={{ fontSize: 17, fontWeight: 700, color: "#232323", margin: "0 0 6px" }}>{title}</h4>
