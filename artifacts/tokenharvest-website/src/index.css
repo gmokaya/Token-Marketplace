@@ -921,6 +921,41 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ── Trade Finance Cards ── */
+.homepage-footer {
+  position: relative;
+  overflow: hidden;
+  background: #081d1e !important;
+}
+
+.homepage-footer::before {
+  content: "";
+  position: absolute;
+  width: 560px;
+  height: 560px;
+  top: -330px;
+  right: -120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(53,144,126,0.2) 0%, rgba(53,144,126,0.06) 38%, transparent 72%);
+  pointer-events: none;
+}
+
+.homepage-footer::after {
+  content: "";
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  left: -190px;
+  bottom: -220px;
+  background: radial-gradient(circle, rgba(229,83,73,0.12) 0%, transparent 68%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.homepage-footer > div {
+  position: relative;
+  z-index: 1;
+}
+
 .homepage-footer-minimal {
   display: flex;
   justify-content: space-between;
@@ -946,24 +981,29 @@ h1, h2, h3, h4, h5, h6 {
 .homepage-footer-minimal-links {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 8px;
 }
 
 .homepage-footer-minimal-links a,
 .homepage-footer-minimal-links button {
-  padding: 0;
+  padding: 9px 14px;
   border: 0;
-  background: none;
-  color: rgba(255,255,255,0.58);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.045);
+  color: rgba(255,255,255,0.68);
   font: 500 13px/1.4 'Futura', sans-serif;
   text-decoration: none;
   cursor: pointer;
-  transition: color 0.2s ease;
+  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 
 .homepage-footer-minimal-links a:hover,
 .homepage-footer-minimal-links button:hover {
   color: #fff;
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.2);
+  transform: translateY(-1px);
 }
 
 .homepage-service-card {
