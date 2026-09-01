@@ -259,6 +259,7 @@
   top: 34%;
   left: -7%;
   z-index: 1;
+  font-family: "Belleza", sans-serif;
   color: var(--th-coral);
   opacity: .13;
   font-size: clamp(4.7rem, 10vw, 10rem);
