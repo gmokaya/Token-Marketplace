@@ -262,10 +262,10 @@
   font-family: "Belleza", sans-serif;
   color: var(--th-coral);
   opacity: .13;
-  font-size: clamp(4.7rem, 10vw, 10rem);
+  font-size: clamp(5.2rem, 11vw, 11rem);
   font-weight: 700;
-  letter-spacing: -.13em;
-  line-height: .8;
+  letter-spacing: -.07em;
+  line-height: 1.2;
   white-space: nowrap;
 }
 
@@ -436,7 +436,7 @@
   .th-commodity-word {
     top: 30%;
     left: -5%;
-    font-size: 4rem;
+    font-size: 4.5rem;
   }
 
   .th-commodity-index {
