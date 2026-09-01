@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, ChevronRight, X, Send, Menu } from "lucide-react";
 import { PriceTicker } from "@/components/PriceTicker";
+import { TokenHarvestHero } from "@/components/home/TokenHarvestHero";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const img = (name: string) => `${BASE}/theme/${name}`;
@@ -821,72 +822,7 @@ export default function Home() {
           )}
 
           {/* ══ HERO ════════════════════════════════════════════════ */}
-          <section className="homepage-hero" style={{ position: "relative", height: "100vh", minHeight: 600, display: "flex", alignItems: "center" }}>
-            {/* left charcoal panel */}
-            <div className="homepage-hero-panel" style={{ position: "absolute", inset: 0, right: "48%", background: "#161616", zIndex: 1 }} />
-            {/* right panel, rotating hero image gallery */}
-            <div className="homepage-hero-photo" style={{ position: "absolute", inset: 0, left: "52%", zIndex: 1, overflow: "hidden", background: "#163333" }}>
-              {heroImages.map((image, index) => (
-                <div
-                  key={`${image}-${index}`}
-                  aria-hidden={index !== heroImageIndex}
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    backgroundImage: `url(${image})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    opacity: index === heroImageIndex ? 1 : 0,
-                    transform: index === heroImageIndex ? "scale(1.03)" : "scale(1)",
-                    transition: "opacity 1.35s ease-in-out, transform 6.5s ease-out",
-                  }}
-                />
-              ))}
-            </div>
-            {/* WRS brand green overlay over the photo for cohesion + legibility */}
-            <div className="homepage-hero-overlay" style={{
-              position: "absolute", inset: 0, left: "52%", zIndex: 1,
-              background: "linear-gradient(145deg, hsl(180 62% 10% / 0.36) 0%, hsl(180 62% 6% / 0.44) 60%, hsl(180 50% 8% / 0.36) 100%)",
-            }} />
-            {/* subtle dot-grid pattern overlay */}
-            <div className="homepage-hero-grid" style={{
-              position: "absolute", inset: 0, left: "52%", zIndex: 2,
-              backgroundImage: "radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)",
-              backgroundSize: "28px 28px",
-            }} />
-
-            {/* hero content (left side) */}
-            <div className="homepage-hero-content" style={{ position: "relative", zIndex: 3, width: "52%", padding: "0 48px 0 max(32px, calc((100vw - 1200px) / 2 + 32px))" }}>
-              <div className="homepage-hero-inner" style={{ maxWidth: 520 }}>
-                {/* brand label */}
-                <div className="homepage-hero-badge" style={{ display: "flex", alignItems: "center", gap: 9, marginTop: 48, marginBottom: 18 }}>
-                  <div style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT }} />
-                  <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, fontWeight: 500, letterSpacing: "0.22em", textTransform: "uppercase" }}>{hero.badge}</span>
-                </div>
-                {/* heading */}
-                <h1 className="homepage-hero-heading" style={{ color: "#fff", fontWeight: 300, lineHeight: 1.06, margin: "0 0 30px", fontSize: "clamp(4rem, 8.5vw, 7.5rem)", whiteSpace: "pre-line", letterSpacing: "-0.035em" }}>
-                  {hero.headline.replace(/^Trade\.\s+Finance\.\s*[\r\n]+?Deliver\.$/, "Trade.\nFinance.\nDeliver.")}
-                </h1>
-                {/* accent line */}
-                <div style={{ width: 56, height: 2, background: ACCENT, marginBottom: 26 }} />
-                {/* sub */}
-                <p className="homepage-hero-subheadline" style={{ color: "rgba(255,255,255,0.55)", fontSize: 18, fontWeight: 300, lineHeight: 1.65, margin: "0 0 38px", maxWidth: 560 }}>
-                  {hero.subheadline}
-                </p>
-                {/* CTAs */}
-                <div className="homepage-hero-actions" style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-                  <Link href="/sign-up"
-                    style={{ background: ACCENT, color: "#fff", padding: "16px 28px", textDecoration: "none", fontSize: 15, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 8 }}>
-                    {hero.cta1} <ArrowRight size={16} />
-                  </Link>
-                  <button onClick={() => scrollTo("services")}
-                    style={{ background: "#323232", color: "#fff", padding: "16px 28px", border: "none", cursor: "pointer", fontSize: 15, fontWeight: 500, fontFamily: "'Futura',sans-serif", display: "inline-flex", alignItems: "center", gap: 8 }}>
-                    {hero.cta2} <ArrowRight size={16} />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </section>
+          <TokenHarvestHero hero={hero} image={heroImages[heroImageIndex] ?? heroImages[0]} onServicesClick={() => scrollTo("services")} />
 
           {/* ══ SERVICE CARDS ════════════════════════════════════════
               White panel overlapping hero by −72px, 3 columns
