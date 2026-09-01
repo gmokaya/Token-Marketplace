@@ -712,7 +712,7 @@ export default function Home() {
             {/* main nav */}
               <div className="homepage-main-nav" style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", height: 68, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               {/* logo */}
-              <Link href="/" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
+                  <Link href="/" className="homepage-logo-link" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
                 <span
                   className="homepage-logo tokenharvest-wordmark"
                   style={{ color: "#0b3032", fontSize: 42, marginLeft: -14 }}
@@ -742,15 +742,10 @@ export default function Home() {
                     Go to Dashboard <ArrowRight size={15} />
                   </Link>
                 ) : (
-                  <>
-                    <Link href="/sign-in" style={{ color: "rgba(11,48,50,0.75)", textDecoration: "none", fontSize: 14, fontWeight: 500 }}>
-                      Sign In
-                    </Link>
-                    <Link href="/sign-up"
-                      style={{ background: "#d93839", color: "#fff", padding: "10px 22px", textDecoration: "none", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 7 }}>
-                      Get Started <ArrowRight size={15} />
-                    </Link>
-                  </>
+                  <Link href="/sign-up"
+                    style={{ background: "#d93839", color: "#fff", padding: "10px 22px", textDecoration: "none", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 7 }}>
+                    Get Started <ArrowRight size={15} />
+                  </Link>
                 )}
               </div>
               {/* Hamburger — hidden on desktop via CSS, shown on mobile */}
@@ -778,7 +773,7 @@ export default function Home() {
             }}>
               {/* top row */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 40 }}>
-                <Link href="/" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: "none" }}>
+                  <Link href="/" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: "none", padding: "6px 10px" }}>
                   <span className="tokenharvest-wordmark" style={{ color: "#fff", fontSize: 28 }}>TokenHarvest</span>
                 </Link>
                 <button onClick={() => setMobileMenuOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.6)", padding: 8, display: "flex" }}>
@@ -813,16 +808,10 @@ export default function Home() {
                     Go to Dashboard <ArrowRight size={16} />
                   </Link>
                 ) : (
-                  <>
-                    <Link href="/sign-in" onClick={() => setMobileMenuOpen(false)}
-                      style={{ color: "rgba(255,255,255,0.7)", textDecoration: "none", fontSize: 15, fontWeight: 500, padding: "14px 24px", border: "1px solid rgba(255,255,255,0.15)", textAlign: "center", display: "block" }}>
-                      Sign In
-                    </Link>
-                    <Link href="/sign-up" onClick={() => setMobileMenuOpen(false)}
-                      style={{ background: ACCENT, color: "#fff", padding: "16px 24px", textDecoration: "none", fontSize: 15, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-                      Get Started <ArrowRight size={16} />
-                    </Link>
-                  </>
+                  <Link href="/sign-up" onClick={() => setMobileMenuOpen(false)}
+                    style={{ background: ACCENT, color: "#fff", padding: "16px 24px", textDecoration: "none", fontSize: 15, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                    Get Started <ArrowRight size={16} />
+                  </Link>
                 )}
               </div>
             </div>

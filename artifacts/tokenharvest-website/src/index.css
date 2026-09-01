@@ -625,6 +625,11 @@ h1, h2, h3, h4, h5, h6 {
   display: none !important;
 }
 
+.homepage-logo-link {
+  margin-left: -14px;
+  padding: 8px 14px;
+}
+
 .homepage-utility-links {
   display: flex;
   align-items: center;
@@ -783,6 +788,52 @@ h1, h2, h3, h4, h5, h6 {
     align-items: flex-start !important;
     gap: 6px !important;
     padding-bottom: 48px !important;
+  }
+}
+
+/* Short desktop/tablet screens: fit the complete editorial hero beneath
+   the compact navigation without hiding the producer or the headline. */
+@media (min-width: 721px) and (max-height: 700px) {
+  .homepage-main-nav {
+    height: 54px !important;
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+    gap: 10px;
+  }
+
+  .homepage-logo-link {
+    margin-left: -8px;
+    padding: 5px 9px;
+  }
+
+  .homepage-logo {
+    font-size: 30px !important;
+  }
+
+  .homepage-nav-links {
+    gap: 13px !important;
+  }
+
+  .homepage-nav-links button {
+    font-size: 11px !important;
+  }
+
+  .homepage-utility-links {
+    gap: 10px;
+  }
+
+  .homepage-utility-links a,
+  .homepage-utility-links button {
+    font-size: 9px;
+  }
+
+  .homepage-auth-actions {
+    gap: 5px !important;
+  }
+
+  .homepage-auth-actions a {
+    padding: 8px 12px !important;
+    font-size: 11px !important;
   }
 }
 
