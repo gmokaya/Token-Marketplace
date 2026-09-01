@@ -937,17 +937,17 @@ h1, h2, h3, h4, h5, h6 {
 .homepage-finance-card {
   background: #fff;
   border-radius: 8px;
-  border: 1px solid #ebebeb;
+  border: 1px solid #c5d0ca;
   padding: 40px 32px;
   display: flex;
   flex-direction: column;
   position: relative;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  box-shadow: 0 10px 24px rgba(16,40,34,0.10);
   transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s ease;
 }
 
 .homepage-finance-card:hover {
-  box-shadow: 0 12px 32px rgba(0,0,0,0.08);
+  box-shadow: 0 16px 36px rgba(16,40,34,0.16);
   transform: translateY(-4px);
 }
 

@@ -498,7 +498,7 @@ function FinanceCard({
         <div style={{ color: ACCENT, fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>
           {eyebrow}
         </div>
-        <div style={{ background: "#f0f0f0", color: "#666", fontSize: 10, fontWeight: 600, padding: "4px 8px", borderRadius: 4, letterSpacing: "0.06em" }}>
+        <div style={{ background: ACCENT, color: "#fff", fontSize: 10, fontWeight: 700, padding: "5px 9px", borderRadius: 4, letterSpacing: "0.06em" }}>
           {audience}
         </div>
       </div>
@@ -511,11 +511,11 @@ function FinanceCard({
         {body}
       </p>
 
-      <div style={{ background: "#fcfcfc", borderLeft: `3px solid ${ACCENT}`, padding: "16px 20px", marginBottom: 24, borderRadius: "0 4px 4px 0" }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: "#111", marginBottom: 6 }}>
+      <div style={{ background: "#e7f0eb", borderLeft: `4px solid ${ACCENT_LIGHT}`, padding: "16px 20px", marginBottom: 24, borderRadius: "0 4px 4px 0" }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: "#162d27", marginBottom: 6 }}>
           {proof}
         </div>
-        <div style={{ fontSize: 13, color: "#777", fontStyle: "italic", lineHeight: 1.4 }}>
+        <div style={{ fontSize: 13, color: "#52635d", fontStyle: "italic", lineHeight: 1.4 }}>
           {eligibility}
         </div>
       </div>
@@ -1133,7 +1133,7 @@ export default function Home() {
           <EsgSection />
 
           {/* ══ TRADE FINANCE & LIQUIDITY ════════════════════════ */}
-          <section style={{ background: "#f7f7f7", padding: "96px 0" }}>
+          <section style={{ background: "#e8edea", padding: "96px 0" }}>
             <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px" }}>
               <div style={{ textAlign: "center", marginBottom: 64 }}>
                 <div style={{ display: "inline-flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
