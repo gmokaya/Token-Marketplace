@@ -1259,7 +1259,7 @@ export default function Home() {
           </section>
 
           {/* ══ FOOTER ──────────────────────────────────────────── */}
-          <footer className="homepage-footer" style={{ background: "#0a0a0b", padding: "18px 0 48px" }}>
+          <footer className="homepage-footer" style={{ background: "#0a0a0b", padding: "48px 0" }}>
             <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px" }}>
               <div className="homepage-footer-minimal">
                 <div className="homepage-footer-brand">
