@@ -13,8 +13,8 @@ type Quote = {
 type TickerItem = { e: string; name: string; open: number };
 
 const SEED: TickerItem[] = [
-  { e: "🌽", name: "Maize",   open: 282 },
-  { e: "🌾", name: "Rice",    open: 585 },
+  { e: "🌾", name: "Grain",   open: 282 },
+  { e: "🥜", name: "Nuts",    open: 585 },
   { e: "☕", name: "Coffee",  open: 4210 },
   { e: "🍵", name: "Tea",     open: 2640 },
   { e: "🥑", name: "Avocado", open: 1455 },
@@ -23,9 +23,17 @@ const SEED: TickerItem[] = [
   { e: "🫘", name: "Soybean", open: 540 },
 ];
 
+function displayCommodityName(name: string) {
+  const normalized = name.trim().toLowerCase();
+  if (normalized === "maize") return "Grain";
+  if (normalized === "rice") return "Nuts";
+  return name;
+}
+
 function seedToQuotes(items: TickerItem[]): Quote[] {
   return items.map(q => ({
     ...q,
+    name: displayCommodityName(q.name),
     price: Math.round(q.open * (1 + (Math.random() - 0.5) * 0.03)),
   }));
 }

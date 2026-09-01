@@ -148,8 +148,8 @@ const DEFAULT_CTA: CtaContent = {
 };
 
 const DEFAULT_MARKETS: MarketCard[] = [
-  { num: "01", name: "Maize",   grade: "Grade A–C",    link: "/grain/",  desc: "White & Yellow varieties with 90-day certified storage, fully backed by registered warehouses.", photo: "/photos/hero-soybean-farmer.jpg" },
-  { num: "02", name: "Rice",    grade: "Grade A–B",    link: "/grain/",  desc: "Milled & paddy rice from certified storage facilities across East Africa.", photo: "/photos/hero-soybean-farmer.jpg" },
+  { num: "01", name: "Grain",   grade: "Grade A–C",    link: "/grain/",  desc: "Cereals and grains with 90-day certified storage, fully backed by registered warehouses.", photo: "/photos/hero-soybean-farmer.jpg" },
+  { num: "02", name: "Nuts",    grade: "Grade A–B",    link: "/grain/",  desc: "Premium nuts from certified storage facilities across East Africa.", photo: "/photos/hero-soybean-farmer.jpg" },
   { num: "03", name: "Coffee",  grade: "AA / AB / PB", link: "/coffee/", desc: "Washed & natural-process beans, export-ready and auction-listed at the Nairobi Coffee Exchange.", photo: "/photos/cafe-imports-coffee-storage.jpg" },
   { num: "04", name: "Tea",     grade: "BOPI / FNDC",  link: "/tea/",    desc: "Orthodox & CTC grades, Mombasa auction listed with full provenance traceability.", photo: "/photos/tea-plantation.jpg" },
   { num: "05", name: "Avocado", grade: "Hass Export",  link: "/grain/",  desc: "Cold-chain certified Hass avocados meeting EU/UK market phytosanitary standards.", photo: "/photos/hero-soybean-farmer.jpg" },
@@ -202,8 +202,8 @@ const TABS = [
 ] as const;
 
 const DEFAULT_TICKER: TickerItem[] = [
-  { e: "🌽", name: "Maize",   open: 282 },
-  { e: "🌾", name: "Rice",    open: 585 },
+  { e: "🌾", name: "Grain",   open: 282 },
+  { e: "🥜", name: "Nuts",    open: 585 },
   { e: "☕", name: "Coffee",  open: 4210 },
   { e: "🍵", name: "Tea",     open: 2640 },
   { e: "🥑", name: "Avocado", open: 1455 },
@@ -237,7 +237,18 @@ export default function AdminHomepage() {
   useEffect(() => {
     fetch(`${API}/api/content/ticker`)
       .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d?.value?.items?.length) setTicker(d.value.items); })
+      .then(d => {
+        if (d?.value?.items?.length) {
+          setTicker(d.value.items.map((item: TickerItem) => ({
+            ...item,
+            name: item.name.trim().toLowerCase() === "maize"
+              ? "Grain"
+              : item.name.trim().toLowerCase() === "rice"
+                ? "Nuts"
+                : item.name,
+          })));
+        }
+      })
       .catch(() => {});
   }, []);
 
