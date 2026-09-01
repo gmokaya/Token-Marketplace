@@ -1216,9 +1216,9 @@ export default function Home() {
           {/* ══ CTA ─────────────────────────────────────────────── */}
           <section id="cta" style={{
             position: "relative", padding: "66px 0 70px",
-            background: "linear-gradient(135deg, #0a302b 0%, #12483f 52%, #0b332e 100%)", overflow: "hidden",
+            background: `url(${photo("cta-harvest.jpg")}) center 48% / cover no-repeat`, overflow: "hidden",
           }}>
-            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 50% 42%, rgba(91,177,157,0.18), transparent 62%)" }} />
+            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(5,30,27,0.9) 0%, rgba(7,48,42,0.78) 50%, rgba(5,30,27,0.9) 100%), radial-gradient(circle at 50% 42%, rgba(91,177,157,0.2), transparent 62%)" }} />
             <div style={{ position: "relative", zIndex: 1, maxWidth: 700, margin: "0 auto", padding: "0 32px", textAlign: "center" }}>
               <div style={{ display: "inline-flex", alignItems: "center", gap: 9, marginBottom: 13 }}>
                 <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#ed6558" }} />
