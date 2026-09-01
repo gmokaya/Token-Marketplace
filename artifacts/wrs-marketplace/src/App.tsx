@@ -9,7 +9,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 
 import Home from "@/pages/Home";
 import SignInPage from "@/pages/SignInPage";
-import SignUpPage from "@/pages/SignUpPage";
 import Dashboard from "@/pages/Dashboard";
 import Profile from "@/pages/Profile";
 import AdminEarnings from "@/pages/AdminEarnings";
@@ -95,7 +94,7 @@ function ClerkProviderWithRoutes() {
       publishableKey={clerkPubKey}
       appearance={clerkAppearance}
       signInUrl={`${basePath}/sign-in`}
-      signUpUrl={`${basePath}/sign-up`}
+      signUpUrl={`${basePath}/sign-in?mode=sign-up`}
       signInFallbackRedirectUrl={`${basePath}/dashboard`}
       signUpFallbackRedirectUrl={`${basePath}/dashboard`}
       routerPush={(to) => setLocation(stripBase(to))}
@@ -109,7 +108,6 @@ function ClerkProviderWithRoutes() {
             {/* Public pages */}
             <Route path="/" component={Home} />
             <Route path="/sign-in/*?" component={SignInPage} />
-            <Route path="/sign-up/*?" component={SignUpPage} />
 
             {/* Authenticated pages */}
             <Route path="/dashboard"><ProtectedRoute><Dashboard /></ProtectedRoute></Route>

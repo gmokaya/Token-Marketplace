@@ -79,7 +79,7 @@ function ClerkProviderWithRoutes() {
       publishableKey={clerkPubKey}
       appearance={clerkAppearance}
       signInUrl={`${basePath}/grain/sign-in`}
-      signUpUrl={`${basePath}/grain/sign-up`}
+      signUpUrl={`${basePath}/grain/sign-in?mode=sign-up`}
       signInFallbackRedirectUrl={`${basePath}/admin/homepage`}
       signUpFallbackRedirectUrl={`${basePath}/admin/homepage`}
       routerPush={(to) => setLocation(stripBase(to))}

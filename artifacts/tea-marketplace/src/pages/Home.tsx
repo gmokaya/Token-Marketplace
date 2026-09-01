@@ -90,7 +90,7 @@ export default function Home() {
                   <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                 </span>
               </Link>
-              <Link href="/sign-up">
+              <Link href="/sign-in?mode=sign-up">
                 <span className="inline-flex cursor-pointer items-center border border-white/35 bg-white/[0.06] px-5 py-3.5 text-xs font-medium uppercase tracking-[0.12em] text-white/85 backdrop-blur-sm transition-colors hover:border-white/65 hover:bg-white/15 hover:text-white">
                   Create buyer account
                 </span>
