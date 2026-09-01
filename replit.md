@@ -5,11 +5,10 @@ East Africa's electronic warehouse receipt (eWR) trading platform for agricultur
 ## Run & Operate
 
 The primary Grain setup uses two Replit workflows:
-- **`TokenHarvest API`** — Express API on port 8080 (`/api`)
-- **`Grain frontend`** — WRS Marketplace React/Vite frontend on port 26227 (`/grain/`)
+- **`artifacts/api-server: API Server`** — Express API on port 8080 (`/api`)
+- **`artifacts/wrs-marketplace: web`** — WRS Marketplace React/Vite frontend on port 26227 (`/grain/`)
 
-Both workflows start automatically. Other imported frontends remain available in
-the workspace but are not part of the default run setup.
+These are artifact-managed workflows; restart them from the Replit workflow controls rather than creating duplicate legacy workflows. Other imported frontends remain available as their own managed artifacts.
 
 One-off commands:
 - `pnpm run typecheck` — full typecheck across all packages
@@ -19,11 +18,11 @@ One-off commands:
 
 Required env (runtime-managed by Replit — do not set manually):
 - `DATABASE_URL` — Postgres connection string
-- `CLERK_SECRET_KEY`, `CLERK_PUBLISHABLE_KEY`, `VITE_CLERK_PUBLISHABLE_KEY` — external Clerk auth credentials
+- `CLERK_SECRET_KEY`, `CLERK_PUBLISHABLE_KEY`, `VITE_CLERK_PUBLISHABLE_KEY` — Replit-managed Clerk auth credentials
 
 ## Stack
 
-- pnpm workspaces, Node.js 24, TypeScript 5.9
+- pnpm workspaces, Node.js 20, TypeScript 5.9
 - API: Express 5
 - DB: PostgreSQL + Drizzle ORM
 - Validation: Zod (`zod/v4`), `drizzle-zod`
@@ -48,11 +47,11 @@ _Populate as you build — explicit user instructions worth remembering across s
 
 ## Setup status
 
-Completed on import setup (2026-09-01):
+Completed on import setup (2026-09-02):
 - `pnpm install` — all workspace dependencies installed
 - `pnpm --filter @workspace/db run push` — DB schema pushed to Replit PostgreSQL
-- Clerk auth configured against the user's external Clerk account; credentials are stored as secrets (`CLERK_SECRET_KEY`, `CLERK_PUBLISHABLE_KEY`, `VITE_CLERK_PUBLISHABLE_KEY`)
-- Grain frontend and API workflows started and verified through the proxied `/grain/` and `/api/healthz` routes
+- Replit-managed Clerk auth provisioned; credentials are stored as managed secrets (`CLERK_SECRET_KEY`, `CLERK_PUBLISHABLE_KEY`, `VITE_CLERK_PUBLISHABLE_KEY`)
+- Grain frontend and API artifact workflows started and verified through the proxied `/grain/` and `/api/healthz` routes
 
 ## Gotchas
 

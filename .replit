@@ -1,4 +1,4 @@
-modules = ["nodejs-20", "web", "python-3.12"]
+modules = ["nodejs-20", "web", "python-3.12", "postgresql-16"]
 
 [deployment]
 router = "application"
@@ -9,43 +9,6 @@ args = ["pnpm", "store", "prune"]
 env = { "CI" = "true" }
 
 [workflows]
-runButton = "artifacts/wrs-marketplace: web"
-
-[[workflows.workflow]]
-name = "Project"
-mode = "parallel"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Grain frontend"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "TokenHarvest API"
-
-[[workflows.workflow]]
-name = "Grain frontend"
-author = "agent"
-
-[workflows.workflow.metadata]
-outputType = "webview"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "PORT=26227 BASE_PATH=/grain/ pnpm --filter @workspace/wrs-marketplace run dev"
-
-[[workflows.workflow]]
-name = "TokenHarvest API"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "PORT=8080 pnpm --filter @workspace/api-server run dev"
-waitForPort = 8080
-
-[workflows.workflow.metadata]
-outputType = "console"
 
 [agent]
 stack = "PNPM_WORKSPACE"
