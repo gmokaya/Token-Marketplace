@@ -13,6 +13,7 @@ import { Layout } from "@/components/layout/Layout";
 
 import Home from "@/pages/Home";
 import GetStarted from "@/pages/GetStarted";
+import InvestorsPartners from "@/pages/InvestorsPartners";
 import SignInPage from "@/pages/SignInPage";
 import SignUpPage from "@/pages/SignUpPage";
 import AdminHomepage from "@/pages/AdminHomepage";
@@ -96,6 +97,7 @@ function ClerkProviderWithRoutes() {
           <Switch>
             <Route path="/" component={Home} />
             <Route path="/get-started" component={GetStarted} />
+            <Route path="/investors" component={InvestorsPartners} />
             <Route path="/sign-in/*?" component={SignInPage} />
             <Route path="/sign-up/*?" component={SignUpPage} />
             <Route path="/admin/homepage">
