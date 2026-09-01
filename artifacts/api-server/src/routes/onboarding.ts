@@ -17,11 +17,30 @@ const allowedInterests = new Set([
 ]);
 
 const optionalText = z.string().trim().max(500).optional().nullable();
+const commoditySubtypes: Record<string, readonly string[]> = {
+  Coffee: ["Arabica AA", "Arabica AB", "Arabica PB", "Robusta"],
+  Tea: ["Orthodox", "CTC", "Green Tea", "Purple Tea", "White Tea"],
+  Grain: ["Maize", "Wheat", "Rice", "Sorghum", "Green Grams", "Beans"],
+};
+const commoditySelectionSchema = z.object({
+  commodity: z.string().trim().min(1).max(80),
+  subType: z.string().trim().min(1).max(80).nullable(),
+}).superRefine((selection, ctx) => {
+  const allowed = commoditySubtypes[selection.commodity];
+  if (allowed && !selection.subType) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["subType"], message: `Select a ${selection.commodity} sub-type` });
+  } else if (allowed && selection.subType && !allowed.includes(selection.subType)) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["subType"], message: "Invalid commodity sub-type" });
+  } else if (!allowed && selection.subType !== null) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["subType"], message: "Sub-type is not supported for this commodity" });
+  }
+});
 const onboardingSchema = z.object({
   marketplaceRole: roleSchema,
   fullName: z.string().trim().min(2).max(120),
   region: optionalText,
   commodities: z.array(z.string().trim().min(1).max(80)).max(20).default([]),
+  commoditySelections: z.array(commoditySelectionSchema).max(20).default([]),
   payoutMobileMoney: optionalText,
   businessName: optionalText,
   businessRegistrationNumber: optionalText,
@@ -45,8 +64,8 @@ const onboardingSchema = z.object({
   if (data.marketplaceRole === "producer") {
     required("region", "Region or county is required");
     required("payoutMobileMoney", "Mobile money number is required");
-    if (data.commodities.length === 0) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["commodities"], message: "Select at least one commodity" });
+    if (data.commoditySelections.length === 0 && data.commodities.length === 0) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["commoditySelections"], message: "Select at least one commodity" });
     }
   }
 
@@ -54,15 +73,17 @@ const onboardingSchema = z.object({
     required("businessName", "Business name is required");
     required("businessRegistrationNumber", "Registration number is required");
     required("bankDetails", "Bank details are required");
-    if (data.commodities.length === 0) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["commodities"], message: "Select at least one commodity" });
+    if (data.commoditySelections.length === 0 && data.commodities.length === 0) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["commoditySelections"], message: "Select at least one commodity" });
     }
   }
 
   if (data.marketplaceRole === "buyer") {
     required("businessName", "Company name is required");
     required("businessRegistrationNumber", "Registration number is required");
-    required("sourcingCommodity", "Sourcing interest is required");
+    if (data.commoditySelections.length === 0 && !data.sourcingCommodity) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["commoditySelections"], message: "Sourcing interest is required" });
+    }
     required("expectedVolume", "Expected volume is required");
     required("destinationCountry", "Destination country is required");
   }
@@ -106,6 +127,10 @@ router.put("/onboarding/me", async (req, res) => {
   if (!user) return res.status(404).json({ error: "User not found" });
 
   const data = parsed.data;
+  const commoditySelections = data.commoditySelections.length > 0
+    ? data.commoditySelections
+    : data.commodities.map((commodity) => ({ commodity, subType: null }));
+  const legacyCommodityNames = commoditySelections.map(({ commodity, subType }) => subType ? `${commodity}: ${subType}` : commodity);
   const tier = data.marketplaceRole === "producer" ? "PRODUCER" : "OFF_TAKER";
   const now = new Date();
   const values = {
@@ -113,12 +138,13 @@ router.put("/onboarding/me", async (req, res) => {
     marketplaceRole: data.marketplaceRole,
     fullName: data.fullName,
     region: data.region || null,
-    commodities: data.commodities,
+    commodities: legacyCommodityNames,
+    commoditySelections,
     payoutMobileMoney: data.payoutMobileMoney || null,
     businessName: data.businessName || null,
     businessRegistrationNumber: data.businessRegistrationNumber || null,
     bankDetails: data.bankDetails || null,
-    sourcingCommodity: data.sourcingCommodity || null,
+    sourcingCommodity: data.marketplaceRole === "buyer" ? legacyCommodityNames.join(", ") || data.sourcingCommodity || null : null,
     expectedVolume: data.expectedVolume || null,
     destinationCountry: data.destinationCountry || null,
     interests: data.interests,

@@ -11,21 +11,37 @@ import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowRight, ArrowLeft, Loader2, Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-// Types and Schemas
+import { CountrySelect } from "./CountrySelect";
+import { VolumeSelect } from "./VolumeSelect";
+import { COMMODITY_SUBTYPES, CommoditySelect, normalizeLegacyCommodity } from "./CommoditySelect";
+
+const commoditySelectionSchema = z.object({
+  commodity: z.string(),
+  subType: z.string().nullable(),
+}).superRefine((selection, ctx) => {
+  const allowed = COMMODITY_SUBTYPES[selection.commodity];
+  if (allowed && !selection.subType) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["subType"], message: `Select a ${selection.commodity} sub-type` });
+  } else if (allowed && selection.subType && !allowed.includes(selection.subType)) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["subType"], message: "Select a valid sub-type" });
+  } else if (!allowed && selection.subType !== null) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["subType"], message: "This commodity does not use a sub-type" });
+  }
+});
+
 const onboardingSchema = z.object({
   marketplaceRole: z.enum(["producer", "trader", "buyer"]),
   fullName: z.string().min(2, "Full name is required"),
   region: z.string().optional(),
-  commodities: z.array(z.string()).default([]),
+  commoditySelections: z.array(commoditySelectionSchema).default([]),
   
   // Optional / Role-specific
   payoutMobileMoney: z.string().optional(),
   businessName: z.string().optional(),
   businessRegistrationNumber: z.string().optional(),
   bankDetails: z.string().optional(),
-  companyName: z.string().optional(),
-  sourcingCommodity: z.string().optional(),
   expectedVolume: z.string().optional(),
   destinationCountry: z.string().optional(),
   interests: z.array(z.string()).default([]),
@@ -41,30 +57,30 @@ const onboardingSchema = z.object({
   if (data.marketplaceRole === "producer") {
     requireText("region", "Region or county is required");
     requireText("payoutMobileMoney", "Mobile money number is required");
-    if (!data.commodities.length) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["commodities"], message: "Select at least one commodity" });
+    if (!data.commoditySelections.length) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["commoditySelections"], message: "Select at least one commodity" });
     }
   }
   if (data.marketplaceRole === "trader") {
     requireText("businessName", "Business name is required");
     requireText("businessRegistrationNumber", "Registration number is required");
     requireText("bankDetails", "Bank details are required");
-    if (!data.commodities.length) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["commodities"], message: "Select at least one commodity" });
+    if (!data.commoditySelections.length) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["commoditySelections"], message: "Select at least one commodity" });
     }
   }
   if (data.marketplaceRole === "buyer") {
     requireText("businessName", "Company name is required");
     requireText("businessRegistrationNumber", "Registration number is required");
-    requireText("sourcingCommodity", "Sourcing interest is required");
+    if (!data.commoditySelections.length) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["commoditySelections"], message: "Sourcing interest is required" });
+    }
     requireText("expectedVolume", "Expected volume is required");
     requireText("destinationCountry", "Destination country is required");
   }
 });
 
 type OnboardingData = z.infer<typeof onboardingSchema>;
-
-const DEFAULT_COMMODITIES = ["Maize", "Soybeans", "Wheat", "Sorghum", "Beans", "Millet", "Rice", "Sunflower", "Sesame"];
 
 const INTERESTS = {
   producer: [
@@ -104,12 +120,11 @@ const INTERESTS = {
 
 type OnboardingWizardProps = {
   marketName?: string;
-  commodities?: string[];
+  commodities?: string[]; // No longer used, but kept for interface compatibility
 };
 
 export default function OnboardingWizard({
-  marketName = "Grain Marketplace",
-  commodities = DEFAULT_COMMODITIES,
+  marketName = "TokenHarvest",
 }: OnboardingWizardProps) {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -119,20 +134,17 @@ export default function OnboardingWizard({
   const [isAdvancing, setIsAdvancing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Initialize form
   const form = useForm<OnboardingData>({
     resolver: zodResolver(onboardingSchema),
     defaultValues: {
       marketplaceRole: "producer",
       fullName: "",
       region: "",
-      commodities: [],
+      commoditySelections: [],
       payoutMobileMoney: "",
       businessName: "",
       businessRegistrationNumber: "",
       bankDetails: "",
-      companyName: "",
-      sourcingCommodity: "",
       expectedVolume: "",
       destinationCountry: "",
       interests: [],
@@ -141,19 +153,14 @@ export default function OnboardingWizard({
     mode: "onChange",
   });
 
-  // Role watcher for conditional fields
   const currentRole = form.watch("marketplaceRole");
 
-  // Load from API + LocalStorage
   useEffect(() => {
     async function loadData() {
       try {
         const serverData = await customFetch<any>("/api/onboarding/me");
-        
-        // Also check local storage for un-submitted changes
         const localData = localStorage.getItem("onboarding-draft");
         const parsedLocal = localData ? JSON.parse(localData) : null;
-        
         const initialRole = localStorage.getItem("onboardingRole") || "producer";
 
         const merged = {
@@ -161,14 +168,28 @@ export default function OnboardingWizard({
           ...serverData,
           ...parsedLocal,
         };
+
+        // Migrate old flat arrays to structured selections
+        if (merged.commodities && (!merged.commoditySelections || merged.commoditySelections.length === 0)) {
+          merged.commoditySelections = merged.commodities.map(normalizeLegacyCommodity);
+        }
+        if (merged.sourcingCommodity && (!merged.commoditySelections || merged.commoditySelections.length === 0)) {
+          merged.commoditySelections = [normalizeLegacyCommodity(merged.sourcingCommodity)];
+        }
         
         form.reset(merged);
       } catch (err) {
-        // If 404, we just start fresh, maybe check local storage
         const localData = localStorage.getItem("onboarding-draft");
         const parsedLocal = localData ? JSON.parse(localData) : null;
         const initialRole = localStorage.getItem("onboardingRole") || "producer";
+        
         if (parsedLocal) {
+          if (parsedLocal.commodities && (!parsedLocal.commoditySelections || parsedLocal.commoditySelections.length === 0)) {
+            parsedLocal.commoditySelections = parsedLocal.commodities.map(normalizeLegacyCommodity);
+          }
+          if (parsedLocal.sourcingCommodity && (!parsedLocal.commoditySelections || parsedLocal.commoditySelections.length === 0)) {
+            parsedLocal.commoditySelections = [normalizeLegacyCommodity(parsedLocal.sourcingCommodity)];
+          }
           form.reset({ ...parsedLocal, marketplaceRole: parsedLocal.marketplaceRole || initialRole });
         } else {
           form.setValue("marketplaceRole", initialRole as "producer" | "trader" | "buyer");
@@ -180,7 +201,6 @@ export default function OnboardingWizard({
     loadData();
   }, [form]);
 
-  // Auto-save to LocalStorage
   useEffect(() => {
     const subscription = form.watch((value) => {
       localStorage.setItem("onboarding-draft", JSON.stringify(value));
@@ -188,24 +208,25 @@ export default function OnboardingWizard({
     return () => subscription.unsubscribe();
   }, [form.watch]);
 
-  // Navigation handlers
   const nextStep = async () => {
     if (isAdvancing || currentStep >= 3) return;
     setIsAdvancing(true);
-    // Validate current step
     let fieldsToValidate: any[] = [];
-    if (currentStep === 1) fieldsToValidate = ["fullName"];
+    if (currentStep === 1) {
+      fieldsToValidate = ["fullName"];
+      if (currentRole === "producer") fieldsToValidate.push("region");
+    }
     if (currentStep === 2) {
-      if (currentRole === "producer") fieldsToValidate = ["region", "commodities", "payoutMobileMoney"];
-      if (currentRole === "trader") fieldsToValidate = ["businessName", "businessRegistrationNumber", "commodities", "bankDetails"];
-      if (currentRole === "buyer") fieldsToValidate = ["businessName", "businessRegistrationNumber", "sourcingCommodity", "expectedVolume", "destinationCountry"];
+      if (currentRole === "producer") fieldsToValidate = ["commoditySelections", "payoutMobileMoney"];
+      if (currentRole === "trader") fieldsToValidate = ["businessName", "businessRegistrationNumber", "commoditySelections", "bankDetails"];
+      if (currentRole === "buyer") fieldsToValidate = ["businessName", "businessRegistrationNumber", "commoditySelections", "expectedVolume", "destinationCountry"];
     }
     
     try {
       const isValid = await form.trigger(fieldsToValidate);
       if (isValid) {
         setCurrentStep((step) => Math.min(3, step + 1));
-        window.scrollTo(0, 0);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     } finally {
       setIsAdvancing(false);
@@ -214,12 +235,10 @@ export default function OnboardingWizard({
 
   const prevStep = () => {
     setCurrentStep(s => Math.max(1, s - 1));
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const onSubmit = async (data: OnboardingData) => {
-    // Pressing Enter in a field dispatches a form submit. Before the final
-    // step, treat that exactly like Continue so no profile can be saved early.
     if (currentStep < 3) {
       await nextStep();
       return;
@@ -253,28 +272,17 @@ export default function OnboardingWizard({
   };
 
   const renderStepIndicator = () => (
-    <div className="flex items-center gap-2 mb-8">
+    <div className="flex items-center gap-2 mb-10">
       {[1, 2, 3].map((step) => (
-        <div key={step} className="flex items-center gap-2 flex-1">
-          <div 
-            className={`h-1.5 flex-1 rounded-full transition-colors ${
-              step <= currentStep ? "bg-white" : "bg-white/20"
-            }`} 
-          />
-        </div>
+        <div 
+          key={step} 
+          className={`h-1.5 flex-1 rounded-full transition-colors duration-500 ${
+            step <= currentStep ? "bg-[#606A5C]" : "bg-[#e5e5ea]"
+          }`} 
+        />
       ))}
-      <span className="text-white/50 text-xs tracking-widest uppercase ml-2">Step {currentStep} of 3</span>
     </div>
   );
-
-  const toggleCommodity = (commodity: string) => {
-    const current = form.getValues("commodities") || [];
-    if (current.includes(commodity)) {
-      form.setValue("commodities", current.filter(c => c !== commodity), { shouldValidate: true });
-    } else {
-      form.setValue("commodities", [...current, commodity], { shouldValidate: true });
-    }
-  };
 
   const toggleInterest = (interest: string) => {
     const current = form.getValues("interests") || [];
@@ -289,74 +297,85 @@ export default function OnboardingWizard({
     const selected = form.watch("interests") || [];
     return (
       <div className="flex flex-wrap gap-2.5">
-        {items.map(([label, value]) => (
-          <button
-            key={value}
-            type="button"
-            aria-pressed={selected.includes(value)}
-            onClick={() => toggleInterest(value)}
-            className={`px-3 py-2 rounded-full text-sm border transition-colors ${
-              selected.includes(value)
-                ? "bg-white text-gray-900 border-white"
-                : "bg-white/5 border-white/20 text-white/75 hover:bg-white/10"
-            }`}
-            data-testid={`chip-interest-${value}`}
-          >
-            {label}
-          </button>
-        ))}
+        {items.map(([label, value]) => {
+          const isSelected = selected.includes(value);
+          return (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={isSelected}
+              onClick={() => toggleInterest(value)}
+              className={cn(
+                "inline-flex items-center justify-center px-4 py-2.5 rounded-full text-[14px] font-medium transition-all duration-200 cursor-pointer border",
+                isSelected
+                  ? "bg-[#606A5C] border-[#606A5C] text-white shadow-sm"
+                  : "bg-[#f5f5f7] border-[#e5e5ea] text-[#1d1d1f] hover:bg-[#e5e5ea]"
+              )}
+              data-testid={`chip-interest-${value}`}
+            >
+              {label}
+            </button>
+          );
+        })}
       </div>
     );
   };
 
+  const appleInput = "flex w-full rounded-xl border border-[#e5e5ea] bg-[#f5f5f7] px-4 py-3 text-[15px] text-[#1d1d1f] transition-all placeholder:text-[#86868b] focus:bg-white focus:border-[#606A5C] focus:outline-none focus:ring-1 focus:ring-[#606A5C]/20 shadow-none";
+  const appleLabel = "block text-[13px] font-medium text-[#86868b] px-1 mb-2";
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 text-white/50 animate-spin" />
+        <Loader2 className="w-8 h-8 text-[#86868b] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="market-onboarding w-full max-w-md mx-auto">
+    <div className="font-['Inter',_-apple-system,_BlinkMacSystemFont,_sans-serif] w-full mx-auto text-[#1d1d1f] max-w-[480px]">
       {renderStepIndicator()}
       
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           
           {/* STEP 1: Basic Profile */}
           {currentStep === 1 && (
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-white mb-2">Let's set up your profile</h2>
-                <p className="text-white/60 text-sm">Tell us a bit about yourself so we can personalize your experience.</p>
+            <div className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-8">
+              <div>
+                <h2 className="text-2xl font-semibold tracking-tight text-[#1d1d1f] mb-2">Create your profile</h2>
+                <p className="text-[15px] leading-relaxed text-[#86868b]">Tell us a bit about yourself so we can personalize your experience.</p>
               </div>
 
-              <div className="space-y-5">
+              <div className="space-y-6">
                 <FormField
                   control={form.control}
                   name="marketplaceRole"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-white/80">I am joining as a</FormLabel>
-                      <div className="grid grid-cols-3 gap-2">
-                        {(["producer", "trader", "buyer"] as const).map((role) => (
-                          <button
-                            type="button"
-                            key={role}
-                            onClick={() => field.onChange(role)}
-                            className={`px-3 py-2.5 text-sm font-medium text-center border rounded cursor-pointer transition-colors ${
-                              field.value === role 
-                                ? "bg-white text-gray-900 border-white" 
-                                : "bg-white/5 border-white/20 text-white/70 hover:bg-white/10"
-                            }`}
-                            data-testid={`select-role-${role}`}
-                          >
-                            {role[0].toUpperCase() + role.slice(1)}
-                          </button>
-                        ))}
+                      <FormLabel className={appleLabel}>I am joining as a</FormLabel>
+                      <div className="flex flex-wrap gap-3 mt-2">
+                        {(["producer", "trader", "buyer"] as const).map((role) => {
+                          const isSelected = field.value === role;
+                          return (
+                            <button
+                              type="button"
+                              key={role}
+                              onClick={() => field.onChange(role)}
+                              className={cn(
+                                "inline-flex items-center justify-center px-5 py-3 rounded-full text-[14px] font-medium transition-all duration-200 cursor-pointer border",
+                                isSelected 
+                                  ? "bg-[#606A5C] border-[#606A5C] text-white shadow-sm" 
+                                  : "bg-[#f5f5f7] border-[#e5e5ea] text-[#1d1d1f] hover:bg-[#e5e5ea]"
+                              )}
+                              data-testid={`select-role-${role}`}
+                            >
+                              {role.charAt(0).toUpperCase() + role.slice(1)}
+                            </button>
+                          );
+                        })}
                       </div>
-                      <FormMessage />
+                      <FormMessage className="px-1 text-red-500 text-[13px]" />
                     </FormItem>
                   )}
                 />
@@ -366,94 +385,85 @@ export default function OnboardingWizard({
                   name="fullName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-white/80">Full Name</FormLabel>
+                      <FormLabel className={appleLabel}>Full Name</FormLabel>
                       <FormControl>
                         <Input 
                           {...field} 
-                          className="bg-white/10 border-white/20 text-white placeholder:text-white/30 h-12" 
+                          className={appleInput} 
                           placeholder="Jane Doe"
                           data-testid="input-fullname"
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="px-1 text-red-500 text-[13px]" />
                     </FormItem>
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="region"
-                  render={({ field }) => (
-                    <FormItem>
-                  <FormLabel className="text-white/80">Region or county</FormLabel>
-                      <FormControl>
-                        <Input 
-                          {...field} 
-                          className="bg-white/10 border-white/20 text-white placeholder:text-white/30 h-12" 
-                          placeholder="e.g. Rift Valley, Kenya"
-                          data-testid="input-region"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {currentRole === "producer" && (
+                  <FormField
+                    control={form.control}
+                    name="region"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className={appleLabel}>Region or county</FormLabel>
+                        <FormControl>
+                          <Input 
+                            {...field} 
+                            className={appleInput} 
+                            placeholder="e.g. Rift Valley, Kenya"
+                            data-testid="input-region"
+                          />
+                        </FormControl>
+                        <FormMessage className="px-1 text-red-500 text-[13px]" />
+                      </FormItem>
+                    )}
+                  />
+                )}
               </div>
             </div>
           )}
 
           {/* STEP 2: Business & Operations */}
           {currentStep === 2 && (
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-white mb-2">Business operations</h2>
-                <p className="text-white/60 text-sm">
+            <div className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-8">
+              <div>
+                <h2 className="text-2xl font-semibold tracking-tight text-[#1d1d1f] mb-2">Business operations</h2>
+                <p className="text-[15px] leading-relaxed text-[#86868b]">
                   {currentRole === "producer" && "Tell us what you grow and where payments should reach you."}
                   {currentRole === "trader" && "Tell us about your trading business."}
                   {currentRole === "buyer" && "Tell us about your sourcing needs."}
                 </p>
               </div>
 
-              <div className="space-y-5">
-                {currentRole === "producer" && (
-                  <>
-                    <FormField
-                      control={form.control}
-                      name="commodities"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-white/80">What do you produce?</FormLabel>
-                          <div className="flex flex-wrap gap-2 mt-2">
-                            {commodities.map((c) => (
-                              <button
-                                type="button"
-                                key={c}
-                                onClick={() => toggleCommodity(c)}
-                                className={`px-3 py-1.5 rounded-full text-sm font-medium border cursor-pointer transition-colors ${
-                                  (field.value || []).includes(c)
-                                    ? "bg-white text-gray-900 border-white"
-                                    : "bg-white/5 border-white/20 text-white/70 hover:bg-white/10"
-                                }`}
-                                data-testid={`chip-commodity-${c.toLowerCase()}`}
-                              >
-                                {c}
-                              </button>
-                            ))}
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField control={form.control} name="payoutMobileMoney" render={({ field }) => (
+              <div className="space-y-6">
+                {(currentRole === "producer" || currentRole === "trader" || currentRole === "buyer") && (
+                  <FormField
+                    control={form.control}
+                    name="commoditySelections"
+                    render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-white/80">Mobile money number</FormLabel>
+                        <FormLabel className={appleLabel}>
+                          {currentRole === "producer" ? "What do you produce?" : currentRole === "buyer" ? "What are you sourcing?" : "What do you trade?"}
+                        </FormLabel>
                         <FormControl>
-                          <Input {...field} inputMode="tel" autoComplete="tel" className="bg-white/10 border-white/20 text-white h-12" placeholder="+254 712 345 678" data-testid="input-mobile-money" />
+                          <CommoditySelect value={field.value} onChange={field.onChange} />
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage className="px-1 text-red-500 text-[13px]" />
                       </FormItem>
-                    )} />
-                  </>
+                    )}
+                  />
+                )}
+
+                {currentRole === "producer" && (
+                  <FormField control={form.control} name="payoutMobileMoney" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className={appleLabel}>Mobile money number</FormLabel>
+                      <FormControl>
+                        <Input {...field} inputMode="tel" autoComplete="tel" className={appleInput} placeholder="+254 712 345 678" data-testid="input-mobile-money" />
+                      </FormControl>
+                      <FormMessage className="px-1 text-red-500 text-[13px]" />
+                    </FormItem>
+                  )} />
                 )}
 
                 {(currentRole === "trader" || currentRole === "buyer") && (
@@ -462,104 +472,68 @@ export default function OnboardingWizard({
                     name="businessName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-white/80">Company Name</FormLabel>
+                        <FormLabel className={appleLabel}>Company Name</FormLabel>
                         <FormControl>
-                          <Input {...field} className="bg-white/10 border-white/20 text-white h-12" data-testid="input-company-name" />
+                          <Input {...field} className={appleInput} data-testid="input-company-name" />
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage className="px-1 text-red-500 text-[13px]" />
                       </FormItem>
                     )}
                   />
                 )}
 
+                {(currentRole === "trader" || currentRole === "buyer") && (
+                  <FormField control={form.control} name="businessRegistrationNumber" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className={appleLabel}>Business registration number</FormLabel>
+                      <FormControl>
+                        <Input {...field} className={appleInput} data-testid="input-registration" />
+                      </FormControl>
+                      <FormMessage className="px-1 text-red-500 text-[13px]" />
+                    </FormItem>
+                  )} />
+                )}
+
                 {currentRole === "trader" && (
-                  <>
-                    <FormField
-                      control={form.control}
-                      name="commodities"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-white/80">Commodities Traded</FormLabel>
-                          <div className="flex flex-wrap gap-2 mt-2">
-                            {commodities.map((c) => (
-                              <button
-                                type="button"
-                                key={c}
-                                onClick={() => toggleCommodity(c)}
-                                className={`px-3 py-1.5 rounded-full text-sm font-medium border cursor-pointer transition-colors ${
-                                  (field.value || []).includes(c)
-                                    ? "bg-white text-gray-900 border-white"
-                                    : "bg-white/5 border-white/20 text-white/70 hover:bg-white/10"
-                                }`}
-                                data-testid={`chip-commodity-${c.toLowerCase()}`}
-                              >
-                                {c}
-                              </button>
-                            ))}
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField control={form.control} name="businessRegistrationNumber" render={({ field }) => (
-                      <FormItem><FormLabel className="text-white/80">Business registration number</FormLabel><FormControl><Input {...field} className="bg-white/10 border-white/20 text-white h-12" data-testid="input-registration" /></FormControl><FormMessage /></FormItem>
-                    )} />
-                    <FormField control={form.control} name="bankDetails" render={({ field }) => (
-                      <FormItem><FormLabel className="text-white/80">Bank details for escrow payouts</FormLabel><FormControl><Textarea {...field} className="bg-white/10 border-white/20 text-white min-h-[80px]" placeholder="Bank name and account details" data-testid="textarea-bank" /></FormControl><FormMessage /></FormItem>
-                    )} />
-                  </>
+                  <FormField control={form.control} name="bankDetails" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className={appleLabel}>Bank details for escrow payouts</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} className={cn(appleInput, "min-h-[100px] resize-none")} placeholder="Bank name and account details" data-testid="textarea-bank" />
+                      </FormControl>
+                      <FormMessage className="px-1 text-red-500 text-[13px]" />
+                    </FormItem>
+                  )} />
                 )}
 
                 {currentRole === "buyer" && (
                   <>
                     <FormField
                       control={form.control}
-                      name="businessRegistrationNumber"
+                      name="expectedVolume"
                       render={({ field }) => (
-                        <FormItem><FormLabel className="text-white/80">Business registration number</FormLabel><FormControl><Input {...field} className="bg-white/10 border-white/20 text-white h-12" data-testid="input-registration" /></FormControl><FormMessage /></FormItem>
+                        <FormItem>
+                          <FormLabel className={appleLabel}>Annual Volume Requirement</FormLabel>
+                          <FormControl>
+                            <VolumeSelect value={field.value} onChange={field.onChange} />
+                          </FormControl>
+                          <FormMessage className="px-1 text-red-500 text-[13px]" />
+                        </FormItem>
                       )}
                     />
                     <FormField
                       control={form.control}
-                      name="sourcingCommodity"
+                      name="destinationCountry"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-white/80">Primary Sourcing Commodity</FormLabel>
+                          <FormLabel className={appleLabel}>Destination Country</FormLabel>
                           <FormControl>
-                            <Input {...field} className="bg-white/10 border-white/20 text-white h-12" placeholder="e.g. Premium White Maize" data-testid="input-sourcing" />
+                            <CountrySelect value={field.value} onChange={field.onChange} />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="px-1 text-red-500 text-[13px]" />
                         </FormItem>
                       )}
                     />
-                    <div className="grid grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="expectedVolume"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-white/80">Annual Volume (MT)</FormLabel>
-                            <FormControl>
-                              <Input {...field} className="bg-white/10 border-white/20 text-white h-12" placeholder="e.g. 5000" data-testid="input-volume" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="destinationCountry"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-white/80">Destination</FormLabel>
-                            <FormControl>
-                              <Input {...field} className="bg-white/10 border-white/20 text-white h-12" placeholder="e.g. Kenya" data-testid="input-destination" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
                   </>
                 )}
               </div>
@@ -568,15 +542,15 @@ export default function OnboardingWizard({
 
           {/* STEP 3: Details & Financials */}
           {currentStep === 3 && (
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-white mb-2">Final details</h2>
-                <p className="text-white/60 text-sm">
-                  Select as many as apply. This helps us build TokenHarvest around what actually matters to people like you.
+            <div className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-8">
+              <div>
+                <h2 className="text-2xl font-semibold tracking-tight text-[#1d1d1f] mb-2">Final details</h2>
+                <p className="text-[15px] leading-relaxed text-[#86868b]">
+                  Select as many as apply. This helps us tailor the platform for your needs.
                 </p>
               </div>
 
-              <div className="space-y-5">
+              <div className="space-y-8">
                 {currentRole === "producer" && (
                   <>
                     <FormField
@@ -584,52 +558,64 @@ export default function OnboardingWizard({
                       name="producerStory"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-white/80">Your Farm's Story (Optional)</FormLabel>
+                          <FormLabel className={appleLabel}>Your Farm's Story (Optional)</FormLabel>
                           <FormControl>
                             <Textarea 
                               {...field} 
-                              className="bg-white/10 border-white/20 text-white min-h-[100px] resize-none" 
+                              className={cn(appleInput, "min-h-[120px] resize-none")} 
                               placeholder="Tell buyers about your practices, history, or community impact..."
                               data-testid="textarea-story"
                             />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="px-1 text-red-500 text-[13px]" />
                         </FormItem>
                       )}
                     />
-                    <div><p className="text-sm font-medium text-white/80 mb-3">What would help you most right now?</p>{renderInterestChips(INTERESTS.producer)}</div>
+                    <div>
+                      <div className={appleLabel}>What would help you most right now?</div>
+                      {renderInterestChips(INTERESTS.producer)}
+                    </div>
                   </>
                 )}
 
                 {currentRole === "trader" && (
-                  <div><p className="text-sm font-medium text-white/80 mb-3">What's on your mind these days?</p>{renderInterestChips(INTERESTS.trader)}</div>
+                  <div>
+                    <div className={appleLabel}>What's your primary focus?</div>
+                    {renderInterestChips(INTERESTS.trader)}
+                  </div>
                 )}
 
                 {currentRole === "buyer" && (
-                  <>
-                    <div><p className="text-xs uppercase tracking-widest text-white/50 mb-3">Values & Impact</p>{renderInterestChips(INTERESTS.buyerValues)}</div>
-                    <div><p className="text-xs uppercase tracking-widest text-white/50 mb-3">Commercial Priorities</p>{renderInterestChips(INTERESTS.buyerCommercial)}</div>
-                  </>
+                  <div className="space-y-8">
+                    <div>
+                      <div className={appleLabel}>Values & Impact Priorities</div>
+                      {renderInterestChips(INTERESTS.buyerValues)}
+                    </div>
+                    <div>
+                      <div className={appleLabel}>Commercial Requirements</div>
+                      {renderInterestChips(INTERESTS.buyerCommercial)}
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
           )}
 
           {/* Navigation Controls */}
-          <div className="pt-6 flex items-center justify-between border-t border-white/10">
+          <div className="pt-8 mt-4 flex items-center justify-between border-t border-[#e5e5ea]">
             {currentStep > 1 ? (
               <Button
                 type="button"
                 variant="ghost"
                 onClick={prevStep}
-                className="text-white hover:bg-white/10 hover:text-white"
+                className="h-12 px-6 rounded-xl text-[#86868b] hover:text-[#1d1d1f] hover:bg-[#f5f5f7] text-[15px] font-medium transition-colors"
                 data-testid="button-prev"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back
               </Button>
             ) : (
-              <div /> // Spacer
+              <div />
             )}
 
             {currentStep < 3 ? (
@@ -641,7 +627,7 @@ export default function OnboardingWizard({
                   void nextStep();
                 }}
                 disabled={isAdvancing}
-                className="bg-white text-gray-900 hover:bg-white/90"
+                className="h-12 px-8 rounded-xl bg-[#606A5C] hover:bg-[#4A5340] text-white text-[15px] font-medium shadow-none transition-all active:scale-[0.98]"
                 data-testid="button-next"
               >
                 {isAdvancing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
@@ -653,7 +639,7 @@ export default function OnboardingWizard({
                 key="submit-profile"
                 type="submit"
                 disabled={isSubmitting}
-                className="bg-white text-gray-900 hover:bg-white/90"
+                className="h-12 px-8 rounded-xl bg-[#606A5C] hover:bg-[#4A5340] text-white text-[15px] font-medium shadow-none transition-all active:scale-[0.98]"
                 data-testid="button-submit"
               >
                 {isSubmitting ? (

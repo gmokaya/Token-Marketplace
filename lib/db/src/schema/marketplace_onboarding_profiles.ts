@@ -1,5 +1,10 @@
-import { pgTable, serial, integer, timestamp, text } from "drizzle-orm/pg-core";
+import { pgTable, serial, integer, timestamp, text, jsonb } from "drizzle-orm/pg-core";
 import { usersTable } from "./users";
+
+export type CommoditySelection = {
+  commodity: string;
+  subType: string | null;
+};
 
 export const marketplaceOnboardingProfilesTable = pgTable("marketplace_onboarding_profiles", {
   id: serial("id").primaryKey(),
@@ -8,6 +13,7 @@ export const marketplaceOnboardingProfilesTable = pgTable("marketplace_onboardin
   fullName: text("full_name").notNull(),
   region: text("region"),
   commodities: text("commodities").array().notNull().default([]),
+  commoditySelections: jsonb("commodity_selections").$type<CommoditySelection[]>().notNull().default([]),
   payoutMobileMoney: text("payout_mobile_money"),
   businessName: text("business_name"),
   businessRegistrationNumber: text("business_registration_number"),
