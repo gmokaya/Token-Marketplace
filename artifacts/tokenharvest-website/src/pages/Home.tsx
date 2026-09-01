@@ -536,28 +536,17 @@ function FinanceCard({
 /* ── Partners data types ───────────────────────────────────── */
 type Partner = { id: string; name: string; short: string; logoUrl: string; website: string };
 
-const DEFAULT_PARTNERS: Partner[] = [
-  { id: "1", name: "Kenya Cereal Board",         short: "KCB", logoUrl: "", website: "https://kdb.go.ke" },
-  { id: "2", name: "East African Community",     short: "EAC", logoUrl: "", website: "https://eac.int" },
-  { id: "3", name: "African Development Bank",   short: "ADB", logoUrl: "", website: "https://afdb.org" },
-  { id: "4", name: "Equity Bank Kenya",          short: "EBK", logoUrl: "", website: "https://equitybankgroup.com" },
-  { id: "5", name: "Kilimo Trust",               short: "KT",  logoUrl: "", website: "https://kilimotrust.org" },
-  { id: "6", name: "Kenya National Farmers Fed.",short: "KNF", logoUrl: "", website: "https://kenaff.org" },
-  { id: "7", name: "WFP East Africa",            short: "WEA", logoUrl: "", website: "https://wfp.org" },
-  { id: "8", name: "USAID AgriLinks",            short: "UA",  logoUrl: "", website: "https://agrilinks.org" },
-];
-
 function PartnerLogo({ partner }: { partner: Partner }) {
   const [broken, setBroken] = useState(false);
+  if (!partner.logoUrl || broken) return null;
+
   const card = (
-    <div style={{
-      width: 100, height: 48,
-      display: "flex", alignItems: "center", justifyContent: "center",
-      background: "#f0f0f0", borderRadius: 6,
-      fontSize: 13, fontWeight: 700, color: "#aaa", letterSpacing: "0.1em",
-    }}>
-      {partner.short}
-    </div>
+    <img
+      src={partner.logoUrl}
+      alt={partner.name}
+      onError={() => setBroken(true)}
+      style={{ maxWidth: 140, maxHeight: 52, objectFit: "contain" }}
+    />
   );
 
   return partner.website ? (
@@ -582,15 +571,20 @@ function PartnerLogo({ partner }: { partner: Partner }) {
 }
 
 function PartnersSection() {
-  const [partners, setPartners] = useState<Partner[]>(DEFAULT_PARTNERS);
+  const [partners, setPartners] = useState<Partner[]>([]);
   const API = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
 
   useEffect(() => {
     fetch(`${API}/api/content/partners`)
       .then(r => r.ok ? r.json() : null)
-      .then(data => { if (data?.value?.partners?.length) setPartners(data.value.partners); })
+      .then(data => {
+        const cmsPartners = data?.value?.partners?.filter((partner: Partner) => partner.name && partner.logoUrl) ?? [];
+        setPartners(cmsPartners);
+      })
       .catch(() => {});
   }, [API]);
+
+  if (!partners.length) return null;
 
   return (
     <section style={{ background: "#fff", borderTop: "1px solid #f0f0f0", padding: "96px 32px" }}>
@@ -614,7 +608,7 @@ function PartnersSection() {
           display: "flex", flexWrap: "wrap", justifyContent: "center",
           alignItems: "center", gap: "32px 48px",
         }}>
-          {partners.filter(p => p.name).map(p => (
+          {partners.map(p => (
             <PartnerLogo key={p.id} partner={p} />
           ))}
         </div>
