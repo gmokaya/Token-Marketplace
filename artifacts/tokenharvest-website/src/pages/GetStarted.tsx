@@ -3,14 +3,14 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const heroAsset = (name: string) => `${BASE}/hero/${name}`;
-const photoAsset = (name: string) => `${BASE}/photos/${name}`;
+const marketPhotoAsset = (name: string) => `${BASE}/markets/${name}`;
 
 const MARKETS = [
   {
     id: "grain",
     name: "Grain",
     href: "/grain/",
-    photo: photoAsset("hero-soybean-farmer.jpg"),
+    photo: marketPhotoAsset("grain-corn.png"),
     cutout: heroAsset("tokenharvest-grain.png"),
     color: "hsl(40 80% 40%)", // Golden accent
   },
@@ -18,7 +18,7 @@ const MARKETS = [
     id: "coffee",
     name: "Coffee",
     href: "/coffee/",
-    photo: photoAsset("cafe-imports-coffee-storage.jpg"),
+    photo: marketPhotoAsset("coffee-green-beans.png"),
     cutout: heroAsset("tokenharvest-coffee.png"),
     color: "hsl(20 50% 30%)", // Coffee accent
   },
@@ -26,7 +26,7 @@ const MARKETS = [
     id: "tea",
     name: "Tea",
     href: "/tea/",
-    photo: photoAsset("tea-plantation.jpg"),
+    photo: marketPhotoAsset("tea-speciality-leaves.jpg"),
     cutout: heroAsset("tokenharvest-tea.png"),
     color: "hsl(120 40% 30%)", // Tea accent
   }

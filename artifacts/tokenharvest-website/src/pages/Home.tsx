@@ -8,6 +8,7 @@ import { TokenHarvestHero } from "@/components/home/TokenHarvestHero";
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const img = (name: string) => `${BASE}/theme/${name}`;
 const photo = (name: string) => `${BASE}/photos/${name}`;
+const marketPhoto = (name: string) => `${BASE}/markets/${name}`;
 
 const ACCENT       = "hsl(180 62% 10%)";   // WRS teal (on light bg)
 const ACCENT_LIGHT = "hsl(180 50% 42%)";    // WRS teal (on dark bg)
@@ -123,23 +124,23 @@ const DEF_CTA: HpCta = {
   cta2: "Sign In",
 };
 const DEF_MARKETS: MarketCardData[] = [
-  { num: "01", name: "Grain",   grade: "Grade A–C",    link: "/grain/",  desc: "Trade dependable East African grains with verified quality, certified storage, and transparent delivery from origin to market.", photo: photo("hero-soybean-farmer.jpg") },
-  { num: "02", name: "Nuts",    grade: "Grade A–B",    link: "/grain/",  desc: "Source premium East African nuts with trusted grading, secure storage, and the traceability discerning buyers expect.", photo: photo("hero-soybean-farmer.jpg") },
-  { num: "03", name: "Coffee",  grade: "AA / AB / PB", link: "/coffee/", desc: "Discover speciality East African coffees—distinctive origins, careful processing, and export-ready lots for buyers who value every note.", photo: photo("cafe-imports-coffee-storage.jpg") },
-  { num: "04", name: "Tea",     grade: "BOPI / FNDC",  link: "/tea/",    desc: "Explore speciality teas from East Africa, from bright orthodox leaves to expressive CTC lots, with provenance from garden to cup.", photo: photo("tea-plantation.jpg") },
-  { num: "05", name: "Avocado", grade: "Hass Export",  link: "/grain/",  desc: "Bring export-grade Hass avocados to market with cold-chain confidence, consistent quality, and traceability through every handoff.", photo: photo("hero-soybean-farmer.jpg") },
-  { num: "06", name: "Honey",   grade: "Raw & Pure",   link: "/grain/",  desc: "Source golden East African honey from trusted producer networks—raw, pure, and ready for premium regional and export markets.", photo: photo("hero-soybean-farmer.jpg") },
+  { num: "01", name: "Grain",   grade: "Grade A–C",    link: "/grain/",  desc: "Trade dependable East African grains with verified quality, certified storage, and transparent delivery from origin to market.", photo: marketPhoto("grain-corn.png") },
+  { num: "02", name: "Nuts",    grade: "Grade A–B",    link: "/grain/",  desc: "Source premium East African nuts with trusted grading, secure storage, and the traceability discerning buyers expect.", photo: marketPhoto("nuts-chickpeas.jpg") },
+  { num: "03", name: "Coffee",  grade: "AA / AB / PB", link: "/coffee/", desc: "Discover speciality East African coffees with distinctive origins, careful processing, and export-ready lots for buyers who value every note.", photo: marketPhoto("parchment-coffee.jpg") },
+  { num: "04", name: "Tea",     grade: "BOPI / FNDC",  link: "/tea/",    desc: "Explore speciality teas from East Africa, from bright orthodox leaves to expressive CTC lots, with provenance from garden to cup.", photo: marketPhoto("tea-speciality-leaves.jpg") },
+  { num: "05", name: "Avocado", grade: "Hass Export",  link: "/grain/",  desc: "Bring export-grade Hass avocados to market with cold-chain confidence, consistent quality, and traceability through every handoff.", photo: marketPhoto("avocado.jpg") },
+  { num: "06", name: "Honey",   grade: "Raw & Pure",   link: "/grain/",  desc: "Source golden East African honey from trusted producer networks, raw, pure, and ready for premium regional and export markets.", photo: marketPhoto("honeycomb.jpg") },
 ];
 
 const MARKET_DESTINATIONS: Record<string, Pick<MarketCardData, "link" | "photo">> = {
-  maize: { link: "/grain/", photo: photo("hero-soybean-farmer.jpg") },
-  rice: { link: "/grain/", photo: photo("hero-soybean-farmer.jpg") },
-  grain: { link: "/grain/", photo: photo("hero-soybean-farmer.jpg") },
-  nuts: { link: "/grain/", photo: photo("hero-soybean-farmer.jpg") },
-  coffee: { link: "/coffee/", photo: photo("cafe-imports-coffee-storage.jpg") },
-  tea: { link: "/tea/", photo: photo("tea-plantation.jpg") },
-  avocado: { link: "/grain/", photo: photo("hero-soybean-farmer.jpg") },
-  honey: { link: "/grain/", photo: photo("hero-soybean-farmer.jpg") },
+  maize: { link: "/grain/", photo: marketPhoto("grain-corn.png") },
+  rice: { link: "/grain/", photo: marketPhoto("grain-corn.png") },
+  grain: { link: "/grain/", photo: marketPhoto("grain-corn.png") },
+  nuts: { link: "/grain/", photo: marketPhoto("nuts-chickpeas.jpg") },
+  coffee: { link: "/coffee/", photo: marketPhoto("parchment-coffee.jpg") },
+  tea: { link: "/tea/", photo: marketPhoto("tea-speciality-leaves.jpg") },
+  avocado: { link: "/grain/", photo: marketPhoto("avocado.jpg") },
+  honey: { link: "/grain/", photo: marketPhoto("honeycomb.jpg") },
 };
 
 function displayMarketName(name: string) {
@@ -748,7 +749,7 @@ export default function Home() {
                   </Link>
                 )}
               </div>
-              {/* Hamburger — hidden on desktop via CSS, shown on mobile */}
+              {/* Hamburger - hidden on desktop via CSS, shown on mobile */}
               <button
                 className="homepage-hamburger"
                 onClick={() => setMobileMenuOpen(true)}
