@@ -23,7 +23,7 @@ type Partner = { id: string; name: string; short: string; logoUrl: string; websi
 type HeroContent = { badge: string; headline: string; subheadline: string; cta1: string; cta2: string; images?: string[] };
 type ServiceCard = { icon: string; title: string; sub: string; desc: string };
 type AboutContent = { badge: string; heading: string; body: string; bullets: string[] };
-type HowItWorksStep = { num: string; title: string; desc: string };
+type HowItWorksStep = { num: string; title: string; subtitle: string; tagline: string; desc: string };
 type StatCounter = { target: number; suffix: string; label: string };
 type TickerItem = { e: string; name: string; open: number };
 type CtaContent = { heading: string; subheadline: string; cta1: string; cta2: string };
@@ -127,11 +127,54 @@ const DEFAULT_ABOUT: AboutContent = {
 };
 
 const DEFAULT_HOW_IT_WORKS: HowItWorksStep[] = [
-  { num: "01", title: "Intake & Grading",   desc: "Commodity arrives at a licensed warehouse. WMS staff grade, weigh, and issue a digital eWR linked to physical stock." },
-  { num: "02", title: "List or Auction",    desc: "Producer posts to the spot marketplace, creates a timed auction, or locks in a forward contract with a buyer." },
-  { num: "03", title: "Trade Executes",     desc: "Bids clear or orders match. The state machine transitions the eWR through MARKET_LISTED → SOLD automatically." },
-  { num: "04", title: "Settlement & Payout",desc: "Platform fee withheld, bank lien cleared, producer receives net proceeds. Full audit trail immutably recorded." },
+  {
+    num: "01",
+    title: "Direct Trade",
+    subtitle: "Farmer First",
+    tagline: "Skip the middlemen. Buy straight from source.",
+    desc: "Every trade traces back to a real farm, not a lot number. You know exactly who grew what you're buying and cut out the layers that used to sit between you and the harvest.",
+  },
+  {
+    num: "02",
+    title: "Verified Quality",
+    subtitle: "Specialty Grade",
+    tagline: "Quality you don't have to inspect twice.",
+    desc: "Every lot is graded, weighed, and certified before it's listed. You order with confidence instead of hoping the sample matches the shipment.",
+  },
+  {
+    num: "03",
+    title: "Embedded Trade Finance",
+    subtitle: "Seamless Payments & Financing",
+    tagline: "Pay on your terms, not the market's.",
+    desc: "Escrow, real-time wallet visibility, and financing built into the platform mean you release funds when you're ready, with no wire transfers and no chasing confirmations.",
+  },
+  {
+    num: "04",
+    title: "Delivery",
+    subtitle: "Seamless Logistics & Documentation",
+    tagline: "One less thing on your desk.",
+    desc: "Last-mile delivery, less-than-container loads, and the paperwork trail are handled. You focus on sourcing, not customs forms.",
+  },
 ];
+
+function normalizeHowItWorks(value: unknown): HowItWorksStep[] {
+  if (!Array.isArray(value) || value.length === 0) return DEFAULT_HOW_IT_WORKS;
+
+  return value.map((step, index) => {
+    const raw = step && typeof step === "object"
+      ? step as Record<string, unknown>
+      : {};
+    const fallback = DEFAULT_HOW_IT_WORKS[index] ?? DEFAULT_HOW_IT_WORKS[0];
+
+    return {
+      num: typeof raw["num"] === "string" ? raw["num"] : fallback.num,
+      title: typeof raw["title"] === "string" ? raw["title"] : fallback.title,
+      subtitle: typeof raw["subtitle"] === "string" ? raw["subtitle"] : fallback.subtitle,
+      tagline: typeof raw["tagline"] === "string" ? raw["tagline"] : fallback.tagline,
+      desc: typeof raw["desc"] === "string" ? raw["desc"] : fallback.desc,
+    };
+  });
+}
 
 const DEFAULT_STATS: StatCounter[] = [
   { target: 20,   suffix: "+", label: "eWRs Issued" },
@@ -281,7 +324,7 @@ export default function AdminHomepage() {
         const normalizedServices = normalizeServices(v.services);
         if (normalizedServices) setServices(normalizedServices);
         if (v.about)      setAbout(v.about);
-        if (v.howItWorks?.length) setHowItWorks(v.howItWorks);
+        if (v.howItWorks?.length) setHowItWorks(normalizeHowItWorks(v.howItWorks));
         if (v.stats?.length)      setStats(v.stats);
         if (typeof v.statsBg === "string") setStatsBg(v.statsBg);
         if (v.cta)        setCta(v.cta);
@@ -588,7 +631,7 @@ function AboutTab({ about, setAbout }: { about: AboutContent; setAbout: (a: Abou
 function HowItWorksTab({ steps, setSteps }: { steps: HowItWorksStep[]; setSteps: (s: HowItWorksStep[]) => void }) {
   const update = (i: number, k: keyof HowItWorksStep, v: string) =>
     setSteps(steps.map((s, idx) => idx === i ? { ...s, [k]: v } : s));
-  const add = () => setSteps([...steps, { num: String(steps.length + 1).padStart(2, "0"), title: "", desc: "" }]);
+  const add = () => setSteps([...steps, { num: String(steps.length + 1).padStart(2, "0"), title: "", subtitle: "", tagline: "", desc: "" }]);
   const remove = (i: number) => setSteps(steps.filter((_, idx) => idx !== i));
   return (
     <div className="grid gap-4">
@@ -611,6 +654,16 @@ function HowItWorksTab({ steps, setSteps }: { steps: HowItWorksStep[]; setSteps:
                 <Label className="text-xs text-muted-foreground mb-1 block">Title</Label>
                 <Input value={step.title} onChange={e => update(i, "title", e.target.value)} className="h-8 text-sm" />
               </div>
+              <div className="col-span-2 grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-xs text-muted-foreground mb-1 block">Subtitle</Label>
+                  <Input value={step.subtitle} onChange={e => update(i, "subtitle", e.target.value)} className="h-8 text-sm" />
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground mb-1 block">Tagline</Label>
+                  <Input value={step.tagline} onChange={e => update(i, "tagline", e.target.value)} className="h-8 text-sm" />
+                </div>
+              </div>
               <div className="col-span-2">
                 <Label className="text-xs text-muted-foreground mb-1 block">Description</Label>
                 <Textarea value={step.desc} onChange={e => update(i, "desc", e.target.value)} className="text-sm min-h-[56px]" />
@@ -629,6 +682,8 @@ function HowItWorksTab({ steps, setSteps }: { steps: HowItWorksStep[]; setSteps:
               <div className="text-4xl font-light text-gray-100 leading-none mb-2">{s.num}</div>
               <div className="w-6 h-0.5 bg-[#0a2a2a] mb-2" />
               <p className="text-sm font-semibold text-gray-800 mb-1">{s.title}</p>
+              <p className="text-[10px] font-semibold tracking-widest uppercase text-[#0a2a2a] mb-2">{s.subtitle}</p>
+              <p className="text-xs italic text-gray-600 leading-relaxed mb-2">{s.tagline}</p>
               <p className="text-xs text-gray-500 leading-relaxed">{s.desc}</p>
             </div>
           ))}

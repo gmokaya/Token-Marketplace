@@ -19,7 +19,7 @@ const HP_API = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
 type HpHero    = { badge: string; headline: string; subheadline: string; cta1: string; cta2: string; images?: string[] };
 type HpService = { icon: string; title: string; sub: string; desc: string };
 type HpAbout   = { badge: string; heading: string; body: string; bullets: string[] };
-type HpStep    = { num: string; title: string; desc: string };
+type HpStep    = { num: string; title: string; subtitle: string; tagline: string; desc: string };
 type HpStat    = { target: number; suffix: string; label: string };
 type HpCta     = { heading: string; subheadline: string; cta1: string; cta2: string };
 type HpContent = { hero: HpHero; services: HpService[]; about: HpAbout; howItWorks: HpStep[]; stats: HpStat[]; statsBg?: string; cta: HpCta; markets: MarketCardData[] };
@@ -106,11 +106,54 @@ const DEF_ABOUT: HpAbout = {
   ],
 };
 const DEF_STEPS: HpStep[] = [
-  { num: "01", title: "Intake & Grading",    desc: "Commodity arrives at a licensed warehouse. WMS staff grade, weigh, and issue a digital eWR linked to physical stock." },
-  { num: "02", title: "List or Auction",     desc: "Producer posts to the spot marketplace, creates a timed auction, or locks in a forward contract with a buyer." },
-  { num: "03", title: "Trade Executes",      desc: "Bids clear or orders match. The state machine transitions the eWR through MARKET_LISTED → SOLD automatically." },
-  { num: "04", title: "Settlement & Payout", desc: "Platform fee withheld, bank lien cleared, producer receives net proceeds. Full audit trail immutably recorded." },
+  {
+    num: "01",
+    title: "Direct Trade",
+    subtitle: "Farmer First",
+    tagline: "Skip the middlemen. Buy straight from source.",
+    desc: "Every trade traces back to a real farm, not a lot number. You know exactly who grew what you're buying and cut out the layers that used to sit between you and the harvest.",
+  },
+  {
+    num: "02",
+    title: "Verified Quality",
+    subtitle: "Specialty Grade",
+    tagline: "Quality you don't have to inspect twice.",
+    desc: "Every lot is graded, weighed, and certified before it's listed. You order with confidence instead of hoping the sample matches the shipment.",
+  },
+  {
+    num: "03",
+    title: "Embedded Trade Finance",
+    subtitle: "Seamless Payments & Financing",
+    tagline: "Pay on your terms, not the market's.",
+    desc: "Escrow, real-time wallet visibility, and financing built into the platform mean you release funds when you're ready, with no wire transfers and no chasing confirmations.",
+  },
+  {
+    num: "04",
+    title: "Delivery",
+    subtitle: "Seamless Logistics & Documentation",
+    tagline: "One less thing on your desk.",
+    desc: "Last-mile delivery, less-than-container loads, and the paperwork trail are handled. You focus on sourcing, not customs forms.",
+  },
 ];
+
+function normalizeSteps(value: unknown): HpStep[] | undefined {
+  if (!Array.isArray(value) || value.length === 0) return undefined;
+
+  return value.map((step, index) => {
+    const raw = step && typeof step === "object"
+      ? step as Record<string, unknown>
+      : {};
+    const fallback = DEF_STEPS[index] ?? DEF_STEPS[0];
+
+    return {
+      num: typeof raw["num"] === "string" ? raw["num"] : fallback.num,
+      title: typeof raw["title"] === "string" ? raw["title"] : fallback.title,
+      subtitle: typeof raw["subtitle"] === "string" ? raw["subtitle"] : fallback.subtitle,
+      tagline: typeof raw["tagline"] === "string" ? raw["tagline"] : fallback.tagline,
+      desc: typeof raw["desc"] === "string" ? raw["desc"] : fallback.desc,
+    };
+  });
+}
 const DEF_STATS: HpStat[] = [
   { target: 20,   suffix: "+", label: "eWRs Issued" },
   { target: 5,    suffix: "",  label: "Commodities" },
@@ -669,6 +712,7 @@ export default function Home() {
           ...d.value,
           hero: normalizeHero(d.value.hero),
           services: normalizeServices(d.value.services) ?? DEF_SERVICES,
+          howItWorks: normalizeSteps(d.value.howItWorks) ?? DEF_STEPS,
           markets: normalizeMarkets(d.value.markets) ?? DEF_MARKETS,
         });
       })
@@ -930,17 +974,22 @@ export default function Home() {
                   <span style={{ color: ACCENT, fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase" }}>How It Works</span>
                 </div>
                 <h2 style={{ fontSize: "clamp(1.8rem, 3vw, 40px)", fontWeight: 500, color: "#232323", margin: 0 }}>
-                  From Harvest to Settlement
+                   From Harvest to Delivery
                 </h2>
+                 <h3 style={{ fontSize: "clamp(1.2rem, 2vw, 26px)", fontWeight: 400, color: "#555", margin: "14px 0 0" }}>
+                   Built to Make Sourcing Effortless
+                 </h3>
               </div>
               {/* 4-step grid */}
               <div className="homepage-steps-grid" style={{ display: "grid", gridTemplateColumns: `repeat(${steps.length},1fr)`, gap: 0 }}>
-                {steps.map(({ num, title, desc }, i) => (
+                 {steps.map(({ num, title, subtitle, tagline, desc }, i) => (
                   <div key={num} style={{ padding: "40px 36px 40px", borderLeft: i > 0 ? "1px solid #f0f0f0" : undefined, position: "relative" }}>
                     <div style={{ fontSize: 52, fontWeight: 300, color: "rgba(0,0,0,0.06)", lineHeight: 1, marginBottom: 12 }}>{num}</div>
                     <div style={{ width: 28, height: 2, background: ACCENT, marginBottom: 14 }} />
-                    <h4 style={{ fontSize: 17, fontWeight: 700, color: "#232323", margin: "0 0 10px" }}>{title}</h4>
-                    <p style={{ fontSize: 14, color: "#777", lineHeight: 1.75, margin: 0 }}>{desc}</p>
+                     <h4 style={{ fontSize: 17, fontWeight: 700, color: "#232323", margin: "0 0 6px" }}>{title}</h4>
+                     <div style={{ color: ACCENT, fontSize: 12, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 12 }}>{subtitle}</div>
+                     <p style={{ fontSize: 14, color: "#555", fontStyle: "italic", lineHeight: 1.6, margin: "0 0 12px" }}>{tagline}</p>
+                     <p style={{ fontSize: 14, color: "#777", lineHeight: 1.75, margin: 0 }}>{desc}</p>
                   </div>
                 ))}
               </div>
