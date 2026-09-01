@@ -86,7 +86,7 @@ export function TokenHarvestHero({ hero, image }: TokenHarvestHeroProps) {
             <img
               className="th-commodity-portrait"
               src={heroAsset("tokenharvest-producer.png")}
-              alt="East African producer holding a sheaf of wheat"
+              alt="East African coffee farmer holding a basket of ripe coffee cherries"
             />
           </div>
         </div>
