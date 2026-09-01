@@ -1,6 +1,7 @@
 import { SignIn } from "@clerk/react";
 import { Link } from "wouter";
 import { AuthBenefitCarousel } from "@/components/AuthBenefitCarousel";
+import coffeeSignInImage from "@assets/dang-cong-JqF4IS65xEg-unsplash_1788267949650.jpg";
 
 const clerkAppearance = {
   variables: {
@@ -48,7 +49,7 @@ export default function SignInPage() {
   return (
     <div className="market-auth-shell market-auth-shell--coffee">
       <img
-        src={`${bp}/photos/cafe-imports-coffee-storage.jpg`}
+        src={coffeeSignInImage}
         alt=""
         className="market-auth-background"
         fetchPriority="high"

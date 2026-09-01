@@ -1,8 +1,7 @@
 import { Link } from "wouter";
 import { ArrowUpRight, LogOut } from "lucide-react";
 import { useAuth, useClerk } from "@clerk/react";
-
-const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+import grainHeroImage from "@assets/tomasz-filipek-joOVC9d-jis-unsplash_1788267845075.jpg";
 
 const stats = [
   { value: "6", label: "Grain commodities" },
@@ -17,7 +16,7 @@ export default function Home() {
   return (
     <div className="relative flex h-[100svh] min-h-[720px] w-screen select-none flex-col overflow-hidden bg-[#0d1318] text-white">
       <img
-        src={`${basePath}/photos/hero-soybean-farmer.jpg`}
+        src={grainHeroImage}
         alt="East African grain farmer standing in a field"
         className="absolute inset-0 h-full w-full object-cover object-center"
         fetchPriority="high"
