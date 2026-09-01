@@ -1244,37 +1244,22 @@ export default function Home() {
           </section>
 
           {/* ══ FOOTER ──────────────────────────────────────────── */}
-          <footer style={{ background: "#081815", padding: "72px 0 0" }}>
+          <footer style={{ background: "#0d0d0d", padding: "64px 0 0" }}>
             <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px" }}>
-              <div className="homepage-footer-grid" style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 64, paddingBottom: 56, borderBottom: "1px solid rgba(255,255,255,0.14)" }}>
-                <div>
-                  <div style={{ marginBottom: 14 }}>
-                    <Link href="/" style={{ display: "inline-flex" }}>
-                      <span
-                        className="tokenharvest-wordmark"
-                        style={{ color: "#fff", fontSize: 30 }}
-                      >
-                        TokenHarvest
-                      </span>
-                    </Link>
-                  </div>
-                  <p style={{ color: "rgba(255,255,255,0.58)", fontSize: 13, lineHeight: 1.75, maxWidth: 290, margin: 0 }}>
-                    East Africa's premier Electronic Warehouse Receipt trading platform for agricultural commodities.
-                  </p>
-                </div>
+              <div className="homepage-footer-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 48, paddingBottom: 52, borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
                 {([
                   { label: "Platform", links: [["Marketplace","/sign-in"],["Auctions","/sign-in"],["Forwards","/sign-in"],["Financing","/sign-in"]] },
                   { label: "Users",    links: [["Producers","/get-started"],["Off-Takers","/get-started"],["Financiers","/get-started"]] },
                   { label: "Company",  links: [["About","#about"],["Contact","#cta"]] },
                 ] as const).map(({ label, links }) => (
                   <div key={label}>
-                    <div style={{ color: "rgba(255,255,255,0.58)", fontSize: 11, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 18 }}>{label}</div>
+                    <div style={{ color: "rgba(255,255,255,0.42)", fontSize: 11, fontWeight: 600, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 18 }}>{label}</div>
                     <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 10 }}>
                       {links.map(([name, href]) => (
                         <li key={name}>
                           {href.startsWith("#")
-                            ? <button onClick={() => scrollTo(href.slice(1))} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.68)", fontSize: 13, fontFamily: "'Futura',sans-serif", padding: 0 }}>{name}</button>
-                            : <Link href={href as string} style={{ color: "rgba(255,255,255,0.68)", textDecoration: "none", fontSize: 13 }}>{name}</Link>
+                            ? <button onClick={() => scrollTo(href.slice(1))} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.45)", fontSize: 13, fontFamily: "'Futura',sans-serif", padding: 0 }}>{name}</button>
+                            : <Link href={href as string} style={{ color: "rgba(255,255,255,0.45)", textDecoration: "none", fontSize: 13 }}>{name}</Link>
                           }
                         </li>
                       ))}
@@ -1282,9 +1267,8 @@ export default function Home() {
                   </div>
                 ))}
               </div>
-              <div className="homepage-footer-bottom" style={{ padding: "24px 0 56px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <p style={{ color: "rgba(255,255,255,0.42)", fontSize: 12, margin: 0 }}>© 2025 WRS Marketplace. All rights reserved.</p>
-                <p style={{ color: "rgba(255,255,255,0.32)", fontSize: 12, margin: 0 }}>Regulated agricultural commodity trading platform.</p>
+              <div className="homepage-footer-bottom" style={{ padding: "22px 0 66px", display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
+                <p style={{ color: "rgba(255,255,255,0.2)", fontSize: 12, margin: 0 }}>© 2025 WRS Marketplace. All rights reserved.</p>
               </div>
             </div>
           </footer>

@@ -772,9 +772,6 @@ h1, h2, h3, h4, h5, h6 {
     grid-template-columns: 1fr 1fr !important;
     gap: 32px 24px !important;
   }
-  .homepage-footer-grid > div:first-child {
-    grid-column: 1 / -1 !important;
-  }
   .homepage-footer-bottom {
     flex-direction: column !important;
     align-items: flex-start !important;
