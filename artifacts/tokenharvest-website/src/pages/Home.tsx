@@ -849,7 +849,7 @@ export default function Home() {
   const about    = hp.about       ?? DEF_ABOUT;
   const steps    = hp.howItWorks  ?? DEF_STEPS;
   const hpStats  = hp.stats       ?? DEF_STATS;
-  const statsBg  = hp.statsBg?.trim() || img("bg-counter.jpg");
+  const statsBg  = hp.statsBg?.trim() || photo("stats-containers.jpg");
   const cta      = hp.cta         ?? DEF_CTA;
   const markets  = hp.markets     ?? DEF_MARKETS;
 
@@ -1162,7 +1162,7 @@ export default function Home() {
             backgroundImage: `url(${statsBg})`,
             backgroundSize: "cover", backgroundPosition: "center",
           }}>
-            <div style={{ position: "absolute", inset: 0, background: "rgba(12,12,12,0.82)" }} />
+             <div style={{ position: "absolute", inset: 0, background: "rgba(12,12,12,0.68)" }} />
             <div style={{ position: "relative", zIndex: 1, maxWidth: 1200, margin: "0 auto", padding: "0 32px" }}>
               <div className="homepage-stats-grid" style={{ display: "grid", gridTemplateColumns: `repeat(${hpStats.length},1fr)`, gap: 40, textAlign: "center" }}>
                 {hpStats.map(({ target, suffix, label }) => (

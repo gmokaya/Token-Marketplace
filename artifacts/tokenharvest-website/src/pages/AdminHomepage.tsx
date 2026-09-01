@@ -270,7 +270,7 @@ export default function AdminHomepage() {
   const [about, setAbout] = useState<AboutContent>(DEFAULT_ABOUT);
   const [howItWorks, setHowItWorks] = useState<HowItWorksStep[]>(DEFAULT_HOW_IT_WORKS);
   const [stats, setStats] = useState<StatCounter[]>(DEFAULT_STATS);
-  const [statsBg, setStatsBg] = useState<string>("");
+  const [statsBg, setStatsBg] = useState<string>(`${BASE}/photos/stats-containers.jpg`);
   const [cta, setCta] = useState<CtaContent>(DEFAULT_CTA);
   const [markets, setMarkets] = useState<MarketCard[]>(DEFAULT_MARKETS);
   const [partners, setPartners] = useState<Partner[]>(DEFAULT_PARTNERS);
