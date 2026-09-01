@@ -288,7 +288,7 @@ export default function OnboardingWizard({
   const renderInterestChips = (items: ReadonlyArray<readonly [string, string]>) => {
     const selected = form.watch("interests") || [];
     return (
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2.5">
         {items.map(([label, value]) => (
           <button
             key={value}
@@ -318,7 +318,7 @@ export default function OnboardingWizard({
   }
 
   return (
-    <div className="w-full max-w-md mx-auto">
+    <div className="market-onboarding w-full max-w-md mx-auto">
       {renderStepIndicator()}
       
       <Form {...form}>

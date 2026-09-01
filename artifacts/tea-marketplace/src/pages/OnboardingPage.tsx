@@ -12,7 +12,7 @@ export default function OnboardingPage() {
       </header>
       <main className="market-auth-main items-start mt-8">
         <section className="market-auth-form-wrap w-full">
-          <div className="market-auth-form-card">
+          <div className="market-auth-form-card market-auth-form-card--onboarding">
             <OnboardingWizard
               marketName="Tea Marketplace"
               commodities={["Black tea", "Green tea", "White tea", "Purple tea", "Orthodox tea", "Herbal tea", "Specialty tea"]}

@@ -47,7 +47,7 @@ export default function OnboardingPage({
         </div>
 
         <section className="market-auth-form-wrap w-full">
-          <div className="market-auth-form-card">
+          <div className="market-auth-form-card market-auth-form-card--onboarding">
             <OnboardingWizard marketName={marketName} commodities={commodities} />
           </div>
         </section>
