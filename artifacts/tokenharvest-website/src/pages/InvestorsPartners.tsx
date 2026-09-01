@@ -1,6 +1,8 @@
 import { Link } from "wouter";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+
 export default function InvestorsPartners() {
   return (
     <div className="min-h-screen bg-[#f7f5ed] text-[#0b3032]">
@@ -77,8 +79,15 @@ export default function InvestorsPartners() {
           </div>
         </section>
 
-        <section id="impact" className="bg-[#0b3032] text-[#f7f5ed]">
-          <div className="mx-auto max-w-6xl px-6 py-20 md:px-10 md:py-28">
+        <section id="impact" className="relative isolate overflow-hidden bg-[#0b3032] text-[#f7f5ed]">
+          <img
+            src={`${BASE}/photos/impact-containers.jpg`}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full object-cover rotate-90 scale-[1.3] opacity-45"
+          />
+          <div className="absolute inset-0 bg-[#0b3032]/85" aria-hidden="true" />
+          <div className="relative mx-auto max-w-6xl px-6 py-20 md:px-10 md:py-28">
             <div className="grid gap-10 md:grid-cols-[0.75fr_1.25fr] md:gap-24">
               <div>
                 <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-[#b9e8cf]">
