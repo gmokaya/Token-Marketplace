@@ -177,10 +177,10 @@ function normalizeHowItWorks(value: unknown): HowItWorksStep[] {
 }
 
 const DEFAULT_STATS: StatCounter[] = [
-  { target: 20,   suffix: "+", label: "eWRs Issued" },
-  { target: 5,    suffix: "",  label: "Commodities" },
-  { target: 97,   suffix: "%", label: "Audit Coverage" },
-  { target: 1200, suffix: "+", label: "Transactions" },
+  { target: 5,  suffix: "",    label: "East African Countries" },
+  { target: 25, suffix: "%",   label: "Designed Farmer Earnings Increase (up to)" },
+  { target: 24, suffix: " hrs", label: "Trade & Settlement Time" },
+  { target: 15, suffix: "+",   label: "Established Destination Markets" },
 ];
 
 const DEFAULT_CTA: CtaContent = {
