@@ -1263,9 +1263,6 @@ export default function Home() {
                   <a href="https://tokenharvest.app" target="_blank" rel="noreferrer">App</a>
                 </nav>
               </div>
-              <div className="homepage-footer-bottom" style={{ padding: "28px 0 18px", display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
-                <p style={{ color: "rgba(255,255,255,0.2)", fontSize: 12, margin: 0 }}>© 2025 WRS Marketplace. All rights reserved.</p>
-              </div>
             </div>
           </footer>
 
