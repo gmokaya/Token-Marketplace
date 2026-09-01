@@ -1,21 +1,21 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { customFetch } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { ArrowLeft, ArrowRight, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowRight, ArrowLeft, Loader2, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-
+import { CommoditySelect, COMMODITY_SUBTYPES, normalizeLegacyCommodity } from "./CommoditySelect";
 import { CountrySelect } from "./CountrySelect";
 import { VolumeSelect } from "./VolumeSelect";
-import { COMMODITY_SUBTYPES, CommoditySelect, normalizeLegacyCommodity } from "./CommoditySelect";
+import "./onboarding-workspace.css";
 
 const commoditySelectionSchema = z.object({
   commodity: z.string(),
@@ -36,12 +36,9 @@ const onboardingSchema = z.object({
   fullName: z.string().min(2, "Full name is required"),
   region: z.string().optional(),
   commoditySelections: z.array(commoditySelectionSchema).default([]),
-  
-  // Optional / Role-specific
   payoutMobileMoney: z.string().optional(),
   businessName: z.string().optional(),
   businessRegistrationNumber: z.string().optional(),
-  bankDetails: z.string().optional(),
   expectedVolume: z.string().optional(),
   destinationCountry: z.string().optional(),
   interests: z.array(z.string()).default([]),
@@ -61,22 +58,23 @@ const onboardingSchema = z.object({
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["commoditySelections"], message: "Select at least one commodity" });
     }
   }
+
   if (data.marketplaceRole === "trader") {
     requireText("businessName", "Business name is required");
     requireText("businessRegistrationNumber", "Registration number is required");
-    requireText("bankDetails", "Bank details are required");
     if (!data.commoditySelections.length) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["commoditySelections"], message: "Select at least one commodity" });
     }
   }
+
   if (data.marketplaceRole === "buyer") {
     requireText("businessName", "Company name is required");
-    requireText("businessRegistrationNumber", "Registration number is required");
+    requireText("businessRegistrationNumber", "Company registration number is required");
     if (!data.commoditySelections.length) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["commoditySelections"], message: "Sourcing interest is required" });
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["commoditySelections"], message: "Select at least one sourcing interest" });
     }
-    requireText("expectedVolume", "Expected volume is required");
-    requireText("destinationCountry", "Destination country is required");
+    requireText("expectedVolume", "Choose an expected volume");
+    requireText("destinationCountry", "Choose a destination country");
   }
 });
 
@@ -120,12 +118,12 @@ const INTERESTS = {
 
 type OnboardingWizardProps = {
   marketName?: string;
-  commodities?: string[]; // No longer used, but kept for interface compatibility
+  commodities?: string[];
 };
 
-export default function OnboardingWizard({
-  marketName = "TokenHarvest",
-}: OnboardingWizardProps) {
+const stepLabels = ["About you", "Your market", "Your priorities"];
+
+export default function OnboardingWizard({ marketName = "TokenHarvest" }: OnboardingWizardProps) {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -133,7 +131,7 @@ export default function OnboardingWizard({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAdvancing, setIsAdvancing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const form = useForm<OnboardingData>({
     resolver: zodResolver(onboardingSchema),
     defaultValues: {
@@ -144,7 +142,6 @@ export default function OnboardingWizard({
       payoutMobileMoney: "",
       businessName: "",
       businessRegistrationNumber: "",
-      bankDetails: "",
       expectedVolume: "",
       destinationCountry: "",
       interests: [],
@@ -157,48 +154,39 @@ export default function OnboardingWizard({
 
   useEffect(() => {
     async function loadData() {
+      const initialRole = localStorage.getItem("onboardingRole") || "producer";
       try {
         const serverData = await customFetch<any>("/api/onboarding/me");
-        const localData = localStorage.getItem("onboarding-draft");
-        const parsedLocal = localData ? JSON.parse(localData) : null;
-        const initialRole = localStorage.getItem("onboardingRole") || "producer";
+        const localValue = localStorage.getItem("onboarding-draft");
+        const localData = localValue ? JSON.parse(localValue) : null;
+        const merged: any = { marketplaceRole: initialRole, ...serverData, ...localData };
 
-        const merged = {
-          marketplaceRole: initialRole,
-          ...serverData,
-          ...parsedLocal,
-        };
-
-        // Migrate old flat arrays to structured selections
-        if (merged.commodities && (!merged.commoditySelections || merged.commoditySelections.length === 0)) {
+        if (merged.commodities && (!merged.commoditySelections || !merged.commoditySelections.length)) {
           merged.commoditySelections = merged.commodities.map(normalizeLegacyCommodity);
         }
-        if (merged.sourcingCommodity && (!merged.commoditySelections || merged.commoditySelections.length === 0)) {
+        if (merged.sourcingCommodity && (!merged.commoditySelections || !merged.commoditySelections.length)) {
           merged.commoditySelections = [normalizeLegacyCommodity(merged.sourcingCommodity)];
         }
-        
         form.reset(merged);
-      } catch (err) {
-        const localData = localStorage.getItem("onboarding-draft");
-        const parsedLocal = localData ? JSON.parse(localData) : null;
-        const initialRole = localStorage.getItem("onboardingRole") || "producer";
-        
-        if (parsedLocal) {
-          if (parsedLocal.commodities && (!parsedLocal.commoditySelections || parsedLocal.commoditySelections.length === 0)) {
-            parsedLocal.commoditySelections = parsedLocal.commodities.map(normalizeLegacyCommodity);
+      } catch {
+        const localValue = localStorage.getItem("onboarding-draft");
+        const localData: any = localValue ? JSON.parse(localValue) : null;
+        if (localData) {
+          if (localData.commodities && (!localData.commoditySelections || !localData.commoditySelections.length)) {
+            localData.commoditySelections = localData.commodities.map(normalizeLegacyCommodity);
           }
-          if (parsedLocal.sourcingCommodity && (!parsedLocal.commoditySelections || parsedLocal.commoditySelections.length === 0)) {
-            parsedLocal.commoditySelections = [normalizeLegacyCommodity(parsedLocal.sourcingCommodity)];
+          if (localData.sourcingCommodity && (!localData.commoditySelections || !localData.commoditySelections.length)) {
+            localData.commoditySelections = [normalizeLegacyCommodity(localData.sourcingCommodity)];
           }
-          form.reset({ ...parsedLocal, marketplaceRole: parsedLocal.marketplaceRole || initialRole });
+          form.reset({ ...localData, marketplaceRole: localData.marketplaceRole || initialRole });
         } else {
-          form.setValue("marketplaceRole", initialRole as "producer" | "trader" | "buyer");
+          form.setValue("marketplaceRole", initialRole as OnboardingData["marketplaceRole"]);
         }
       } finally {
         setIsLoading(false);
       }
     }
-    loadData();
+    void loadData();
   }, [form]);
 
   useEffect(() => {
@@ -206,27 +194,27 @@ export default function OnboardingWizard({
       localStorage.setItem("onboarding-draft", JSON.stringify(value));
     });
     return () => subscription.unsubscribe();
-  }, [form.watch]);
+  }, [form]);
 
   const nextStep = async () => {
     if (isAdvancing || currentStep >= 3) return;
     setIsAdvancing(true);
-    let fieldsToValidate: any[] = [];
+    let fieldsToValidate: string[] = [];
     if (currentStep === 1) {
       fieldsToValidate = ["fullName"];
       if (currentRole === "producer") fieldsToValidate.push("region");
+    } else if (currentRole === "producer") {
+      fieldsToValidate = ["commoditySelections", "payoutMobileMoney"];
+    } else if (currentRole === "trader") {
+      fieldsToValidate = ["businessName", "businessRegistrationNumber", "commoditySelections"];
+    } else {
+      fieldsToValidate = ["businessName", "businessRegistrationNumber", "commoditySelections", "expectedVolume", "destinationCountry"];
     }
-    if (currentStep === 2) {
-      if (currentRole === "producer") fieldsToValidate = ["commoditySelections", "payoutMobileMoney"];
-      if (currentRole === "trader") fieldsToValidate = ["businessName", "businessRegistrationNumber", "commoditySelections", "bankDetails"];
-      if (currentRole === "buyer") fieldsToValidate = ["businessName", "businessRegistrationNumber", "commoditySelections", "expectedVolume", "destinationCountry"];
-    }
-    
+
     try {
-      const isValid = await form.trigger(fieldsToValidate);
-      if (isValid) {
+      if (await form.trigger(fieldsToValidate as Array<keyof OnboardingData>)) {
         setCurrentStep((step) => Math.min(3, step + 1));
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }
     } finally {
       setIsAdvancing(false);
@@ -234,8 +222,8 @@ export default function OnboardingWizard({
   };
 
   const prevStep = () => {
-    setCurrentStep(s => Math.max(1, s - 1));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setCurrentStep((step) => Math.max(1, step - 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const onSubmit = async (data: OnboardingData) => {
@@ -246,57 +234,29 @@ export default function OnboardingWizard({
 
     setIsSubmitting(true);
     try {
-      await customFetch("/api/onboarding/me", {
-        method: "PUT",
-        body: JSON.stringify(data),
-      });
+      await customFetch("/api/onboarding/me", { method: "PUT", body: JSON.stringify(data) });
       localStorage.removeItem("onboarding-draft");
       localStorage.removeItem("onboardingRole");
       await queryClient.invalidateQueries({ queryKey: ["/api/users/me"] });
       await queryClient.invalidateQueries({ queryKey: ["/api/onboarding/me"] });
-      
-      toast({
-        title: `Welcome to ${marketName}!`,
-        description: "Your profile has been created successfully.",
-      });
+      toast({ title: `Welcome to ${marketName}!`, description: "Your profile has been created successfully." });
       setLocation("/dashboard");
     } catch (err: any) {
-      toast({
-        title: "Something went wrong",
-        description: err.message || "Failed to save profile",
-        variant: "destructive",
-      });
+      toast({ title: "Something went wrong", description: err.message || "Failed to save profile", variant: "destructive" });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const renderStepIndicator = () => (
-    <div className="flex items-center gap-2 mb-10">
-      {[1, 2, 3].map((step) => (
-        <div 
-          key={step} 
-          className={`h-1.5 flex-1 rounded-full transition-colors duration-500 ${
-            step <= currentStep ? "bg-[#606A5C]" : "bg-[#e5e5ea]"
-          }`} 
-        />
-      ))}
-    </div>
-  );
-
   const toggleInterest = (interest: string) => {
     const current = form.getValues("interests") || [];
-    form.setValue(
-      "interests",
-      current.includes(interest) ? current.filter((item) => item !== interest) : [...current, interest],
-      { shouldDirty: true },
-    );
+    form.setValue("interests", current.includes(interest) ? current.filter((item) => item !== interest) : [...current, interest], { shouldDirty: true });
   };
 
   const renderInterestChips = (items: ReadonlyArray<readonly [string, string]>) => {
     const selected = form.watch("interests") || [];
     return (
-      <div className="flex flex-wrap gap-2.5">
+      <div className="onboarding-interest-chips">
         {items.map(([label, value]) => {
           const isSelected = selected.includes(value);
           return (
@@ -305,12 +265,7 @@ export default function OnboardingWizard({
               type="button"
               aria-pressed={isSelected}
               onClick={() => toggleInterest(value)}
-              className={cn(
-                "inline-flex items-center justify-center px-4 py-2.5 rounded-full text-[14px] font-medium transition-all duration-200 cursor-pointer border",
-                isSelected
-                  ? "bg-[#606A5C] border-[#606A5C] text-white shadow-sm"
-                  : "bg-[#f5f5f7] border-[#e5e5ea] text-[#1d1d1f] hover:bg-[#e5e5ea]"
-              )}
+              className={cn("onboarding-interest-chip", isSelected && "is-selected")}
               data-testid={`chip-interest-${value}`}
             >
               {label}
@@ -321,339 +276,202 @@ export default function OnboardingWizard({
     );
   };
 
-  const appleInput = "flex w-full rounded-xl border border-[#e5e5ea] bg-[#f5f5f7] px-4 py-3 text-[15px] text-[#1d1d1f] transition-all placeholder:text-[#86868b] focus:bg-white focus:border-[#606A5C] focus:outline-none focus:ring-1 focus:ring-[#606A5C]/20 shadow-none";
-  const appleLabel = "block text-[13px] font-medium text-[#86868b] px-1 mb-2";
-
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 text-[#86868b] animate-spin" />
-      </div>
-    );
+    return <div className="onboarding-loading"><Loader2 className="h-6 w-6 animate-spin" /></div>;
   }
 
+  const progress = Math.round((currentStep / 3) * 100);
+  const question = currentStep === 1
+    ? currentRole === "producer"
+      ? { title: "Tell us about yourself", description: "A few details help us tailor the market to your work." }
+      : currentRole === "trader"
+        ? { title: "Tell us about your business", description: "Help us understand how you move products through the market." }
+        : { title: "Tell us about your sourcing", description: "We use this to connect you with the right supply and support." }
+    : currentStep === 2
+      ? { title: "What is relevant to your work?", description: "Choose the products and details that best describe your place in the market." }
+      : currentRole === "producer"
+        ? { title: "What would help your farm thrive?", description: "Select as many as apply. You can update these preferences later." }
+        : currentRole === "trader"
+          ? { title: "What would make trading easier?", description: "Select the areas where TokenHarvest can support your business." }
+          : { title: "What matters most in your sourcing program?", description: "Select as many as apply. You can update these preferences later." };
+
+  const inputClass = "onboarding-line-input w-full px-1 py-3 text-[17px] text-[#202532] transition-all placeholder:text-[#a4a9b3] focus:outline-none";
+  const labelClass = "block px-1 mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#8c929f]";
+
   return (
-    <div className="font-['Inter',_-apple-system,_BlinkMacSystemFont,_sans-serif] w-full mx-auto text-[#1d1d1f] max-w-[480px]">
-      {renderStepIndicator()}
-      
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          
-          {/* STEP 1: Basic Profile */}
-          {currentStep === 1 && (
-            <div className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-8">
-              <div>
-                <h2 className="text-2xl font-semibold tracking-tight text-[#1d1d1f] mb-2">Create your profile</h2>
-                <p className="text-[15px] leading-relaxed text-[#86868b]">Tell us a bit about yourself so we can personalize your experience.</p>
-              </div>
+    <div className="market-onboarding onboarding-workspace">
+      <aside className="onboarding-rail" aria-label="Onboarding progress">
+        <div className="onboarding-rail-brand"><span className="onboarding-brand-mark" aria-hidden="true" />TokenHarvest</div>
+        <div className="onboarding-progress-ring" aria-label={`${progress}% complete`}><strong>{progress}%</strong><span>{currentStep} / 3</span></div>
+        <nav className="onboarding-step-list">
+          {stepLabels.map((label, index) => {
+            const step = index + 1;
+            const isComplete = step < currentStep;
+            const isActive = step === currentStep;
+            return (
+              <button
+                key={label}
+                type="button"
+                disabled={step > currentStep}
+                className={cn("onboarding-step-item", isActive && "is-active", isComplete && "is-complete")}
+                onClick={() => step < currentStep && setCurrentStep(step)}
+                aria-current={isActive ? "step" : undefined}
+              >
+                <span className="onboarding-step-icon">{isComplete ? "✓" : step}</span>
+                <span>{label}</span>
+                <span className="onboarding-step-count">{step}</span>
+              </button>
+            );
+          })}
+        </nav>
+        <div className="onboarding-rail-bottom">
+          <div className="onboarding-secure-note"><span aria-hidden="true">⌁</span> Your progress is saved</div>
+          <p>Complete your profile to access a trusted market built around your work.</p>
+        </div>
+      </aside>
 
-              <div className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="marketplaceRole"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className={appleLabel}>I am joining as a</FormLabel>
-                      <div className="flex flex-wrap gap-3 mt-2">
-                        {(["producer", "trader", "buyer"] as const).map((role) => {
-                          const isSelected = field.value === role;
-                          return (
-                            <button
-                              type="button"
-                              key={role}
-                              onClick={() => field.onChange(role)}
-                              className={cn(
-                                "inline-flex items-center justify-center px-5 py-3 rounded-full text-[14px] font-medium transition-all duration-200 cursor-pointer border",
-                                isSelected 
-                                  ? "bg-[#606A5C] border-[#606A5C] text-white shadow-sm" 
-                                  : "bg-[#f5f5f7] border-[#e5e5ea] text-[#1d1d1f] hover:bg-[#e5e5ea]"
-                              )}
-                              data-testid={`select-role-${role}`}
-                            >
-                              {role.charAt(0).toUpperCase() + role.slice(1)}
-                            </button>
-                          );
-                        })}
-                      </div>
-                      <FormMessage className="px-1 text-red-500 text-[13px]" />
-                    </FormItem>
-                  )}
-                />
+      <section className="onboarding-question-pane">
+        <div className="onboarding-topbar"><p>You are joining <strong>{marketName}</strong></p><span>Private &amp; secure</span></div>
+        <div className="onboarding-mobile-progress"><span>Step {currentStep} of 3</span><div><i style={{ width: `${progress}%` }} /></div></div>
 
-                <FormField
-                  control={form.control}
-                  name="fullName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className={appleLabel}>Full Name</FormLabel>
-                      <FormControl>
-                        <Input 
-                          {...field} 
-                          className={appleInput} 
-                          placeholder="Jane Doe"
-                          data-testid="input-fullname"
-                        />
-                      </FormControl>
-                      <FormMessage className="px-1 text-red-500 text-[13px]" />
-                    </FormItem>
-                  )}
-                />
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="onboarding-question-form">
+            <div className="onboarding-question-content animate-in fade-in slide-in-from-right-4 duration-500">
+              <p className="onboarding-question-kicker">Question {currentStep} / 3</p>
+              <h1>{question.title}</h1>
+              <p className="onboarding-question-description">{question.description}</p>
 
-                {currentRole === "producer" && (
-                  <FormField
-                    control={form.control}
-                    name="region"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className={appleLabel}>Region or county</FormLabel>
-                        <FormControl>
-                          <Input 
-                            {...field} 
-                            className={appleInput} 
-                            placeholder="e.g. Rift Valley, Kenya"
-                            data-testid="input-region"
-                          />
-                        </FormControl>
-                        <FormMessage className="px-1 text-red-500 text-[13px]" />
-                      </FormItem>
-                    )}
-                  />
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* STEP 2: Business & Operations */}
-          {currentStep === 2 && (
-            <div className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-8">
-              <div>
-                <h2 className="text-2xl font-semibold tracking-tight text-[#1d1d1f] mb-2">Business operations</h2>
-                <p className="text-[15px] leading-relaxed text-[#86868b]">
-                  {currentRole === "producer" && "Tell us what you grow and where payments should reach you."}
-                  {currentRole === "trader" && "Tell us about your trading business."}
-                  {currentRole === "buyer" && "Tell us about your sourcing needs."}
-                </p>
-              </div>
-
-              <div className="space-y-6">
-                {(currentRole === "producer" || currentRole === "trader" || currentRole === "buyer") && (
-                  <FormField
-                    control={form.control}
-                    name="commoditySelections"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className={appleLabel}>
-                          {currentRole === "producer" ? "What do you produce?" : currentRole === "buyer" ? "What are you sourcing?" : "What do you trade?"}
-                        </FormLabel>
-                        <FormControl>
-                          <CommoditySelect value={field.value} onChange={field.onChange} />
-                        </FormControl>
-                        <FormMessage className="px-1 text-red-500 text-[13px]" />
-                      </FormItem>
-                    )}
-                  />
-                )}
-
-                {currentRole === "producer" && (
-                  <FormField control={form.control} name="payoutMobileMoney" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className={appleLabel}>Mobile money number</FormLabel>
-                      <FormControl>
-                        <Input {...field} inputMode="tel" autoComplete="tel" className={appleInput} placeholder="+254 712 345 678" data-testid="input-mobile-money" />
-                      </FormControl>
-                      <FormMessage className="px-1 text-red-500 text-[13px]" />
-                    </FormItem>
-                  )} />
-                )}
-
-                {(currentRole === "trader" || currentRole === "buyer") && (
-                  <FormField
-                    control={form.control}
-                    name="businessName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className={appleLabel}>Company Name</FormLabel>
-                        <FormControl>
-                          <Input {...field} className={appleInput} data-testid="input-company-name" />
-                        </FormControl>
-                        <FormMessage className="px-1 text-red-500 text-[13px]" />
-                      </FormItem>
-                    )}
-                  />
-                )}
-
-                {(currentRole === "trader" || currentRole === "buyer") && (
-                  <FormField control={form.control} name="businessRegistrationNumber" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className={appleLabel}>Business registration number</FormLabel>
-                      <FormControl>
-                        <Input {...field} className={appleInput} data-testid="input-registration" />
-                      </FormControl>
-                      <FormMessage className="px-1 text-red-500 text-[13px]" />
-                    </FormItem>
-                  )} />
-                )}
-
-                {currentRole === "trader" && (
-                  <FormField control={form.control} name="bankDetails" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className={appleLabel}>Bank details for escrow payouts</FormLabel>
-                      <FormControl>
-                        <Textarea {...field} className={cn(appleInput, "min-h-[100px] resize-none")} placeholder="Bank name and account details" data-testid="textarea-bank" />
-                      </FormControl>
-                      <FormMessage className="px-1 text-red-500 text-[13px]" />
-                    </FormItem>
-                  )} />
-                )}
-
-                {currentRole === "buyer" && (
+              <div className="onboarding-fields">
+                {currentStep === 1 && (
                   <>
                     <FormField
                       control={form.control}
-                      name="expectedVolume"
+                      name="marketplaceRole"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className={appleLabel}>Annual Volume Requirement</FormLabel>
-                          <FormControl>
-                            <VolumeSelect value={field.value} onChange={field.onChange} />
-                          </FormControl>
-                          <FormMessage className="px-1 text-red-500 text-[13px]" />
+                          <FormLabel className={labelClass}>I am joining as</FormLabel>
+                          <div className="onboarding-role-options">
+                            {(["producer", "trader", "buyer"] as const).map((role) => (
+                              <button key={role} type="button" aria-pressed={field.value === role} onClick={() => field.onChange(role)} className={cn("onboarding-pill-option", field.value === role && "is-selected")} data-testid={`select-role-${role}`}>
+                                {role.charAt(0).toUpperCase() + role.slice(1)}
+                              </button>
+                            ))}
+                          </div>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
                     <FormField
                       control={form.control}
-                      name="destinationCountry"
+                      name="fullName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className={appleLabel}>Destination Country</FormLabel>
-                          <FormControl>
-                            <CountrySelect value={field.value} onChange={field.onChange} />
-                          </FormControl>
-                          <FormMessage className="px-1 text-red-500 text-[13px]" />
+                          <FormLabel className={labelClass}>Full name</FormLabel>
+                          <FormControl><Input {...field} className={inputClass} placeholder="Jane Doe" autoComplete="name" data-testid="input-fullname" /></FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
+                    {currentRole === "producer" && (
+                      <FormField control={form.control} name="region" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className={labelClass}>Region or county</FormLabel>
+                          <FormControl><Input {...field} className={inputClass} placeholder="e.g. Rift Valley, Kenya" data-testid="input-region" /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                    )}
+                  </>
+                )}
+
+                {currentStep === 2 && (
+                  <>
+                    <FormField control={form.control} name="commoditySelections" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className={labelClass}>{currentRole === "producer" ? "What do you produce?" : currentRole === "buyer" ? "What are you sourcing?" : "What do you trade?"}</FormLabel>
+                        <FormControl><CommoditySelect value={field.value} onChange={field.onChange} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    {currentRole === "producer" && (
+                      <FormField control={form.control} name="payoutMobileMoney" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className={labelClass}>Mobile money number</FormLabel>
+                          <FormControl><Input {...field} inputMode="tel" autoComplete="tel" className={inputClass} placeholder="+254 712 345 678" data-testid="input-mobile-money" /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                    )}
+                    {(currentRole === "trader" || currentRole === "buyer") && (
+                      <>
+                        <FormField control={form.control} name="businessName" render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className={labelClass}>Company name</FormLabel>
+                            <FormControl><Input {...field} className={inputClass} autoComplete="organization" data-testid="input-company-name" /></FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )} />
+                        <FormField control={form.control} name="businessRegistrationNumber" render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className={labelClass}>Business registration number</FormLabel>
+                            <FormControl><Input {...field} className={inputClass} data-testid="input-registration" /></FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )} />
+                      </>
+                    )}
+                    {currentRole === "buyer" && (
+                      <>
+                        <FormField control={form.control} name="expectedVolume" render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className={labelClass}>Annual volume requirement</FormLabel>
+                            <FormControl><VolumeSelect value={field.value} onChange={field.onChange} /></FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )} />
+                        <FormField control={form.control} name="destinationCountry" render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className={labelClass}>Destination country</FormLabel>
+                            <FormControl><CountrySelect value={field.value} onChange={field.onChange} /></FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )} />
+                      </>
+                    )}
+                  </>
+                )}
+
+                {currentStep === 3 && (
+                  <>
+                    {currentRole === "producer" && (
+                      <FormField control={form.control} name="producerStory" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className={labelClass}>Tell us about your farm <span className="normal-case tracking-normal">(optional)</span></FormLabel>
+                          <FormControl><Textarea {...field} className="onboarding-story-input" placeholder="Your practices, history, or community impact..." data-testid="textarea-story" /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                    )}
+                    {currentRole === "producer" && <div className="onboarding-interest-group"><div className={labelClass}>What would help you most right now?</div>{renderInterestChips(INTERESTS.producer)}</div>}
+                    {currentRole === "trader" && <div className="onboarding-interest-group"><div className={labelClass}>Choose your primary focus</div>{renderInterestChips(INTERESTS.trader)}</div>}
+                    {currentRole === "buyer" && <div className="onboarding-interest-group space-y-8"><div><div className={labelClass}>Values &amp; impact priorities</div>{renderInterestChips(INTERESTS.buyerValues)}</div><div><div className={labelClass}>Commercial requirements</div>{renderInterestChips(INTERESTS.buyerCommercial)}</div></div>}
                   </>
                 )}
               </div>
             </div>
-          )}
 
-          {/* STEP 3: Details & Financials */}
-          {currentStep === 3 && (
-            <div className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-8">
-              <div>
-                <h2 className="text-2xl font-semibold tracking-tight text-[#1d1d1f] mb-2">Final details</h2>
-                <p className="text-[15px] leading-relaxed text-[#86868b]">
-                  Select as many as apply. This helps us tailor the platform for your needs.
-                </p>
-              </div>
-
-              <div className="space-y-8">
-                {currentRole === "producer" && (
-                  <>
-                    <FormField
-                      control={form.control}
-                      name="producerStory"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className={appleLabel}>Your Farm's Story (Optional)</FormLabel>
-                          <FormControl>
-                            <Textarea 
-                              {...field} 
-                              className={cn(appleInput, "min-h-[120px] resize-none")} 
-                              placeholder="Tell buyers about your practices, history, or community impact..."
-                              data-testid="textarea-story"
-                            />
-                          </FormControl>
-                          <FormMessage className="px-1 text-red-500 text-[13px]" />
-                        </FormItem>
-                      )}
-                    />
-                    <div>
-                      <div className={appleLabel}>What would help you most right now?</div>
-                      {renderInterestChips(INTERESTS.producer)}
-                    </div>
-                  </>
-                )}
-
-                {currentRole === "trader" && (
-                  <div>
-                    <div className={appleLabel}>What's your primary focus?</div>
-                    {renderInterestChips(INTERESTS.trader)}
-                  </div>
-                )}
-
-                {currentRole === "buyer" && (
-                  <div className="space-y-8">
-                    <div>
-                      <div className={appleLabel}>Values & Impact Priorities</div>
-                      {renderInterestChips(INTERESTS.buyerValues)}
-                    </div>
-                    <div>
-                      <div className={appleLabel}>Commercial Requirements</div>
-                      {renderInterestChips(INTERESTS.buyerCommercial)}
-                    </div>
-                  </div>
-                )}
-              </div>
+            <div className="onboarding-question-nav">
+              {currentStep > 1 ? <Button type="button" variant="ghost" onClick={prevStep} className="onboarding-previous" data-testid="button-prev"><ArrowLeft className="h-4 w-4" /> Previous</Button> : <span />}
+              {currentStep < 3 ? (
+                <Button type="button" onClick={(event) => { event.preventDefault(); void nextStep(); }} disabled={isAdvancing} className="onboarding-next" data-testid="button-next">{isAdvancing ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Next <ArrowRight className="h-4 w-4" /></Button>
+              ) : (
+                <Button type="submit" disabled={isSubmitting} className="onboarding-next" data-testid="button-submit">{isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />} Complete profile</Button>
+              )}
             </div>
-          )}
-
-          {/* Navigation Controls */}
-          <div className="pt-8 mt-4 flex items-center justify-between border-t border-[#e5e5ea]">
-            {currentStep > 1 ? (
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={prevStep}
-                className="h-12 px-6 rounded-xl text-[#86868b] hover:text-[#1d1d1f] hover:bg-[#f5f5f7] text-[15px] font-medium transition-colors"
-                data-testid="button-prev"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back
-              </Button>
-            ) : (
-              <div />
-            )}
-
-            {currentStep < 3 ? (
-              <Button
-                key={`continue-step-${currentStep}`}
-                type="button"
-                onClick={(event) => {
-                  event.preventDefault();
-                  void nextStep();
-                }}
-                disabled={isAdvancing}
-                className="h-12 px-8 rounded-xl bg-[#606A5C] hover:bg-[#4A5340] text-white text-[15px] font-medium shadow-none transition-all active:scale-[0.98]"
-                data-testid="button-next"
-              >
-                {isAdvancing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-                Continue
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            ) : (
-              <Button
-                key="submit-profile"
-                type="submit"
-                disabled={isSubmitting}
-                className="h-12 px-8 rounded-xl bg-[#606A5C] hover:bg-[#4A5340] text-white text-[15px] font-medium shadow-none transition-all active:scale-[0.98]"
-                data-testid="button-submit"
-              >
-                {isSubmitting ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <Check className="w-4 h-4 mr-2" />
-                )}
-                Complete Profile
-              </Button>
-            )}
-          </div>
-
-        </form>
-      </Form>
+          </form>
+        </Form>
+        <div className="onboarding-bottom-hint"><span>Save and continue later</span><span>⌘</span></div>
+      </section>
     </div>
   );
 }

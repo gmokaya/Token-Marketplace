@@ -72,7 +72,6 @@ const onboardingSchema = z.object({
   if (data.marketplaceRole === "trader") {
     required("businessName", "Business name is required");
     required("businessRegistrationNumber", "Registration number is required");
-    required("bankDetails", "Bank details are required");
     if (data.commoditySelections.length === 0 && data.commodities.length === 0) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["commoditySelections"], message: "Select at least one commodity" });
     }
