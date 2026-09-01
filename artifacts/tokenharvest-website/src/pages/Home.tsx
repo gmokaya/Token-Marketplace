@@ -1214,30 +1214,29 @@ export default function Home() {
           <PartnersSection />
 
           {/* ══ CTA ─────────────────────────────────────────────── */}
-           <section id="cta" style={{
-             position: "relative", padding: "40px 0 72px",
-            backgroundImage: `url(${photo("cta-harvest.jpg")})`,
-            backgroundSize: "cover", backgroundPosition: "center",
+          <section id="cta" style={{
+            position: "relative", padding: "104px 0 108px",
+            background: "#123b35", overflow: "hidden",
           }}>
-            <div style={{ position: "absolute", inset: 0, background: "rgba(8,8,8,0.85)" }} />
-            <div style={{ position: "relative", zIndex: 1, maxWidth: 1200, margin: "0 auto", padding: "0 32px", textAlign: "center" }}>
+            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 50% 0%, rgba(91,177,157,0.16), transparent 58%)" }} />
+            <div style={{ position: "relative", zIndex: 1, maxWidth: 760, margin: "0 auto", padding: "0 32px", textAlign: "center" }}>
               <div style={{ display: "inline-flex", alignItems: "center", gap: 9, marginBottom: 14 }}>
-                <div style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT }} />
-                <span style={{ color: ACCENT, fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase" }}>Get Started</span>
+                <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#ed6558" }} />
+                <span style={{ color: "#ed6558", fontSize: 12, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" }}>Get Started</span>
               </div>
-               <h2 style={{ fontSize: "clamp(2rem, 4.5vw, 48px)", fontWeight: 300, color: "#fff", lineHeight: 1.12, margin: "0 0 22px", whiteSpace: "pre-line", letterSpacing: "-0.025em" }}>
+              <h2 style={{ fontSize: "clamp(2.2rem, 4.5vw, 52px)", fontWeight: 400, color: "#fff", lineHeight: 1.08, margin: "0 0 22px", whiteSpace: "pre-line", letterSpacing: "-0.03em" }}>
                 {cta.heading}
               </h2>
-              <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 17, fontWeight: 300, maxWidth: 520, margin: "0 auto 40px", lineHeight: 1.8 }}>
+              <p style={{ color: "rgba(255,255,255,0.72)", fontSize: 16, fontWeight: 300, maxWidth: 560, margin: "0 auto 38px", lineHeight: 1.7 }}>
                 {cta.subheadline}
               </p>
               <div style={{ display: "flex", justifyContent: "center", gap: 14, flexWrap: "wrap" }}>
                 <Link href="/get-started"
-                  style={{ background: ACCENT, color: "#fff", padding: "17px 32px", textDecoration: "none", fontSize: 15, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 8 }}>
+                  style={{ background: "#df4d45", color: "#fff", padding: "15px 26px", textDecoration: "none", fontSize: 14, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 8 }}>
                   {cta.cta1} <ArrowRight size={16} />
                 </Link>
                 <button onClick={() => setContactOpen(true)}
-                  style={{ background: "#2a2a2a", color: "#fff", padding: "17px 32px", border: "none", cursor: "pointer", fontSize: 15, fontWeight: 500, fontFamily: "'Futura',sans-serif", display: "inline-flex", alignItems: "center", gap: 8 }}>
+                  style={{ background: "rgba(255,255,255,0.06)", color: "#fff", padding: "15px 26px", border: "1px solid rgba(255,255,255,0.28)", cursor: "pointer", fontSize: 14, fontWeight: 600, fontFamily: "'Futura',sans-serif", display: "inline-flex", alignItems: "center", gap: 8 }}>
                   Contact Us
                 </button>
               </div>
@@ -1245,9 +1244,9 @@ export default function Home() {
           </section>
 
           {/* ══ FOOTER ──────────────────────────────────────────── */}
-          <footer style={{ background: "#0d0d0d", padding: "64px 0 0" }}>
+          <footer style={{ background: "#081815", padding: "72px 0 0" }}>
             <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px" }}>
-              <div className="homepage-footer-grid" style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 48, paddingBottom: 52, borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+              <div className="homepage-footer-grid" style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 64, paddingBottom: 56, borderBottom: "1px solid rgba(255,255,255,0.14)" }}>
                 <div>
                   <div style={{ marginBottom: 14 }}>
                     <Link href="/" style={{ display: "inline-flex" }}>
@@ -1259,7 +1258,7 @@ export default function Home() {
                       </span>
                     </Link>
                   </div>
-                  <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 13, lineHeight: 1.9, margin: 0 }}>
+                  <p style={{ color: "rgba(255,255,255,0.58)", fontSize: 13, lineHeight: 1.75, maxWidth: 290, margin: 0 }}>
                     East Africa's premier Electronic Warehouse Receipt trading platform for agricultural commodities.
                   </p>
                 </div>
@@ -1269,13 +1268,13 @@ export default function Home() {
                   { label: "Company",  links: [["About","#about"],["Contact","#cta"]] },
                 ] as const).map(({ label, links }) => (
                   <div key={label}>
-                    <div style={{ color: "rgba(255,255,255,0.25)", fontSize: 11, fontWeight: 600, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 18 }}>{label}</div>
+                    <div style={{ color: "rgba(255,255,255,0.58)", fontSize: 11, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 18 }}>{label}</div>
                     <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 10 }}>
                       {links.map(([name, href]) => (
                         <li key={name}>
                           {href.startsWith("#")
-                            ? <button onClick={() => scrollTo(href.slice(1))} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.45)", fontSize: 13, fontFamily: "'Futura',sans-serif", padding: 0 }}>{name}</button>
-                            : <Link href={href as string} style={{ color: "rgba(255,255,255,0.45)", textDecoration: "none", fontSize: 13 }}>{name}</Link>
+                            ? <button onClick={() => scrollTo(href.slice(1))} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.68)", fontSize: 13, fontFamily: "'Futura',sans-serif", padding: 0 }}>{name}</button>
+                            : <Link href={href as string} style={{ color: "rgba(255,255,255,0.68)", textDecoration: "none", fontSize: 13 }}>{name}</Link>
                           }
                         </li>
                       ))}
@@ -1283,9 +1282,9 @@ export default function Home() {
                   </div>
                 ))}
               </div>
-              <div className="homepage-footer-bottom" style={{ padding: "22px 0 66px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <p style={{ color: "rgba(255,255,255,0.2)", fontSize: 12, margin: 0 }}>© 2025 WRS Marketplace. All rights reserved.</p>
-                <p style={{ color: "rgba(255,255,255,0.12)", fontSize: 12, margin: 0 }}>Regulated agricultural commodity trading platform.</p>
+              <div className="homepage-footer-bottom" style={{ padding: "24px 0 56px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <p style={{ color: "rgba(255,255,255,0.42)", fontSize: 12, margin: 0 }}>© 2025 WRS Marketplace. All rights reserved.</p>
+                <p style={{ color: "rgba(255,255,255,0.32)", fontSize: 12, margin: 0 }}>Regulated agricultural commodity trading platform.</p>
               </div>
             </div>
           </footer>
