@@ -965,9 +965,10 @@ h1, h2, h3, h4, h5, h6 {
 
 .homepage-footer-minimal {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  gap: 16px;
+  gap: 64px;
+  min-height: 72px;
   padding-bottom: 0;
 }
 
@@ -1229,9 +1230,11 @@ h1, h2, h3, h4, h5, h6 {
     align-items: flex-start;
     flex-direction: column;
     gap: 24px;
+    min-height: 0;
   }
 
   .homepage-footer-links {
+    align-self: center;
     flex-wrap: wrap;
     gap: 14px 22px;
   }
