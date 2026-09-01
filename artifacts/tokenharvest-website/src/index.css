@@ -985,6 +985,29 @@ h1, h2, h3, h4, h5, h6 {
   text-transform: uppercase;
 }
 
+.homepage-footer-links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.homepage-footer-links a,
+.homepage-footer-links button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: rgba(255,255,255,0.58);
+  font: 500 12px/1.4 'Futura', sans-serif;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.homepage-footer-links a:hover,
+.homepage-footer-links button:hover {
+  color: #fff;
+}
+
 .homepage-service-card {
   --service-accent: #dc554c;
   --service-wash: #fff4f1;
@@ -1208,7 +1231,7 @@ h1, h2, h3, h4, h5, h6 {
     gap: 24px;
   }
 
-  .homepage-footer-minimal-links {
+  .homepage-footer-links {
     flex-wrap: wrap;
     gap: 14px 22px;
   }

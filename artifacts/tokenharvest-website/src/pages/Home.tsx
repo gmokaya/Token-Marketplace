@@ -1217,7 +1217,7 @@ export default function Home() {
 
           {/* ══ CTA ─────────────────────────────────────────────── */}
           <section id="cta" style={{
-            position: "relative", padding: "66px 0 70px",
+            position: "relative", minHeight: 300, padding: "66px 0 70px", display: "flex", alignItems: "center",
             background: `url(${photo("cta-harvest.jpg")}) center 48% / cover no-repeat`, overflow: "hidden",
           }}>
             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(5,30,27,0.9) 0%, rgba(7,48,42,0.78) 50%, rgba(5,30,27,0.9) 100%), radial-gradient(circle at 50% 42%, rgba(91,177,157,0.2), transparent 62%)" }} />
@@ -1255,6 +1255,12 @@ export default function Home() {
                   </Link>
                   <span className="homepage-footer-location">Tatu City, Kenya</span>
                 </div>
+                <nav className="homepage-footer-links" aria-label="Footer navigation">
+                  <Link href="/get-started">Marketplace</Link>
+                  <a href="https://portal.tokenharvest.ke" target="_blank" rel="noreferrer">Producer</a>
+                  <button type="button" onClick={() => scrollTo("about")}>About</button>
+                  <a href="https://tokenharvest.app" target="_blank" rel="noreferrer">App</a>
+                </nav>
               </div>
               <div className="homepage-footer-bottom" style={{ padding: "28px 0 18px", display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
                 <p style={{ color: "rgba(255,255,255,0.2)", fontSize: 12, margin: 0 }}>© 2025 WRS Marketplace. All rights reserved.</p>
