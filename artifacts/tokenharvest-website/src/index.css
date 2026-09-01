@@ -768,11 +768,9 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   /* ── Trade Finance ── */
-  .homepage-finance-grid {
+  .homepage-finance-cards-grid {
     grid-template-columns: 1fr !important;
-    gap: 36px !important;
-    padding-left: 20px !important;
-    padding-right: 20px !important;
+    gap: 24px !important;
   }
 
   /* ── Footer ── */
@@ -932,5 +930,41 @@ h1, h2, h3, h4, h5, h6 {
 @media (max-width: 720px) {
   .homepage-commodity-cluster {
     max-width: 380px !important;
+  }
+}
+
+/* ── Trade Finance Cards ── */
+.homepage-finance-card {
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #ebebeb;
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s ease;
+}
+
+.homepage-finance-card:hover {
+  box-shadow: 0 12px 32px rgba(0,0,0,0.08);
+  transform: translateY(-4px);
+}
+
+.homepage-finance-card-cta-icon {
+  transition: transform 0.2s;
+}
+
+.homepage-finance-card:hover .homepage-finance-card-cta-icon {
+  transform: translateX(4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .homepage-finance-card,
+  .homepage-finance-card:hover,
+  .homepage-finance-card-cta-icon,
+  .homepage-finance-card:hover .homepage-finance-card-cta-icon {
+    transition: none !important;
+    transform: none !important;
   }
 }

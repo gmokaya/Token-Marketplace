@@ -451,6 +451,97 @@ function EsgSection() {
   );
 }
 
+/* ── Trade Finance Cards ───────────────────────────────────── */
+const FINANCE_PRODUCTS = [
+  {
+    eyebrow: "Warehouse Receipt Financing",
+    audience: "FOR PRODUCERS",
+    hook: "Cash Against Stock You Already Hold",
+    body: "Your commodity doesn't have to sit idle while you wait for a buyer. Borrow against graded, warehoused stock and put that value to work now.",
+    proof: "Unlock up to 80% of your stock's value",
+    eligibility: "Available once your commodity is graded and issued a digital eWR.",
+    cta: "See what your stock could unlock",
+  },
+  {
+    eyebrow: "Pre-Export Finance",
+    audience: "FOR PRODUCERS",
+    hook: "Fund the Harvest Before It's Sold",
+    body: "Inputs, labor, and logistics shouldn't wait on a sale to clear. Access capital ahead of export so the next cycle starts on time, every time.",
+    proof: "Funds released before shipment, not after",
+    eligibility: "Available once a forward contract or export order is confirmed.",
+    cta: "Check your eligibility",
+  },
+  {
+    eyebrow: "Invoice Factoring",
+    audience: "FOR PRODUCERS",
+    hook: "Get Paid Before Your Buyer Settles",
+    body: "Standard payment terms can leave you waiting 30, 60, even 90 days. Sell your invoice for immediate cash and keep your capital moving.",
+    proof: "Convert invoices to cash in as little as 24 hours",
+    eligibility: "Available on any confirmed, buyer-approved invoice.",
+    cta: "Turn your invoice into cash",
+  },
+  {
+    eyebrow: "Advance Payments",
+    audience: "FOR PRODUCERS",
+    hook: "Lock In Income the Moment a Trade Confirms",
+    body: "You shouldn't carry the full financial gap between harvest and final settlement. Take a portion of your sale value upfront, the rest follows at settlement.",
+    proof: "Access a share of proceeds as soon as a trade is confirmed",
+    eligibility: "Available once a trade is matched on the marketplace.",
+    cta: "See your advance options",
+  },
+];
+
+function FinanceCard({
+  eyebrow, audience, hook, body, proof, eligibility, cta
+}: {
+  eyebrow: string; audience: string; hook: string; body: string; proof: string; eligibility: string; cta: string;
+}) {
+  const [hover, setHover] = useState(false);
+  return (
+    <div
+      className="homepage-finance-card"
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
+        <div style={{ color: ACCENT, fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>
+          {eyebrow}
+        </div>
+        <div style={{ background: "#f0f0f0", color: "#666", fontSize: 10, fontWeight: 600, padding: "4px 8px", borderRadius: 4, letterSpacing: "0.06em" }}>
+          {audience}
+        </div>
+      </div>
+
+      <h3 style={{ fontSize: 22, fontWeight: 500, color: "#111", lineHeight: 1.25, margin: "0 0 16px" }}>
+        {hook}
+      </h3>
+
+      <p style={{ fontSize: 15, color: "#666", lineHeight: 1.6, margin: "0 0 24px", flex: 1 }}>
+        {body}
+      </p>
+
+      <div style={{ background: "#fcfcfc", borderLeft: `3px solid ${ACCENT}`, padding: "16px 20px", marginBottom: 24, borderRadius: "0 4px 4px 0" }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: "#111", marginBottom: 6 }}>
+          {proof}
+        </div>
+        <div style={{ fontSize: 13, color: "#777", fontStyle: "italic", lineHeight: 1.4 }}>
+          {eligibility}
+        </div>
+      </div>
+
+      <Link href="/get-started" style={{
+        display: "flex", alignItems: "center", gap: 6,
+        color: hover ? ACCENT_LIGHT : ACCENT,
+        fontSize: 14, fontWeight: 600,
+        transition: "color 0.2s",
+        textDecoration: "none",
+      }}>
+        {cta} <ArrowRight className="homepage-finance-card-cta-icon" size={14} />
+      </Link>
+    </div>
+  );
+}
+
 /* ── Partners data types ───────────────────────────────────── */
 type Partner = { id: string; name: string; short: string; logoUrl: string; website: string };
 
@@ -1052,52 +1143,22 @@ export default function Home() {
 
           {/* ══ TRADE FINANCE & LIQUIDITY ════════════════════════ */}
           <section style={{ background: "#f7f7f7", padding: "96px 0" }}>
-            <div className="homepage-finance-grid" style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 72, alignItems: "center" }}>
-              <div>
-                <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
+            <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px" }}>
+              <div style={{ textAlign: "center", marginBottom: 64 }}>
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
                   <div style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT }} />
                   <span style={{ color: ACCENT, fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase" }}>Trade Finance &amp; Settlement</span>
                 </div>
-                <h2 style={{ fontSize: "clamp(1.8rem, 3.2vw, 40px)", fontWeight: 500, color: "#090909", margin: "0 0 16px", lineHeight: 1.15 }}>
-                  Trade Finance &amp; Settlement
+                <h2 style={{ fontSize: "clamp(1.8rem, 3vw, 40px)", fontWeight: 500, color: "#090909", margin: "0 0 16px", lineHeight: 1.15 }}>
+                  Capital for every stage of the trade.
                 </h2>
-                <div style={{ width: 40, height: 2, background: ACCENT, marginBottom: 24 }} />
-                <p style={{ color: "#555", fontSize: 16, fontWeight: 300, lineHeight: 1.8, margin: "0 0 28px" }}>
-                  <strong style={{ fontWeight: 500, color: "#1a1a1a" }}>Empower your business with seamless financing, secure payments, and efficient settlement throughout the trade lifecycle.</strong>
-                </p>
-                <p style={{ color: "#555", fontSize: 16, fontWeight: 300, lineHeight: 1.8, margin: 0 }}>
-                  TokenHarvest streamlines the financial side of trade by connecting buyers, suppliers, financial institutions, insurers, and payment providers through a unified digital ecosystem. From securing working capital and trade finance to processing cross-border payments and final settlement, the platform helps businesses trade with greater confidence, speed, and transparency.
+                <div style={{ width: 40, height: 2, background: ACCENT, margin: "0 auto 20px" }} />
+                <p style={{ color: "#555", fontSize: 16, fontWeight: 300, maxWidth: 680, margin: "0 auto", lineHeight: 1.6 }}>
+                  Working capital tied to real inventory, contracts, invoices, and confirmed trades.
                 </p>
               </div>
-              <div>
-                <div style={{
-                  background: "#fff",
-                  borderRadius: 8,
-                  boxShadow: "0 4px 8px rgba(0,0,0,0.06), 0 12px 24px rgba(0,0,0,0.04), 0 24px 48px rgba(0,0,0,0.03)",
-                  padding: 48,
-                  textAlign: "center",
-                  border: "1px solid #ececec",
-                }}>
-                  <div style={{ fontSize: 48, fontWeight: 200, color: ACCENT, lineHeight: 1, marginBottom: 12 }}>
-                    75%
-                  </div>
-                  <div style={{ color: "#666", fontSize: 13, fontWeight: 500, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 32 }}>
-                    LTV on Stored Inventory
-                  </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, textAlign: "left" }}>
-                    {([
-                      { label: "Loan Amount", value: "$150,000" },
-                      { label: "Interest Rate", value: "9.5% APR" },
-                      { label: "Tenure", value: "6 Months" },
-                      { label: "Collateral", value: "500 MT Grain" },
-                    ]).map(({ label, value }) => (
-                      <div key={label}>
-                        <div style={{ color: "#999", fontSize: 11, fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 6 }}>{label}</div>
-                        <div style={{ color: "#1a1a1a", fontSize: 16, fontWeight: 500 }}>{value}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+              <div className="homepage-finance-cards-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32 }}>
+                {FINANCE_PRODUCTS.map(product => <FinanceCard key={product.eyebrow} {...product} />)}
               </div>
             </div>
           </section>
