@@ -65,7 +65,7 @@ export default function SignUpPage() {
         <div className="bg-white/10 backdrop-blur-2xl border border-white/25 shadow-2xl p-10 overflow-y-auto max-h-[calc(100vh-4rem)]">
           <div className="mb-7">
             <h1 className="text-2xl font-semibold text-white tracking-tight">Create your account</h1>
-            <p className="text-sm text-white/65 mt-1.5">Join the Tea Marketplace today.</p>
+            <p className="text-sm text-white/65 mt-1.5">Create a buyer account to source traceable GI teas.</p>
           </div>
 
           <SignUp

@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
 import { ClerkProvider, Show, useClerk } from '@clerk/react';
 import { useAutoLogout } from "@/lib/useAutoLogout";
-import { publishableKeyFromHost } from '@clerk/react/internal';
 import { shadcn } from '@clerk/themes';
 import { Switch, Route, useLocation, Router as WouterRouter } from 'wouter';
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
@@ -18,7 +17,7 @@ import SignInPage from "@/pages/SignInPage";
 import SignUpPage from "@/pages/SignUpPage";
 import AdminHomepage from "@/pages/AdminHomepage";
 
-const clerkPubKey = publishableKeyFromHost(window.location.hostname, import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
+const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 function stripBase(path: string) {

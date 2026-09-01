@@ -5,9 +5,9 @@ import { useAuth, useClerk } from "@clerk/react";
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 const stats = [
-  { value: "50+", label: "Tea Factories" },
-  { value: "7+",  label: "Countries"    },
-  { value: "$2B+", label: "Annual Volume" },
+  { value: "50+", label: "Verified tea factories" },
+  { value: "7+",  label: "Origin countries" },
+  { value: "GI",  label: "Protected provenance" },
 ];
 
 export default function Home() {
@@ -59,17 +59,17 @@ export default function Home() {
       <div className="relative z-10 flex-1 flex flex-col justify-end px-8 md:px-14 pb-8">
         <div className="inline-flex items-center gap-2 bg-white/10 text-white/75 text-xs font-medium px-3 py-1.5 rounded-full mb-4 w-fit backdrop-blur-sm border border-white/15">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          B2B Tea Marketplace
+          B2B Speciality Tea Marketplace
         </div>
 
         <h1 className="text-5xl md:text-7xl font-bold text-white leading-[1.0] tracking-tight max-w-3xl">
-          Where premium teas
+          Traceable speciality teas
           <br />
-          <span className="text-white">meet global buyers.</span>
+          <span className="text-white">from protected origins.</span>
         </h1>
 
         <p className="mt-3 text-white/55 text-sm md:text-base leading-relaxed max-w-xl">
-          Every exceptional tea begins with its origin. TokenHarvest is the trusted marketplace for GI-protected and specialty teas, commercial teas empowering producers and buyers with verified provenance, Digital Tea Passports, embedded Trade Finance, and frictionless cross-border trade.
+          Source GI-protected teas from verified East African factories with confidence. Every lot carries clear origin and quality records, Digital Tea Passports, and a traceable path from factory to final delivery.
         </p>
 
         <div className="mt-5 flex items-center gap-4">

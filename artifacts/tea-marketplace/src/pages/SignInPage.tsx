@@ -68,7 +68,7 @@ export default function SignInPage() {
               Sign in to Tea Marketplace
             </h1>
             <p className="text-sm text-white/65 mt-1.5">
-              Welcome back! Please sign in to continue.
+              Access verified GI tea supply and traceable lot records.
             </p>
           </div>
 
