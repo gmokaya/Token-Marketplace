@@ -1214,28 +1214,28 @@ export default function Home() {
 
           {/* ══ CTA ─────────────────────────────────────────────── */}
           <section id="cta" style={{
-            position: "relative", padding: "104px 0 108px",
-            background: "#123b35", overflow: "hidden",
+            position: "relative", padding: "66px 0 70px",
+            background: "linear-gradient(135deg, #0a302b 0%, #12483f 52%, #0b332e 100%)", overflow: "hidden",
           }}>
-            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 50% 0%, rgba(91,177,157,0.16), transparent 58%)" }} />
-            <div style={{ position: "relative", zIndex: 1, maxWidth: 760, margin: "0 auto", padding: "0 32px", textAlign: "center" }}>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 9, marginBottom: 14 }}>
+            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 50% 42%, rgba(91,177,157,0.18), transparent 62%)" }} />
+            <div style={{ position: "relative", zIndex: 1, maxWidth: 700, margin: "0 auto", padding: "0 32px", textAlign: "center" }}>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 9, marginBottom: 13 }}>
                 <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#ed6558" }} />
                 <span style={{ color: "#ed6558", fontSize: 12, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" }}>Get Started</span>
               </div>
-              <h2 style={{ fontSize: "clamp(2.2rem, 4.5vw, 52px)", fontWeight: 400, color: "#fff", lineHeight: 1.08, margin: "0 0 22px", whiteSpace: "pre-line", letterSpacing: "-0.03em" }}>
+              <h2 style={{ fontSize: "clamp(2.1rem, 4.2vw, 46px)", fontWeight: 400, color: "#fff", lineHeight: 1.1, margin: "0 0 18px", whiteSpace: "pre-line", letterSpacing: "-0.03em" }}>
                 {cta.heading}
               </h2>
-              <p style={{ color: "rgba(255,255,255,0.72)", fontSize: 16, fontWeight: 300, maxWidth: 560, margin: "0 auto 38px", lineHeight: 1.7 }}>
+              <p style={{ color: "rgba(255,255,255,0.68)", fontSize: 14, fontWeight: 300, maxWidth: 540, margin: "0 auto 28px", lineHeight: 1.65 }}>
                 {cta.subheadline}
               </p>
-              <div style={{ display: "flex", justifyContent: "center", gap: 14, flexWrap: "wrap" }}>
+              <div style={{ display: "flex", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
                 <Link href="/get-started"
-                  style={{ background: "#df4d45", color: "#fff", padding: "15px 26px", textDecoration: "none", fontSize: 14, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 8 }}>
+                  style={{ background: "#e55349", color: "#fff", padding: "13px 22px", textDecoration: "none", fontSize: 13, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 8 }}>
                   {cta.cta1} <ArrowRight size={16} />
                 </Link>
                 <button onClick={() => setContactOpen(true)}
-                  style={{ background: "rgba(255,255,255,0.06)", color: "#fff", padding: "15px 26px", border: "1px solid rgba(255,255,255,0.28)", cursor: "pointer", fontSize: 14, fontWeight: 600, fontFamily: "'Futura',sans-serif", display: "inline-flex", alignItems: "center", gap: 8 }}>
+                  style={{ background: "rgba(255,255,255,0.04)", color: "#fff", padding: "13px 22px", border: "1px solid rgba(255,255,255,0.28)", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "'Futura',sans-serif", display: "inline-flex", alignItems: "center", gap: 8 }}>
                   Contact Us
                 </button>
               </div>
