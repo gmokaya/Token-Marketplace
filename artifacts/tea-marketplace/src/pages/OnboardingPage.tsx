@@ -4,7 +4,7 @@ import teaSignInImage from "@assets/images_(28)_1788267884985.jpg";
 
 export default function OnboardingPage() {
   return (
-    <div className="market-auth-shell market-auth-shell--tea">
+    <div className="market-auth-shell market-auth-shell--tea market-auth-shell--onboarding">
       <img src={teaSignInImage} alt="" className="market-auth-background" fetchPriority="high" />
       <div className="market-auth-overlay" />
       <header className="market-auth-header">

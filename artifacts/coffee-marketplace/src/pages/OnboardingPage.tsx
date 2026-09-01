@@ -4,7 +4,7 @@ import coffeeSignInImage from "@assets/dang-cong-JqF4IS65xEg-unsplash_1788267949
 
 export default function OnboardingPage() {
   return (
-    <div className="market-auth-shell market-auth-shell--coffee">
+    <div className="market-auth-shell market-auth-shell--coffee market-auth-shell--onboarding">
       <img src={coffeeSignInImage} alt="" className="market-auth-background" fetchPriority="high" />
       <div className="market-auth-overlay" />
       <header className="market-auth-header">

@@ -17,7 +17,7 @@ export default function OnboardingPage({
   const bp = import.meta.env.BASE_URL.replace(/\/$/, "");
 
   return (
-    <div className={`market-auth-shell ${shellClass}`}>
+    <div className={`market-auth-shell ${shellClass} market-auth-shell--onboarding`}>
       <img
         src={backgroundSrc ?? `${bp}/photos/hero-soybean-farmer.jpg`}
         alt=""
