@@ -922,10 +922,10 @@ export default function Home() {
                 </span>
               </Link>
               {/* primary links */}
-              <nav className="homepage-nav-links" style={{ display: "flex", gap: 32, alignItems: "center" }}>
+              <nav className="homepage-nav-links" style={{ display: "flex", flex: 1, justifyContent: "center", gap: 36, alignItems: "center" }}>
                 {([ ["Platform","platform"], ["Services","services"], ["Finance","finance"], ["About","about"] ] as const).map(([label, id]) => (
                   <button key={id} onClick={() => scrollTo(id)}
-                    style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(11,48,50,0.72)", fontSize: 14, fontWeight: 500, display: "flex", gap: 5, alignItems: "center", fontFamily: "'Futura',sans-serif", padding: 0 }}>
+                    style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(11,48,50,0.9)", fontSize: 16, fontWeight: 600, display: "flex", gap: 5, alignItems: "center", fontFamily: "'Futura',sans-serif", padding: 0 }}>
                     {label}
                   </button>
                 ))}
