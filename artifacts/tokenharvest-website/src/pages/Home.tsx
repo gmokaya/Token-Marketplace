@@ -1,6 +1,6 @@
 import { useAuth } from "@clerk/react";
 import { Link } from "wouter";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { ArrowRight, ChevronLeft, ChevronRight, X, Send, Menu } from "lucide-react";
 import { PriceTicker } from "@/components/PriceTicker";
 import { TokenHarvestHero } from "@/components/home/TokenHarvestHero";
@@ -228,6 +228,12 @@ function scrollTo(id: string) {
   const top = Math.max(0, el.getBoundingClientRect().top + window.scrollY - headerBottom - 24);
   const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
   window.scrollTo({ top, behavior });
+}
+
+function scrollHomeToTop(event: MouseEvent<HTMLAnchorElement>) {
+  event.preventDefault();
+  const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+  window.scrollTo({ top: 0, behavior });
 }
 
 /* ── animated counter ─────────────────────────────────────── */
@@ -907,7 +913,7 @@ export default function Home() {
             {/* main nav */}
               <div className="homepage-main-nav" style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", height: 68, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               {/* logo */}
-                  <Link href="/" aria-label="Go to TokenHarvest homepage" title="Home" className="homepage-logo-link" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
+                  <Link href="/" onClick={scrollHomeToTop} title="Home" className="homepage-logo-link" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
                 <span
                   className="homepage-logo tokenharvest-wordmark"
                   style={{ color: "#0b3032", fontSize: 42, marginLeft: -14 }}
@@ -968,7 +974,7 @@ export default function Home() {
             }}>
               {/* top row */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 40 }}>
-                  <Link href="/" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: "none", padding: "6px 10px" }}>
+                  <Link href="/" onClick={(event) => { setMobileMenuOpen(false); scrollHomeToTop(event); }} style={{ textDecoration: "none", padding: "6px 10px" }}>
                   <span className="tokenharvest-wordmark" style={{ color: "#fff", fontSize: 28 }}>TokenHarvest</span>
                 </Link>
                 <button onClick={() => setMobileMenuOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.6)", padding: 8, display: "flex" }}>
@@ -1263,7 +1269,7 @@ export default function Home() {
             <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px" }}>
               <div className="homepage-footer-minimal">
                 <div className="homepage-footer-brand">
-                  <Link href="/" aria-label="TokenHarvest home" title="Home" style={{ display: "inline-flex", textDecoration: "none" }}>
+                  <Link href="/" onClick={scrollHomeToTop} title="Home" style={{ display: "inline-flex", textDecoration: "none" }}>
                     <span className="tokenharvest-wordmark" style={{ color: "#fff", fontSize: 28 }}>TokenHarvest</span>
                   </Link>
                   <span className="homepage-footer-location">Tatu City, Kenya</span>
