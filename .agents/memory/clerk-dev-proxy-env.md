@@ -1,10 +1,10 @@
 ---
-name: Clerk development proxy environment
-description: Replit-managed Clerk proxy behavior in local Vite development
+name: Clerk proxy modes
+description: Distinguish Replit-managed and external Clerk proxy configuration
 ---
 
-Local Vite workflows must omit `VITE_CLERK_PROXY_URL` from the dev process. Replit-managed Clerk may expose the production-only proxy path in the workflow environment even though the API server disables proxying in development.
+For Replit-managed Clerk, local Vite workflows must omit `VITE_CLERK_PROXY_URL` because the proxy is production-only. For this project’s external Clerk account, the clients must not pass a proxy URL and the API server must not mount the Replit-managed proxy middleware in any environment.
 
-**Why:** If the frontend receives the production proxy path during development, Clerk requests `/api/__clerk` locally; the development API server passes that request into protected API routing and returns 401, causing the Clerk runtime overlay.
+**Why:** A managed proxy path mixed with an external Clerk key can send Clerk requests to the wrong FAPI transport. In development, the same path also reaches protected API routing and returns 401, causing the Clerk runtime overlay.
 
-**How to apply:** Keep the canonical `proxyUrl={import.meta.env.VITE_CLERK_PROXY_URL}` client wiring, but unset `VITE_CLERK_PROXY_URL` in each web artifact's development script. Production builds should retain the managed proxy value.
+**How to apply:** When using managed Clerk, keep canonical `proxyUrl` wiring and unset the proxy variable only in dev scripts. When using an external Clerk account, omit the client `proxyUrl` prop and the server proxy mount; keep the external publishable and secret keys in workspace secrets.

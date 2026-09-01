@@ -6,7 +6,7 @@
 - [Financing eligibility & pre-auth API surface](financing-and-preauth-surface.md) — financeable = unencumbered (INGESTED/MARKET_LISTED + no lien); ewr-api/wrsc pre-Clerk surface must never run on default secrets in prod
 - [Font declared in CSS but not loaded](font-loading-vs-css-declaration.md) — --app-font-* token falls back silently unless index.html also loads that Google Font; match both when cloning styling
 - [Sub-path artifact Clerk redirects](subpath-artifact-clerk-redirect.md) — non-root artifact needs signInFallbackRedirectUrl=basePath + redirectToSignIn({redirectUrl}) or auth bounces to the root app
-- [Clerk development proxy](clerk-dev-proxy-env.md) — local Vite scripts must omit VITE_CLERK_PROXY_URL because Replit may inject the production proxy secret in dev
+- [Clerk proxy modes](clerk-dev-proxy-env.md) — managed Clerk uses the production proxy; this project’s external Clerk setup uses direct Clerk traffic and no proxy
 - [Grain visual palette](grain-visual-palette.md) — Grain uses coal, graphite, platinum, and slate accents; avoid the warm coffee/amber palette
 - [Marketplace CMS asset normalization](marketplace-cms-asset-normalization.md) — homepage CMS market cards can override local defaults; normalize known commodity links and photos at render time
 - [First-party marketplace provider API](marketplace-provider-api.md) — TokenHarvest owns the external listing contract; keep provider auth/config separate from publication queue state

@@ -9,7 +9,7 @@ import { clerkMiddleware } from "@clerk/express";
 import { publishableKeyFromHost } from "@clerk/shared/keys";
 import router from "./routes";
 import { logger } from "./lib/logger";
-import { CLERK_PROXY_PATH, clerkProxyMiddleware, getClerkProxyHost } from "./middlewares/clerkProxyMiddleware";
+import { getClerkProxyHost } from "./middlewares/clerkProxyMiddleware";
 
 const app: Express = express();
 
@@ -43,8 +43,6 @@ app.use(helmet({ contentSecurityPolicy: false }));
 
 // Gzip responses to reduce bandwidth under load.
 app.use(compression());
-
-app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
 
 app.use(cors({ credentials: true, origin: true }));
 app.use(cookieParser());

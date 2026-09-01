@@ -18,7 +18,7 @@ One-off commands:
 
 Required env (runtime-managed by Replit — do not set manually):
 - `DATABASE_URL` — Postgres connection string
-- `CLERK_SECRET_KEY`, `CLERK_PUBLISHABLE_KEY`, `VITE_CLERK_PUBLISHABLE_KEY` — Replit-managed Clerk auth
+- `CLERK_SECRET_KEY`, `CLERK_PUBLISHABLE_KEY`, `VITE_CLERK_PUBLISHABLE_KEY` — external Clerk auth credentials
 
 ## Stack
 
@@ -50,7 +50,7 @@ _Populate as you build — explicit user instructions worth remembering across s
 Completed on import (2026-07-23):
 - `pnpm install` — all workspace dependencies installed
 - `pnpm --filter @workspace/db run push` — DB schema pushed to Replit PostgreSQL
-- Clerk auth provisioned via Replit-managed Clerk (`setupClerkWhitelabelAuth`); keys auto-set as secrets (`CLERK_SECRET_KEY`, `CLERK_PUBLISHABLE_KEY`, `VITE_CLERK_PUBLISHABLE_KEY`)
+- Clerk auth configured against the user's external Clerk account; credentials are stored as secrets (`CLERK_SECRET_KEY`, `CLERK_PUBLISHABLE_KEY`, `VITE_CLERK_PUBLISHABLE_KEY`)
 - All four workflows started and verified healthy
 
 ## Gotchas
