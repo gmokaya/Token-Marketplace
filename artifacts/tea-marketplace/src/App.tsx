@@ -1,11 +1,12 @@
-import { useEffect, useRef } from "react";
-import { ClerkProvider, Show, useClerk } from '@clerk/react';
+import { useEffect, useLayoutEffect, useRef } from "react";
+import { ClerkProvider, Show, useAuth, useClerk } from '@clerk/react';
 import { useAutoLogout } from "@/lib/useAutoLogout";
 import { shadcn } from '@clerk/themes';
 import { Switch, Route, useLocation, Router as WouterRouter, Redirect } from 'wouter';
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { setAuthTokenGetter } from "@workspace/api-client-react";
 
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Layout } from "@/components/layout/Layout";
@@ -85,6 +86,22 @@ function ClerkQueryClientCacheInvalidator() {
   return null;
 }
 
+function ClerkAuthBridge() {
+  const { getToken, isLoaded, isSignedIn } = useAuth();
+  const queryClient = useQueryClient();
+
+  useLayoutEffect(() => {
+    if (!isLoaded) return;
+    setAuthTokenGetter(isSignedIn ? getToken : null);
+    if (isSignedIn) {
+      void queryClient.invalidateQueries({ queryKey: ["/api/users/me"], refetchType: "active" });
+    }
+    return () => setAuthTokenGetter(null);
+  }, [getToken, isLoaded, isSignedIn, queryClient]);
+
+  return null;
+}
+
 const clerkAppearance = {
   theme: shadcn,
   cssLayerName: "clerk",
@@ -128,6 +145,7 @@ function ClerkProviderWithRoutes() {
       routerReplace={(to) => setLocation(stripBase(to), { replace: true })}
     >
       <QueryClientProvider client={queryClient}>
+        <ClerkAuthBridge />
         <ClerkQueryClientCacheInvalidator />
         <AutoLogout />
         <TooltipProvider>
