@@ -90,15 +90,15 @@ export default function InvestorsPartners() {
               </div>
               <div>
                 <p className="max-w-2xl text-base leading-8 text-white/65 md:text-lg">
-                  When origin data is trusted, market access is clearer, and capital arrives at
-                  the right point in the trade, value can move more fairly through the chain.
+                  TokenHarvest is designed to help farmers capture more value from what they
+                  grow, connect with better markets, and build more resilient livelihoods.
                 </p>
                 <div className="mt-10 grid gap-px border-t border-white/15 sm:grid-cols-2">
                   {[
-                    ["01", "Producer access", "Verified origin networks can reach qualified buyers and formal trade finance."],
-                    ["02", "Working capital", "Eligible inventory and confirmed orders become easier to assess and fund."],
-                    ["03", "Traceable trade", "A shared record gives participants clearer visibility from source to settlement."],
-                    ["04", "Less friction", "Better coordination can reduce avoidable delays, duplication, and loss across the chain."],
+                    ["01", "Increased farmer incomes", "Better price discovery and clearer trade terms can help farmers retain more value from each harvest."],
+                    ["02", "Direct market access", "Producer networks can connect with qualified buyers without relying on fragmented, opaque channels."],
+                    ["03", "Access to working capital", "Verified inventory and confirmed orders can make formal trade finance more accessible."],
+                    ["04", "Less post-harvest loss", "Better coordination across storage, movement, and delivery can help protect value before produce reaches market."],
                   ].map(([number, title, description]) => (
                     <article key={number} className="border-b border-white/15 py-6 sm:pr-8">
                       <span className="text-xs font-semibold tracking-[0.18em] text-[#b9e8cf]">{number}</span>
