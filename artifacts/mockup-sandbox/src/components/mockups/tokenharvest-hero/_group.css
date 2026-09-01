@@ -1,0 +1,200 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+@font-face {
+  font-family: "TokenHarvest Futura";
+  src: url("/__mockup/images/Futura_Light_BT.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "TokenHarvest Futura";
+  src: url("/__mockup/images/Futura_Medium.ttf") format("truetype");
+  font-weight: 500 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+.th-hero-scope {
+  --th-accent: hsl(180 62% 10%);
+  --th-accent-light: hsl(180 50% 42%);
+  font-family: "TokenHarvest Futura", Inter, sans-serif;
+}
+
+.th-hero-scope *,
+.th-hero-scope *::before,
+.th-hero-scope *::after {
+  box-sizing: border-box;
+}
+
+.th-hero-scope button,
+.th-hero-scope a {
+  font: inherit;
+}
+
+.th-current-hero {
+  min-height: 100vh;
+  height: 860px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  background: #161616;
+  color: #fff;
+}
+
+.th-current-panel {
+  position: absolute;
+  inset: 0 48% 0 0;
+  background: #161616;
+}
+
+.th-current-photo {
+  position: absolute;
+  inset: 0 0 0 52%;
+  overflow: hidden;
+  background: #163333;
+}
+
+.th-current-photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: .92;
+}
+
+.th-current-overlay {
+  position: absolute;
+  inset: 0 0 0 52%;
+  background: linear-gradient(145deg, hsl(180 62% 10% / .36), hsl(180 62% 6% / .44) 60%, hsl(180 50% 8% / .36));
+}
+
+.th-current-grid {
+  position: absolute;
+  inset: 0 0 0 52%;
+  background-image: radial-gradient(rgba(255,255,255,.06) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.th-current-content {
+  width: 52%;
+  position: relative;
+  z-index: 2;
+  padding-left: max(32px, calc((100vw - 1200px) / 2 + 32px));
+  padding-right: 48px;
+}
+
+.th-current-inner {
+  max-width: 520px;
+}
+
+.th-current-badge {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 24px;
+  color: rgba(255,255,255,.5);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+}
+
+.th-current-badge-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--th-accent);
+}
+
+.th-current-title {
+  margin: 0 0 34px;
+  color: #fff;
+  font-size: clamp(3.25rem, 8.5vw, 7.5rem);
+  font-weight: 300;
+  line-height: .98;
+  letter-spacing: -.035em;
+  white-space: pre-line;
+}
+
+.th-current-rule {
+  width: 56px;
+  height: 2px;
+  margin-bottom: 26px;
+  background: var(--th-accent);
+}
+
+.th-current-copy {
+  max-width: 560px;
+  margin: 0 0 40px;
+  color: rgba(255,255,255,.55);
+  font-size: 18px;
+  font-weight: 300;
+  line-height: 1.65;
+}
+
+.th-current-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.th-current-actions a,
+.th-current-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 28px;
+  border: 0;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.th-current-primary {
+  background: var(--th-accent);
+}
+
+.th-current-secondary {
+  background: #323232;
+  font-weight: 500 !important;
+}
+
+@media (max-width: 720px) {
+  .th-current-hero {
+    min-height: 760px;
+    height: auto;
+    align-items: flex-start;
+    padding: 104px 0 76px;
+  }
+
+  .th-current-panel {
+    inset: 0;
+    background: rgba(22,22,22,.9);
+  }
+
+  .th-current-photo,
+  .th-current-overlay,
+  .th-current-grid {
+    left: 0;
+  }
+
+  .th-current-photo {
+    opacity: .34;
+  }
+
+  .th-current-content {
+    width: 100%;
+    padding: 0 32px;
+  }
+
+  .th-current-title {
+    font-size: clamp(3.75rem, 17vw, 5.5rem);
+  }
+}
