@@ -1247,9 +1247,12 @@ export default function Home() {
           <footer style={{ background: "#0d0d0d", padding: "48px 0 0" }}>
             <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px" }}>
               <div className="homepage-footer-minimal">
-                <Link href="/" style={{ display: "inline-flex", textDecoration: "none" }}>
-                  <span className="tokenharvest-wordmark" style={{ color: "#fff", fontSize: 28 }}>TokenHarvest</span>
-                </Link>
+                <div className="homepage-footer-brand">
+                  <Link href="/" aria-label="TokenHarvest home" title="Home" style={{ display: "inline-flex", textDecoration: "none" }}>
+                    <span className="tokenharvest-wordmark" style={{ color: "#fff", fontSize: 28 }}>TokenHarvest</span>
+                  </Link>
+                  <span className="homepage-footer-location">Tatu City, Nairobi, Kenya</span>
+                </div>
                 <nav className="homepage-footer-minimal-links" aria-label="Footer navigation">
                   <Link href="/sign-in">Marketplace</Link>
                   <Link href="/get-started">Producers</Link>

@@ -927,7 +927,20 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   gap: 32px;
   padding-bottom: 34px;
-  border-bottom: 1px solid rgba(255,255,255,0.09);
+}
+
+.homepage-footer-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.homepage-footer-location {
+  color: rgba(255,255,255,0.42);
+  font: 500 11px/1.4 'Futura', sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .homepage-footer-minimal-links {
