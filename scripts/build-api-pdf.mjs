@@ -474,7 +474,6 @@ table(
   ["Client Platform", "SDK / Method"],
   [
     ["Browser / SPA (React)", "@clerk/react — useAuth().getToken()"],
-    ["Mobile (React Native)", "@clerk/expo SDK"],
     ["Server-to-server", "Clerk Backend API — create a machine token"],
     ["Postman / curl testing", "Copy session token from browser DevTools → Network tab"],
   ],

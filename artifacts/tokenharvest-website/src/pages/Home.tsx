@@ -921,12 +921,12 @@ export default function Home() {
                   TokenHarvest
                 </span>
               </Link>
-              {/* numbered links */}
+              {/* primary links */}
               <nav className="homepage-nav-links" style={{ display: "flex", gap: 32, alignItems: "center" }}>
-                {([ ["01","Platform","platform"], ["02","Services","services"], ["03","Finance","finance"], ["04","About","about"] ] as const).map(([n, label, id]) => (
-                  <button key={n} onClick={() => scrollTo(id)}
+                {([ ["Platform","platform"], ["Services","services"], ["Finance","finance"], ["About","about"] ] as const).map(([label, id]) => (
+                  <button key={id} onClick={() => scrollTo(id)}
                     style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(11,48,50,0.72)", fontSize: 14, fontWeight: 500, display: "flex", gap: 5, alignItems: "center", fontFamily: "'Futura',sans-serif", padding: 0 }}>
-                    <span style={{ color: ACCENT, fontSize: 11, fontWeight: 600 }}>{n}</span>{label}
+                    {label}
                   </button>
                 ))}
               </nav>
