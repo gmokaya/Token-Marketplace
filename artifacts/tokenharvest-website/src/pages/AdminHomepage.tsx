@@ -148,12 +148,12 @@ const DEFAULT_CTA: CtaContent = {
 };
 
 const DEFAULT_MARKETS: MarketCard[] = [
-  { num: "01", name: "Grain",   grade: "Grade A–C",    link: "/grain/",  desc: "Cereals and grains with 90-day certified storage, fully backed by registered warehouses.", photo: "/photos/hero-soybean-farmer.jpg" },
-  { num: "02", name: "Nuts",    grade: "Grade A–B",    link: "/grain/",  desc: "Premium nuts from certified storage facilities across East Africa.", photo: "/photos/hero-soybean-farmer.jpg" },
-  { num: "03", name: "Coffee",  grade: "AA / AB / PB", link: "/coffee/", desc: "Washed & natural-process beans, export-ready and auction-listed at the Nairobi Coffee Exchange.", photo: "/photos/cafe-imports-coffee-storage.jpg" },
-  { num: "04", name: "Tea",     grade: "BOPI / FNDC",  link: "/tea/",    desc: "Orthodox & CTC grades, Mombasa auction listed with full provenance traceability.", photo: "/photos/tea-plantation.jpg" },
-  { num: "05", name: "Avocado", grade: "Hass Export",  link: "/grain/",  desc: "Cold-chain certified Hass avocados meeting EU/UK market phytosanitary standards.", photo: "/photos/hero-soybean-farmer.jpg" },
-  { num: "06", name: "Honey",   grade: "Raw & Pure",   link: "/grain/",  desc: "Traceable East African honey from verified producer networks, ready for regional and export markets.", photo: "/photos/hero-soybean-farmer.jpg" },
+  { num: "01", name: "Grain",   grade: "Grade A–C",    link: "/grain/",  desc: "Trade dependable East African grains with verified quality, certified storage, and transparent delivery from origin to market.", photo: "/photos/hero-soybean-farmer.jpg" },
+  { num: "02", name: "Nuts",    grade: "Grade A–B",    link: "/grain/",  desc: "Source premium East African nuts with trusted grading, secure storage, and the traceability discerning buyers expect.", photo: "/photos/hero-soybean-farmer.jpg" },
+  { num: "03", name: "Coffee",  grade: "AA / AB / PB", link: "/coffee/", desc: "Discover speciality East African coffees—distinctive origins, careful processing, and export-ready lots for buyers who value every note.", photo: "/photos/cafe-imports-coffee-storage.jpg" },
+  { num: "04", name: "Tea",     grade: "BOPI / FNDC",  link: "/tea/",    desc: "Explore speciality teas from East Africa, from bright orthodox leaves to expressive CTC lots, with provenance from garden to cup.", photo: "/photos/tea-plantation.jpg" },
+  { num: "05", name: "Avocado", grade: "Hass Export",  link: "/grain/",  desc: "Bring export-grade Hass avocados to market with cold-chain confidence, consistent quality, and traceability through every handoff.", photo: "/photos/hero-soybean-farmer.jpg" },
+  { num: "06", name: "Honey",   grade: "Raw & Pure",   link: "/grain/",  desc: "Source golden East African honey from trusted producer networks—raw, pure, and ready for premium regional and export markets.", photo: "/photos/hero-soybean-farmer.jpg" },
 ];
 
 const DEFAULT_PARTNERS: Partner[] = [
