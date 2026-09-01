@@ -1,5 +1,4 @@
-import { ArrowUpRight, Check, ChevronRight } from "lucide-react";
-import { Link } from "wouter";
+import { Check } from "lucide-react";
 import type { PointerEvent } from "react";
 import "./TokenHarvestHero.css";
 
@@ -14,11 +13,11 @@ export type ProductionHeroContent = {
 type TokenHarvestHeroProps = {
   hero: ProductionHeroContent;
   image?: string;
-  onServicesClick: () => void;
 };
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const heroAsset = (name: string) => `${BASE}/hero/${name}`;
+const withoutDashes = (value: string) => value.replace(/[—–]/g, "").replace(/\s{2,}/g, " ").trim();
 
 const commodities = [
   { name: "coffee", src: heroAsset("tokenharvest-coffee.png"), alt: "Roasted coffee beans" },
@@ -28,8 +27,8 @@ const commodities = [
   { name: "cacao", src: heroAsset("tokenharvest-cacao.png"), alt: "Open cacao pod" },
 ];
 
-export function TokenHarvestHero({ hero, image, onServicesClick }: TokenHarvestHeroProps) {
-  const lines = hero.headline.split(/\r?\n/).filter(Boolean);
+export function TokenHarvestHero({ hero, image }: TokenHarvestHeroProps) {
+  const lines = withoutDashes(hero.headline).split(/\r?\n/).filter(Boolean);
 
   const moveStage = (event: PointerEvent<HTMLDivElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -50,7 +49,7 @@ export function TokenHarvestHero({ hero, image, onServicesClick }: TokenHarvestH
       <div className="th-commodity-layout">
         <div className="th-commodity-copy">
           <p className="th-commodity-quote-mark" aria-hidden="true">“</p>
-          <p className="th-commodity-kicker">{hero.badge}</p>
+          <p className="th-commodity-kicker">{withoutDashes(hero.badge)}</p>
           <p className="th-commodity-quote">
             From single origin<br />
             <strong>to final delivery.</strong>
@@ -64,15 +63,7 @@ export function TokenHarvestHero({ hero, image, onServicesClick }: TokenHarvestH
                   : <span key={`${line}-${index}`}>{line}</span>)
               : <span>{hero.headline}</span>}
           </h1>
-          <p className="th-commodity-subline">{hero.subheadline}</p>
-          <div className="th-commodity-actions">
-            <Link className="th-commodity-primary" href="/sign-up">
-              {hero.cta1} <ArrowUpRight size={15} aria-hidden="true" />
-            </Link>
-            <button className="th-commodity-secondary" type="button" onClick={onServicesClick}>
-              {hero.cta2} <ChevronRight size={15} aria-hidden="true" />
-            </button>
-          </div>
+          <p className="th-commodity-subline">{withoutDashes(hero.subheadline)}</p>
           <div className="th-commodity-proof">
             <span><Check size={12} aria-hidden="true" /> Single origin</span>
             <span><Check size={12} aria-hidden="true" /> Trade finance</span>

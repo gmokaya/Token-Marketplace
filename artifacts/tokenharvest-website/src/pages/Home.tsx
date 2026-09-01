@@ -709,20 +709,6 @@ export default function Home() {
             backdropFilter: scrolled ? "blur(10px)" : "none",
             transition: "background 0.3s",
           }}>
-            {/* thin top bar */}
-            <div className="homepage-topbar" style={{ background: "rgba(247,245,237,0.82)", borderBottom: "1px solid rgba(11,48,50,0.08)" }}>
-              <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", height: 36, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div style={{ display: "flex", gap: 24 }}>
-                  {["Investors", "API Docs", "Contact"].map(t => (
-                    <a key={t} href="#cta" onClick={e => { e.preventDefault(); scrollTo("cta"); }}
-                      style={{ color: "rgba(11,48,50,0.5)", fontSize: 11, textDecoration: "none", letterSpacing: "0.05em" }}>
-                      {t}
-                    </a>
-                  ))}
-                </div>
-                <span style={{ color: "rgba(11,48,50,0.38)", fontSize: 11, letterSpacing: "0.04em" }}>East Africa's eWR Trading Platform</span>
-              </div>
-            </div>
             {/* main nav */}
               <div className="homepage-main-nav" style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", height: 68, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               {/* logo */}
@@ -736,12 +722,17 @@ export default function Home() {
               </Link>
               {/* numbered links */}
               <nav className="homepage-nav-links" style={{ display: "flex", gap: 32, alignItems: "center" }}>
-                {([ ["01","Platform","platform"], ["02","Services","services"], ["03","About","about"], ["04","Contact","cta"] ] as const).map(([n, label, id]) => (
+                {([ ["01","Platform","platform"], ["02","Services","services"], ["03","About","about"] ] as const).map(([n, label, id]) => (
                   <button key={n} onClick={() => scrollTo(id)}
                     style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(11,48,50,0.72)", fontSize: 14, fontWeight: 500, display: "flex", gap: 5, alignItems: "center", fontFamily: "'Futura',sans-serif", padding: 0 }}>
                     <span style={{ color: ACCENT, fontSize: 11, fontWeight: 600 }}>{n}</span>{label}
                   </button>
                 ))}
+              </nav>
+              <nav className="homepage-utility-links" aria-label="Utility navigation">
+                <a href="#investors" onClick={e => { e.preventDefault(); scrollTo("about"); }}>Investors</a>
+                <a href="/api-docs">API Docs</a>
+                <button type="button" onClick={() => scrollTo("cta")}>Contact</button>
               </nav>
               {/* auth buttons */}
               <div className="homepage-auth-actions" style={{ display: "flex", gap: 12, alignItems: "center" }}>
@@ -796,7 +787,7 @@ export default function Home() {
               </div>
               {/* nav links */}
               <nav style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-                {([ ["Platform","platform"], ["Services","services"], ["About","about"], ["Contact","cta"] ] as const).map(([label, id]) => (
+                {([ ["Platform","platform"], ["Services","services"], ["About","about"] ] as const).map(([label, id]) => (
                   <button key={id} onClick={() => { scrollTo(id); setMobileMenuOpen(false); }}
                     style={{
                       background: "none", border: "none", borderBottom: "1px solid rgba(255,255,255,0.07)",
@@ -808,6 +799,11 @@ export default function Home() {
                     <ArrowRight size={16} style={{ color: ACCENT_LIGHT, opacity: 0.7 }} />
                   </button>
                 ))}
+              </nav>
+              <nav className="homepage-mobile-utility-links" aria-label="Utility navigation">
+                <a href="#investors" onClick={() => { scrollTo("about"); setMobileMenuOpen(false); }}>Investors</a>
+                <a href="/api-docs" onClick={() => setMobileMenuOpen(false)}>API Docs</a>
+                <button type="button" onClick={() => { scrollTo("cta"); setMobileMenuOpen(false); }}>Contact</button>
               </nav>
               {/* auth */}
               <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 32 }}>
@@ -833,7 +829,7 @@ export default function Home() {
           )}
 
           {/* ══ HERO ════════════════════════════════════════════════ */}
-          <TokenHarvestHero hero={hero} image={heroImages[heroImageIndex] ?? heroImages[0]} onServicesClick={() => scrollTo("services")} />
+          <TokenHarvestHero hero={hero} image={heroImages[heroImageIndex] ?? heroImages[0]} />
 
           {/* ══ SERVICE CARDS ════════════════════════════════════════
               White panel overlapping hero by −72px, 3 columns
@@ -1139,7 +1135,7 @@ export default function Home() {
             </div>
           </footer>
 
-          {/* ══ LIVE COMMODITY PRICE TICKER (fixed bottom) ═════════ */}
+          {/* ══ LIVE COMMODITY PRICE TICKER ═══════════════════════ */}
           <PriceTicker />
 
         </div>

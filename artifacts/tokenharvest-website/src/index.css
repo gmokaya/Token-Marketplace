@@ -423,6 +423,15 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 13px !important;
   }
 
+  .homepage-utility-links {
+    gap: 11px !important;
+  }
+
+  .homepage-utility-links a,
+  .homepage-utility-links button {
+    font-size: 10px !important;
+  }
+
   .homepage-auth-actions {
     gap: 8px !important;
   }
@@ -616,6 +625,33 @@ h1, h2, h3, h4, h5, h6 {
   display: none !important;
 }
 
+.homepage-utility-links {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  white-space: nowrap;
+}
+
+.homepage-utility-links a,
+.homepage-utility-links button {
+  padding: 0;
+  border: 0;
+  color: rgba(11,48,50,0.56);
+  background: none;
+  font: 500 11px/1.4 'Futura', sans-serif;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.homepage-utility-links a:hover,
+.homepage-utility-links button:hover {
+  color: #d93839;
+}
+
+.homepage-mobile-utility-links {
+  display: none;
+}
+
 @media (max-width: 720px) {
   /* Hide top bar on mobile */
   .homepage-topbar {
@@ -628,6 +664,30 @@ h1, h2, h3, h4, h5, h6 {
   }
   .homepage-auth-actions {
     display: none !important;
+  }
+  .homepage-utility-links {
+    display: none !important;
+  }
+
+  .homepage-mobile-utility-links {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 22px;
+    padding-top: 22px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .homepage-mobile-utility-links a,
+  .homepage-mobile-utility-links button {
+    color: rgba(255,255,255,0.55);
+    background: none;
+    border: 0;
+    padding: 0;
+    font: 500 12px/1.4 'Futura', sans-serif;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
   }
 
   /* ── Services ── */

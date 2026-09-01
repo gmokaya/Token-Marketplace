@@ -97,7 +97,7 @@ export function PriceTicker() {
       <div
         className="wrs-ticker"
         style={{
-          position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 250,
+           position: "static",
           height: 44, background: "rgba(13,13,13,0.97)",
           backdropFilter: "blur(8px)",
           borderTop: "1px solid rgba(255,255,255,0.08)",
