@@ -9,6 +9,38 @@ import * as zod from 'zod';
 
 
 /**
+ * Returns immutable volume-weighted closing prices from settled marketplace transactions. Prices are normalized to USD per metric ton.
+ * @summary Get official end-of-day commodity market closes
+ */
+export const getDailyMarketClosesResponseAsOfTradingDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const getDailyMarketClosesResponseCutoffTimeRegExp = new RegExp('^\\d{2}:\\d{2}$');
+export const getDailyMarketClosesResponseClosesItemTradingDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
+export const GetDailyMarketClosesResponse = zod.object({
+  "asOfTradingDate": zod.string().regex(getDailyMarketClosesResponseAsOfTradingDateRegExp),
+  "timezone": zod.literal("Africa/Nairobi"),
+  "cutoffTime": zod.string().regex(getDailyMarketClosesResponseCutoffTimeRegExp),
+  "calculatedAt": zod.coerce.date(),
+  "closes": zod.array(zod.object({
+  "commodityType": zod.enum(['MAIZE', 'RICE', 'COFFEE', 'TEA', 'AVOCADO']),
+  "displayName": zod.string(),
+  "closePriceUsdPerMt": zod.number(),
+  "previousClosePriceUsdPerMt": zod.number().nullable(),
+  "changePct": zod.number().nullable(),
+  "tradedVolumeMt": zod.number(),
+  "turnoverUsd": zod.number(),
+  "tradeCount": zod.number(),
+  "sourceMarkets": zod.array(zod.enum(['GRAIN_SPOT', 'COFFEE_AUCTION', 'TEA_AUCTION'])),
+  "sourceTimestamp": zod.coerce.date(),
+  "tradingDate": zod.string().regex(getDailyMarketClosesResponseClosesItemTradingDateRegExp),
+  "isStale": zod.boolean(),
+  "isComplete": zod.boolean()
+}))
+})
+
+
+/**
  * @summary Request a presigned URL for file upload
  */
 

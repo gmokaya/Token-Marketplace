@@ -44,7 +44,6 @@ export function TokenHarvestHero({ hero, image }: TokenHarvestHeroProps) {
   return (
     <section className="th-commodity-layer homepage-hero" aria-labelledby="th-prod-title">
       <div className="th-commodity-backdrop" aria-hidden="true" />
-      <div className="th-commodity-lines" aria-hidden="true" />
 
       <div className="th-commodity-layout">
         <div className="th-commodity-copy">

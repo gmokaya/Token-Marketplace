@@ -66,6 +66,7 @@ import type {
   CreateMandateRequestBody,
   CreateTeaAuctionSessionRequest,
   CreateTeaLotRequest,
+  DailyMarketCloseFeed,
   DigitalReleaseToken,
   DisburseInput,
   EligibleEwr,
@@ -165,6 +166,84 @@ type AwaitedInput<T> = PromiseLike<T> | T;
 
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
+
+
+export const getGetDailyMarketClosesUrl = () => {
+
+
+
+
+  return `/api/market-data/daily-closes`
+}
+
+/**
+ * Returns immutable volume-weighted closing prices from settled marketplace transactions. Prices are normalized to USD per metric ton.
+ * @summary Get official end-of-day commodity market closes
+ */
+export const getDailyMarketCloses = async ( options?: RequestInit): Promise<DailyMarketCloseFeed> => {
+
+  return customFetch<DailyMarketCloseFeed>(getGetDailyMarketClosesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetDailyMarketClosesQueryKey = () => {
+    return [
+    `/api/market-data/daily-closes`
+    ] as const;
+    }
+
+
+export const getGetDailyMarketClosesQueryOptions = <TData = Awaited<ReturnType<typeof getDailyMarketCloses>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDailyMarketCloses>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetDailyMarketClosesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDailyMarketCloses>>> = ({ signal }) => getDailyMarketCloses({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDailyMarketCloses>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetDailyMarketClosesQueryResult = NonNullable<Awaited<ReturnType<typeof getDailyMarketCloses>>>
+export type GetDailyMarketClosesQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get official end-of-day commodity market closes
+ */
+
+export function useGetDailyMarketCloses<TData = Awaited<ReturnType<typeof getDailyMarketCloses>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDailyMarketCloses>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetDailyMarketClosesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
 
 
 

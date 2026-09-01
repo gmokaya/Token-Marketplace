@@ -36,3 +36,4 @@ export * from "./tea_shipments";
 export * from "./tea_esg_reports";
 export * from "./integration_credentials";
 export * from "./mandate_requests";
+export * from "./market_daily_closes";

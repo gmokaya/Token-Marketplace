@@ -12,6 +12,7 @@ import { startAuctionPubSubSubscriber, setAuctionEventHandler, setReconnectHandl
 import { applyDbConstraints, ensurePublicationConstraint } from "@workspace/db/migrate";
 import { setPublicationConstraintReady } from "./lib/publication-constraint";
 import { ensureAdminUser } from "./lib/ensure-admin";
+import { startMarketCloseWorker } from "./lib/market-close-service";
 
 const rawPort = process.env["PORT"];
 
@@ -73,6 +74,7 @@ const server: Server = app.listen(port, async (err) => {
   startAvocadoDegradationWorker();
   startForwardMaturityWorker();
   startTeaAuctionWorker();
+  startMarketCloseWorker();
 
   // Wire pg LISTEN/NOTIFY so every instance fans out SSE events received from any instance
   setAuctionEventHandler((payload) => {

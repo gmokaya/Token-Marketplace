@@ -436,6 +436,55 @@ export interface MarketSummary {
   avgPricePerMt?: number | null;
 }
 
+export type DailyMarketCloseCommodityType = typeof DailyMarketCloseCommodityType[keyof typeof DailyMarketCloseCommodityType];
+
+
+export const DailyMarketCloseCommodityType = {
+  MAIZE: 'MAIZE',
+  RICE: 'RICE',
+  COFFEE: 'COFFEE',
+  TEA: 'TEA',
+  AVOCADO: 'AVOCADO',
+} as const;
+
+export type DailyMarketCloseSourceMarketsItem = typeof DailyMarketCloseSourceMarketsItem[keyof typeof DailyMarketCloseSourceMarketsItem];
+
+
+export const DailyMarketCloseSourceMarketsItem = {
+  GRAIN_SPOT: 'GRAIN_SPOT',
+  COFFEE_AUCTION: 'COFFEE_AUCTION',
+  TEA_AUCTION: 'TEA_AUCTION',
+} as const;
+
+export interface DailyMarketClose {
+  commodityType: DailyMarketCloseCommodityType;
+  displayName: string;
+  closePriceUsdPerMt: number;
+  /** @nullable */
+  previousClosePriceUsdPerMt: number | null;
+  /** @nullable */
+  changePct: number | null;
+  tradedVolumeMt: number;
+  turnoverUsd: number;
+  tradeCount: number;
+  sourceMarkets: DailyMarketCloseSourceMarketsItem[];
+  sourceTimestamp: string;
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  tradingDate: string;
+  isStale: boolean;
+  isComplete: boolean;
+}
+
+export interface DailyMarketCloseFeed {
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  asOfTradingDate: string;
+  timezone: 'Africa/Nairobi';
+  /** @pattern ^\d{2}:\d{2}$ */
+  cutoffTime: string;
+  calculatedAt: string;
+  closes: DailyMarketClose[];
+}
+
 export interface CommodityStat {
   commodityType: string;
   activeListings: number;
@@ -1054,8 +1103,6 @@ export interface AuditLogEntry {
 export interface CreateTeaAuctionSessionRequest {
   /** Planned date of the auction session (YYYY-MM-DD) */
   auctionDate: string;
-  /** Scheduled start time in HH:MM 24-hour format (e.g. "09:00") */
-  startTime?: string;
   /**
      * Optional initial lot IDs; lots can also be added via POST /tea/auctions/{sessionId}/lots
      * @minItems 1
@@ -1481,8 +1528,6 @@ export interface AttachDispatchDocRequest {
 export interface CreateCoffeeAuctionSessionRequest {
   /** Planned date of the auction session (YYYY-MM-DD) */
   auctionDate: string;
-  /** Scheduled start time in HH:MM 24-hour format (e.g. "09:00") */
-  startTime?: string;
 }
 
 export type CoffeeAuctionSessionStatus = typeof CoffeeAuctionSessionStatus[keyof typeof CoffeeAuctionSessionStatus];

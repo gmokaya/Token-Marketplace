@@ -35,6 +35,7 @@ import coffeeEsgRouter from "./coffee-esg";
 import listingPublicationsRouter from "./listing-publications";
 import integrationCredentialsRouter, { resolveApiKeyUser } from "./integration-credentials";
 import providerMarketplaceRouter from "./provider-marketplace";
+import marketDataRouter from "./market-data";
 
 const router: IRouter = Router();
 
@@ -82,6 +83,9 @@ router.use(contentRouter);
 
 // Public contact form — no auth needed
 router.use(contactRouter);
+
+// Public, read-only official end-of-day market closes
+router.use(marketDataRouter);
 
 // Object storage — upload URL request is auth-gated inline; serving is public
 router.use(storageRouter);

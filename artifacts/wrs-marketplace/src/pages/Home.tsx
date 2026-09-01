@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { ArrowRight, LogIn, LogOut } from "lucide-react";
 import { useAuth, useClerk } from "@clerk/react";
+import { PriceTicker } from "@/components/PriceTicker";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -85,7 +86,7 @@ export default function Home() {
       </div>
 
       {/* Stats bar */}
-      <div className="relative z-10 flex items-center gap-12 md:gap-20 px-8 md:px-14 pb-6 pt-4 border-t border-white/10">
+      <div className="relative z-10 flex items-center gap-12 md:gap-20 px-8 md:px-14 pb-16 pt-4 border-t border-white/10">
         {stats.map((s) => (
           <div key={s.label}>
             <p className="text-xl font-bold text-white">{s.value}</p>
@@ -93,6 +94,7 @@ export default function Home() {
           </div>
         ))}
       </div>
+      <PriceTicker />
     </div>
   );
 }

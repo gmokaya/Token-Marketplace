@@ -24,6 +24,8 @@ tags:
     description: Spot market orders
   - name: stats
     description: Market statistics and analytics
+  - name: market-data
+    description: Public official market close data
   - name: auctions
     description: Live digital auctions
   - name: forwards
@@ -46,6 +48,20 @@ tags:
     description: Self-service integration credentials for warehouses and producer portals
 
 paths:
+  /market-data/daily-closes:
+    get:
+      operationId: getDailyMarketCloses
+      tags: [market-data]
+      summary: Get official end-of-day commodity market closes
+      description: Returns immutable volume-weighted closing prices from settled marketplace transactions. Prices are normalized to USD per metric ton.
+      responses:
+        "200":
+          description: Latest official close for each commodity, with stale carry-forward metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyMarketCloseFeed"
+
   /storage/uploads/request-url:
     post:
       tags: [Storage]
@@ -3805,6 +3821,77 @@ components:
           type: number
         avgPricePerMt:
           type: ["number", "null"]
+
+    DailyMarketCloseFeed:
+      type: object
+      required: [asOfTradingDate, timezone, cutoffTime, calculatedAt, closes]
+      properties:
+        asOfTradingDate:
+          type: string
+          pattern: '^\d{4}-\d{2}-\d{2}$'
+        timezone:
+          type: string
+          const: Africa/Nairobi
+        cutoffTime:
+          type: string
+          pattern: '^\d{2}:\d{2}$'
+        calculatedAt:
+          type: string
+          format: date-time
+        closes:
+          type: array
+          items:
+            $ref: "#/components/schemas/DailyMarketClose"
+
+    DailyMarketClose:
+      type: object
+      required:
+        - commodityType
+        - displayName
+        - closePriceUsdPerMt
+        - previousClosePriceUsdPerMt
+        - changePct
+        - tradedVolumeMt
+        - turnoverUsd
+        - tradeCount
+        - sourceMarkets
+        - sourceTimestamp
+        - tradingDate
+        - isStale
+        - isComplete
+      properties:
+        commodityType:
+          type: string
+          enum: [MAIZE, RICE, COFFEE, TEA, AVOCADO]
+        displayName:
+          type: string
+        closePriceUsdPerMt:
+          type: number
+        previousClosePriceUsdPerMt:
+          type: ["number", "null"]
+        changePct:
+          type: ["number", "null"]
+        tradedVolumeMt:
+          type: number
+        turnoverUsd:
+          type: number
+        tradeCount:
+          type: integer
+        sourceMarkets:
+          type: array
+          items:
+            type: string
+            enum: [GRAIN_SPOT, COFFEE_AUCTION, TEA_AUCTION]
+        sourceTimestamp:
+          type: string
+          format: date-time
+        tradingDate:
+          type: string
+          pattern: '^\d{4}-\d{2}-\d{2}$'
+        isStale:
+          type: boolean
+        isComplete:
+          type: boolean
 
     CommodityStat:
       type: object
