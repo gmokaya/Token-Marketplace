@@ -37,19 +37,19 @@ const DEF_SERVICES: HpService[] = [
     icon: "icon-money-1.png",
     title: "Direct Trade",
     sub: "Farmer First",
-    desc: "Put producers at the heart of every deal. Connect directly with verified buyers, compare offers transparently, and move from harvest to payment with digital contracts and full origin traceability.",
+    desc: "Put producers at the center of every deal. Connect straight to verified buyers, compare offers clearly, and move from harvest to payment through digital contracts with full origin traceability.",
   },
   {
     icon: "icon-tax.png",
     title: "Trade Execution",
     sub: "For Buyers",
-    desc: "Once a deal is done, moving goods across borders becomes a maze of freight, customs, documentation, and insurance. We handle every step so you receive what you paid for, where and when you need it, without ever having to manage the logistics yourself.",
+    desc: "Once a deal closes, moving goods across borders becomes a maze of freight, customs, documentation, and insurance. We handle every step so what you ordered arrives where and when you need it, without you ever having to manage the logistics yourself.",
   },
   {
     icon: "icon-financial-1.png",
     title: "Trade Finance",
     sub: "For Buyers & Suppliers",
-    desc: "Capital tied up in inventory or slow payments shouldn't stop a deal from happening. Access working capital against your purchase orders, invoices, or warehouse receipts, and trade at the scale the market demands, not the scale your cash flow allows.",
+    desc: "Capital tied up in inventory or slow payments shouldn't cost you a deal. Draw working capital against your purchase orders, invoices, or warehouse receipts, and trade at the scale the market demands, not the scale your cash flow allows.",
   },
 ];
 
