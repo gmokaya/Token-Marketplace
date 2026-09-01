@@ -103,17 +103,34 @@ export function PriceTicker() {
           animation: wrs-ticker-scroll 38s linear infinite;
           will-change: transform;
         }
+        .wrs-ticker {
+          position: relative;
+          z-index: 30;
+          width: min(calc(100% - 64px), 1200px);
+          margin: -24px auto 24px;
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 6px;
+          box-shadow: 0 14px 32px rgba(0,0,0,0.2), 0 4px 10px rgba(0,0,0,0.12);
+        }
         .wrs-ticker:hover .wrs-ticker-track { animation-play-state: paused; }
         @media (prefers-reduced-motion: reduce) {
           .wrs-ticker-track { animation: none !important; }
           .wrs-ticker-pulse { animation: none !important; }
+        }
+        @media (max-width: 720px) {
+          .wrs-ticker {
+            width: calc(100% - 32px);
+            margin: -18px 16px 18px;
+            border-radius: 5px;
+          }
         }
       `}</style>
 
       <div
         className="wrs-ticker"
         style={{
-           position: "static",
+           position: "relative",
+           zIndex: 30,
           height: 44, background: "rgba(13,13,13,0.97)",
           backdropFilter: "blur(8px)",
           borderTop: "1px solid rgba(255,255,255,0.08)",
