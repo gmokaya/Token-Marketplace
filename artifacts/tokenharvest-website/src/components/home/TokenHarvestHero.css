@@ -465,7 +465,7 @@
   }
 
   .th-commodity-layout {
-    min-height: 100svh;
+    min-height: calc(100svh - 32px);
     padding: 48px 46px 12px;
     grid-template-columns: minmax(300px, .86fr) minmax(420px, 1.14fr);
     gap: 24px;
@@ -490,7 +490,7 @@
   }
 
   .th-commodity-stage {
-    min-height: 375px;
+    min-height: 340px;
   }
 
   .th-commodity-corner-card {
