@@ -1025,12 +1025,12 @@ export default function Home() {
                 display: "grid", gridTemplateColumns: "1fr 1fr 1fr",
                 gap: 20, position: "relative", zIndex: 10,
               }}>
-                {services.map(({ icon, title, sub, desc }) => (
+                {services.map(({ title, sub, desc }) => (
                   <div key={title} style={{
-                    padding: "52px 40px 48px",
+                    padding: "42px 40px 44px",
                     background: "#fff",
                     borderRadius: 12,
-                    minHeight: 292,
+                    minHeight: 236,
                     transition: "box-shadow 0.3s ease, transform 0.3s ease",
                     boxShadow: "0 12px 32px rgba(16,40,34,0.08)",
                     position: "relative",
@@ -1046,7 +1046,6 @@ export default function Home() {
                     (e.currentTarget as HTMLDivElement).style.boxShadow = "0 12px 32px rgba(16,40,34,0.08)";
                     (e.currentTarget as HTMLDivElement).style.zIndex = "1";
                   }}>
-                    <img src={img(icon)} alt={title} style={{ width: 44, marginBottom: 20 }} />
                     <h3 style={{ fontSize: 24, fontWeight: 600, color: "#232323", margin: "0 0 2px", display: "flex", alignItems: "center", gap: 9 }}>
                       <span style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT, display: "inline-block", flexShrink: 0 }} />
                       {title}
