@@ -24,9 +24,9 @@ type HpCta     = { heading: string; subheadline: string; cta1: string; cta2: str
 type HpContent = { hero: HpHero; services: HpService[]; about: HpAbout; howItWorks: HpStep[]; stats: HpStat[]; statsBg?: string; cta: HpCta; markets: MarketCardData[] };
 
 const DEF_HERO: HpHero = {
-  badge: "WRS Marketplace",
-  headline: "Trade.\nFinance.\nDeliver.",
-  subheadline: "TokenHarvest enables businesses to trade agricultural commodities with confidence across East Africa and global markets.",
+  badge: "TokenHarvest Commodities",
+  headline: "Origin,\ntraded\nforward.",
+  subheadline: "Specialty quality with trade finance built into every move.",
   cta1: "Join the Marketplace",
   cta2: "Our Services",
   images: [photo("hero-soybean-farmer.jpg"), photo("about-planting.jpg"), photo("cta-harvest.jpg")],
@@ -705,22 +705,22 @@ export default function Home() {
           {/* ══ NAVBAR ══════════════════════════════════════════════ */}
           <header className="homepage-header" style={{
             position: "fixed", top: 0, left: 0, right: 0, zIndex: 200,
-            background: scrolled ? "rgba(22,22,22,0.97)" : "transparent",
+            background: scrolled ? "rgba(247,245,237,0.97)" : "transparent",
             backdropFilter: scrolled ? "blur(10px)" : "none",
             transition: "background 0.3s",
           }}>
             {/* thin top bar */}
-            <div className="homepage-topbar" style={{ background: "rgba(0,0,0,0.6)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+            <div className="homepage-topbar" style={{ background: "rgba(247,245,237,0.82)", borderBottom: "1px solid rgba(11,48,50,0.08)" }}>
               <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", height: 36, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div style={{ display: "flex", gap: 24 }}>
                   {["Investors", "API Docs", "Contact"].map(t => (
                     <a key={t} href="#cta" onClick={e => { e.preventDefault(); scrollTo("cta"); }}
-                      style={{ color: "rgba(255,255,255,0.45)", fontSize: 11, textDecoration: "none", letterSpacing: "0.05em" }}>
+                      style={{ color: "rgba(11,48,50,0.5)", fontSize: 11, textDecoration: "none", letterSpacing: "0.05em" }}>
                       {t}
                     </a>
                   ))}
                 </div>
-                <span style={{ color: "rgba(255,255,255,0.3)", fontSize: 11, letterSpacing: "0.04em" }}>East Africa's eWR Trading Platform</span>
+                <span style={{ color: "rgba(11,48,50,0.38)", fontSize: 11, letterSpacing: "0.04em" }}>East Africa's eWR Trading Platform</span>
               </div>
             </div>
             {/* main nav */}
@@ -729,7 +729,7 @@ export default function Home() {
               <Link href="/" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
                 <span
                   className="homepage-logo tokenharvest-wordmark"
-                  style={{ color: "#fff", fontSize: 42, marginLeft: -14 }}
+                  style={{ color: "#0b3032", fontSize: 42, marginLeft: -14 }}
                 >
                   TokenHarvest
                 </span>
@@ -738,7 +738,7 @@ export default function Home() {
               <nav className="homepage-nav-links" style={{ display: "flex", gap: 32, alignItems: "center" }}>
                 {([ ["01","Platform","platform"], ["02","Services","services"], ["03","About","about"], ["04","Contact","cta"] ] as const).map(([n, label, id]) => (
                   <button key={n} onClick={() => scrollTo(id)}
-                    style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.72)", fontSize: 14, fontWeight: 500, display: "flex", gap: 5, alignItems: "center", fontFamily: "'Futura',sans-serif", padding: 0 }}>
+                    style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(11,48,50,0.72)", fontSize: 14, fontWeight: 500, display: "flex", gap: 5, alignItems: "center", fontFamily: "'Futura',sans-serif", padding: 0 }}>
                     <span style={{ color: ACCENT, fontSize: 11, fontWeight: 600 }}>{n}</span>{label}
                   </button>
                 ))}
@@ -752,11 +752,11 @@ export default function Home() {
                   </Link>
                 ) : (
                   <>
-                    <Link href="/sign-in" style={{ color: "rgba(255,255,255,0.75)", textDecoration: "none", fontSize: 14, fontWeight: 500 }}>
+                    <Link href="/sign-in" style={{ color: "rgba(11,48,50,0.75)", textDecoration: "none", fontSize: 14, fontWeight: 500 }}>
                       Sign In
                     </Link>
                     <Link href="/sign-up"
-                      style={{ background: ACCENT, color: "#fff", padding: "10px 22px", textDecoration: "none", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 7 }}>
+                      style={{ background: "#d93839", color: "#fff", padding: "10px 22px", textDecoration: "none", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 7 }}>
                       Get Started <ArrowRight size={15} />
                     </Link>
                   </>
@@ -767,7 +767,7 @@ export default function Home() {
                 className="homepage-hamburger"
                 onClick={() => setMobileMenuOpen(true)}
                 aria-label="Open navigation menu"
-                style={{ background: "none", border: "none", cursor: "pointer", color: "#fff", padding: "8px", display: "flex", alignItems: "center" }}
+                style={{ background: "none", border: "none", cursor: "pointer", color: "#0b3032", padding: "8px", display: "flex", alignItems: "center" }}
               >
                 <Menu size={24} />
               </button>

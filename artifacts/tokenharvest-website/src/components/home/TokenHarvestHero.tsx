@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { ArrowRight, ArrowUpRight, BarChart3, ChevronDown, Globe2, ShieldCheck, WalletCards, X } from "lucide-react";
+import { ArrowUpRight, Check, ChevronRight } from "lucide-react";
 import { Link } from "wouter";
+import type { PointerEvent } from "react";
 import "./TokenHarvestHero.css";
 
 export type ProductionHeroContent = {
@@ -17,65 +17,102 @@ type TokenHarvestHeroProps = {
   onServicesClick: () => void;
 };
 
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const heroAsset = (name: string) => `${BASE}/hero/${name}`;
+
+const commodities = [
+  { name: "coffee", src: heroAsset("tokenharvest-coffee.png"), alt: "Roasted coffee beans" },
+  { name: "tea", src: heroAsset("tokenharvest-tea.png"), alt: "Fresh tea leaves" },
+  { name: "grain", src: heroAsset("tokenharvest-grain.png"), alt: "Golden grain stalks" },
+  { name: "nuts", src: heroAsset("tokenharvest-nuts.png"), alt: "Macadamia nuts" },
+  { name: "cacao", src: heroAsset("tokenharvest-cacao.png"), alt: "Open cacao pod" },
+];
+
 export function TokenHarvestHero({ hero, image, onServicesClick }: TokenHarvestHeroProps) {
-  const [flowOpen, setFlowOpen] = useState(false);
   const lines = hero.headline.split(/\r?\n/).filter(Boolean);
-  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+
+  const moveStage = (event: PointerEvent<HTMLDivElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
-    event.currentTarget.style.setProperty("--mx", `${((event.clientX - rect.left) / rect.width - 0.5) * 12}deg`);
-    event.currentTarget.style.setProperty("--my", `${((event.clientY - rect.top) / rect.height - 0.5) * 12}deg`);
+    event.currentTarget.style.setProperty("--rx", `${((event.clientX - rect.left) / rect.width - .5) * 5}deg`);
+    event.currentTarget.style.setProperty("--ry", `${((event.clientY - rect.top) / rect.height - .5) * -4}deg`);
   };
-  const resetPointer = (event: React.PointerEvent<HTMLDivElement>) => {
-    event.currentTarget.style.setProperty("--mx", "0deg");
-    event.currentTarget.style.setProperty("--my", "0deg");
+
+  const resetStage = (event: PointerEvent<HTMLDivElement>) => {
+    event.currentTarget.style.setProperty("--rx", "0deg");
+    event.currentTarget.style.setProperty("--ry", "0deg");
   };
 
   return (
-    <section className="th-prod-hero homepage-hero" aria-labelledby="th-prod-title">
-      <div className="th-prod-aurora" aria-hidden="true" />
-      <div className="th-prod-grid" aria-hidden="true" />
-      <div className="th-prod-orb" aria-hidden="true" />
-      <div className="th-prod-layout">
-        <div className="th-prod-copy">
-          <div className="th-prod-eyebrow"><span aria-hidden="true" />{hero.badge}</div>
-          <h1 className="th-prod-title" id="th-prod-title">
-            {lines.length ? lines.map((line, index) => index === 1
-              ? <em key={`${line}-${index}`}>{line}</em>
-              : index > 1 ? <strong key={`${line}-${index}`}>{line}</strong> : <span key={`${line}-${index}`}>{line}</span>) : hero.headline}
+    <section className="th-commodity-layer homepage-hero" aria-labelledby="th-prod-title">
+      <div className="th-commodity-backdrop" aria-hidden="true" />
+      <div className="th-commodity-lines" aria-hidden="true" />
+
+      <div className="th-commodity-layout">
+        <div className="th-commodity-copy">
+          <p className="th-commodity-quote-mark" aria-hidden="true">“</p>
+          <p className="th-commodity-kicker">{hero.badge}</p>
+          <p className="th-commodity-quote">
+            From single origin<br />
+            <strong>to final delivery.</strong>
+          </p>
+          <h1 className="th-commodity-title" id="th-prod-title">
+            {lines.length
+              ? lines.map((line, index) => index === 1
+                ? <em key={`${line}-${index}`}>{line}</em>
+                : index > 1
+                  ? <strong key={`${line}-${index}`}>{line}</strong>
+                  : <span key={`${line}-${index}`}>{line}</span>)
+              : <span>{hero.headline}</span>}
           </h1>
-          <div className="th-prod-rule" aria-hidden="true" />
-          <p className="th-prod-subheadline">{hero.subheadline}</p>
-          <div className="th-prod-actions">
-            <Link className="th-prod-primary" href="/sign-up">{hero.cta1}<ArrowUpRight size={16} aria-hidden="true" /></Link>
-            <button className="th-prod-secondary" type="button" onClick={onServicesClick}>{hero.cta2}<ArrowRight size={16} aria-hidden="true" /></button>
+          <p className="th-commodity-subline">{hero.subheadline}</p>
+          <div className="th-commodity-actions">
+            <Link className="th-commodity-primary" href="/sign-up">
+              {hero.cta1} <ArrowUpRight size={15} aria-hidden="true" />
+            </Link>
+            <button className="th-commodity-secondary" type="button" onClick={onServicesClick}>
+              {hero.cta2} <ChevronRight size={15} aria-hidden="true" />
+            </button>
           </div>
-          <div className="th-prod-audience"><span aria-hidden="true" />Built for <strong>producers</strong> / brokers / buyers / financiers</div>
-          {flowOpen && (
-            <aside className="th-prod-flow" aria-label="How TokenHarvest works">
-              <div className="th-prod-flow-header"><h2>One connected trade flow.</h2><button type="button" aria-label="Close how it works" onClick={() => setFlowOpen(false)}><X size={15} aria-hidden="true" /></button></div>
-              <div className="th-prod-flow-list">
-                <div><Globe2 size={15} aria-hidden="true" /><strong>Source</strong><span>Verified origin and quality.</span></div>
-                <div><BarChart3 size={15} aria-hidden="true" /><strong>Trade</strong><span>Clear offers and demand signals.</span></div>
-                <div><WalletCards size={15} aria-hidden="true" /><strong>Settle</strong><span>Capital and delivery aligned.</span></div>
-              </div>
-            </aside>
-          )}
+          <div className="th-commodity-proof">
+            <span><Check size={12} aria-hidden="true" /> Single origin</span>
+            <span><Check size={12} aria-hidden="true" /> Trade finance</span>
+            <span><Check size={12} aria-hidden="true" /> Delivery ready</span>
+          </div>
         </div>
-        <div className="th-prod-stage-wrap" onPointerMove={handlePointerMove} onPointerLeave={resetPointer}>
-          <div className="th-prod-stage">
-            <div className="th-prod-photo-frame">
-              {image ? <img src={image} alt="Producer inspecting an agricultural harvest" /> : <div className="th-prod-photo-fallback" />}
-              <div className="th-prod-scanline" aria-hidden="true" />
-              <div className="th-prod-stage-top"><span>Market signal / illustrative</span><span aria-hidden="true">TH / 01</span></div>
-              <div className="th-prod-caption"><p>Origin / East Africa</p><h2>Good trade starts at the source.</h2><div><span aria-hidden="true" />Verified origin <span aria-hidden="true" />Trade-ready</div></div>
-            </div>
-            <div className="th-prod-float-card th-prod-price-card"><div>Market watch <BarChart3 size={13} aria-hidden="true" /></div><p>Demand signal</p><strong>Active <small>status</small></strong><span>Illustrative market view</span></div>
-            <div className="th-prod-float-card th-prod-finance-card"><div>Settlement <ShieldCheck size={13} aria-hidden="true" /></div><p>Trade finance</p><strong>Ready <small>workflow</small></strong><span>Subject to verification</span></div>
-            <div className="th-prod-terminal"><div><span>ORIGIN</span><strong>Verified</strong></div><div><span>QUALITY</span><strong>Reviewed</strong></div><div><span>DELIVERY</span><strong>Aligned</strong></div></div>
+
+        <div className="th-commodity-stage-wrap" aria-label="Featured TokenHarvest commodities">
+          <div className="th-commodity-stage" onPointerMove={moveStage} onPointerLeave={resetStage}>
+            {image && <img className="th-commodity-atmosphere" src={image} alt="" aria-hidden="true" />}
+            <div className="th-commodity-disc" aria-hidden="true" />
+            <div className="th-commodity-word" aria-hidden="true">TOKENHARVEST</div>
+            <div className="th-commodity-index" aria-hidden="true">01</div>
+            <span className="th-commodity-tag origin">Single origin / verified</span>
+            <span className="th-commodity-tag finance">Finance ready</span>
+            {commodities.map((commodity) => (
+              <div className="th-commodity-item" data-name={commodity.name} key={commodity.name}>
+                <img src={commodity.src} alt={commodity.alt} />
+              </div>
+            ))}
+            <img
+              className="th-commodity-portrait"
+              src={heroAsset("tokenharvest-producer.png")}
+              alt="East African producer holding a sheaf of wheat"
+            />
           </div>
         </div>
       </div>
-      {flowOpen === false && <button className="th-prod-how" type="button" aria-expanded={false} onClick={() => setFlowOpen(true)}><ChevronDown size={15} aria-hidden="true" />How it works</button>}
+
+      <div className="th-commodity-corner-card th-commodity-corner-card-left">
+        <span>Specialty lots</span>
+        <strong>Origin verified</strong>
+        <small>Traceable from farm to market</small>
+      </div>
+      <div className="th-commodity-corner-card th-commodity-corner-card-right">
+        <span>Trade finance</span>
+        <strong>Delivery aligned</strong>
+        <small>Move value with confidence</small>
+      </div>
+      <div className="th-commodity-footer">From first harvest to final settlement</div>
     </section>
   );
 }

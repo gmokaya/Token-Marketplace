@@ -43,9 +43,9 @@ type HomepageContent = {
 /* ── Defaults ───────────────────────────────────────────── */
 
 const DEFAULT_HERO: HeroContent = {
-  badge: "WRS Marketplace",
-  headline: "Trade.\nFinance.\nDeliver.",
-  subheadline: "TokenHarvest enables businesses to trade agricultural commodities with confidence across East Africa and global markets.",
+  badge: "TokenHarvest Commodities",
+  headline: "Origin,\ntraded\nforward.",
+  subheadline: "Specialty quality with trade finance built into every move.",
   cta1: "Join the Marketplace",
   cta2: "Our Services",
   images: [`${BASE}/photos/hero-soybean-farmer.jpg`, `${BASE}/photos/about-planting.jpg`, `${BASE}/photos/cta-harvest.jpg`],
