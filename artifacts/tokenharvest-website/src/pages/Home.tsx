@@ -908,7 +908,7 @@ export default function Home() {
               </Link>
               {/* numbered links */}
               <nav className="homepage-nav-links" style={{ display: "flex", gap: 32, alignItems: "center" }}>
-                {([ ["01","Platform","platform"], ["02","Services","services"], ["03","About","about"] ] as const).map(([n, label, id]) => (
+                {([ ["01","Platform","platform"], ["02","Services","services"], ["03","Finance","finance"], ["04","About","about"] ] as const).map(([n, label, id]) => (
                   <button key={n} onClick={() => scrollTo(id)}
                     style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(11,48,50,0.72)", fontSize: 14, fontWeight: 500, display: "flex", gap: 5, alignItems: "center", fontFamily: "'Futura',sans-serif", padding: 0 }}>
                     <span style={{ color: ACCENT, fontSize: 11, fontWeight: 600 }}>{n}</span>{label}
@@ -916,7 +916,7 @@ export default function Home() {
                 ))}
               </nav>
               <nav className="homepage-utility-links" aria-label="Utility navigation">
-                <a href="#investors" onClick={e => { e.preventDefault(); scrollTo("about"); }}>Investors</a>
+                <a href="/get-started">Marketplace</a>
                 <a href="/api-docs">API Docs</a>
                 <button type="button" onClick={() => scrollTo("cta")}>Contact</button>
               </nav>
@@ -968,7 +968,7 @@ export default function Home() {
               </div>
               {/* nav links */}
               <nav style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-                {([ ["Platform","platform"], ["Services","services"], ["About","about"] ] as const).map(([label, id]) => (
+                {([ ["Platform","platform"], ["Services","services"], ["Finance","finance"], ["About","about"] ] as const).map(([label, id]) => (
                   <button key={id} onClick={() => { scrollTo(id); setMobileMenuOpen(false); }}
                     style={{
                       background: "none", border: "none", borderBottom: "1px solid rgba(255,255,255,0.07)",
@@ -982,7 +982,7 @@ export default function Home() {
                 ))}
               </nav>
               <nav className="homepage-mobile-utility-links" aria-label="Utility navigation">
-                <a href="#investors" onClick={() => { scrollTo("about"); setMobileMenuOpen(false); }}>Investors</a>
+                <a href="/get-started" onClick={() => setMobileMenuOpen(false)}>Marketplace</a>
                 <a href="/api-docs" onClick={() => setMobileMenuOpen(false)}>API Docs</a>
                 <button type="button" onClick={() => { scrollTo("cta"); setMobileMenuOpen(false); }}>Contact</button>
               </nav>
