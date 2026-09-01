@@ -631,11 +631,20 @@ h1, h2, h3, h4, h5, h6 {
   padding: 8px 14px;
 }
 
+.homepage-main-nav {
+  column-gap: clamp(14px, 2vw, 28px);
+}
+
+.homepage-nav-links {
+  min-width: 0;
+}
+
 .homepage-utility-links {
   display: flex;
   align-items: center;
   gap: 18px;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .homepage-utility-links a,
@@ -656,6 +665,45 @@ h1, h2, h3, h4, h5, h6 {
 
 .homepage-mobile-utility-links {
   display: none;
+}
+
+@media (min-width: 721px) and (max-width: 1100px) {
+  /*
+   * Keep the utility links and CTA readable on compact desktop/tablet
+   * widths. The primary navigation is allowed to use the middle lane,
+   * while the right-side actions remain intact and separated.
+   */
+  .homepage-main-nav {
+    column-gap: 14px;
+  }
+
+  .homepage-nav-links {
+    gap: 12px !important;
+  }
+
+  .homepage-nav-links button {
+    font-size: 12px !important;
+  }
+
+  .homepage-utility-links {
+    gap: 10px;
+  }
+
+  .homepage-utility-links a,
+  .homepage-utility-links button {
+    font-size: 10px;
+  }
+
+  .homepage-auth-actions {
+    flex-shrink: 0;
+    margin-left: 8px;
+  }
+
+  .homepage-auth-actions a {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    font-size: 13px !important;
+  }
 }
 
 @media (max-width: 720px) {
