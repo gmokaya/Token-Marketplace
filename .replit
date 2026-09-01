@@ -9,7 +9,7 @@ args = ["pnpm", "store", "prune"]
 env = { "CI" = "true" }
 
 [workflows]
-runButton = "Grain frontend"
+runButton = "artifacts/wrs-marketplace: web"
 
 [[workflows.workflow]]
 name = "Project"
