@@ -456,45 +456,37 @@ const FINANCE_PRODUCTS = [
   {
     eyebrow: "Warehouse Receipt Financing",
     audience: "FOR PRODUCERS",
-    hook: "Cash Against Stock You Already Hold",
-    body: "Your commodity doesn't have to sit idle while you wait for a buyer. Borrow against graded, warehoused stock and put that value to work now.",
-    proof: "Unlock up to 80% of your stock's value",
-    eligibility: "Available once your commodity is graded and issued a digital eWR.",
-    cta: "See what your stock could unlock",
+    hook: "Liquidity against verified inventory",
+    description: "Working capital secured by graded, warehoused stock.",
+    cta: "Explore financing",
   },
   {
     eyebrow: "Pre-Export Finance",
     audience: "FOR PRODUCERS",
-    hook: "Fund the Harvest Before It's Sold",
-    body: "Inputs, labor, and logistics shouldn't wait on a sale to clear. Access capital ahead of export so the next cycle starts on time, every time.",
-    proof: "Funds released before shipment, not after",
-    eligibility: "Available once a forward contract or export order is confirmed.",
-    cta: "Check your eligibility",
+    hook: "Working capital before shipment",
+    description: "Funding support for production and export preparation.",
+    cta: "Explore financing",
   },
   {
     eyebrow: "Invoice Factoring",
     audience: "FOR PRODUCERS",
-    hook: "Get Paid Before Your Buyer Settles",
-    body: "Standard payment terms can leave you waiting 30, 60, even 90 days. Sell your invoice for immediate cash and keep your capital moving.",
-    proof: "Convert invoices to cash in as little as 24 hours",
-    eligibility: "Available on any confirmed, buyer-approved invoice.",
-    cta: "Turn your invoice into cash",
+    hook: "Cash against approved invoices",
+    description: "Unlock working capital while invoices are outstanding.",
+    cta: "Explore financing",
   },
   {
     eyebrow: "Advance Payments",
     audience: "FOR PRODUCERS",
-    hook: "Lock In Income the Moment a Trade Confirms",
-    body: "You shouldn't carry the full financial gap between harvest and final settlement. Take a portion of your sale value upfront, the rest follows at settlement.",
-    proof: "Access a share of proceeds as soon as a trade is confirmed",
-    eligibility: "Available once a trade is matched on the marketplace.",
-    cta: "See your advance options",
+    hook: "Upfront proceeds on confirmed trades",
+    description: "Improve cash flow with an advance against sale proceeds.",
+    cta: "Explore financing",
   },
 ];
 
 function FinanceCard({
-  eyebrow, audience, hook, body, proof, eligibility, cta
+  eyebrow, audience, hook, description, cta
 }: {
-  eyebrow: string; audience: string; hook: string; body: string; proof: string; eligibility: string; cta: string;
+  eyebrow: string; audience: string; hook: string; description: string; cta: string;
 }) {
   const [hover, setHover] = useState(false);
   return (
@@ -516,18 +508,9 @@ function FinanceCard({
         {hook}
       </h3>
 
-      <p style={{ fontSize: 15, color: "#666", lineHeight: 1.6, margin: "0 0 24px", flex: 1 }}>
-        {body}
+      <p style={{ fontSize: 15, color: "#666", lineHeight: 1.6, margin: "0 0 32px", flex: 1 }}>
+        {description}
       </p>
-
-      <div style={{ background: "#fcfcfc", borderLeft: `3px solid ${ACCENT}`, padding: "16px 20px", marginBottom: 24, borderRadius: "0 4px 4px 0" }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: "#111", marginBottom: 6 }}>
-          {proof}
-        </div>
-        <div style={{ fontSize: 13, color: "#777", fontStyle: "italic", lineHeight: 1.4 }}>
-          {eligibility}
-        </div>
-      </div>
 
       <Link href="/get-started" style={{
         display: "flex", alignItems: "center", gap: 6,
