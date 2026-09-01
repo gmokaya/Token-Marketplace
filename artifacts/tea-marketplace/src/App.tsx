@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { ClerkProvider, Show, useClerk } from '@clerk/react';
 import { useAutoLogout } from "@/lib/useAutoLogout";
 import { shadcn } from '@clerk/themes';
-import { Switch, Route, useLocation, Router as WouterRouter } from 'wouter';
+import { Switch, Route, useLocation, Router as WouterRouter, Redirect } from 'wouter';
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -52,6 +52,19 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+function HomeRedirect() {
+  return (
+    <>
+      <Show when="signed-in">
+        <Redirect to="/dashboard" />
+      </Show>
+      <Show when="signed-out">
+        <Home />
+      </Show>
+    </>
+  );
+}
 
 function ClerkQueryClientCacheInvalidator() {
   const { addListener } = useClerk();
@@ -120,7 +133,7 @@ function ClerkProviderWithRoutes() {
         <TooltipProvider>
           <Switch>
             {/* Full-screen pages, no Layout wrapper */}
-            <Route path="/" component={Home} />
+            <Route path="/" component={HomeRedirect} />
             <Route path="/sign-in/*?" component={SignInPage} />
 
             {/* App pages, wrapped in Layout */}

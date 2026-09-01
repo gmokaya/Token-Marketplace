@@ -36,6 +36,19 @@ function stripBase(path: string) {
 
 const queryClient = new QueryClient();
 
+function HomeRedirect() {
+  return (
+    <>
+      <Show when="signed-in">
+        <Redirect to="/dashboard" />
+      </Show>
+      <Show when="signed-out">
+        <Home />
+      </Show>
+    </>
+  );
+}
+
 function ClerkQueryClientCacheInvalidator() {
   const { addListener } = useClerk();
   const queryClient = useQueryClient();
@@ -106,7 +119,7 @@ function ClerkProviderWithRoutes() {
         <TooltipProvider>
           <Switch>
             {/* Public pages */}
-            <Route path="/" component={Home} />
+            <Route path="/" component={HomeRedirect} />
             <Route path="/sign-in/*?" component={SignInPage} />
 
             {/* Authenticated pages */}

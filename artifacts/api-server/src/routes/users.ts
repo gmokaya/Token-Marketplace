@@ -15,29 +15,55 @@ router.get("/users/me", async (req, res) => {
   const [user] = await db.select().from(usersTable).where(eq(usersTable.clerkId, clerkId)).limit(1);
   if (user) return res.json(user);
 
-  // Not found by clerkId — check if this is the admin signing in for the first time
-  // (admin DB row has a placeholder clerkId; link it to the real Clerk user ID)
   try {
     const clerkUser = await clerkClient.users.getUser(clerkId);
-    const email = clerkUser.emailAddresses.find((e) => e.id === clerkUser.primaryEmailAddressId)?.emailAddress
-      ?? clerkUser.emailAddresses[0]?.emailAddress;
+    const primaryEmail =
+      clerkUser.emailAddresses.find((email) => email.id === clerkUser.primaryEmailAddressId)
+      ?? clerkUser.emailAddresses[0];
+    const email = primaryEmail?.emailAddress.trim().toLowerCase();
 
-    if (email === ADMIN_EMAIL) {
-      const [adminRow] = await db.select().from(usersTable).where(eq(usersTable.email, ADMIN_EMAIL)).limit(1);
-      if (adminRow) {
-        const [linked] = await db
-          .update(usersTable)
-          .set({ clerkId })
-          .where(eq(usersTable.email, ADMIN_EMAIL))
-          .returning();
-        return res.json(linked);
-      }
+    if (!email || primaryEmail?.verification?.status !== "verified") {
+      return res.status(403).json({ error: "A verified email address is required" });
     }
-  } catch {
-    // Clerk lookup failed — fall through to 404
-  }
 
-  return res.status(404).json({ error: "User not found" });
+    // Preserve previously assigned roles when the same verified Clerk identity
+    // receives a new Clerk user ID (for example, after moving between instances).
+    const [existingByEmail] = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.email, email))
+      .limit(1);
+
+    if (existingByEmail) {
+      const [linked] = await db
+        .update(usersTable)
+        .set({ clerkId })
+        .where(eq(usersTable.id, existingByEmail.id))
+        .returning();
+      return res.json(linked);
+    }
+
+    const name =
+      [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ").trim()
+      || clerkUser.username
+      || email.split("@")[0]
+      || "Marketplace buyer";
+
+    const [created] = await db
+      .insert(usersTable)
+      .values({
+        clerkId,
+        name,
+        email,
+        tier: email === ADMIN_EMAIL ? "ADMIN" : "OFF_TAKER",
+      })
+      .returning();
+
+    return res.status(201).json(created);
+  } catch (error) {
+    req.log?.error({ err: error, clerkId }, "Could not provision signed-in user");
+    return res.status(500).json({ error: "Could not provision user account" });
+  }
 });
 
 router.patch("/users/me", async (req, res) => {
