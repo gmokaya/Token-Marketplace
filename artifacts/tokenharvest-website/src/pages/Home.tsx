@@ -907,7 +907,7 @@ export default function Home() {
             {/* main nav */}
               <div className="homepage-main-nav" style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", height: 68, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               {/* logo */}
-                  <Link href="/" className="homepage-logo-link" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
+                  <Link href="/" aria-label="Go to TokenHarvest homepage" title="Home" className="homepage-logo-link" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
                 <span
                   className="homepage-logo tokenharvest-wordmark"
                   style={{ color: "#0b3032", fontSize: 42, marginLeft: -14 }}
