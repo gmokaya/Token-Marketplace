@@ -131,7 +131,7 @@ const DEFAULT_HOW_IT_WORKS: HowItWorksStep[] = [
     num: "01",
     title: "Direct Trade",
     subtitle: "Farmer First",
-    tagline: "Buy straight from source.",
+    tagline: "Buy direct from farmers.",
     desc: "Connect with verified farmers and buyers, with every trade traceable to its origin.",
   },
   {
@@ -139,21 +139,21 @@ const DEFAULT_HOW_IT_WORKS: HowItWorksStep[] = [
     title: "Verified Quality",
     subtitle: "Specialty Grade",
     tagline: "Quality you can trust.",
-    desc: "Every lot is graded, weighed, and certified before listing.",
+    desc: "Every lot is graded, weighed, and certified before it is listed for trade.",
   },
   {
     num: "03",
     title: "Embedded Trade Finance",
     subtitle: "Seamless Payments & Financing",
     tagline: "Pay on your terms.",
-    desc: "Use escrow, wallet visibility, and built-in financing to manage every payment.",
+    desc: "Use escrow, wallet visibility, and built-in financing to manage every payment with confidence.",
   },
   {
     num: "04",
     title: "Delivery",
     subtitle: "Seamless Logistics & Documentation",
-    tagline: "One less thing on your desk.",
-    desc: "We handle delivery, documentation, and customs so you can focus on sourcing.",
+    tagline: "Logistics handled for you.",
+    desc: "We handle delivery, documentation, and customs so you can focus on sourcing confidently.",
   },
 ];
 
