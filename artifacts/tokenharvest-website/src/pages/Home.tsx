@@ -849,8 +849,6 @@ export default function Home() {
   const [hp, setHp] = useState<Partial<HpContent>>({});
   const [activePillar, setActivePillar] = useState<number | null>(null);
   const hero     = hp.hero        ?? DEF_HERO;
-  const heroImages = (hero.images?.filter(Boolean).length ? hero.images : DEF_HERO.images) ?? [];
-  const [heroImageIndex, setHeroImageIndex] = useState(0);
   const services = hp.services    ?? DEF_SERVICES;
   const about    = hp.about       ?? DEF_ABOUT;
   const steps    = hp.howItWorks  ?? DEF_STEPS;
@@ -874,18 +872,6 @@ export default function Home() {
       })
       .catch(() => {});
   }, []);
-
-  useEffect(() => {
-    setHeroImageIndex(0);
-  }, [heroImages.join("|")]);
-
-  useEffect(() => {
-    if (heroImages.length < 2) return;
-    const timer = window.setInterval(() => {
-      setHeroImageIndex(current => (current + 1) % heroImages.length);
-    }, 6500);
-    return () => window.clearInterval(timer);
-  }, [heroImages.join("|")]);
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 60);
@@ -1019,7 +1005,7 @@ export default function Home() {
           )}
 
           {/* ══ HERO ════════════════════════════════════════════════ */}
-          <TokenHarvestHero hero={hero} image={heroImages[heroImageIndex] ?? heroImages[0]} />
+          <TokenHarvestHero hero={hero} />
           {/* ══ LIVE COMMODITY PRICE TICKER ═══════════════════════ */}
           <PriceTicker />
 

@@ -12,7 +12,6 @@ export type ProductionHeroContent = {
 
 type TokenHarvestHeroProps = {
   hero: ProductionHeroContent;
-  image?: string;
 };
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -27,7 +26,7 @@ const commodities = [
   { name: "cacao", src: heroAsset("tokenharvest-cacao.png"), alt: "Open cacao pod" },
 ];
 
-export function TokenHarvestHero({ hero, image }: TokenHarvestHeroProps) {
+export function TokenHarvestHero({ hero }: TokenHarvestHeroProps) {
   const lines = withoutDashes(hero.headline).split(/\r?\n/).filter(Boolean);
 
   const moveStage = (event: PointerEvent<HTMLDivElement>) => {
@@ -72,7 +71,6 @@ export function TokenHarvestHero({ hero, image }: TokenHarvestHeroProps) {
 
         <div className="th-commodity-stage-wrap" aria-label="Featured TokenHarvest commodities">
           <div className="th-commodity-stage" onPointerMove={moveStage} onPointerLeave={resetStage}>
-            {image && <img className="th-commodity-atmosphere" src={image} alt="" aria-hidden="true" />}
             <div className="th-commodity-disc" aria-hidden="true" />
             <div className="th-commodity-word" aria-hidden="true">TokenHarvest</div>
             <div className="th-commodity-index" aria-hidden="true">01</div>

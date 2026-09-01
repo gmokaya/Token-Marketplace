@@ -216,20 +216,6 @@
   transition: transform .45s ease-out;
 }
 
-.th-commodity-atmosphere {
-  position: absolute;
-  inset: 13% 4% 8% 8%;
-  z-index: -1;
-  width: 88%;
-  height: 79%;
-  object-fit: cover;
-  border-radius: 50%;
-  opacity: .09;
-  filter: saturate(.55) contrast(.85);
-  mask-image: radial-gradient(circle, #000 0 55%, transparent 72%);
-  animation: th-commodity-photo 14s ease-in-out infinite alternate;
-}
-
 .th-commodity-portrait {
   position: absolute;
   bottom: 0;
@@ -367,10 +353,6 @@
 @keyframes th-commodity-levitate {
   0%, 100% { transform: translateY(0) rotate(-2deg); }
   50% { transform: translateY(-10px) rotate(2deg); }
-}
-
-@keyframes th-commodity-photo {
-  to { transform: scale(1.08) translate3d(-1%, -1%, 0); }
 }
 
 .th-commodity-layer.homepage-hero {
