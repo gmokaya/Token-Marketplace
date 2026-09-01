@@ -116,6 +116,7 @@ export default function OnboardingWizard({
   const queryClient = useQueryClient();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAdvancing, setIsAdvancing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   
   // Initialize form
@@ -126,6 +127,16 @@ export default function OnboardingWizard({
       fullName: "",
       region: "",
       commodities: [],
+      payoutMobileMoney: "",
+      businessName: "",
+      businessRegistrationNumber: "",
+      bankDetails: "",
+      companyName: "",
+      sourcingCommodity: "",
+      expectedVolume: "",
+      destinationCountry: "",
+      interests: [],
+      producerStory: "",
     },
     mode: "onChange",
   });
@@ -179,6 +190,8 @@ export default function OnboardingWizard({
 
   // Navigation handlers
   const nextStep = async () => {
+    if (isAdvancing || currentStep >= 3) return;
+    setIsAdvancing(true);
     // Validate current step
     let fieldsToValidate: any[] = [];
     if (currentStep === 1) fieldsToValidate = ["fullName"];
@@ -188,10 +201,14 @@ export default function OnboardingWizard({
       if (currentRole === "buyer") fieldsToValidate = ["businessName", "businessRegistrationNumber", "sourcingCommodity", "expectedVolume", "destinationCountry"];
     }
     
-    const isValid = await form.trigger(fieldsToValidate);
-    if (isValid) {
-      setCurrentStep(s => s + 1);
-      window.scrollTo(0, 0);
+    try {
+      const isValid = await form.trigger(fieldsToValidate);
+      if (isValid) {
+        setCurrentStep((step) => Math.min(3, step + 1));
+        window.scrollTo(0, 0);
+      }
+    } finally {
+      setIsAdvancing(false);
     }
   };
 
@@ -201,6 +218,13 @@ export default function OnboardingWizard({
   };
 
   const onSubmit = async (data: OnboardingData) => {
+    // Pressing Enter in a field dispatches a form submit. Before the final
+    // step, treat that exactly like Continue so no profile can be saved early.
+    if (currentStep < 3) {
+      await nextStep();
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       await customFetch("/api/onboarding/me", {
@@ -609,16 +633,23 @@ export default function OnboardingWizard({
 
             {currentStep < 3 ? (
               <Button
+                key={`continue-step-${currentStep}`}
                 type="button"
-                onClick={nextStep}
+                onClick={(event) => {
+                  event.preventDefault();
+                  void nextStep();
+                }}
+                disabled={isAdvancing}
                 className="bg-white text-gray-900 hover:bg-white/90"
                 data-testid="button-next"
               >
+                {isAdvancing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
                 Continue
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             ) : (
               <Button
+                key="submit-profile"
                 type="submit"
                 disabled={isSubmitting}
                 className="bg-white text-gray-900 hover:bg-white/90"
