@@ -92,16 +92,6 @@ export function TokenHarvestHero({ hero, image }: TokenHarvestHeroProps) {
         </div>
       </div>
 
-      <div className="th-commodity-corner-card th-commodity-corner-card-left">
-        <span>Specialty lots</span>
-        <strong>Origin verified</strong>
-        <small>Traceable from farm to market</small>
-      </div>
-      <div className="th-commodity-corner-card th-commodity-corner-card-right">
-        <span>Trade finance</span>
-        <strong>Delivery aligned</strong>
-        <small>Move value with confidence</small>
-      </div>
       <div className="th-commodity-footer">From first harvest to final settlement</div>
     </section>
   );
