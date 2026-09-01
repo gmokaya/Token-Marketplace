@@ -22,6 +22,7 @@ const withoutDashes = (value: string) => value.replace(/[—–]/g, "").replace(
 const commodities = [
   { name: "green-beans", src: heroAsset("tokenharvest-green-beans.png"), alt: "Raw unroasted green coffee beans" },
   { name: "red-cherries", src: heroAsset("tokenharvest-red-cherries.png"), alt: "Ripe red coffee cherries on a branch" },
+  { name: "tea-leaves", src: heroAsset("tokenharvest-tea.png"), alt: "Fresh tea leaves and a bud" },
   { name: "tea-farmer", src: heroAsset("tokenharvest-tea-farmer.png"), alt: "East African tea farmer holding a basket of freshly harvested tea leaves" },
   { name: "grain", src: heroAsset("tokenharvest-grain.png"), alt: "Golden grain stalks" },
   { name: "nuts", src: heroAsset("tokenharvest-nuts.png"), alt: "Macadamia nuts" },
