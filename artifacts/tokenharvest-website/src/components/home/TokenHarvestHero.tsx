@@ -74,7 +74,7 @@ export function TokenHarvestHero({ hero, image }: TokenHarvestHeroProps) {
           <div className="th-commodity-stage" onPointerMove={moveStage} onPointerLeave={resetStage}>
             {image && <img className="th-commodity-atmosphere" src={image} alt="" aria-hidden="true" />}
             <div className="th-commodity-disc" aria-hidden="true" />
-            <div className="th-commodity-word" aria-hidden="true">TOKENHARVEST</div>
+            <div className="th-commodity-word" aria-hidden="true">TokenHarvest</div>
             <div className="th-commodity-index" aria-hidden="true">01</div>
             <span className="th-commodity-tag origin">Single origin / verified</span>
             <span className="th-commodity-tag finance">Finance ready</span>
