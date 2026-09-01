@@ -104,7 +104,8 @@ export function PriceTicker() {
           will-change: transform;
         }
         .wrs-ticker {
-          position: relative;
+          position: sticky;
+          top: 98px;
           z-index: 30;
           width: min(calc(100% - 64px), 1200px);
           margin: -24px auto 24px;
@@ -129,7 +130,8 @@ export function PriceTicker() {
       <div
         className="wrs-ticker"
         style={{
-           position: "relative",
+           position: "sticky",
+           top: 98,
            zIndex: 30,
           height: 44, background: "rgba(13,13,13,0.97)",
           backdropFilter: "blur(8px)",
