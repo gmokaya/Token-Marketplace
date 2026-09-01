@@ -1,97 +1,128 @@
 import { Link } from "wouter";
-import { ArrowRight, LogIn, LogOut } from "lucide-react";
+import { ArrowUpRight, LogOut } from "lucide-react";
 import { useAuth, useClerk } from "@clerk/react";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 const stats = [
-  { value: "50+", label: "Verified tea factories" },
-  { value: "7+",  label: "Origin countries" },
-  { value: "GI",  label: "Protected provenance" },
+  { value: "50+", label: "Verified factories" },
+  { value: "7+", label: "Origin countries" },
+  { value: "GI", label: "Protected origins" },
 ];
 
 export default function Home() {
   const { isSignedIn } = useAuth();
   const { signOut } = useClerk();
 
-  /* Full-screen hero, visible to all visitors */
   return (
-    <div className="relative w-screen h-screen overflow-hidden flex flex-col select-none">
-
-      {/* Background: landscape tea plantation */}
+    <div className="relative flex h-[100svh] min-h-[720px] w-screen select-none flex-col overflow-hidden bg-[#081714] text-white">
       <img
         src={`${basePath}/photos/tea-plantation.jpg`}
-        alt=""
-        className="absolute inset-0 w-full h-full object-cover object-center"
+        alt="Tea fields in East Africa"
+        className="absolute inset-0 h-full w-full object-cover object-center"
         fetchPriority="high"
       />
 
-      {/* Layered gradient: dark vignette at top + heavy bottom fade */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/15 to-black/80" />
-      {/* Subtle left-to-right fade for depth */}
-      <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-[#061411]/20 mix-blend-multiply" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#07120f]/65 via-transparent to-[#06100d]/95" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#07120f]/70 via-[#07120f]/15 to-transparent" />
+      <div
+        className="absolute inset-0 opacity-[0.12]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,.22) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.22) 1px, transparent 1px)",
+          backgroundSize: "72px 72px",
+          maskImage: "linear-gradient(to bottom, black, transparent 72%)",
+        }}
+      />
 
-      {/* ── Top nav ── */}
-      <nav className="relative z-10 flex items-center justify-between px-8 pt-8">
+      <nav className="relative z-10 flex items-center justify-between px-6 py-6 md:px-12 md:py-8">
         <Link href="/">
-          <span className="tokenharvest-wordmark text-white text-4xl cursor-pointer">TokenHarvest</span>
+          <span className="tokenharvest-wordmark cursor-pointer text-3xl text-white transition-opacity hover:opacity-80 md:text-4xl">
+            TokenHarvest
+          </span>
         </Link>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-5 text-[10px] font-medium uppercase tracking-[0.22em] text-white/70 md:gap-8">
+          <span className="hidden md:inline">Tea house sourcing / 01</span>
           {isSignedIn ? (
             <button
               onClick={() => signOut()}
-              title="Sign out"
-              className="w-10 h-10 flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+              className="flex items-center gap-2 transition-colors hover:text-white"
             >
-              <LogOut className="w-5 h-5" />
+              Sign out <LogOut className="h-3.5 w-3.5" />
             </button>
           ) : (
-            <Link href="/sign-in" title="Sign in">
-              <button className="w-10 h-10 flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition-colors">
-                <LogIn className="w-5 h-5" />
-              </button>
+            <Link
+              href="/sign-in"
+              className="flex items-center gap-2 transition-colors hover:text-white"
+            >
+              Sign in <ArrowUpRight className="h-3.5 w-3.5" />
             </Link>
           )}
         </div>
       </nav>
 
-      {/* Hero copy, bottom-left anchored */}
-      <div className="relative z-10 flex-1 flex flex-col justify-end px-8 md:px-14 pb-8">
-        <div className="inline-flex items-center gap-2 bg-white/10 text-white/75 text-xs font-medium px-3 py-1.5 rounded-full mb-4 w-fit backdrop-blur-sm border border-white/15">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          B2B Speciality Tea Marketplace
+      <main className="relative z-10 flex flex-1 items-end px-6 pb-8 md:px-12 md:pb-10">
+        <div className="grid w-full items-end gap-10 lg:grid-cols-[minmax(0,1fr)_280px] lg:gap-16">
+          <div className="max-w-3xl">
+            <div className="mb-5 flex items-center gap-3 text-[10px] font-medium uppercase tracking-[0.22em] text-white/75">
+              <span className="h-2 w-2 rounded-full bg-emerald-300 shadow-[0_0_18px_rgba(110,231,183,.85)]" />
+              GI origins · East Africa
+            </div>
+
+            <h1 className="max-w-3xl text-[3.25rem] font-bold leading-[0.94] tracking-[-0.045em] text-white sm:text-6xl md:text-8xl">
+              Distinctive teas.
+              <br />
+              <span className="text-emerald-100/90">Documented at origin.</span>
+            </h1>
+
+            <p className="mt-6 max-w-2xl text-sm leading-6 text-white/70 md:text-base md:leading-7">
+              A sourcing desk for tea houses, blenders, and buyers who want more
+              than a grade sheet. Discover GI-protected speciality teas with
+              clear lot records, factory provenance, and a direct route from
+              East Africa to your shelves.
+            </p>
+
+            <div className="mt-7 flex flex-wrap items-center gap-3">
+              <Link href={isSignedIn ? "/broker" : "/sign-in"}>
+                <span className="group inline-flex cursor-pointer items-center gap-3 bg-[#f2efe5] px-5 py-3.5 text-xs font-semibold uppercase tracking-[0.12em] text-[#0a2620] transition-colors hover:bg-white">
+                  {isSignedIn ? "Open sourcing desk" : "Enter sourcing desk"}
+                  <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                </span>
+              </Link>
+              <Link href="/sign-up">
+                <span className="inline-flex cursor-pointer items-center border border-white/35 bg-white/[0.06] px-5 py-3.5 text-xs font-medium uppercase tracking-[0.12em] text-white/85 backdrop-blur-sm transition-colors hover:border-white/65 hover:bg-white/15 hover:text-white">
+                  Create buyer account
+                </span>
+              </Link>
+            </div>
+          </div>
+
+          <aside className="hidden border-l border-white/25 pl-6 lg:block">
+            <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-emerald-200/80">
+              The buyer&apos;s view
+            </p>
+            <p className="mt-4 text-2xl font-medium leading-tight tracking-[-0.025em] text-white">
+              Know the leaf
+              <br />
+              before it arrives.
+            </p>
+            <div className="mt-8 space-y-2 text-[10px] uppercase tracking-[0.18em] text-white/55">
+              <p>Origin / grade / harvest</p>
+              <p>Factory / certification / lot</p>
+              <p className="text-emerald-200/80">One clear chain of custody</p>
+            </div>
+          </aside>
         </div>
+      </main>
 
-        <h1 className="text-5xl md:text-7xl font-bold text-white leading-[1.0] tracking-tight max-w-3xl">
-          Traceable speciality teas
-          <br />
-          <span className="text-white">from protected origins.</span>
-        </h1>
-
-        <p className="mt-3 text-white/55 text-sm md:text-base leading-relaxed max-w-xl">
-          Source GI-protected teas from verified East African factories with confidence. Every lot carries clear origin and quality records, Digital Tea Passports, and a traceable path from factory to final delivery.
-        </p>
-
-        <div className="mt-5 flex items-center gap-4">
-          <Link href="/sign-in">
-            <button className="text-sm font-semibold bg-white text-[#0a2a2a] hover:bg-white/90 transition-colors px-6 py-3 flex items-center gap-2">
-              Sign in to Terminal <ArrowRight className="w-4 h-4" />
-            </button>
-          </Link>
-          <Link href="/sign-up">
-            <button className="text-sm font-medium text-white/80 hover:text-white border border-white/20 hover:border-white/40 transition-colors px-6 py-3 backdrop-blur-sm">
-              Create Account
-            </button>
-          </Link>
-        </div>
-      </div>
-
-    {/* Stats bar, bottom */}
-      <div className="relative z-10 flex items-center gap-12 md:gap-20 px-8 md:px-14 pb-6 pt-4 border-t border-white/10">
-        {stats.map((s) => (
-          <div key={s.label}>
-            <p className="text-xl font-bold text-white">{s.value}</p>
-            <p className="text-white/40 text-xs tracking-widest uppercase mt-0.5">{s.label}</p>
+      <div className="relative z-10 mx-6 grid grid-cols-3 border-t border-white/20 py-4 md:mx-12 md:py-5">
+        {stats.map((stat) => (
+          <div key={stat.label} className="border-r border-white/15 px-3 first:pl-0 last:border-r-0 md:px-6">
+            <p className="text-xl font-semibold tracking-[-0.03em] text-white md:text-2xl">{stat.value}</p>
+            <p className="mt-1 max-w-24 text-[9px] uppercase leading-3 tracking-[0.16em] text-white/50 md:max-w-none md:text-[10px]">
+              {stat.label}
+            </p>
           </div>
         ))}
       </div>
