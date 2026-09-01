@@ -1004,6 +1004,8 @@ export default function Home() {
 
           {/* ══ HERO ════════════════════════════════════════════════ */}
           <TokenHarvestHero hero={hero} image={heroImages[heroImageIndex] ?? heroImages[0]} />
+          {/* ══ LIVE COMMODITY PRICE TICKER ═══════════════════════ */}
+          <PriceTicker />
 
           {/* ══ SERVICE CARDS ════════════════════════════════════════
               White panel overlapping hero by −72px, 3 columns
@@ -1259,9 +1261,6 @@ export default function Home() {
               </div>
             </div>
           </footer>
-
-          {/* ══ LIVE COMMODITY PRICE TICKER ═══════════════════════ */}
-          <PriceTicker />
 
         </div>
 
