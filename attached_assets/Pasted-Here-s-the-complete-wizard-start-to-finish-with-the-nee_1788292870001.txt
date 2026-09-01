@@ -1,0 +1,235 @@
+Here's the complete wizard, start to finish, with the needs question rebuilt as multi-select "select all that apply" chips using your actual categories, and the social enterprise tone carried through the copy.
+
+```
+Build a Next.js 14 (App Router) web app for TokenHarvest, a social 
+enterprise and agri-fintech marketplace connecting Producers, Traders, 
+and Buyers of specialty agricultural commodities in East Africa. Use 
+TypeScript, Clerk for authentication, Tailwind CSS for styling, and 
+Postgres (via Prisma) for the database.
+
+## DESIGN PRINCIPLES (apply throughout)
+- Mobile-first: Producers especially may sign up from a phone with 
+  variable connectivity. Every screen must work at 360px width first.
+- Progressive disclosure: ask only what's needed to get someone in; 
+  defer the rest.
+- Always show progress: a step indicator ("Step 1 of 2") during 
+  onboarding.
+- Every action has a visible state: loading, success, error — no 
+  silent failures.
+- Inline validation as users type/blur, not just on submit.
+- Accessible by default: label/input pairing, visible focus states, 
+  color contrast, keyboard navigable throughout.
+- Autosave/resume: if someone drops off mid-profile-form, their 
+  progress is saved.
+- Plain, warm language. Avoid jargon like "KYC" in user-facing 
+  copy — say "Verify your account." As a social enterprise, tone 
+  should read as "we're building this with you," not corporate or 
+  transactional.
+
+## USER ROLES
+Three account categories, chosen at signup: Producer, Trader, Buyer. 
+(Warehouse Operators use a separate internal portal — out of scope.)
+
+## ONBOARDING WIZARD
+
+### Step 0 — Role Selection
+Three large, tappable cards, each with a one-line description of 
+what that role can do. Above the cards, a short mission line: 
+"TokenHarvest connects farmers, traders, and buyers across East 
+Africa — built to make trade fairer for everyone in the chain." 
+No auth yet.
+
+### Step 1 — Authentication (Clerk)
+Same <SignUp /> widget for all three roles. Support email AND 
+phone/OTP — default to phone-first for Producers, email-first for 
+Trader/Buyer. Show a reassurance line: "Takes about 2 minutes — you 
+can finish the rest later."
+
+Immediately after account creation, use a Clerk webhook 
+(`user.created`) — server-side only, never client-side — to set:
+  {
+    role: "producer" | "trader" | "buyer",
+    kycStatus: "not_started"
+  }
+
+### Step 2 — Category-Specific Profile
+Short forms (4-5 fields max), large touch-friendly inputs, correct 
+mobile keyboard types, inline validation with specific error messages.
+
+Producer:
+  - Full name
+  - Region/county (searchable dropdown)
+  - Commodities grown (multi-select chips)
+  - Payout method: mobile money number
+
+Trader:
+  - Business name
+  - Business registration number
+  - Commodities traded (multi-select chips)
+  - Bank details for escrow payouts
+
+Buyer:
+  - Company name
+  - Business registration number
+  - Sourcing interests (commodity + expected volume)
+  - Destination country
+
+### Step 2.5 — "Tell Us What Matters to You" (multi-select, optional 
+but shown by default)
+
+Frame this warmly and tie it to mission, not data collection:
+  Heading: "One quick thing 😊"
+  Subtext: "Select as many as apply — this helps us build 
+  TokenHarvest around what actually matters to farmers, traders, 
+  and buyers like you."
+
+Render as tappable, multi-select pill/chip buttons (not checkboxes 
+in a list — chips feel lighter and more casual). Store selections 
+as a string array field `interests` on the user's profile record.
+
+PRODUCER — "What would help you most right now? (select all that apply)"
+  - Access to markets → access_to_markets
+  - Better prices → better_prices
+  - Reducing post-harvest losses → reduce_post_harvest_losses
+  - Better quality storage → quality_storage
+  - Access to financing → access_to_finance
+  - Faster payments → faster_payments
+
+  Below the chips, add ONE optional open text field, clearly marked 
+  optional and low-pressure:
+  "Want to share a bit of your story? (optional)" — a short textarea, 
+  placeholder: "e.g. how long you've been farming, what you grow, 
+  what you're hoping for." Store as `producerStory` (nullable text). 
+  Note in a comment: this is for the social enterprise's impact 
+  storytelling/marketing use, not required for platform function.
+
+TRADER — "What's on your mind these days? (select all that apply)"
+  - Finding more buyers → find_buyers
+  - Freeing up capital tied in stock → free_up_capital
+  - Getting paid faster → faster_payment
+  - Access to trade financing → access_to_financing
+  - Simplifying logistics → simplify_logistics
+
+BUYER — "What matters most to you? (select all that apply)"
+Render as two visually distinct groups under one heading, since these 
+are genuinely different types of motivation and grouping them helps 
+buyers scan faster:
+
+  Group 1 — "Values & Impact"
+    - Fair trade practices → fair_trade
+    - Traceable sourcing → traceable_sourcing
+    - Social & environmental impact → impact
+    - Direct trade with producers → direct_trade
+    - Producer welfare → producer_welfare
+
+  Group 2 — "Commercial Priorities"
+    - Trade financing → trade_financing
+    - Secure payments → secure_payments
+    - Reliable logistics → reliable_logistics
+    - Insurance coverage → insurance
+    - Access to verified producers → access_to_producers
+    - Verified quality → verified_quality
+    - Consistent supply → consistent_supply
+    - GI-certified / origin-specific products → gi_certification
+    - Overall quality assurance → quality_assurance
+
+On completion of Step 2 (including 2.5), set kycStatus to 
+"profile_complete," show a warm success state ("You're in! 🎉 
+Welcome to TokenHarvest."), then redirect to the dashboard.
+
+## STEPS 3 & 4 ARE DEFERRED — NOT PART OF SIGNUP
+
+Do not block signup on document upload or review. After Step 2, the 
+user lands in their dashboard immediately with limited access.
+
+Show a friendly, dismissible verification card on the dashboard 
+(never a blocking modal): "Verify your account to unlock the rest of 
+TokenHarvest — like listing your harvest and accessing financing. 
+Takes about 5 minutes." Frame verification as protecting the whole 
+community's trust, not as a compliance hurdle: e.g. "This helps us 
+keep TokenHarvest fair and safe for everyone trading here."
+
+### /verify route — Step 3 (Document Upload)
+Role-specific checklist with a one-line reason per document (e.g. 
+"We use this to confirm you're a licensed trader"). Show per-file 
+upload progress and success confirmation. Allow partial completion 
+and resuming later.
+  - Producer: National ID
+  - Trader: Business registration certificate, trading license
+  - Buyer: Business registration certificate, import certifications 
+    (optional at this stage)
+
+Set kycStatus to "submitted" once all required docs for the role are 
+uploaded. Show a clear "What happens next" message with an expected 
+review timeframe.
+
+### Admin Review — Step 4
+Minimal /admin/kyc route, protected by a real Clerk admin role (not 
+a hardcoded flag), listing users with kycStatus "submitted," their 
+documents, and Approve/Reject actions.
+  - Approve → kycStatus = "approved" → notify user (email/SMS): 
+    "You're verified! Full access to TokenHarvest is now unlocked."
+  - Reject → kycStatus = "rejected" with a required reason field, 
+    shown to the user with clear, kind next steps to resubmit.
+
+## ACCESS CONTROL LOGIC
+
+Middleware/helper checks publicMetadata.kycStatus on protected 
+ACTIONS, not entire pages — let everyone browse:
+
+- "not_started" / "profile_complete" → full read access (browse 
+  listings, prices, how-it-works). Write actions (list a commodity, 
+  place a bid, request financing) show a friendly inline prompt: 
+  "Verify your account to do this" linking to /verify — never a 
+  dead-end error.
+- "submitted" → same restrictions, banner reads "Verification in 
+  review — usually takes [X]."
+- "approved" → full access unlocked for that role's actions.
+- "rejected" → clear specific reason shown, prominent "Resubmit" CTA.
+
+## PERSONALIZATION USING `interests`
+
+On dashboard load, check the user's `interests` array and surface 
+the most relevant feature card first:
+  - Producer with "access_to_finance" or "faster_payments" selected 
+    → Harvest Fund card leads.
+  - Producer with "reduce_post_harvest_losses" or "quality_storage" 
+    → lead with warehouse/storage-related content once built.
+  - Trader with "free_up_capital" or "access_to_financing" → Fast 
+    Pay card leads.
+  - Buyer with "trade_financing" → Order Finance card leads.
+  - Buyer with values-group selections (fair_trade, traceable_sourcing, 
+    impact, direct_trade, producer_welfare) → surface impact/origin 
+    storytelling content (e.g. producer stories, GI/traceability 
+    info) prominently, not just commercial listings.
+
+Store `interests` as structured data so it can be aggregated later 
+for product decisions and impact reporting (e.g. "X% of buyers care 
+most about producer welfare" is a genuinely useful stat for a social 
+enterprise's own reporting, not just personalization).
+
+## DASHBOARDS (per role)
+Shared layout shell, role-specific content:
+  - Producer: My Stock, My eWRs, Harvest Fund status, verification 
+    banner, personalized feature card based on interests
+  - Trader: My Warehouse Deposits, Active Listings, Fast Pay status, 
+    verification banner, personalized feature card
+  - Buyer: Marketplace Browse, My Orders, Order Finance status, 
+    verification banner, personalized feature card
+
+Empty states matter: new users see a helpful first action ("List 
+your first harvest" with a button), never a blank screen.
+
+## SECURITY NOTES
+- All kycStatus, role, and interests writes happen server-side 
+  (webhook or server action) — never trust client-side metadata 
+  updates.
+- Validate file uploads server-side (type, size limits).
+- Rate-limit OTP requests and form submissions.
+
+Prioritize a fast, low-friction, warm-feeling onboarding flow and 
+airtight access-gating logic over visual polish. Functional and 
+welcoming beats flashy for this prototype.
+```
+
+One thing worth deciding before you run this: the Producer's optional "story" field is genuinely useful for your social-enterprise storytelling and impact reporting, but it also means you'll eventually need a lightweight internal view (even just a simple admin list) to actually read and use those stories, otherwise they'll sit uncollected in the database. Want me to add a minimal `/admin/producer-stories` view to the prompt so that data doesn't go to waste?
