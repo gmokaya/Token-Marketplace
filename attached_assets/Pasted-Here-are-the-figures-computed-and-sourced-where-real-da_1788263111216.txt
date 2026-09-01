@@ -1,0 +1,26 @@
+Here are the figures, computed and sourced where real data exists:
+
+**1. Access — 5 East African Countries**
+Unchanged from earlier, this stays as your one fully concrete, no-caveat number.
+
+**2. Commodities for Specialty Markets / GI Regions**
+Not given yet, I don't have a number from you for this one. If you're thinking tea, coffee, avocado, macadamia, and honey as the core specialty categories, that's 5, but confirm before I lock it in, since it should reflect what TokenHarvest will actually list at launch, not a generic regional average.
+
+**3. Projected Increase in Farmer Earnings — 25%**
+*"Designed to Increase Farmer Earnings by Up to 25%"*
+Keep the "up to" and "projected/designed to" framing pre-launch, this is a modeled target, not a measured outcome, and needs to stay worded that way until you have real trade data to back it.
+
+**4. Trade & Settlement Time — 24 Hours**
+*"Settled in 24 Hours, Not Weeks"*
+This works as a standalone hour figure rather than a percentage, it's more concrete and easier to trust than a vague "X% faster" claim.
+
+**5. Direct International Destination Markets**
+Based on actual current export patterns for Kenyan tea and coffee: Kenya's top tea export destinations include Pakistan, Egypt, UK, UAE, Russia, India, Saudi Arabia, Yemen, Iran, and China, with the top ten accounting for 81% of Kenya's total tea export volume. Coffee's primary markets are Germany, the United States, Belgium, Sweden, and Japan, and combined, Kenya's tea and coffee reach over 60 countries worldwide.
+
+That gives you two honest framing options:
+- **Conservative/specific**: *"15+ Established Destination Markets"* (10 core tea markets + 5 core coffee markets, no overlap)
+- **Ambitious/broad**: *"60+ Global Destination Markets"* (total reach of Kenyan tea and coffee combined)
+
+I'd recommend the conservative "15+" for a pre-launch platform, it's defensible if someone asks "which 15," whereas "60+" implies TokenHarvest itself already has that reach, which it doesn't yet, the industry does.
+
+Want me to finalize the full 5-stat bar with these numbers locked in once you confirm the commodities count?

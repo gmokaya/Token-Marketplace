@@ -93,6 +93,20 @@ export default function InvestorsPartners() {
                   TokenHarvest is designed to help farmers capture more value from what they
                   grow, connect with better markets, and build more resilient livelihoods.
                 </p>
+                <div className="mt-10 grid gap-px border-y border-white/15 sm:grid-cols-2">
+                  {[
+                    ["5", "East African countries", "Platform access"],
+                    ["Up to 25%", "Projected farmer-earnings uplift", "Modeled target"],
+                    ["24 hrs", "Trade and settlement target", "Designed for faster settlement"],
+                    ["15+", "Established destination markets", "Conservative launch framing"],
+                  ].map(([value, label, note]) => (
+                    <div key={label} className="border-b border-white/15 py-6 sm:pr-8">
+                      <div className="text-3xl font-light tracking-[-0.04em] text-white md:text-4xl">{value}</div>
+                      <div className="mt-2 text-sm font-medium text-white/85">{label}</div>
+                      <div className="mt-1 text-xs uppercase tracking-[0.12em] text-white/40">{note}</div>
+                    </div>
+                  ))}
+                </div>
                 <div className="mt-10 grid gap-px border-t border-white/15 sm:grid-cols-2">
                   {[
                     ["01", "Increased farmer incomes", "Better price discovery and clearer trade terms can help farmers retain more value from each harvest."],
