@@ -1244,30 +1244,20 @@ export default function Home() {
           </section>
 
           {/* ══ FOOTER ──────────────────────────────────────────── */}
-          <footer style={{ background: "#0d0d0d", padding: "64px 0 0" }}>
+          <footer style={{ background: "#0d0d0d", padding: "48px 0 0" }}>
             <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px" }}>
-              <div className="homepage-footer-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 48, paddingBottom: 52, borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-                {([
-                  { label: "Platform", links: [["Marketplace","/sign-in"],["Auctions","/sign-in"],["Forwards","/sign-in"],["Financing","/sign-in"]] },
-                  { label: "Users",    links: [["Producers","/get-started"],["Off-Takers","/get-started"],["Financiers","/get-started"]] },
-                  { label: "Company",  links: [["About","#about"],["Contact","#cta"]] },
-                ] as const).map(({ label, links }) => (
-                  <div key={label}>
-                    <div style={{ color: "rgba(255,255,255,0.42)", fontSize: 11, fontWeight: 600, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 18 }}>{label}</div>
-                    <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 10 }}>
-                      {links.map(([name, href]) => (
-                        <li key={name}>
-                          {href.startsWith("#")
-                            ? <button onClick={() => scrollTo(href.slice(1))} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.45)", fontSize: 13, fontFamily: "'Futura',sans-serif", padding: 0 }}>{name}</button>
-                            : <Link href={href as string} style={{ color: "rgba(255,255,255,0.45)", textDecoration: "none", fontSize: 13 }}>{name}</Link>
-                          }
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
+              <div className="homepage-footer-minimal">
+                <Link href="/" style={{ display: "inline-flex", textDecoration: "none" }}>
+                  <span className="tokenharvest-wordmark" style={{ color: "#fff", fontSize: 28 }}>TokenHarvest</span>
+                </Link>
+                <nav className="homepage-footer-minimal-links" aria-label="Footer navigation">
+                  <Link href="/sign-in">Marketplace</Link>
+                  <Link href="/get-started">Producers</Link>
+                  <button onClick={() => scrollTo("about")}>About</button>
+                  <button onClick={() => scrollTo("cta")}>Contact</button>
+                </nav>
               </div>
-              <div className="homepage-footer-bottom" style={{ padding: "22px 0 66px", display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
+              <div className="homepage-footer-bottom" style={{ padding: "20px 0 42px", display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
                 <p style={{ color: "rgba(255,255,255,0.2)", fontSize: 12, margin: 0 }}>© 2025 WRS Marketplace. All rights reserved.</p>
               </div>
             </div>

@@ -921,6 +921,38 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ── Trade Finance Cards ── */
+.homepage-footer-minimal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 32px;
+  padding-bottom: 34px;
+  border-bottom: 1px solid rgba(255,255,255,0.09);
+}
+
+.homepage-footer-minimal-links {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.homepage-footer-minimal-links a,
+.homepage-footer-minimal-links button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: rgba(255,255,255,0.58);
+  font: 500 13px/1.4 'Futura', sans-serif;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.homepage-footer-minimal-links a:hover,
+.homepage-footer-minimal-links button:hover {
+  color: #fff;
+}
+
 .homepage-service-card {
   --service-accent: #dc554c;
   --service-wash: #fff4f1;
@@ -1138,6 +1170,17 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @media (max-width: 720px) {
+  .homepage-footer-minimal {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .homepage-footer-minimal-links {
+    flex-wrap: wrap;
+    gap: 14px 22px;
+  }
+
   .homepage-finance-carousel {
     --finance-card-width: 100%;
   }
