@@ -36,8 +36,8 @@ const DEF_SERVICES: HpService[] = [
   {
     icon: "icon-money-1.png",
     title: "Direct Trade",
-    sub: "For Buyers & Producers",
-    desc: "Finding reliable suppliers and negotiating fair prices across borders shouldn't take months of guesswork. Connect directly with verified producers, compare offers transparently, and close deals with confidence, backed by digital contracts and full origin traceability.",
+    sub: "Farmer First",
+    desc: "Put producers at the heart of every deal. Connect directly with verified buyers, compare offers transparently, and move from harvest to payment with digital contracts and full origin traceability.",
   },
   {
     icon: "icon-tax.png",
