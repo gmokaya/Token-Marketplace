@@ -1217,7 +1217,7 @@ export default function Home() {
 
           {/* ══ CTA ─────────────────────────────────────────────── */}
           <section id="cta" style={{
-            position: "relative", minHeight: 300, padding: "66px 0 70px", display: "flex", alignItems: "center",
+            position: "relative", minHeight: 360, padding: "78px 0 82px", display: "flex", alignItems: "center",
             background: `url(${photo("cta-harvest.jpg")}) center 48% / cover no-repeat`, overflow: "hidden",
           }}>
             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(5,30,27,0.9) 0%, rgba(7,48,42,0.78) 50%, rgba(5,30,27,0.9) 100%), radial-gradient(circle at 50% 42%, rgba(91,177,157,0.2), transparent 62%)" }} />
