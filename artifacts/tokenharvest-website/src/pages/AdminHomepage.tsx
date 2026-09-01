@@ -120,7 +120,7 @@ const DEFAULT_ABOUT: AboutContent = {
   bullets: [
     "SOURCE THE LOT: Aggregate verified origin supply by commodity, crop year, volume, location, and target buyer specification.",
     "GRADE TO SPEC: Capture moisture, screen size, cup profile, defects, weight, certificates, and chain-of-custody data before contracting.",
-    "CONTRACT & FINANCE: Match qualified lots to off-takers, lock commercial terms, and unlock working capital against purchase orders, invoices, or warehouse receipts.",
+    "CONTRACT & FINANCE: Match qualified lots to off-takers, agree clear trade terms, and unlock working capital against purchase orders, invoices, or warehouse receipts.",
     "MOVE & SETTLE: Coordinate storage, phytosanitary and customs documents, Incoterms, freight, delivery, and settlement from origin to destination.",
     "TRACE EVERY HANDOFF: Maintain lot-level provenance and an audit-ready record for compliance, claims, and buyer reporting.",
   ],
@@ -194,7 +194,7 @@ const DEFAULT_MARKETS: MarketCard[] = [
   { num: "01", name: "Grain",   grade: "Grade A–C",    link: "/grain/",  desc: "Trade dependable East African grains with verified quality, certified storage, and transparent delivery from origin to market.", photo: "/markets/grain-corn.png" },
   { num: "02", name: "Nuts",    grade: "Grade A–B",    link: "/grain/",  desc: "Source premium East African nuts with trusted grading, secure storage, and the traceability discerning buyers expect.", photo: "/markets/nuts-chickpeas.jpg" },
   { num: "03", name: "Coffee",  grade: "AA / AB / PB", link: "/coffee/", desc: "Discover speciality East African coffees with distinctive origins, careful processing, and export-ready lots for buyers who value every note.", photo: "/markets/parchment-coffee.jpg" },
-  { num: "04", name: "Tea",     grade: "BOPI / FNDC",  link: "/tea/",    desc: "Explore speciality teas from East Africa, from bright orthodox leaves to expressive CTC lots, with provenance from garden to cup.", photo: "/markets/tea-speciality-leaves.jpg" },
+  { num: "04", name: "Tea",     grade: "BOPI / FNDC",  link: "/tea/",    desc: "Explore speciality teas from East Africa, from bright orthodox leaves to expressive specialty lots, with provenance from garden to cup.", photo: "/markets/tea-speciality-leaves.jpg" },
   { num: "05", name: "Avocado", grade: "Hass Export",  link: "/grain/",  desc: "Bring export-grade Hass avocados to market with cold-chain confidence, consistent quality, and traceability through every handoff.", photo: "/markets/avocado.jpg" },
   { num: "06", name: "Honey",   grade: "Raw & Pure",   link: "/grain/",  desc: "Source golden East African honey from trusted producer networks, raw, pure, and ready for premium regional and export markets.", photo: "/markets/honeycomb.jpg" },
 ];

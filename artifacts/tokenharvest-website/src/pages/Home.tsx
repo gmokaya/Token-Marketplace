@@ -100,7 +100,7 @@ const DEF_ABOUT: HpAbout = {
   bullets: [
     "SOURCE THE LOT: Aggregate verified origin supply by commodity, crop year, volume, location, and target buyer specification.",
     "GRADE TO SPEC: Capture moisture, screen size, cup profile, defects, weight, certificates, and chain-of-custody data before contracting.",
-    "CONTRACT & FINANCE: Match qualified lots to off-takers, lock commercial terms, and unlock working capital against purchase orders, invoices, or warehouse receipts.",
+    "CONTRACT & FINANCE: Match qualified lots to off-takers, agree clear trade terms, and unlock working capital against purchase orders, invoices, or warehouse receipts.",
     "MOVE & SETTLE: Coordinate storage, phytosanitary and customs documents, Incoterms, freight, delivery, and settlement from origin to destination.",
     "TRACE EVERY HANDOFF: Maintain lot-level provenance and an audit-ready record for compliance, claims, and buyer reporting.",
   ],
@@ -170,7 +170,7 @@ const DEF_MARKETS: MarketCardData[] = [
   { num: "01", name: "Grain",   grade: "Grade A–C",    link: "/grain/",  desc: "Trade dependable East African grains with verified quality, certified storage, and transparent delivery from origin to market.", photo: marketPhoto("grain-corn.png") },
   { num: "02", name: "Nuts",    grade: "Grade A–B",    link: "/grain/",  desc: "Source premium East African nuts with trusted grading, secure storage, and the traceability discerning buyers expect.", photo: marketPhoto("nuts-chickpeas.jpg") },
   { num: "03", name: "Coffee",  grade: "AA / AB / PB", link: "/coffee/", desc: "Discover speciality East African coffees with distinctive origins, careful processing, and export-ready lots for buyers who value every note.", photo: marketPhoto("parchment-coffee.jpg") },
-  { num: "04", name: "Tea",     grade: "BOPI / FNDC",  link: "/tea/",    desc: "Explore speciality teas from East Africa, from bright orthodox leaves to expressive CTC lots, with provenance from garden to cup.", photo: marketPhoto("tea-speciality-leaves.jpg") },
+  { num: "04", name: "Tea",     grade: "BOPI / FNDC",  link: "/tea/",    desc: "Explore speciality teas from East Africa, from bright orthodox leaves to expressive specialty lots, with provenance from garden to cup.", photo: marketPhoto("tea-speciality-leaves.jpg") },
   { num: "05", name: "Avocado", grade: "Hass Export",  link: "/grain/",  desc: "Bring export-grade Hass avocados to market with cold-chain confidence, consistent quality, and traceability through every handoff.", photo: marketPhoto("avocado.jpg") },
   { num: "06", name: "Honey",   grade: "Raw & Pure",   link: "/grain/",  desc: "Source golden East African honey from trusted producer networks, raw, pure, and ready for premium regional and export markets.", photo: marketPhoto("honeycomb.jpg") },
 ];
@@ -1072,7 +1072,7 @@ export default function Home() {
 
                 <div className="homepage-commodity-cluster" style={{ position: "relative", width: "100%", maxWidth: 540, aspectRatio: "1 / 1", zIndex: 1 }}>
                   <img src={`${BASE}/hero/tokenharvest-cacao.png`} className="commodity-float-5" alt="Cacao" style={{ position: "absolute", width: "36%", top: "42%", left: "-2%", zIndex: 1, filter: "drop-shadow(0 15px 25px rgba(0,0,0,0.12))" }} />
-                  <img src={`${BASE}/hero/tokenharvest-nuts.png`} className="commodity-float-4" alt="Nuts" style={{ position: "absolute", width: "38%", bottom: "12%", left: "10%", zIndex: 2, filter: "drop-shadow(0 20px 30px rgba(0,0,0,0.15))" }} />
+                  <img src={`${BASE}/hero/tokenharvest-nuts.png`} className="commodity-float-4" alt="Nuts" style={{ position: "absolute", width: "38%", bottom: "0%", left: "10%", zIndex: 0, filter: "drop-shadow(0 20px 30px rgba(0,0,0,0.15))" }} />
                   <img src={`${BASE}/hero/tokenharvest-tea.png`} className="commodity-float-2" alt="Tea leaves" style={{ position: "absolute", width: "42%", top: "8%", right: "8%", zIndex: 3, filter: "drop-shadow(0 15px 25px rgba(0,0,0,0.12))" }} />
                    <img src={`${BASE}/hero/tokenharvest-red-cherries.png`} className="commodity-float-1" alt="Red coffee cherries" style={{ position: "absolute", width: "52%", top: "15%", left: "15%", zIndex: 4, filter: "drop-shadow(0 25px 35px rgba(0,0,0,0.18))" }} />
                   <img src={`${BASE}/hero/tokenharvest-grain.png`} className="commodity-float-3" alt="Grain" style={{ position: "absolute", width: "58%", bottom: "6%", right: "0%", zIndex: 5, filter: "drop-shadow(0 30px 40px rgba(0,0,0,0.22))" }} />
