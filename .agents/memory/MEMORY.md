@@ -12,3 +12,4 @@
 - [First-party marketplace provider API](marketplace-provider-api.md) — TokenHarvest owns the external listing contract; keep provider auth/config separate from publication queue state
 - [Provider deployment secrets](provider-deployment-secrets.md) — production credentials only affect the published deployment serving the provider URL
 - [Deployment Python dependency isolation](deployment-python-dependencies.md) — root Python dependencies install during Node deployments and can fail before artifact builds
+- [Imported artifact workflow fallback](imported-artifact-workflows.md) — imported artifact manifests may be unregistered; fallback workflows must match proxy ports and subpath health behavior

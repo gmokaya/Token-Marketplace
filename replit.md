@@ -4,11 +4,12 @@ East Africa's electronic warehouse receipt (eWR) trading platform for agricultur
 
 ## Run & Operate
 
-Workflows are managed by Replit. The three services start automatically:
-- **`artifacts/api-server: API Server`** — Express API on port 8080 (`/api`)
-- **`artifacts/wrs-marketplace: web`** — WRS Marketplace React/Vite frontend on port 26227 (`/`)
-- **`artifacts/tea-marketplace: web`** — Tea Marketplace React/Vite frontend on port 25073 (`/tea/`)
-- **`artifacts/mockup-sandbox: Component Preview Server`** — Design canvas on port 8081 (`/__mockup`)
+The primary Grain setup uses two Replit workflows:
+- **`TokenHarvest API`** — Express API on port 8080 (`/api`)
+- **`Grain frontend`** — WRS Marketplace React/Vite frontend on port 26227 (`/grain/`)
+
+Both workflows start automatically. Other imported frontends remain available in
+the workspace but are not part of the default run setup.
 
 One-off commands:
 - `pnpm run typecheck` — full typecheck across all packages
@@ -47,15 +48,15 @@ _Populate as you build — explicit user instructions worth remembering across s
 
 ## Setup status
 
-Completed on import (2026-07-23):
+Completed on import setup (2026-09-01):
 - `pnpm install` — all workspace dependencies installed
 - `pnpm --filter @workspace/db run push` — DB schema pushed to Replit PostgreSQL
 - Clerk auth configured against the user's external Clerk account; credentials are stored as secrets (`CLERK_SECRET_KEY`, `CLERK_PUBLISHABLE_KEY`, `VITE_CLERK_PUBLISHABLE_KEY`)
-- All four workflows started and verified healthy
+- Grain frontend and API workflows started and verified through the proxied `/grain/` and `/api/healthz` routes
 
 ## Gotchas
 
-- `.replit` modules must stay on `nodejs-24` — the project targets Node 24 (TypeScript 5.9, ESM, top-level await). Do not downgrade to nodejs-20.
+- The current imported Replit environment uses Node.js 20; dependency installation and the Grain production build have been verified on it.
 - `pnpm --filter @workspace/db run push` must be re-run after any schema change in `lib/db/src/schema.ts` (dev only; production schema is managed by Replit Publish).
 - The Clerk dev key warning ("loaded with development keys") in the browser console is expected and intentional in development.
 

@@ -28,13 +28,12 @@ args = "TokenHarvest API"
 name = "Grain frontend"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "PORT=3000 BASE_PATH=/grain/ pnpm --filter @workspace/wrs-marketplace run dev"
-waitForPort = 3000
-
 [workflows.workflow.metadata]
 outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "PORT=26227 BASE_PATH=/grain/ pnpm --filter @workspace/wrs-marketplace run dev"
 
 [[workflows.workflow]]
 name = "TokenHarvest API"
