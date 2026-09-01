@@ -1,8 +1,6 @@
 import { Link } from "wouter";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
-
 export default function InvestorsPartners() {
   return (
     <div className="min-h-screen bg-[#f7f5ed] text-[#0b3032]">
@@ -79,15 +77,8 @@ export default function InvestorsPartners() {
           </div>
         </section>
 
-        <section id="impact" className="relative isolate overflow-hidden bg-[#0b3032] text-[#f7f5ed]">
-          <img
-            src={`${BASE}/photos/impact-containers.jpg`}
-            alt=""
-            aria-hidden="true"
-            className="absolute inset-0 h-full w-full object-cover rotate-90 scale-[1.3] opacity-45"
-          />
-          <div className="absolute inset-0 bg-[#0b3032]/85" aria-hidden="true" />
-          <div className="relative mx-auto max-w-6xl px-6 py-20 md:px-10 md:py-28">
+        <section id="impact" className="bg-[#0b3032] text-[#f7f5ed]">
+          <div className="mx-auto max-w-6xl px-6 py-20 md:px-10 md:py-28">
             <div className="grid gap-10 md:grid-cols-[0.75fr_1.25fr] md:gap-24">
               <div>
                 <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-[#b9e8cf]">
@@ -102,20 +93,6 @@ export default function InvestorsPartners() {
                   TokenHarvest is designed to help farmers capture more value from what they
                   grow, connect with better markets, and build more resilient livelihoods.
                 </p>
-                <div className="mt-10 grid gap-px border-y border-white/15 sm:grid-cols-2">
-                  {[
-                    ["5", "East African countries", "Platform access"],
-                    ["Up to 25%", "Projected farmer-earnings uplift", "Modeled target"],
-                    ["24 hrs", "Trade and settlement target", "Designed for faster settlement"],
-                    ["15+", "Established destination markets", "Conservative launch framing"],
-                  ].map(([value, label, note]) => (
-                    <div key={label} className="border-b border-white/15 py-6 sm:pr-8">
-                      <div className="text-3xl font-light tracking-[-0.04em] text-white md:text-4xl">{value}</div>
-                      <div className="mt-2 text-sm font-medium text-white/85">{label}</div>
-                      <div className="mt-1 text-xs uppercase tracking-[0.12em] text-white/40">{note}</div>
-                    </div>
-                  ))}
-                </div>
                 <div className="mt-10 grid gap-px border-t border-white/15 sm:grid-cols-2">
                   {[
                     ["01", "Increased farmer incomes", "Better price discovery and clearer trade terms can help farmers retain more value from each harvest."],
