@@ -266,6 +266,7 @@ function MarketCard({ num, name, grade, desc, photo, link }: MarketCardData) {
         backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.80) 30%, rgba(0,0,0,${hover ? "0.40" : "0.25"}) 100%), url(${photo})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
+        borderRadius: 6,
         boxShadow: hover
           ? "0 8px 16px rgba(0,0,0,0.12), 0 24px 48px rgba(0,0,0,0.08), 0 48px 80px rgba(0,0,0,0.04)"
           : "0 2px 4px rgba(0,0,0,0.08), 0 8px 16px rgba(0,0,0,0.06)",
@@ -405,7 +406,7 @@ function EsgSection() {
               padding: "48px 40px 52px",
               display: "flex",
               flexDirection: "column",
-              borderRadius: 8,
+              borderRadius: 6,
               boxShadow: "0 1px 2px rgba(0,0,0,0.04), 0 4px 8px rgba(0,0,0,0.04), 0 12px 24px rgba(0,0,0,0.03)",
               transition: "transform 0.3s ease, box-shadow 0.3s ease",
             }}
@@ -502,7 +503,7 @@ function FinanceCard({
         <div style={{ color: "var(--finance-ink)", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>
           {eyebrow}
         </div>
-        <div style={{ background: "rgba(255,255,255,0.9)", color: "var(--finance-surface)", fontSize: 10, fontWeight: 800, padding: "5px 9px", borderRadius: 4, letterSpacing: "0.06em" }}>
+        <div style={{ background: "rgba(255,255,255,0.9)", color: "var(--finance-surface)", fontSize: 10, fontWeight: 800, padding: "5px 9px", borderRadius: 3, letterSpacing: "0.06em" }}>
           {audience}
         </div>
       </div>
@@ -515,7 +516,7 @@ function FinanceCard({
         {body}
       </p>
 
-      <div style={{ background: "rgba(255,255,255,0.92)", borderLeft: "4px solid var(--finance-surface)", padding: "16px 20px", marginBottom: 24, borderRadius: "0 8px 8px 0" }}>
+      <div style={{ background: "rgba(255,255,255,0.92)", borderLeft: "4px solid var(--finance-surface)", padding: "16px 20px", marginBottom: 24, borderRadius: "0 5px 5px 0" }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: "#162d27", marginBottom: 6 }}>
           {proof}
         </div>
@@ -1030,7 +1031,7 @@ export default function Home() {
                 {services.map(({ title, sub, desc }, i) => (
                   <div key={title} className="homepage-service-card" data-service={i % 3} style={{
                     padding: "42px 40px 44px",
-                    borderRadius: 12,
+                    borderRadius: 6,
                     minHeight: 236,
                     transition: "box-shadow 0.3s ease, transform 0.3s ease",
                     boxShadow: "0 12px 32px rgba(16,40,34,0.08)",

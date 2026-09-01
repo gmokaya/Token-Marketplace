@@ -1172,7 +1172,7 @@ h1, h2, h3, h4, h5, h6 {
   --finance-ink: #fff;
   --finance-muted: rgba(255,255,255,0.82);
   background: var(--finance-surface);
-  border-radius: 22px;
+  border-radius: 12px;
   border: 0;
   padding: 40px 32px;
   display: flex;
