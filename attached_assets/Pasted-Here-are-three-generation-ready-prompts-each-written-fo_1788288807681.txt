@@ -1,0 +1,23 @@
+Here are three generation-ready prompts, each written for photorealistic output with a clean, isolated subject so they drop straight into a website as PNG cutouts.
+
+---
+
+**Prompt 1 — Tea Farmer Cutout**
+
+*A super-realistic photograph of a smiling African woman tea farmer, wearing a patterned headwrap and a coral pink blouse with a floral skirt, holding a large woven wicker basket filled with freshly plucked green tea leaves. She stands mid-motion as if just lifting the basket, natural warm daylight, genuine joyful expression, skin texture and fabric folds rendered in high detail. Full body, three-quarter angle. Shot on a professional DSLR, 85mm lens, shallow depth of field, soft natural light. Isolated subject on a fully transparent background, clean edge cutout, no background elements, no shadow floor, PNG with alpha channel, studio-grade matte extraction.*
+
+---
+
+**Prompt 2 — Coffee Farmer Cutout**
+
+*A super-realistic photograph of a smiling African woman coffee farmer, wearing a dark headwrap and dark clothing, holding a wide shallow woven basket overflowing with freshly picked ripe red coffee cherries, one hand reaching toward a coffee branch with a mix of green and red cherries. Warm, glowing skin tones, genuine candid smile, detailed texture on the basket weave and cherries. Three-quarter angle, upper body and basket in frame. Shot on a professional DSLR, 85mm lens, shallow depth of field, natural golden-hour lighting. Isolated subject on a fully transparent background, clean precise edge cutout, no background, no shadow, PNG with alpha channel.*
+
+---
+
+**Prompt 3 — Green & Red Coffee Cherries (Product Shot)**
+
+*A super-realistic close-up product photograph of a coffee branch heavy with coffee cherries in mixed ripening stages, vivid green unripe cherries alongside deep red ripe cherries, glossy skin texture, small water droplets for freshness, rich detailed leaves framing the cluster. Macro-style photography, natural directional lighting creating gentle highlights and soft shadows on the cherries themselves. Isolated on a fully transparent background, clean cutout with no background, no drop shadow, PNG with alpha channel, sharp focus throughout the cherry cluster.*
+
+---
+
+A few practical notes: most image generators (Midjourney, DALL-E, Stable Diffusion) won't natively export true alpha-channel PNGs, they'll typically give you a plain white or neutral background instead, so you'll likely still need a quick background-removal pass (remove.bg, Photoshop, or an automated tool) after generation to get a true transparent cutout. Want me to also write a shorter, tool-specific version of these prompts formatted for Midjourney's parameter style (e.g., `--ar`, `--style raw`, `--v 6`)?

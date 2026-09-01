@@ -20,9 +20,9 @@ const heroAsset = (name: string) => `${BASE}/hero/${name}`;
 const withoutDashes = (value: string) => value.replace(/[—–]/g, "").replace(/\s{2,}/g, " ").trim();
 
 const commodities = [
-  { name: "green-coffee", src: heroAsset("tokenharvest-green-cherries.png"), alt: "Fresh green coffee cherries on a branch" },
+  { name: "green-beans", src: heroAsset("tokenharvest-green-beans.png"), alt: "Raw unroasted green coffee beans" },
   { name: "red-cherries", src: heroAsset("tokenharvest-red-cherries.png"), alt: "Ripe red coffee cherries on a branch" },
-  { name: "tea", src: heroAsset("tokenharvest-tea.png"), alt: "Fresh tea leaves" },
+  { name: "tea-farmer", src: heroAsset("tokenharvest-tea-farmer.png"), alt: "East African tea farmer holding a basket of freshly harvested tea leaves" },
   { name: "grain", src: heroAsset("tokenharvest-grain.png"), alt: "Golden grain stalks" },
   { name: "nuts", src: heroAsset("tokenharvest-nuts.png"), alt: "Macadamia nuts" },
   { name: "cacao", src: heroAsset("tokenharvest-cacao.png"), alt: "Open cacao pod" },
