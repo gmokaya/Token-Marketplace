@@ -1244,7 +1244,7 @@ export default function Home() {
           </section>
 
           {/* ══ FOOTER ──────────────────────────────────────────── */}
-          <footer className="homepage-footer" style={{ background: "#081d1e", padding: "32px 0 0" }}>
+          <footer className="homepage-footer" style={{ background: "#0a0a0b", padding: "18px 0 0" }}>
             <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px" }}>
               <div className="homepage-footer-minimal">
                 <div className="homepage-footer-brand">
@@ -1253,14 +1253,8 @@ export default function Home() {
                   </Link>
                   <span className="homepage-footer-location">Tatu City, Kenya</span>
                 </div>
-                <nav className="homepage-footer-minimal-links" aria-label="Footer navigation">
-                  <Link href="/sign-in">Marketplace</Link>
-                  <Link href="/get-started">Producers</Link>
-                  <button onClick={() => scrollTo("about")}>About</button>
-                  <button onClick={() => scrollTo("cta")}>Contact</button>
-                </nav>
               </div>
-              <div className="homepage-footer-bottom" style={{ padding: "14px 0 24px", display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
+              <div className="homepage-footer-bottom" style={{ padding: "28px 0 18px", display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
                 <p style={{ color: "rgba(255,255,255,0.2)", fontSize: 12, margin: 0 }}>© 2025 WRS Marketplace. All rights reserved.</p>
               </div>
             </div>
