@@ -114,15 +114,15 @@ function normalizeServices(value: unknown): ServiceCard[] | undefined {
 }
 
 const DEFAULT_ABOUT: AboutContent = {
-  badge: "The Platform",
-  heading: "End-to-End Digital\nTrade Infrastructure",
-  body: "TokenHarvest helps you source, finance, move, and manage agricultural trade with confidence. Built for growing businesses, it brings the essential tools for international trade into one platform, helping you reduce complexity, improve visibility, and reach new markets faster.",
+  badge: "Commodity Trade, Resolved",
+  heading: "From origin lot\nto delivered contract.",
+  body: "TokenHarvest turns fragmented origin supply into contract-ready commodity flows. We aggregate verified producers, standardize lot data against buyer specifications, finance eligible inventory, and coordinate documents and delivery through one auditable trade record.",
   bullets: [
-    "Source: Find trusted producers and suppliers across East Africa, matched to your quality, volume, and sourcing requirements.",
-    "Trade: Negotiate, contract, and complete transactions with confidence through secure digital trade workflows.",
-    "Finance: Access the capital you need to buy, sell, and grow, when you need it, not when traditional financing becomes available.",
-    "Fulfil: Move your products from origin to destination with integrated warehousing, shipping, customs, and delivery services.",
-    "Insights: Make better trading decisions with real-time market intelligence, portfolio visibility, and performance analytics.",
+    "SOURCE THE LOT: Aggregate verified origin supply by commodity, crop year, volume, location, and target buyer specification.",
+    "GRADE TO SPEC: Capture moisture, screen size, cup profile, defects, weight, certificates, and chain-of-custody data before contracting.",
+    "CONTRACT & FINANCE: Match qualified lots to off-takers, lock commercial terms, and unlock working capital against purchase orders, invoices, or warehouse receipts.",
+    "MOVE & SETTLE: Coordinate storage, phytosanitary and customs documents, Incoterms, freight, delivery, and settlement from origin to destination.",
+    "TRACE EVERY HANDOFF: Maintain lot-level provenance and an audit-ready record for compliance, claims, and buyer reporting.",
   ],
 };
 

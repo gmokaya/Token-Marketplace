@@ -913,3 +913,24 @@ h1, h2, h3, h4, h5, h6 {
     letter-spacing: 0.01em !important;
   }
 }
+
+/* ── Commodity floating animations ── */
+@media (prefers-reduced-motion: no-preference) {
+  .commodity-float-1 { animation: th-float-slow 7s ease-in-out infinite; }
+  .commodity-float-2 { animation: th-float-slow 8.5s ease-in-out infinite; animation-delay: -2s; }
+  .commodity-float-3 { animation: th-float-slow 6.5s ease-in-out infinite; animation-delay: -4s; }
+  .commodity-float-4 { animation: th-float-slow 9s ease-in-out infinite; animation-delay: -1s; }
+  .commodity-float-5 { animation: th-float-slow 7.5s ease-in-out infinite; animation-delay: -5s; }
+
+  @keyframes th-float-slow {
+    0%   { transform: translateY(0px) rotate(0deg); }
+    50%  { transform: translateY(-12px) rotate(2deg); }
+    100% { transform: translateY(0px) rotate(0deg); }
+  }
+}
+
+@media (max-width: 720px) {
+  .homepage-commodity-cluster {
+    max-width: 380px !important;
+  }
+}

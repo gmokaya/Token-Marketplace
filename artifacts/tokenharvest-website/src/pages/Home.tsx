@@ -94,15 +94,15 @@ function normalizeHero(value: unknown): HpHero {
   };
 }
 const DEF_ABOUT: HpAbout = {
-  badge: "The Platform",
-  heading: "End-to-End Digital\nTrade Infrastructure",
-  body: "TokenHarvest helps you source, finance, move, and manage agricultural trade with confidence. Built for growing businesses, it brings the essential tools for international trade into one platform, helping you reduce complexity, improve visibility, and reach new markets faster.",
+  badge: "Commodity Trade, Resolved",
+  heading: "From origin lot\nto delivered contract.",
+  body: "TokenHarvest turns fragmented origin supply into contract-ready commodity flows. We aggregate verified producers, standardize lot data against buyer specifications, finance eligible inventory, and coordinate documents and delivery through one auditable trade record.",
   bullets: [
-    "Source: Find trusted producers and suppliers across East Africa, matched to your quality, volume, and sourcing requirements.",
-    "Trade: Negotiate, contract, and complete transactions with confidence through secure digital trade workflows.",
-    "Finance: Access the capital you need to buy, sell, and grow, when you need it, not when traditional financing becomes available.",
-    "Fulfil: Move your products from origin to destination with integrated warehousing, shipping, customs, and delivery services.",
-    "Insights: Make better trading decisions with real-time market intelligence, portfolio visibility, and performance analytics.",
+    "SOURCE THE LOT: Aggregate verified origin supply by commodity, crop year, volume, location, and target buyer specification.",
+    "GRADE TO SPEC: Capture moisture, screen size, cup profile, defects, weight, certificates, and chain-of-custody data before contracting.",
+    "CONTRACT & FINANCE: Match qualified lots to off-takers, lock commercial terms, and unlock working capital against purchase orders, invoices, or warehouse receipts.",
+    "MOVE & SETTLE: Coordinate storage, phytosanitary and customs documents, Incoterms, freight, delivery, and settlement from origin to destination.",
+    "TRACE EVERY HANDOFF: Maintain lot-level provenance and an audit-ready record for compliance, claims, and buyer reporting.",
   ],
 };
 const DEF_STEPS: HpStep[] = [
@@ -921,39 +921,47 @@ export default function Home() {
           </section>
 
           {/* ══ ABOUT ════════════════════════════════════════════════ */}
-          <section id="about" style={{ background: "#e8e8e8", padding: "104px 0 112px" }}>
-            <div className="homepage-about-grid" style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "stretch" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <img src={photo("about-planting.jpg")} alt="East African farmer planting in the field" style={{ width: "94%", display: "block", objectFit: "cover", aspectRatio: "4 / 3", maxHeight: 460, boxShadow: "0 8px 20px rgba(0,0,0,0.35), 0 24px 60px rgba(0,0,0,0.25), 0 48px 100px rgba(0,0,0,0.15)" }} />
+          <section id="about" style={{ background: "#fdfdfd", padding: "120px 0 132px", overflow: "hidden" }}>
+            <div className="homepage-about-grid" style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
+              <div style={{ position: "relative", width: "100%", minHeight: 480, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "85%", height: "85%", borderRadius: "50%", background: "radial-gradient(circle, rgba(230,235,233,0.9) 0%, rgba(245,247,246,0) 70%)", zIndex: 0 }} />
+
+                <div className="homepage-commodity-cluster" style={{ position: "relative", width: "100%", maxWidth: 540, aspectRatio: "1 / 1", zIndex: 1 }}>
+                  <img src={`${BASE}/hero/tokenharvest-cacao.png`} className="commodity-float-5" alt="Cacao" style={{ position: "absolute", width: "36%", top: "42%", left: "-2%", zIndex: 1, filter: "drop-shadow(0 15px 25px rgba(0,0,0,0.12))" }} />
+                  <img src={`${BASE}/hero/tokenharvest-nuts.png`} className="commodity-float-4" alt="Nuts" style={{ position: "absolute", width: "38%", bottom: "12%", left: "10%", zIndex: 2, filter: "drop-shadow(0 20px 30px rgba(0,0,0,0.15))" }} />
+                  <img src={`${BASE}/hero/tokenharvest-tea.png`} className="commodity-float-2" alt="Tea leaves" style={{ position: "absolute", width: "42%", top: "8%", right: "8%", zIndex: 3, filter: "drop-shadow(0 15px 25px rgba(0,0,0,0.12))" }} />
+                  <img src={`${BASE}/hero/tokenharvest-coffee.png`} className="commodity-float-1" alt="Coffee beans" style={{ position: "absolute", width: "52%", top: "15%", left: "15%", zIndex: 4, filter: "drop-shadow(0 25px 35px rgba(0,0,0,0.18))" }} />
+                  <img src={`${BASE}/hero/tokenharvest-grain.png`} className="commodity-float-3" alt="Grain" style={{ position: "absolute", width: "58%", bottom: "6%", right: "0%", zIndex: 5, filter: "drop-shadow(0 30px 40px rgba(0,0,0,0.22))" }} />
+                </div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 14 }}>
-                  <div style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT }} />
-                  <span style={{ color: ACCENT, fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase" }}>{about.badge}</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 16 }}>
+                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: ACCENT }} />
+                  <span style={{ color: ACCENT, fontSize: 11, fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" }}>{about.badge}</span>
                 </div>
-                <h2 style={{ fontSize: "clamp(1.8rem, 3vw, 40px)", fontWeight: 500, color: "#090909", lineHeight: 1.18, margin: "0 0 24px", whiteSpace: "pre-line" }}>
+                <h2 style={{ fontSize: "clamp(2rem, 3.5vw, 44px)", fontWeight: 400, color: "#111", lineHeight: 1.15, margin: "0 0 24px", whiteSpace: "pre-line", letterSpacing: "-0.01em" }}>
                   {about.heading}
                 </h2>
-                <p style={{ fontSize: 16, color: "#555", lineHeight: 1.85, marginBottom: 36 }}>
+                <p style={{ fontSize: 16, color: "#555", lineHeight: 1.85, marginBottom: 40 }}>
                   {about.body}
                 </p>
                 <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column" }}>
                   {about.bullets.map((item, idx) => {
-                    const colonIdx = item.indexOf(": ");
+                    const colonIdx = item.indexOf(":");
                     const title = colonIdx >= 0 ? item.slice(0, colonIdx) : item;
-                    const desc  = colonIdx >= 0 ? item.slice(colonIdx + 2) : "";
+                    const desc  = colonIdx >= 0 ? item.slice(colonIdx + 1).trim() : "";
                     const active = activePillar === idx;
                     return (
                       <li key={item}
                         onMouseEnter={() => setActivePillar(idx)}
                         onMouseLeave={() => setActivePillar(null)}
-                        style={{ borderBottom: "1px solid #d0d0d0", padding: "14px 0", cursor: "default" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-                          <ChevronRight size={14} style={{ color: ACCENT, flexShrink: 0, transition: "transform 0.2s", transform: active ? "rotate(90deg)" : "none" }} />
-                          <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: active ? ACCENT : "#232323", transition: "color 0.2s" }}>{title}</span>
+                        style={{ borderBottom: "1px solid #e2e2e2", padding: "16px 0", cursor: "default" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                          <ChevronRight size={14} style={{ color: active ? ACCENT : "#a0a0a0", flexShrink: 0, transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s", transform: active ? "rotate(90deg)" : "none" }} />
+                          <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: active ? ACCENT : "#222", transition: "color 0.2s" }}>{title}</span>
                         </div>
-                        <div style={{ overflow: "hidden", maxHeight: active ? 80 : 0, opacity: active ? 1 : 0, transition: "max-height 0.3s ease, opacity 0.25s ease", paddingLeft: 23 }}>
-                          <p style={{ fontSize: 14, color: "#666", lineHeight: 1.7, margin: "9px 0 2px" }}>{desc}</p>
+                        <div style={{ overflow: "hidden", maxHeight: active ? 120 : 0, opacity: active ? 1 : 0, transition: "max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease", paddingLeft: 26 }}>
+                          <p style={{ fontSize: 14.5, color: "#666", lineHeight: 1.7, margin: "10px 0 4px" }}>{desc}</p>
                         </div>
                       </li>
                     );
