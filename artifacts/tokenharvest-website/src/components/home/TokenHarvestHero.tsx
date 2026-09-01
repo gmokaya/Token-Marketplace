@@ -23,7 +23,6 @@ const commodities = [
   { name: "green-beans", src: heroAsset("tokenharvest-green-beans.png"), alt: "Raw unroasted green coffee beans" },
   { name: "red-cherries", src: heroAsset("tokenharvest-red-cherries.png"), alt: "Ripe red coffee cherries on a branch" },
   { name: "tea-leaves", src: heroAsset("tokenharvest-tea.png"), alt: "Fresh tea leaves and a bud" },
-  { name: "tea-farmer", src: heroAsset("tokenharvest-tea-farmer.png"), alt: "East African tea farmer holding a basket of freshly harvested tea leaves" },
   { name: "grain", src: heroAsset("tokenharvest-grain.png"), alt: "Golden grain stalks" },
   { name: "nuts", src: heroAsset("tokenharvest-nuts.png"), alt: "Macadamia nuts" },
   { name: "cacao", src: heroAsset("tokenharvest-cacao.png"), alt: "Open cacao pod" },
@@ -88,7 +87,7 @@ export function TokenHarvestHero({ hero, image }: TokenHarvestHeroProps) {
             <img
               className="th-commodity-portrait"
               src={heroAsset("tokenharvest-producer.png")}
-              alt="East African coffee farmer holding a basket of ripe coffee cherries"
+              alt="East African coffee farmer wearing a black headscarf and dark field clothing"
             />
           </div>
         </div>
