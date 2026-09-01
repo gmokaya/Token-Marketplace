@@ -1174,17 +1174,21 @@ h1, h2, h3, h4, h5, h6 {
   justify-content: center;
   width: 34px;
   height: 34px;
-  border: 1px solid rgba(255,255,255,0.22);
+  border: 0;
   color: rgba(255,255,255,0.68);
   text-decoration: none;
-  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+  transition: color 0.2s ease, transform 0.2s ease;
 }
 
 .homepage-footer-social a:hover,
 .homepage-footer-social a:focus-visible {
-  color: #0a0a0b;
-  background: #fff;
-  border-color: #fff;
+  color: #fff;
+  background: transparent;
+}
+
+.homepage-footer-social a:focus-visible {
+  outline: 2px solid rgba(255,255,255,0.72);
+  outline-offset: 4px;
 }
 
 .homepage-service-card {
