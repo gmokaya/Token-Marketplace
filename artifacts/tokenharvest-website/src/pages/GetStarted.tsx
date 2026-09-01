@@ -19,7 +19,7 @@ const MARKETS = [
     name: "Coffee",
     href: "/coffee/",
     photo: marketPhotoAsset("coffee-green-beans.png"),
-    cutout: heroAsset("tokenharvest-coffee.png"),
+    cutout: heroAsset("tokenharvest-red-cherries.png"),
     color: "hsl(20 50% 30%)", // Coffee accent
   },
   {

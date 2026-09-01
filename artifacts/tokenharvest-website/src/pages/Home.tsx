@@ -1074,7 +1074,7 @@ export default function Home() {
                   <img src={`${BASE}/hero/tokenharvest-cacao.png`} className="commodity-float-5" alt="Cacao" style={{ position: "absolute", width: "36%", top: "42%", left: "-2%", zIndex: 1, filter: "drop-shadow(0 15px 25px rgba(0,0,0,0.12))" }} />
                   <img src={`${BASE}/hero/tokenharvest-nuts.png`} className="commodity-float-4" alt="Nuts" style={{ position: "absolute", width: "38%", bottom: "12%", left: "10%", zIndex: 2, filter: "drop-shadow(0 20px 30px rgba(0,0,0,0.15))" }} />
                   <img src={`${BASE}/hero/tokenharvest-tea.png`} className="commodity-float-2" alt="Tea leaves" style={{ position: "absolute", width: "42%", top: "8%", right: "8%", zIndex: 3, filter: "drop-shadow(0 15px 25px rgba(0,0,0,0.12))" }} />
-                  <img src={`${BASE}/hero/tokenharvest-coffee.png`} className="commodity-float-1" alt="Coffee beans" style={{ position: "absolute", width: "52%", top: "15%", left: "15%", zIndex: 4, filter: "drop-shadow(0 25px 35px rgba(0,0,0,0.18))" }} />
+                   <img src={`${BASE}/hero/tokenharvest-red-cherries.png`} className="commodity-float-1" alt="Red coffee cherries" style={{ position: "absolute", width: "52%", top: "15%", left: "15%", zIndex: 4, filter: "drop-shadow(0 25px 35px rgba(0,0,0,0.18))" }} />
                   <img src={`${BASE}/hero/tokenharvest-grain.png`} className="commodity-float-3" alt="Grain" style={{ position: "absolute", width: "58%", bottom: "6%", right: "0%", zIndex: 5, filter: "drop-shadow(0 30px 40px rgba(0,0,0,0.22))" }} />
                 </div>
               </div>
