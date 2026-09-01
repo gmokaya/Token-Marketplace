@@ -1024,20 +1024,53 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .homepage-finance-card {
-  background: #fff;
-  border-radius: 8px;
-  border: 1px solid #c5d0ca;
+  --finance-surface: #e5483f;
+  --finance-ink: #fff;
+  --finance-muted: rgba(255,255,255,0.82);
+  background: var(--finance-surface);
+  border-radius: 22px;
+  border: 0;
   padding: 40px 32px;
   display: flex;
   flex-direction: column;
   position: relative;
-  box-shadow: 0 10px 24px rgba(16,40,34,0.10);
-  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s ease;
+  overflow: hidden;
+  box-shadow: 0 14px 28px rgba(16,40,34,0.18);
+  transition: box-shadow 0.3s ease;
+}
+
+.homepage-finance-card[data-tone="yellow"] {
+  --finance-surface: #f5bd18;
+  --finance-ink: #111;
+  --finance-muted: rgba(17,17,17,0.72);
+}
+
+.homepage-finance-card[data-tone="blue"] {
+  --finance-surface: #1d69c9;
+  --finance-ink: #fff;
+  --finance-muted: rgba(255,255,255,0.84);
+}
+
+.homepage-finance-card::before {
+  content: "";
+  position: absolute;
+  width: 390px;
+  height: 210px;
+  left: -100px;
+  top: 92px;
+  border: 2px solid rgba(255,255,255,0.32);
+  border-radius: 50%;
+  transform: rotate(-30deg);
+  pointer-events: none;
+}
+
+.homepage-finance-card > * {
+  position: relative;
+  z-index: 1;
 }
 
 .homepage-finance-card:hover {
-  box-shadow: 0 16px 36px rgba(16,40,34,0.16);
-  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(16,40,34,0.24);
 }
 
 .homepage-finance-card-cta-icon {

@@ -456,6 +456,7 @@ const FINANCE_PRODUCTS = [
   {
     eyebrow: "Harvest Fund",
     audience: "FOR PRODUCERS",
+    tone: "red",
     hook: "Fund the Harvest Before It's Sold",
     body: "Inputs, labor, and logistics shouldn't wait on a sale to clear. Access capital ahead of export so the next cycle starts on time.",
     proof: "Funds released before shipment, not after",
@@ -465,6 +466,7 @@ const FINANCE_PRODUCTS = [
   {
     eyebrow: "Fast Pay",
     audience: "FOR TRADERS",
+    tone: "yellow",
     hook: "Get Paid Before the Buyer Settles",
     body: "Waiting on payment terms shouldn't limit how many deals you can run. Convert a confirmed sale into cash and keep trading without the lag.",
     proof: "Access cash as soon as a trade is confirmed",
@@ -474,6 +476,7 @@ const FINANCE_PRODUCTS = [
   {
     eyebrow: "Order Finance",
     audience: "FOR BUYERS",
+    tone: "blue",
     hook: "Commit to Bigger Orders Without Tying Up Cash",
     body: "A good deal shouldn't be capped by what's sitting in your account today. Finance part of a confirmed order and let the trade fund itself.",
     proof: "Finance a share of the order value upfront",
@@ -483,46 +486,47 @@ const FINANCE_PRODUCTS = [
 ];
 
 function FinanceCard({
-  eyebrow, audience, hook, body, proof, eligibility, cta
+  eyebrow, audience, tone, hook, body, proof, eligibility, cta
 }: {
-  eyebrow: string; audience: string; hook: string; body: string; proof: string; eligibility: string; cta: string;
+  eyebrow: string; audience: string; tone: "red" | "yellow" | "blue"; hook: string; body: string; proof: string; eligibility: string; cta: string;
 }) {
   const [hover, setHover] = useState(false);
   return (
     <div
       className="homepage-finance-card"
+      data-tone={tone}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
-        <div style={{ color: ACCENT, fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>
+        <div style={{ color: "var(--finance-ink)", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>
           {eyebrow}
         </div>
-        <div style={{ background: ACCENT, color: "#fff", fontSize: 10, fontWeight: 700, padding: "5px 9px", borderRadius: 4, letterSpacing: "0.06em" }}>
+        <div style={{ background: "rgba(255,255,255,0.9)", color: "var(--finance-surface)", fontSize: 10, fontWeight: 800, padding: "5px 9px", borderRadius: 4, letterSpacing: "0.06em" }}>
           {audience}
         </div>
       </div>
 
-      <h3 style={{ fontSize: 22, fontWeight: 500, color: "#111", lineHeight: 1.25, margin: "0 0 16px" }}>
+      <h3 style={{ fontSize: 22, fontWeight: 600, color: "var(--finance-ink)", lineHeight: 1.25, margin: "0 0 16px" }}>
         {hook}
       </h3>
 
-      <p style={{ fontSize: 15, color: "#666", lineHeight: 1.6, margin: "0 0 24px", flex: 1 }}>
+      <p style={{ fontSize: 15, color: "var(--finance-muted)", lineHeight: 1.6, margin: "0 0 24px", flex: 1 }}>
         {body}
       </p>
 
-      <div style={{ background: "#e7f0eb", borderLeft: `4px solid ${ACCENT_LIGHT}`, padding: "16px 20px", marginBottom: 24, borderRadius: "0 4px 4px 0" }}>
+      <div style={{ background: "rgba(255,255,255,0.92)", borderLeft: "4px solid var(--finance-surface)", padding: "16px 20px", marginBottom: 24, borderRadius: "0 8px 8px 0" }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: "#162d27", marginBottom: 6 }}>
           {proof}
         </div>
-        <div style={{ fontSize: 13, color: "#52635d", fontStyle: "italic", lineHeight: 1.4 }}>
+        <div style={{ fontSize: 13, color: "rgba(22,45,39,0.68)", fontStyle: "italic", lineHeight: 1.4 }}>
           {eligibility}
         </div>
       </div>
 
       <Link href="/get-started" style={{
         display: "flex", alignItems: "center", gap: 6,
-        color: hover ? ACCENT_LIGHT : ACCENT,
+        color: "var(--finance-ink)",
         fontSize: 14, fontWeight: 600,
         transition: "color 0.2s",
         textDecoration: "none",
@@ -1187,7 +1191,7 @@ export default function Home() {
           <EsgSection />
 
           {/* ══ TRADE FINANCE & LIQUIDITY ════════════════════════ */}
-          <section style={{ background: "#e8edea", padding: "96px 0" }}>
+          <section id="finance" style={{ background: "#e8edea", padding: "96px 0" }}>
             <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px" }}>
               <div style={{ textAlign: "center", marginBottom: 64 }}>
                 <div style={{ display: "inline-flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
