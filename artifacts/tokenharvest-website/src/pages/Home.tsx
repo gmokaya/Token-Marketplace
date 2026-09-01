@@ -535,26 +535,20 @@ function FinanceCard({
 
 function FinanceCarousel() {
   const [activeIndex, setActiveIndex] = useState(1);
-  const [paused, setPaused] = useState(false);
 
   useEffect(() => {
-    if (paused) return;
     const timer = window.setInterval(() => {
       setActiveIndex(index => (index + 1) % FINANCE_PRODUCTS.length);
     }, 5500);
     return () => window.clearInterval(timer);
-  }, [paused]);
+  }, []);
 
   const move = (direction: number) => {
     setActiveIndex(index => (index + direction + FINANCE_PRODUCTS.length) % FINANCE_PRODUCTS.length);
   };
 
   return (
-    <div
-      className="homepage-finance-carousel"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-    >
+    <div className="homepage-finance-carousel">
       <div className="homepage-finance-stage" aria-live="polite">
         {FINANCE_PRODUCTS.map((product, index) => {
           let position = index - activeIndex;
