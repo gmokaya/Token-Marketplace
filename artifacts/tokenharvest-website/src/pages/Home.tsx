@@ -270,10 +270,10 @@ function MarketCard({ num, name, grade, desc, photo, link }: MarketCardData) {
         overflow: "hidden",
         cursor: "pointer",
         transition: "flex 0.45s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s ease",
-        backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.80) 30%, rgba(0,0,0,${hover ? "0.40" : "0.25"}) 100%), url(${photo})`,
+         backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.82) 18%, rgba(8,18,17,${hover ? "0.48" : "0.58"}) 100%), url(${photo})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
-        borderRadius: 6,
+         borderRadius: 0,
         boxShadow: hover
           ? "0 8px 16px rgba(0,0,0,0.12), 0 24px 48px rgba(0,0,0,0.08), 0 48px 80px rgba(0,0,0,0.04)"
           : "0 2px 4px rgba(0,0,0,0.08), 0 8px 16px rgba(0,0,0,0.06)",
