@@ -700,12 +700,8 @@ h1, h2, h3, h4, h5, h6 {
     grid-template-columns: 1fr !important;
   }
   .homepage-services-grid > div {
-    border-right: none !important;
-    border-top: 1px solid #f0f0f0 !important;
     padding: 40px 24px 36px !important;
-  }
-  .homepage-services-grid > div:first-child {
-    border-top: none !important;
+    min-height: 0 !important;
   }
 
   /* ── About ── */

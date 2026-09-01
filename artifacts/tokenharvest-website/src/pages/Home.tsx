@@ -1023,16 +1023,16 @@ export default function Home() {
               </div>
               <div className="homepage-services-grid" style={{
                 display: "grid", gridTemplateColumns: "1fr 1fr 1fr",
-                background: "#fff", position: "relative", zIndex: 10,
-                boxShadow: "0 8px 40px rgba(0,0,0,0.10)",
+                gap: 20, position: "relative", zIndex: 10,
               }}>
-                {services.map(({ icon, title, sub, desc }, i) => (
+                {services.map(({ icon, title, sub, desc }) => (
                   <div key={title} style={{
-                    padding: "64px 40px 52px",
-                    borderRight: i % 3 !== 2 && i !== services.length - 1 ? "1px solid #f0f0f0" : undefined,
-                    borderTop: i >= 3 ? "1px solid #f0f0f0" : undefined,
+                    padding: "52px 40px 48px",
+                    background: "#fff",
+                    borderRadius: 12,
+                    minHeight: 292,
                     transition: "box-shadow 0.3s ease, transform 0.3s ease",
-                    boxShadow: "inset 0 0 0 transparent",
+                    boxShadow: "0 12px 32px rgba(16,40,34,0.08)",
                     position: "relative",
                     zIndex: 1,
                   }}
@@ -1043,7 +1043,7 @@ export default function Home() {
                   }}
                   onMouseLeave={e => {
                     (e.currentTarget as HTMLDivElement).style.transform = "translateY(0) scale(1)";
-                    (e.currentTarget as HTMLDivElement).style.boxShadow = "inset 0 0 0 transparent";
+                    (e.currentTarget as HTMLDivElement).style.boxShadow = "0 12px 32px rgba(16,40,34,0.08)";
                     (e.currentTarget as HTMLDivElement).style.zIndex = "1";
                   }}>
                     <img src={img(icon)} alt={title} style={{ width: 44, marginBottom: 20 }} />
@@ -1053,7 +1053,6 @@ export default function Home() {
                     </h3>
                     <p style={{ fontSize: 12, color: "#bbb", fontWeight: 500, letterSpacing: "0.14em", textTransform: "uppercase", margin: "0 0 14px 14px" }}>{sub}</p>
                     <p style={{ fontSize: 16, color: "#696969", lineHeight: 1.75, margin: 0 }}>{desc}</p>
-                    <div style={{ width: 56, height: 2, background: ACCENT, marginTop: 24 }} />
                   </div>
                 ))}
               </div>
