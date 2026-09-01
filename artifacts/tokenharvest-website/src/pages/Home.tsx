@@ -1,7 +1,7 @@
 import { useAuth } from "@clerk/react";
 import { Link } from "wouter";
 import { useEffect, useRef, useState, type MouseEvent } from "react";
-import { ArrowRight, ChevronLeft, ChevronRight, X, Send, Menu } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, X, Send, Menu, Linkedin, Instagram, Facebook } from "lucide-react";
 import { PriceTicker } from "@/components/PriceTicker";
 import { TokenHarvestHero } from "@/components/home/TokenHarvestHero";
 
@@ -1263,6 +1263,17 @@ export default function Home() {
                   <button type="button" onClick={() => scrollTo("about")}>About</button>
                   <a href="https://tokenharvest.app" target="_blank" rel="noreferrer">App</a>
                 </nav>
+                <div className="homepage-footer-social" aria-label="Social media">
+                  <a href="https://www.linkedin.com/company/tokenharvest" target="_blank" rel="noreferrer" aria-label="LinkedIn" title="LinkedIn">
+                    <Linkedin size={17} strokeWidth={1.8} aria-hidden="true" />
+                  </a>
+                  <a href="https://www.instagram.com/token.harvest/" target="_blank" rel="noreferrer" aria-label="Instagram" title="Instagram">
+                    <Instagram size={17} strokeWidth={1.8} aria-hidden="true" />
+                  </a>
+                  <a href="https://www.facebook.com/profile.php?id=61593201038599" target="_blank" rel="noreferrer" aria-label="Facebook" title="Facebook">
+                    <Facebook size={17} strokeWidth={1.8} aria-hidden="true" />
+                  </a>
+                </div>
               </div>
             </div>
           </footer>
