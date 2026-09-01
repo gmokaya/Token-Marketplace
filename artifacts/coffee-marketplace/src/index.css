@@ -348,10 +348,10 @@
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 }
 
-/* ── Simplo display font — place Simplo-Regular.ttf & Simplo-Bold.ttf in /coffee/fonts/ ── */
+/* ── Simplo display font ───────────────────────────────── */
 @font-face {
   font-family: 'Simplo';
-  src: url('/coffee/fonts/Simplo-Regular.ttf') format('truetype');
+  src: url('/coffee/fonts/Simplo-Regular.otf') format('opentype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -359,7 +359,7 @@
 
 @font-face {
   font-family: 'Simplo';
-  src: url('/coffee/fonts/Simplo-Bold.ttf') format('truetype');
+  src: url('/coffee/fonts/Simplo-Bold.otf') format('opentype');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
