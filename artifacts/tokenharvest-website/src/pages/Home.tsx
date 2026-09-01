@@ -123,14 +123,14 @@ const DEF_STEPS: HpStep[] = [
   {
     num: "03",
     title: "Embedded Trade Finance",
-    subtitle: "Seamless Payments & Financing",
+    subtitle: "Payments & Financing",
     tagline: "Pay on your terms.",
     desc: "Use escrow, wallet visibility, and built-in financing to manage every payment with confidence.",
   },
   {
     num: "04",
     title: "Delivery",
-    subtitle: "Seamless Logistics & Documentation",
+    subtitle: "Logistics & Documentation",
     tagline: "Logistics handled for you.",
     desc: "We handle delivery, documentation, and customs so you can focus on sourcing confidently.",
   },
