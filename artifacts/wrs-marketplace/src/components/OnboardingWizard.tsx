@@ -234,6 +234,7 @@ export default function OnboardingWizard({
       localStorage.removeItem("onboarding-draft");
       localStorage.removeItem("onboardingRole");
       await queryClient.invalidateQueries({ queryKey: ["/api/users/me"] });
+      await queryClient.invalidateQueries({ queryKey: ["/api/onboarding/me"] });
       
       toast({
         title: `Welcome to ${marketName}!`,

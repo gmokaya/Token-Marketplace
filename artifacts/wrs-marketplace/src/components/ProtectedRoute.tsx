@@ -1,6 +1,8 @@
 import { Show, useClerk } from "@clerk/react";
 import { ReactNode, useEffect } from "react";
-import { useGetMe, getGetMeQueryKey } from "@workspace/api-client-react";
+import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import { customFetch, useGetMe, getGetMeQueryKey } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function ProtectedRoute({ children }: { children: ReactNode }) {
@@ -27,12 +29,31 @@ function RedirectToSignIn() {
 }
 
 function EnsureProfile({ children }: { children: ReactNode }) {
-  const { data: user, error, isLoading } = useGetMe({
+  const [location, setLocation] = useLocation();
+  const { data: user, error: userError, isLoading: userLoading } = useGetMe({
     query: {
       queryKey: getGetMeQueryKey(),
       retry: false,
-    }
+    },
   });
+  const { data: onboarding, error: onboardingError, isLoading: onboardingLoading } = useQuery({
+    queryKey: ["/api/onboarding/me"],
+    queryFn: () => customFetch("/api/onboarding/me"),
+    retry: false,
+    enabled: !userLoading && !userError && Boolean(user),
+  });
+  const error = userError ?? onboardingError;
+  const isLoading = userLoading || onboardingLoading;
+  const isMissing = error && (error as any)?.status === 404;
+
+  useEffect(() => {
+    if (isLoading) return;
+    if (isMissing && location !== "/onboarding") {
+      setLocation("/onboarding");
+    } else if (!isMissing && !error && onboarding && location === "/onboarding") {
+      setLocation("/dashboard");
+    }
+  }, [error, isLoading, isMissing, location, onboarding, setLocation]);
 
   if (isLoading) {
     return (
@@ -45,7 +66,10 @@ function EnsureProfile({ children }: { children: ReactNode }) {
     );
   }
 
-  if (error && (error as any)?.status !== 404) {
+  if (isMissing && location !== "/onboarding") return null;
+  if (!isMissing && !error && onboarding && location === "/onboarding") return null;
+
+  if (error && !isMissing) {
     return (
       <div className="p-8 text-center text-destructive">
         <p>Error loading profile. Please try refreshing.</p>
