@@ -53,7 +53,7 @@ export default function Home() {
             </button>
           ) : (
             <Link
-              href="/sign-in"
+              href="/grain/sign-in"
               className="flex items-center gap-2 transition-colors hover:text-white"
             >
               Sign in <ArrowUpRight className="h-3.5 w-3.5" />
@@ -84,13 +84,13 @@ export default function Home() {
             </p>
 
             <div className="mt-7 flex flex-wrap items-center gap-3">
-              <Link href={isSignedIn ? "/broker" : "/sign-in"}>
+              <Link href={isSignedIn ? "/broker" : "/grain/sign-in"}>
                 <span className="group inline-flex cursor-pointer items-center gap-3 bg-[#f2efe5] px-5 py-3.5 text-xs font-semibold uppercase tracking-[0.12em] text-[#0a2620] transition-colors hover:bg-white">
                   {isSignedIn ? "Open sourcing desk" : "Enter sourcing desk"}
                   <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                 </span>
               </Link>
-              <Link href="/sign-up">
+              <Link href="/grain/sign-up">
                 <span className="inline-flex cursor-pointer items-center border border-white/35 bg-white/[0.06] px-5 py-3.5 text-xs font-medium uppercase tracking-[0.12em] text-white/85 backdrop-blur-sm transition-colors hover:border-white/65 hover:bg-white/15 hover:text-white">
                   Create buyer account
                 </span>

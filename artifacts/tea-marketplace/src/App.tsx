@@ -11,8 +11,6 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Layout } from "@/components/layout/Layout";
 
 import Home from "@/pages/Home";
-import SignInPage from "@/pages/SignInPage";
-import SignUpPage from "@/pages/SignUpPage";
 import Dashboard from "@/pages/Dashboard";
 import Profile from "@/pages/Profile";
 
@@ -108,8 +106,8 @@ function ClerkProviderWithRoutes() {
     <ClerkProvider
       publishableKey={clerkPubKey}
       appearance={clerkAppearance}
-      signInUrl={`${basePath}/sign-in`}
-      signUpUrl={`${basePath}/sign-up`}
+      signInUrl={`${basePath}/grain/sign-in`}
+      signUpUrl={`${basePath}/grain/sign-up`}
       signInFallbackRedirectUrl={`${basePath}/dashboard`}
       signUpFallbackRedirectUrl={`${basePath}/dashboard`}
       routerPush={(to) => setLocation(stripBase(to))}
@@ -122,8 +120,6 @@ function ClerkProviderWithRoutes() {
           <Switch>
             {/* Full-screen pages, no Layout wrapper */}
             <Route path="/" component={Home} />
-            <Route path="/sign-in/*?" component={SignInPage} />
-            <Route path="/sign-up/*?" component={SignUpPage} />
 
             {/* App pages, wrapped in Layout */}
             <Route>
