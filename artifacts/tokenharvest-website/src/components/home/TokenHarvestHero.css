@@ -297,8 +297,7 @@
   object-fit: contain;
 }
 
-.th-commodity-item[data-name="green-beans"] { top: 8%; left: 0; animation-delay: -2s; }
-.th-commodity-item[data-name="red-cherries"] { top: 26%; right: 1%; width: clamp(78px, 12vw, 132px); animation-delay: -4.5s; }
+.th-commodity-item[data-name="coffee-harvest"] { top: 8%; left: 0; width: clamp(85px, 13vw, 145px); animation-delay: -2s; }
 .th-commodity-item[data-name="tea-leaves"] { top: 4%; right: -3%; width: clamp(80px, 12vw, 125px); animation-delay: -3s; }
 .th-commodity-item[data-name="grain"] { bottom: 5%; left: -1%; width: clamp(95px, 15vw, 160px); animation-delay: -1s; }
 .th-commodity-item[data-name="nuts"] { right: 6%; bottom: 3%; animation-delay: -3s; }
@@ -453,7 +452,6 @@
 
   .th-commodity-tag.origin { left: 0; }
   .th-commodity-tag.finance { right: 0; }
-  .th-commodity-item[data-name="red-cherries"] { top: 27%; right: -4%; }
   .th-commodity-item[data-name="tea-leaves"] { right: -4%; }
   .th-commodity-item[data-name="cacao"] { right: -3%; }
   .th-commodity-item[data-name="grain"] { left: -2%; }

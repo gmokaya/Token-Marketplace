@@ -20,8 +20,7 @@ const heroAsset = (name: string) => `${BASE}/hero/${name}`;
 const withoutDashes = (value: string) => value.replace(/[—–]/g, "").replace(/\s{2,}/g, " ").trim();
 
 const commodities = [
-  { name: "green-beans", src: heroAsset("tokenharvest-green-beans.png"), alt: "Raw unroasted green coffee beans" },
-  { name: "red-cherries", src: heroAsset("tokenharvest-red-cherries.png"), alt: "Ripe red coffee cherries on a branch" },
+  { name: "coffee-harvest", src: heroAsset("tokenharvest-green-beans-red-cherries.png"), alt: "Naturally varied red coffee cherries with raw green coffee beans" },
   { name: "tea-leaves", src: heroAsset("tokenharvest-tea.png"), alt: "Fresh tea leaves and a bud" },
   { name: "grain", src: heroAsset("tokenharvest-grain.png"), alt: "Golden grain stalks" },
   { name: "nuts", src: heroAsset("tokenharvest-nuts.png"), alt: "Macadamia nuts" },
@@ -87,7 +86,7 @@ export function TokenHarvestHero({ hero, image }: TokenHarvestHeroProps) {
             <img
               className="th-commodity-portrait"
               src={heroAsset("tokenharvest-producer.png")}
-              alt="East African coffee farmer wearing a black headscarf and dark field clothing"
+              alt="East African coffee farmer holding a woven basket of harvested red coffee cherries"
             />
           </div>
         </div>
