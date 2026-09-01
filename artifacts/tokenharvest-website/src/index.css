@@ -921,6 +921,69 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ── Trade Finance Cards ── */
+.homepage-service-card {
+  --service-accent: #dc554c;
+  --service-wash: #fff4f1;
+  overflow: hidden;
+  background: linear-gradient(145deg, #fff 0%, var(--service-wash) 100%);
+}
+
+.homepage-service-card[data-service="1"] {
+  --service-accent: #278577;
+  --service-wash: #eff8f5;
+}
+
+.homepage-service-card[data-service="2"] {
+  --service-accent: #c38b18;
+  --service-wash: #fff9e9;
+}
+
+.homepage-service-card::before {
+  content: "";
+  position: absolute;
+  width: 190px;
+  height: 190px;
+  top: -94px;
+  right: -78px;
+  border-radius: 50%;
+  background: var(--service-wash);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.homepage-service-card::after {
+  content: "";
+  position: absolute;
+  width: 112px;
+  height: 112px;
+  top: -54px;
+  right: -38px;
+  border: 1px solid color-mix(in srgb, var(--service-accent) 28%, transparent);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.homepage-service-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.homepage-service-card-mark {
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 26px;
+  border-radius: 50%;
+  background: var(--service-accent);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--service-accent) 28%, transparent);
+}
+
 .homepage-finance-carousel {
   --finance-card-width: min(32vw, 400px);
   --finance-side-offset: min(31vw, 390px);

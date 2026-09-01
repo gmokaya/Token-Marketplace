@@ -1025,10 +1025,9 @@ export default function Home() {
                 display: "grid", gridTemplateColumns: "1fr 1fr 1fr",
                 gap: 20, position: "relative", zIndex: 10,
               }}>
-                {services.map(({ title, sub, desc }) => (
-                  <div key={title} style={{
+                {services.map(({ title, sub, desc }, i) => (
+                  <div key={title} className="homepage-service-card" data-service={i % 3} style={{
                     padding: "42px 40px 44px",
-                    background: "#fff",
                     borderRadius: 12,
                     minHeight: 236,
                     transition: "box-shadow 0.3s ease, transform 0.3s ease",
@@ -1046,11 +1045,14 @@ export default function Home() {
                     (e.currentTarget as HTMLDivElement).style.boxShadow = "0 12px 32px rgba(16,40,34,0.08)";
                     (e.currentTarget as HTMLDivElement).style.zIndex = "1";
                   }}>
+                    <div className="homepage-service-card-mark" aria-hidden="true">
+                      {String(i + 1).padStart(2, "0")}
+                    </div>
                     <h3 style={{ fontSize: 24, fontWeight: 600, color: "#232323", margin: "0 0 2px", display: "flex", alignItems: "center", gap: 9 }}>
-                      <span style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT, display: "inline-block", flexShrink: 0 }} />
+                      <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--service-accent)", display: "inline-block", flexShrink: 0 }} />
                       {title}
                     </h3>
-                    <p style={{ fontSize: 12, color: "#bbb", fontWeight: 500, letterSpacing: "0.14em", textTransform: "uppercase", margin: "0 0 14px 14px" }}>{sub}</p>
+                    <p style={{ fontSize: 12, color: "rgba(35,35,35,0.5)", fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", margin: "0 0 14px 15px" }}>{sub}</p>
                     <p style={{ fontSize: 16, color: "#696969", lineHeight: 1.75, margin: 0 }}>{desc}</p>
                   </div>
                 ))}
