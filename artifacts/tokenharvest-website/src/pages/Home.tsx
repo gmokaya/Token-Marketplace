@@ -1181,9 +1181,6 @@ export default function Home() {
                   </div>
                 ))}
               </div>
-              <div style={{ color: "rgba(255,255,255,0.38)", fontSize: 11, textAlign: "center", marginTop: 28, letterSpacing: "0.04em" }}>
-                Earnings and settlement figures are modeled targets for the pre-launch platform.
-              </div>
             </div>
           </section>
 
