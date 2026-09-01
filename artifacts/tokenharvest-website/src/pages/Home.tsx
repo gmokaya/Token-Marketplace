@@ -454,39 +454,38 @@ function EsgSection() {
 /* ── Trade Finance Cards ───────────────────────────────────── */
 const FINANCE_PRODUCTS = [
   {
-    eyebrow: "Warehouse Receipt Financing",
+    eyebrow: "Harvest Fund",
     audience: "FOR PRODUCERS",
-    hook: "Liquidity against verified inventory",
-    description: "Working capital secured by graded, warehoused stock.",
-    cta: "Explore financing",
+    hook: "Fund the Harvest Before It's Sold",
+    body: "Inputs, labor, and logistics shouldn't wait on a sale to clear. Access capital ahead of export so the next cycle starts on time.",
+    proof: "Funds released before shipment, not after",
+    eligibility: "Available once a forward contract or export order is confirmed.",
+    cta: "Explore Harvest Fund",
   },
   {
-    eyebrow: "Pre-Export Finance",
-    audience: "FOR PRODUCERS",
-    hook: "Working capital before shipment",
-    description: "Funding support for production and export preparation.",
-    cta: "Explore financing",
+    eyebrow: "Fast Pay",
+    audience: "FOR TRADERS",
+    hook: "Get Paid Before the Buyer Settles",
+    body: "Waiting on payment terms shouldn't limit how many deals you can run. Convert a confirmed sale into cash and keep trading without the lag.",
+    proof: "Access cash as soon as a trade is confirmed",
+    eligibility: "Available on any buyer-approved sale on the marketplace.",
+    cta: "Explore Fast Pay",
   },
   {
-    eyebrow: "Invoice Factoring",
-    audience: "FOR PRODUCERS",
-    hook: "Cash against approved invoices",
-    description: "Unlock working capital while invoices are outstanding.",
-    cta: "Explore financing",
-  },
-  {
-    eyebrow: "Advance Payments",
-    audience: "FOR PRODUCERS",
-    hook: "Upfront proceeds on confirmed trades",
-    description: "Improve cash flow with an advance against sale proceeds.",
-    cta: "Explore financing",
+    eyebrow: "Order Finance",
+    audience: "FOR BUYERS",
+    hook: "Commit to Bigger Orders Without Tying Up Cash",
+    body: "A good deal shouldn't be capped by what's sitting in your account today. Finance part of a confirmed order and let the trade fund itself.",
+    proof: "Finance a share of the order value upfront",
+    eligibility: "Available once a purchase order is matched and confirmed.",
+    cta: "Explore Order Finance",
   },
 ];
 
 function FinanceCard({
-  eyebrow, audience, hook, description, cta
+  eyebrow, audience, hook, body, proof, eligibility, cta
 }: {
-  eyebrow: string; audience: string; hook: string; description: string; cta: string;
+  eyebrow: string; audience: string; hook: string; body: string; proof: string; eligibility: string; cta: string;
 }) {
   const [hover, setHover] = useState(false);
   return (
@@ -508,9 +507,18 @@ function FinanceCard({
         {hook}
       </h3>
 
-      <p style={{ fontSize: 15, color: "#666", lineHeight: 1.6, margin: "0 0 32px", flex: 1 }}>
-        {description}
+      <p style={{ fontSize: 15, color: "#666", lineHeight: 1.6, margin: "0 0 24px", flex: 1 }}>
+        {body}
       </p>
+
+      <div style={{ background: "#fcfcfc", borderLeft: `3px solid ${ACCENT}`, padding: "16px 20px", marginBottom: 24, borderRadius: "0 4px 4px 0" }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: "#111", marginBottom: 6 }}>
+          {proof}
+        </div>
+        <div style={{ fontSize: 13, color: "#777", fontStyle: "italic", lineHeight: 1.4 }}>
+          {eligibility}
+        </div>
+      </div>
 
       <Link href="/get-started" style={{
         display: "flex", alignItems: "center", gap: 6,
@@ -1140,7 +1148,7 @@ export default function Home() {
                   Working capital tied to real inventory, contracts, invoices, and confirmed trades.
                 </p>
               </div>
-              <div className="homepage-finance-cards-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32 }}>
+              <div className="homepage-finance-cards-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 32 }}>
                 {FINANCE_PRODUCTS.map(product => <FinanceCard key={product.eyebrow} {...product} />)}
               </div>
             </div>
