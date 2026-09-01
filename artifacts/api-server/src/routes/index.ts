@@ -36,6 +36,7 @@ import listingPublicationsRouter from "./listing-publications";
 import integrationCredentialsRouter, { resolveApiKeyUser } from "./integration-credentials";
 import providerMarketplaceRouter from "./provider-marketplace";
 import marketDataRouter from "./market-data";
+import onboardingRouter from "./onboarding";
 
 const router: IRouter = Router();
 
@@ -117,6 +118,7 @@ if (FACTORY_API_CONFIGURED) {
 router.use(requireAuth);
 
 router.use(usersRouter);
+router.use(onboardingRouter);
 router.use(ewrsRouter);
 router.use(listingsRouter);
 router.use(ordersRouter);

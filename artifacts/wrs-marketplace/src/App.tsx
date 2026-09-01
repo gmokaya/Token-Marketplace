@@ -10,7 +10,9 @@ import { setAuthTokenGetter } from "@workspace/api-client-react";
 
 import Home from "@/pages/Home";
 import SignInPage from "@/pages/SignInPage";
+import SignUpPage from "@/pages/SignUpPage";
 import Dashboard from "@/pages/Dashboard";
+import OnboardingPage from "@/pages/OnboardingPage";
 import Profile from "@/pages/Profile";
 import AdminEarnings from "@/pages/AdminEarnings";
 import AdminUsers from "@/pages/AdminUsers";
@@ -126,7 +128,7 @@ function ClerkProviderWithRoutes() {
       signInUrl={`${basePath}/sign-in`}
       signUpUrl={`${basePath}/sign-in?mode=sign-up`}
       signInFallbackRedirectUrl={`${basePath}/dashboard`}
-      signUpFallbackRedirectUrl={`${basePath}/dashboard`}
+      signUpFallbackRedirectUrl={`${basePath}/onboarding`}
       routerPush={(to) => setLocation(stripBase(to))}
       routerReplace={(to) => setLocation(stripBase(to), { replace: true })}
     >
@@ -138,9 +140,11 @@ function ClerkProviderWithRoutes() {
           <Switch>
             {/* Public pages */}
             <Route path="/" component={HomeRedirect} />
+            <Route path="/sign-up" component={SignUpPage} />
             <Route path="/sign-in/*?" component={SignInPage} />
 
             {/* Authenticated pages */}
+            <Route path="/onboarding"><ProtectedRoute><OnboardingPage /></ProtectedRoute></Route>
             <Route path="/dashboard"><ProtectedRoute><Dashboard /></ProtectedRoute></Route>
             <Route path="/profile"><ProtectedRoute><Profile /></ProtectedRoute></Route>
 

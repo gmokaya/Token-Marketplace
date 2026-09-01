@@ -21,18 +21,22 @@ router.get("/users/me", async (req, res) => {
       clerkUser.emailAddresses.find((email) => email.id === clerkUser.primaryEmailAddressId)
       ?? clerkUser.emailAddresses[0];
     const email = primaryEmail?.emailAddress.trim().toLowerCase();
+    const primaryPhone =
+      clerkUser.phoneNumbers.find((phone) => phone.id === clerkUser.primaryPhoneNumberId)
+      ?? clerkUser.phoneNumbers[0];
+    const phone = primaryPhone?.phoneNumber;
+    const hasVerifiedEmail = Boolean(email && primaryEmail?.verification?.status === "verified");
+    const hasVerifiedPhone = Boolean(phone && primaryPhone?.verification?.status === "verified");
 
-    if (!email || primaryEmail?.verification?.status !== "verified") {
-      return res.status(403).json({ error: "A verified email address is required" });
+    if (!hasVerifiedEmail && !hasVerifiedPhone) {
+      return res.status(403).json({ error: "A verified email address or phone number is required" });
     }
 
     // Preserve previously assigned roles when the same verified Clerk identity
     // receives a new Clerk user ID (for example, after moving between instances).
-    const [existingByEmail] = await db
-      .select()
-      .from(usersTable)
-      .where(eq(usersTable.email, email))
-      .limit(1);
+    const existingByEmail = hasVerifiedEmail
+      ? (await db.select().from(usersTable).where(eq(usersTable.email, email!)).limit(1))[0]
+      : undefined;
 
     if (existingByEmail) {
       const [linked] = await db
@@ -46,15 +50,18 @@ router.get("/users/me", async (req, res) => {
     const name =
       [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ").trim()
       || clerkUser.username
-      || email.split("@")[0]
-      || "Marketplace buyer";
+      || (hasVerifiedEmail ? email!.split("@")[0] : null)
+      || phone
+      || "Marketplace member";
+    const accountEmail = hasVerifiedEmail ? email! : `${clerkId}@phone.tokenharvest.local`;
 
     const [created] = await db
       .insert(usersTable)
       .values({
         clerkId,
         name,
-        email,
+        email: accountEmail,
+        phone: phone ?? null,
         tier: email === ADMIN_EMAIL ? "ADMIN" : "OFF_TAKER",
       })
       .returning();

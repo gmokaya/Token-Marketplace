@@ -13,6 +13,8 @@ import { Layout } from "@/components/layout/Layout";
 
 import Home from "@/pages/Home";
 import SignInPage from "@/pages/SignInPage";
+import SignUpPage from "@/pages/SignUpPage";
+import OnboardingPage from "@/pages/OnboardingPage";
 import Dashboard from "@/pages/Dashboard";
 import Profile from "@/pages/Profile";
 
@@ -140,7 +142,7 @@ function ClerkProviderWithRoutes() {
       signInUrl={`${basePath}/sign-in`}
       signUpUrl={`${basePath}/sign-in?mode=sign-up`}
       signInFallbackRedirectUrl={`${basePath}/dashboard`}
-      signUpFallbackRedirectUrl={`${basePath}/dashboard`}
+      signUpFallbackRedirectUrl={`${basePath}/onboarding`}
       routerPush={(to) => setLocation(stripBase(to))}
       routerReplace={(to) => setLocation(stripBase(to), { replace: true })}
     >
@@ -152,7 +154,9 @@ function ClerkProviderWithRoutes() {
           <Switch>
             {/* Full-screen pages, no Layout wrapper */}
             <Route path="/" component={HomeRedirect} />
+            <Route path="/sign-up" component={SignUpPage} />
             <Route path="/sign-in/*?" component={SignInPage} />
+            <Route path="/onboarding"><ProtectedRoute><OnboardingPage /></ProtectedRoute></Route>
 
             {/* App pages, wrapped in Layout */}
             <Route>

@@ -98,7 +98,7 @@ export default function SignInPage() {
                 routing="path"
                 path={`${bp}/sign-in`}
                 signInUrl={`${bp}/sign-in`}
-                fallbackRedirectUrl={`${bp}/dashboard`}
+                fallbackRedirectUrl={`${bp}/onboarding`}
                 appearance={clerkAppearance}
               />
             ) : (
@@ -113,7 +113,7 @@ export default function SignInPage() {
 
             <p className="market-auth-form-switch">
               {isSignUp ? "Already have an account? " : "Don’t have an account? "}
-              <a href={isSignUp ? `${bp}/sign-in` : `${bp}/sign-in?mode=sign-up`}>
+              <a href={isSignUp ? `${bp}/sign-in` : `${bp}/sign-up`}>
                 {isSignUp ? "Sign in" : "Sign up"}
               </a>
             </p>

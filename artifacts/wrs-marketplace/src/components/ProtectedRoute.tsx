@@ -2,7 +2,6 @@ import { Show, useClerk } from "@clerk/react";
 import { ReactNode, useEffect } from "react";
 import { useGetMe, getGetMeQueryKey } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Onboarding } from "./Onboarding";
 
 export function ProtectedRoute({ children }: { children: ReactNode }) {
   return (
@@ -46,11 +45,7 @@ function EnsureProfile({ children }: { children: ReactNode }) {
     );
   }
 
-  if (error && (error as any)?.status === 404) {
-    return <Onboarding />;
-  }
-
-  if (error) {
+  if (error && (error as any)?.status !== 404) {
     return (
       <div className="p-8 text-center text-destructive">
         <p>Error loading profile. Please try refreshing.</p>
