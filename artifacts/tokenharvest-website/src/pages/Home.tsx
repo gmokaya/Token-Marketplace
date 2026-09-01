@@ -1,7 +1,7 @@
 import { useAuth } from "@clerk/react";
 import { Link } from "wouter";
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, ChevronRight, X, Send, Menu } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, X, Send, Menu } from "lucide-react";
 import { PriceTicker } from "@/components/PriceTicker";
 import { TokenHarvestHero } from "@/components/home/TokenHarvestHero";
 
@@ -529,6 +529,72 @@ function FinanceCard({
       }}>
         {cta} <ArrowRight className="homepage-finance-card-cta-icon" size={14} />
       </Link>
+    </div>
+  );
+}
+
+function FinanceCarousel() {
+  const [activeIndex, setActiveIndex] = useState(1);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (paused) return;
+    const timer = window.setInterval(() => {
+      setActiveIndex(index => (index + 1) % FINANCE_PRODUCTS.length);
+    }, 5500);
+    return () => window.clearInterval(timer);
+  }, [paused]);
+
+  const move = (direction: number) => {
+    setActiveIndex(index => (index + direction + FINANCE_PRODUCTS.length) % FINANCE_PRODUCTS.length);
+  };
+
+  return (
+    <div
+      className="homepage-finance-carousel"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      <div className="homepage-finance-stage" aria-live="polite">
+        {FINANCE_PRODUCTS.map((product, index) => {
+          let position = index - activeIndex;
+          if (position > 1) position -= FINANCE_PRODUCTS.length;
+          if (position < -1) position += FINANCE_PRODUCTS.length;
+
+          return (
+            <div
+              key={product.eyebrow}
+              className="homepage-finance-slide"
+              data-position={position}
+              aria-hidden={position !== 0}
+            >
+              <FinanceCard {...product} />
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="homepage-finance-controls">
+        <button type="button" aria-label="Previous financing offering" onClick={() => move(-1)}>
+          <ChevronLeft size={16} />
+        </button>
+        <div className="homepage-finance-dots" role="tablist" aria-label="Financing offerings">
+          {FINANCE_PRODUCTS.map((product, index) => (
+            <button
+              key={product.eyebrow}
+              type="button"
+              role="tab"
+              aria-label={`Show ${product.eyebrow}`}
+              aria-selected={activeIndex === index}
+              className={activeIndex === index ? "active" : ""}
+              onClick={() => setActiveIndex(index)}
+            />
+          ))}
+        </div>
+        <button type="button" aria-label="Next financing offering" onClick={() => move(1)}>
+          <ChevronRight size={16} />
+        </button>
+      </div>
     </div>
   );
 }
@@ -1142,9 +1208,7 @@ export default function Home() {
                   Working capital tied to real inventory, contracts, invoices, and confirmed trades.
                 </p>
               </div>
-              <div className="homepage-finance-cards-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 32 }}>
-                {FINANCE_PRODUCTS.map(product => <FinanceCard key={product.eyebrow} {...product} />)}
-              </div>
+              <FinanceCarousel />
             </div>
           </section>
 
