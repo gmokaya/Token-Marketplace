@@ -1,4 +1,4 @@
-import { SignIn } from "@clerk/react";
+import { SignIn, SignUp } from "@clerk/react";
 import { Link } from "wouter";
 import { AuthBenefitCarousel } from "@/components/AuthBenefitCarousel";
 import coffeeSignInImage from "@assets/dang-cong-JqF4IS65xEg-unsplash_1788267949650.jpg";
@@ -45,6 +45,7 @@ const clerkAppearance = {
 
 export default function SignInPage() {
   const bp = import.meta.env.BASE_URL.replace(/\/$/, "");
+  const isSignUp = new URLSearchParams(window.location.search).get("mode") === "sign-up";
 
   return (
     <div className="market-auth-shell market-auth-shell--coffee">
@@ -84,21 +85,37 @@ export default function SignInPage() {
           <div className="market-auth-form-card">
             <div className="market-auth-form-heading">
               <p className="market-auth-form-kicker">Buyer access · Coffee market</p>
-              <h1>Sign in to Coffee Marketplace</h1>
-              <p>Source specialty lots with provenance from producer to shipment.</p>
+              <h1>{isSignUp ? "Create your Coffee Marketplace account" : "Sign in to Coffee Marketplace"}</h1>
+              <p>
+                {isSignUp
+                  ? "Join the sourcing desk for traceable specialty coffee."
+                  : "Source specialty lots with provenance from producer to shipment."}
+              </p>
             </div>
 
-            <SignIn
-              routing="path"
-              path={`${bp}/sign-in`}
-              signUpUrl={`${bp}/sign-up`}
-              fallbackRedirectUrl={`${bp}/dashboard`}
-              appearance={clerkAppearance}
-            />
+            {isSignUp ? (
+              <SignUp
+                routing="path"
+                path={`${bp}/sign-in`}
+                signInUrl={`${bp}/sign-in`}
+                fallbackRedirectUrl={`${bp}/dashboard`}
+                appearance={clerkAppearance}
+              />
+            ) : (
+              <SignIn
+                routing="path"
+                path={`${bp}/sign-in`}
+                signUpUrl={`${bp}/sign-in?mode=sign-up`}
+                fallbackRedirectUrl={`${bp}/dashboard`}
+                appearance={clerkAppearance}
+              />
+            )}
 
             <p className="market-auth-form-switch">
-              Don&apos;t have an account?{" "}
-              <a href={`${bp}/sign-up`}>Sign up</a>
+              {isSignUp ? "Already have an account? " : "Don’t have an account? "}
+              <a href={isSignUp ? `${bp}/sign-in` : `${bp}/sign-in?mode=sign-up`}>
+                {isSignUp ? "Sign in" : "Sign up"}
+              </a>
             </p>
           </div>
         </section>
