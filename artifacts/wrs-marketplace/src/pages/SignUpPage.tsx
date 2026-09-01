@@ -1,5 +1,6 @@
 import { useLocation } from "wouter";
 import { AuthBenefitCarousel } from "@/components/AuthBenefitCarousel";
+import type { BenefitSlide } from "@/components/AuthBenefitCarousel";
 import { Sprout, ShoppingBag, Truck } from "lucide-react";
 import { Link } from "wouter";
 
@@ -8,6 +9,8 @@ type SignUpPageProps = {
   marketDescription?: string;
   backgroundSrc?: string;
   shellClass?: string;
+  benefitEyebrow?: string;
+  benefitSlides?: BenefitSlide[];
 };
 
 export default function SignUpPage({
@@ -15,6 +18,24 @@ export default function SignUpPage({
   marketDescription = "certified agricultural commodities",
   backgroundSrc,
   shellClass = "market-auth-shell--grain",
+  benefitEyebrow = "Grain sourcing desk · 03",
+  benefitSlides = [
+    {
+      eyebrow: "Certified storage",
+      title: "Know the lot\nbefore it moves.",
+      description: "See grade, volume, warehouse status, and a clear route from stored grain to delivery.",
+    },
+    {
+      eyebrow: "Finance-ready trade",
+      title: "Turn stored grain\ninto working capital.",
+      description: "Connect warehouse receipts with forward contracts and trade finance built for the real supply chain.",
+    },
+    {
+      eyebrow: "Market visibility",
+      title: "Buy with a record,\nnot a promise.",
+      description: "Compare verified East African supply through one sourcing desk made for serious grain buyers.",
+    },
+  ],
 }: SignUpPageProps) {
   const [, setLocation] = useLocation();
   const bp = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -42,29 +63,13 @@ export default function SignUpPage({
 
       <main className="market-auth-main">
         <AuthBenefitCarousel
-          eyebrow="Grain sourcing desk · 03"
+          eyebrow={benefitEyebrow}
           accentColor="#d7e0e8"
-          slides={[
-            {
-              eyebrow: "Certified storage",
-              title: "Know the lot\nbefore it moves.",
-              description: "See grade, volume, warehouse status, and a clear route from stored grain to delivery.",
-            },
-            {
-              eyebrow: "Finance-ready trade",
-              title: "Turn stored grain\ninto working capital.",
-              description: "Connect warehouse receipts with forward contracts and trade finance built for the real supply chain.",
-            },
-            {
-              eyebrow: "Market visibility",
-              title: "Buy with a record,\nnot a promise.",
-              description: "Compare verified East African supply through one sourcing desk made for serious grain buyers.",
-            },
-          ]}
+          slides={benefitSlides}
         />
 
         <section className="market-auth-form-wrap">
-          <div className="market-auth-form-card">
+          <div className="market-auth-form-card market-auth-form-card--signup">
             <div className="market-auth-form-heading">
               <p className="market-auth-form-kicker">Join the TokenHarvest network</p>
               <h1>Select your role</h1>
