@@ -119,7 +119,7 @@ const DEF_STATS: HpStat[] = [
 const DEF_CTA: HpCta = {
   heading: "Ready to Trade\nwith Confidence?",
   subheadline: "Join producers, off-takers, and financiers already using WRS Marketplace to trade East African commodities with full transparency.",
-  cta1: "Create Your Account",
+  cta1: "Get Started",
   cta2: "Sign In",
 };
 const DEF_MARKETS: MarketCardData[] = [
@@ -742,7 +742,7 @@ export default function Home() {
                     Go to Dashboard <ArrowRight size={15} />
                   </Link>
                 ) : (
-                  <Link href="/sign-up"
+                  <Link href="/get-started"
                     style={{ background: "#d93839", color: "#fff", padding: "10px 22px", textDecoration: "none", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 7 }}>
                     Get Started <ArrowRight size={15} />
                   </Link>
@@ -808,7 +808,7 @@ export default function Home() {
                     Go to Dashboard <ArrowRight size={16} />
                   </Link>
                 ) : (
-                  <Link href="/sign-up" onClick={() => setMobileMenuOpen(false)}
+                  <Link href="/get-started" onClick={() => setMobileMenuOpen(false)}
                     style={{ background: ACCENT, color: "#fff", padding: "16px 24px", textDecoration: "none", fontSize: 15, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
                     Get Started <ArrowRight size={16} />
                   </Link>
@@ -1066,7 +1066,7 @@ export default function Home() {
                 {cta.subheadline}
               </p>
               <div style={{ display: "flex", justifyContent: "center", gap: 14, flexWrap: "wrap" }}>
-                <Link href="/sign-up"
+                <Link href="/get-started"
                   style={{ background: ACCENT, color: "#fff", padding: "17px 32px", textDecoration: "none", fontSize: 15, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 8 }}>
                   {cta.cta1} <ArrowRight size={16} />
                 </Link>
@@ -1099,7 +1099,7 @@ export default function Home() {
                 </div>
                 {([
                   { label: "Platform", links: [["Marketplace","/sign-in"],["Auctions","/sign-in"],["Forwards","/sign-in"],["Financing","/sign-in"]] },
-                  { label: "Users",    links: [["Producers","/sign-up"],["Off-Takers","/sign-up"],["Financiers","/sign-up"]] },
+                  { label: "Users",    links: [["Producers","/get-started"],["Off-Takers","/get-started"],["Financiers","/get-started"]] },
                   { label: "Company",  links: [["About","#about"],["Contact","#cta"]] },
                 ] as const).map(({ label, links }) => (
                   <div key={label}>
