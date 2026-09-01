@@ -72,19 +72,19 @@ const DEFAULT_SERVICES: ServiceCard[] = [
     icon: "icon-money-1.png",
     title: "Direct Trade",
     sub: "Farmer First",
-    desc: "Put producers at the center of every deal. Connect straight to verified buyers, compare offers clearly, and move from harvest to payment through digital contracts with full origin traceability.",
+    desc: "Trade directly with verified producers, clear offers, and lot-level traceability.",
   },
   {
     icon: "icon-tax.png",
     title: "Trade Execution",
     sub: "For Buyers",
-    desc: "Once a deal closes, moving goods across borders becomes a maze of freight, customs, documentation, and insurance. We handle every step so what you ordered arrives where and when you need it, without you ever having to manage the logistics yourself.",
+    desc: "Coordinate freight, customs, and delivery from origin to destination.",
   },
   {
     icon: "icon-financial-1.png",
     title: "Trade Finance",
     sub: "For Buyers & Suppliers",
-    desc: "Capital tied up in inventory or slow payments shouldn't cost you a deal. Draw working capital against your purchase orders, invoices, or warehouse receipts, and trade at the scale the market demands, not the scale your cash flow allows.",
+    desc: "Unlock working capital against inventory, orders, invoices, and receipts.",
   },
 ];
 
