@@ -178,7 +178,7 @@ function normalizeHowItWorks(value: unknown): HowItWorksStep[] {
 
 const DEFAULT_STATS: StatCounter[] = [
   { target: 5,  suffix: "",    label: "East African Countries" },
-  { target: 25, suffix: "%",   label: "Designed Farmer Earnings Increase (up to)" },
+  { target: 25, suffix: "%",   label: "Increased Farmer Earnings" },
   { target: 24, suffix: " hrs", label: "Trade & Settlement Time" },
   { target: 15, suffix: "+",   label: "Established Destination Markets" },
 ];
