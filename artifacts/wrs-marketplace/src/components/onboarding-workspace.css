@@ -7,7 +7,7 @@
   --onboarding-accent-shadow: rgba(8, 123, 132, 0.2);
   background: #f4f6fb;
   color: #202532;
-  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: 'PT Sans', sans-serif;
 }
 
 .market-auth-shell--grain {
@@ -43,7 +43,7 @@
   overflow-y: auto;
   background: #f4f6fb !important;
   color: #202532 !important;
-  font-family: 'Futura', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: 'PT Sans', sans-serif;
 }
 
 .market-auth-shell--onboarding .market-auth-background,
@@ -144,7 +144,7 @@
   grid-template-columns: 246px minmax(0, 1fr);
   min-height: 620px;
   width: 100%;
-  font-family: 'Futura', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: 'PT Sans', sans-serif;
 }
 
 .onboarding-rail {
@@ -164,7 +164,7 @@
   gap: 9px;
   padding: 0 10px;
   color: #273143;
-  font-family: 'Belleza', 'Futura', sans-serif;
+  font-family: 'Belleza', 'PT Sans', sans-serif;
   font-size: 16px;
   font-weight: 700;
   letter-spacing: -0.025em;
@@ -321,7 +321,7 @@
   display: flex;
   min-width: 0;
   flex-direction: column;
-  font-family: 'Futura', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: 'PT Sans', sans-serif;
   background:
     radial-gradient(circle at 86% 8%, var(--onboarding-accent-soft) 0, transparent 28%),
     linear-gradient(135deg, var(--onboarding-accent-wash) 0%, #f8f9fc 48%, #fff 100%);
@@ -374,7 +374,7 @@
 }
 
 .onboarding-question-content h1 {
-  font-family: 'Simplo', 'Futura', sans-serif;
+  font-family: 'Simplo', 'PT Sans', sans-serif;
   max-width: 670px;
   margin: 0;
   color: #252b39;

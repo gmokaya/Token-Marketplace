@@ -22,6 +22,38 @@
 }
 
 @font-face {
+  font-family: 'PT Sans';
+  src: url('/tea/fonts/PTSans-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PT Sans';
+  src: url('/tea/fonts/PTSans-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PT Sans';
+  src: url('/tea/fonts/PTSans-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PT Sans';
+  src: url('/tea/fonts/PTSans-BoldItalic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
   font-family: 'Futura';
   src: url('/tea/fonts/Futura_Light_font_1783759911952.ttf') format('truetype');
   font-weight: 300;
@@ -224,7 +256,7 @@
   --chart-4: 300 80% 40%;
   --chart-5: 0 80% 40%;
 
-  --app-font-sans: 'Futura', sans-serif;
+  --app-font-sans: 'PT Sans', sans-serif;
   --app-font-serif: Georgia, serif;
   --app-font-mono: 'JetBrains Mono', monospace;
   --radius: 0rem;
@@ -364,9 +396,9 @@
   font-display: swap;
 }
 
-/* All headings: Simplo first, Futura as fallback */
+/* All headings: Simplo first, PT Sans as fallback */
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Simplo', 'Futura', sans-serif;
+  font-family: 'Simplo', 'PT Sans', sans-serif;
 }
 
 /* ── Editorial sign-in experience ───────────────────────── */
@@ -381,7 +413,7 @@ h1, h2, h3, h4, h5, h6 {
   overflow-y: auto;
   background: #081714;
   color: #fff;
-  font-family: 'Futura', sans-serif;
+  font-family: 'PT Sans', sans-serif;
 }
 
 .market-auth-background {
@@ -891,7 +923,7 @@ h1, h2, h3, h4, h5, h6 {
 .market-auth-shell--auth {
   background: #0c1115;
   color: #fff;
-  font-family: 'Futura', sans-serif;
+  font-family: 'PT Sans', sans-serif;
 }
 
 .market-auth-shell--auth .market-auth-background,
