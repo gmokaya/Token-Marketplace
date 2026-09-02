@@ -9,6 +9,7 @@ type Props = {
   value: CommoditySelection[];
   onChange: (value: CommoditySelection[]) => void;
   singleSelect?: boolean;
+  market?: "grain" | "coffee" | "tea";
   coffeeOnly?: boolean;
   teaOnly?: boolean;
 };
@@ -69,17 +70,31 @@ export function CommoditySelect({
   value = [],
   onChange,
   singleSelect = false,
+  market,
   coffeeOnly = false,
   teaOnly = false,
 }: Props) {
-  const marketOnly = coffeeOnly || teaOnly;
-  const marketCommodity = coffeeOnly ? "Coffee" : "Tea";
+  const activeMarket =
+    market ??
+    (coffeeOnly ? "coffee" : teaOnly ? "tea" : undefined);
+  const marketCommodity =
+    activeMarket === "grain"
+      ? "Grain"
+      : activeMarket === "coffee"
+        ? "Coffee"
+        : activeMarket === "tea"
+          ? "Tea"
+          : undefined;
+  const marketOnly = Boolean(marketCommodity);
+  const usesMarketOrigin = (comm: string) =>
+    (activeMarket === "coffee" && comm === "Coffee") ||
+    (activeMarket === "tea" && comm === "Tea");
   const toggleCommodity = (comm: string) => {
     const existing = value.find((v) => v.commodity === comm);
     if (existing) {
       onChange(value.filter((v) => v.commodity !== comm));
     } else {
-      const newValue = singleSelect ? [] : [...value];
+      const newValue = singleSelect && !marketOnly ? [] : [...value];
       newValue.push({ commodity: comm, subType: null });
       onChange(newValue);
     }
@@ -107,11 +122,14 @@ export function CommoditySelect({
   };
 
   const selectedCommodities = Array.from(new Set(value.map((v) => v.commodity)));
+  const visibleSelectedCommodities = selectedCommodities.filter(
+    (comm) => !marketOnly || comm === marketCommodity,
+  );
 
   return (
     <div className="commodity-select">
       <div className="commodity-option-list">
-        {(marketOnly ? [marketCommodity] : COMMODITIES).map((comm) => {
+        {(marketOnly && marketCommodity ? [marketCommodity] : COMMODITIES).map((comm) => {
           const isSelected = value.some((v) => v.commodity === comm);
           return (
             <button
@@ -132,11 +150,13 @@ export function CommoditySelect({
         })}
       </div>
 
-      {selectedCommodities.some((comm) => COMMODITY_SUBTYPES[comm] && !(marketOnly && comm === marketCommodity)) && (
+      {visibleSelectedCommodities.some(
+        (comm) => COMMODITY_SUBTYPES[comm] && !usesMarketOrigin(comm),
+      ) && (
         <div className="commodity-subtype-groups">
-          {selectedCommodities.map((comm) => {
+          {visibleSelectedCommodities.map((comm) => {
             const subTypes = COMMODITY_SUBTYPES[comm];
-            if (!subTypes || (marketOnly && comm === marketCommodity)) return null;
+            if (!subTypes || usesMarketOrigin(comm)) return null;
             const selections = value.filter((v) => v.commodity === comm);
 
             return (

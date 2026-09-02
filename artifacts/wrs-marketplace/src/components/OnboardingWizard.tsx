@@ -57,8 +57,7 @@ const createOnboardingSchema = (market: Market) => {
     .superRefine((selection, ctx) => {
       const allowed = COMMODITY_SUBTYPES[selection.commodity];
       const marketOriginReplacesSubtype =
-        (market === "coffee" && selection.commodity === "Coffee") ||
-        (market === "tea" && selection.commodity === "Tea");
+        selection.commodity === "Coffee" || selection.commodity === "Tea";
       if (allowed && !marketOriginReplacesSubtype && !selection.subType) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -973,8 +972,7 @@ export default function OnboardingWizard({
                             <CommoditySelect
                               value={field.value}
                               onChange={field.onChange}
-                              coffeeOnly={isCoffeeMarket}
-                              teaOnly={isTeaMarket}
+                              market={market}
                             />
                           </FormControl>
                           <FormMessage />

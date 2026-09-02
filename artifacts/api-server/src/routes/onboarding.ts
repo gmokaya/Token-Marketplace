@@ -225,8 +225,7 @@ const onboardingSchema = z.object({
   for (const [index, selection] of data.commoditySelections.entries()) {
     const allowed = commoditySubtypes[selection.commodity];
     const marketOriginReplacesSubtype =
-      (data.market === "coffee" && selection.commodity === "Coffee") ||
-      (data.market === "tea" && selection.commodity === "Tea");
+      selection.commodity === "Coffee" || selection.commodity === "Tea";
     if (allowed && !marketOriginReplacesSubtype && !selection.subType) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,

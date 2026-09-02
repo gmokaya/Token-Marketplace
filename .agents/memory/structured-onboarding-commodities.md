@@ -3,8 +3,8 @@ name: Structured onboarding commodities
 description: Compatibility rule for marketplace onboarding commodity and sub-type data.
 ---
 
-Onboarding commodity choices are structured pairs with a required sub-type for Coffee, Tea, and Grain, and a null sub-type for all other commodities. Keep the legacy flat commodity fields as compatibility mirrors rather than making them the source of truth.
+Each marketplace's onboarding shows only its primary commodity: Grain, Coffee, or Tea. Grain requires one or more grain sub-types; Coffee and Tea use their market-specific origin catalogs instead of the generic sub-type field. Keep the legacy flat commodity fields as compatibility mirrors rather than making them the source of truth.
 
-**Why:** Producers, traders, and buyers share one cascading selector, and flattening the choice loses varietal information while older profiles and consumers may still rely on the original string fields.
+**Why:** The marketplaces have independent onboarding experiences, but one user can participate in several markets. The shared structured selection array must accumulate unique primary-market entries without one market erasing another, while older profiles and consumers may still rely on flat strings.
 
-**How to apply:** New onboarding behavior should read and write structured selections. When loading an old profile or draft, normalize flat commodity names into structured pairs; when saving, derive legacy strings from those pairs.
+**How to apply:** Filter the visible Step 2 controls to the active market, preserve hidden selections from other markets, and validate only the active market's detailed catalog fields. Normalize old flat names when loading and derive legacy strings when saving.
