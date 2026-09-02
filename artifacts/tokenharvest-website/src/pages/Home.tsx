@@ -750,7 +750,7 @@ function ContactModal({ open, onClose }: { open: boolean; onClose: () => void })
           background: "#111", width: "100%", maxWidth: 480,
           padding: "48px 40px 40px",
           position: "relative",
-          fontFamily: "'Futura', sans-serif",
+          fontFamily: "'PT Sans', sans-serif",
         }}
       >
         {/* close */}
@@ -774,7 +774,7 @@ function ContactModal({ open, onClose }: { open: boolean; onClose: () => void })
             </p>
             <button onClick={onClose} style={{
               background: ACCENT, color: "#fff", border: "none", cursor: "pointer",
-              padding: "13px 28px", fontSize: 14, fontWeight: 600, fontFamily: "'Futura',sans-serif",
+              padding: "13px 28px", fontSize: 14, fontWeight: 600, fontFamily: "'PT Sans',sans-serif",
             }}>
               Close
             </button>
@@ -801,7 +801,7 @@ function ContactModal({ open, onClose }: { open: boolean; onClose: () => void })
                     onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
                     style={{
                       width: "100%", background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)",
-                      color: "#fff", padding: "12px 14px", fontSize: 14, fontFamily: "'Futura',sans-serif",
+                      color: "#fff", padding: "12px 14px", fontSize: 14, fontFamily: "'PT Sans',sans-serif",
                       outline: "none", boxSizing: "border-box",
                     }}
                   />
@@ -817,14 +817,14 @@ function ContactModal({ open, onClose }: { open: boolean; onClose: () => void })
                   onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
                   style={{
                     width: "100%", background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)",
-                    color: "#fff", padding: "12px 14px", fontSize: 14, fontFamily: "'Futura',sans-serif",
+                    color: "#fff", padding: "12px 14px", fontSize: 14, fontFamily: "'PT Sans',sans-serif",
                     outline: "none", resize: "vertical", boxSizing: "border-box",
                   }}
                 />
               </div>
               <button type="submit" disabled={status === "sending"} style={{
                 background: ACCENT, color: "#fff", border: "none", cursor: status === "sending" ? "default" : "pointer",
-                padding: "15px 28px", fontSize: 15, fontWeight: 600, fontFamily: "'Futura',sans-serif",
+                padding: "15px 28px", fontSize: 15, fontWeight: 600, fontFamily: "'PT Sans',sans-serif",
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                 opacity: status === "sending" ? 0.7 : 1, marginTop: 4,
               }}>
@@ -887,7 +887,7 @@ export default function Home() {
 
   return (
     <>
-      <div style={{ fontFamily: "'Futura', sans-serif", color: "#353535" }}>
+      <div style={{ fontFamily: "'PT Sans', sans-serif", color: "#353535" }}>
 
           {/* ══ NAVBAR ══════════════════════════════════════════════ */}
           <header className="homepage-header" style={{
@@ -911,7 +911,7 @@ export default function Home() {
               <nav className="homepage-nav-links" style={{ display: "flex", flex: 1, justifyContent: "center", gap: 36, alignItems: "center" }}>
                 {([ ["Platform","platform"], ["Services","services"], ["Finance","finance"], ["About","about"] ] as const).map(([label, id]) => (
                   <button key={id} onClick={() => scrollTo(id)}
-                    style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(11,48,50,0.9)", fontSize: 16, fontWeight: 600, display: "flex", gap: 5, alignItems: "center", fontFamily: "'Futura',sans-serif", padding: 0 }}>
+                    style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(11,48,50,0.9)", fontSize: 16, fontWeight: 600, display: "flex", gap: 5, alignItems: "center", fontFamily: "'PT Sans',sans-serif", padding: 0 }}>
                     {label}
                   </button>
                 ))}
@@ -955,7 +955,7 @@ export default function Home() {
               backdropFilter: "blur(12px)",
               display: "flex", flexDirection: "column",
               padding: "20px 24px 40px",
-              fontFamily: "'Futura', sans-serif",
+               fontFamily: "'PT Sans', sans-serif",
               overflowY: "auto",
             }}>
               {/* top row */}
@@ -974,7 +974,7 @@ export default function Home() {
                     style={{
                       background: "none", border: "none", borderBottom: "1px solid rgba(255,255,255,0.07)",
                       cursor: "pointer", color: "#fff", fontSize: 26, fontWeight: 300,
-                      fontFamily: "'Futura', sans-serif", textAlign: "left",
+                      fontFamily: "'PT Sans', sans-serif", textAlign: "left",
                       padding: "18px 0", display: "flex", justifyContent: "space-between", alignItems: "center",
                     }}>
                     {label}
@@ -1240,7 +1240,7 @@ export default function Home() {
                   {cta.cta1} <ArrowRight size={16} />
                 </Link>
                 <button onClick={() => setContactOpen(true)}
-                  style={{ background: "rgba(255,255,255,0.04)", color: "#fff", padding: "13px 22px", border: "1px solid rgba(255,255,255,0.28)", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "'Futura',sans-serif", display: "inline-flex", alignItems: "center", gap: 8 }}>
+                   style={{ background: "rgba(255,255,255,0.04)", color: "#fff", padding: "13px 22px", border: "1px solid rgba(255,255,255,0.28)", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "'PT Sans',sans-serif", display: "inline-flex", alignItems: "center", gap: 8 }}>
                   Contact Us
                 </button>
               </div>

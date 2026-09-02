@@ -32,7 +32,7 @@ const newAgeStyles = `
   .th-new-age,
   .th-new-age button,
   .th-new-age a {
-    font-family: "TokenHarvest Futura", Inter, sans-serif;
+    font-family: "PT Sans", sans-serif;
   }
 
   .th-new-age button,

@@ -11,7 +11,7 @@
   isolation: isolate;
   color: var(--th-ink);
   background: var(--th-paper);
-  font-family: "Futura", "Inter", sans-serif;
+  font-family: "PT Sans", sans-serif;
 }
 
 .th-commodity-layer *,

@@ -1,17 +1,17 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
 @font-face {
-  font-family: "TokenHarvest Futura";
-  src: url("/__mockup/images/Futura_Light_BT.ttf") format("truetype");
-  font-weight: 300;
+  font-family: "PT Sans";
+  src: url("/__mockup/images/PTSans-Regular.ttf") format("truetype");
+  font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "TokenHarvest Futura";
-  src: url("/__mockup/images/Futura_Medium.ttf") format("truetype");
-  font-weight: 500 700;
+  font-family: "PT Sans";
+  src: url("/__mockup/images/PTSans-Bold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
@@ -19,7 +19,7 @@
 .th-hero-scope {
   --th-accent: hsl(180 62% 10%);
   --th-accent-light: hsl(180 50% 42%);
-  font-family: "TokenHarvest Futura", Inter, sans-serif;
+  font-family: "PT Sans", sans-serif;
 }
 
 .th-hero-scope *,

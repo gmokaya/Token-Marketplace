@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -443,10 +443,13 @@ export default function OnboardingWizard({
   return (
     <div className="market-onboarding onboarding-workspace">
       <aside className="onboarding-rail" aria-label="Onboarding progress">
-        <div className="onboarding-rail-brand">
-          <span className="onboarding-brand-mark" aria-hidden="true" />
+        <Link
+          href="/"
+          className="onboarding-rail-brand"
+          aria-label="Return to TokenHarvest home"
+        >
           TokenHarvest
-        </div>
+        </Link>
         <div
           className="onboarding-progress-ring"
           role="progressbar"
@@ -459,7 +462,9 @@ export default function OnboardingWizard({
           }}
         >
           <strong>{progress}%</strong>
-          <span>{currentStep} / {totalSteps}</span>
+          <span>
+            {currentStep} / {totalSteps}
+          </span>
         </div>
         <nav className="onboarding-step-list">
           {stepLabels.map((label, index) => {
@@ -502,7 +507,9 @@ export default function OnboardingWizard({
           </p>
         </div>
         <div className="onboarding-mobile-progress">
-          <span>Step {currentStep} of {totalSteps}</span>
+          <span>
+            Step {currentStep} of {totalSteps}
+          </span>
           <div>
             <i style={{ width: `${progress}%` }} />
           </div>

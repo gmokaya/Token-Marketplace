@@ -87,8 +87,8 @@ export function CommoditySelect({ value = [], onChange, singleSelect = false }: 
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap gap-2.5">
+    <div className="commodity-select">
+      <div className="commodity-option-list">
         {COMMODITIES.map((comm) => {
           const isSelected = value.some((v) => v.commodity === comm);
           return (
@@ -99,30 +99,29 @@ export function CommoditySelect({ value = [], onChange, singleSelect = false }: 
               aria-pressed={isSelected}
               data-testid={`commodity-${comm.toLowerCase()}`}
               className={cn(
-                "inline-flex items-center justify-center px-4 py-2.5 text-[14px] font-medium transition-all duration-200 cursor-pointer border",
-                isSelected
-                  ? "bg-[#606A5C] border-[#606A5C] text-white shadow-sm"
-                  : "bg-[#f5f5f7] border-[#e5e5ea] text-[#1d1d1f] hover:bg-[#e5e5ea]"
+                "commodity-option",
+                isSelected && "is-selected",
               )}
             >
-              {comm}
+              <span>{comm}</span>
+              {isSelected && <span className="commodity-option-check" aria-hidden="true">✓</span>}
             </button>
           );
         })}
       </div>
 
       {value.some(v => COMMODITY_SUBTYPES[v.commodity]) && (
-        <div className="space-y-4 pt-2">
+        <div className="commodity-subtype-groups">
           {value.map((v) => {
             const subTypes = COMMODITY_SUBTYPES[v.commodity];
             if (!subTypes) return null;
 
             return (
-              <div key={v.commodity} className="animate-in fade-in slide-in-from-top-2 duration-300">
-                <div className="text-[13px] font-medium text-[#86868b] mb-2 px-1">
+              <div key={v.commodity} className="commodity-subtype-group animate-in fade-in slide-in-from-top-2 duration-300">
+                <div className="commodity-subtype-label">
                   Select {v.commodity} sub-type
                 </div>
-                <div className="flex flex-wrap gap-2.5">
+                <div className="commodity-subtype-list">
                   {subTypes.map((st) => {
                     const isSelected = v.subType === st;
                     return (
@@ -133,13 +132,12 @@ export function CommoditySelect({ value = [], onChange, singleSelect = false }: 
                         aria-pressed={isSelected}
                         data-testid={`commodity-subtype-${st.toLowerCase().replace(/\s+/g, "-")}`}
                         className={cn(
-                           "inline-flex items-center justify-center px-3 py-1.5 text-[13px] font-medium transition-all duration-200 cursor-pointer border",
-                          isSelected
-                            ? "bg-[#606A5C] border-[#606A5C] text-white shadow-sm"
-                            : "bg-[#f5f5f7] border-[#e5e5ea] text-[#1d1d1f] hover:bg-[#e5e5ea]"
+                          "commodity-subtype-option",
+                          isSelected && "is-selected",
                         )}
                       >
-                        {st}
+                        <span>{st}</span>
+                        {isSelected && <span className="commodity-option-check" aria-hidden="true">✓</span>}
                       </button>
                     );
                   })}
