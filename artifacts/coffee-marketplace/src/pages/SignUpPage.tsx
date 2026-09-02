@@ -1,5 +1,5 @@
 import SharedSignUpPage from "../../../wrs-marketplace/src/pages/SignUpPage";
-import coffeeSignInImage from "@assets/dang-cong-JqF4IS65xEg-unsplash_1788267949650.jpg";
+import coffeeSignInImage from "@assets/pexels-irvin-david-906313077-36040333_1788340660345.jpg";
 
 export default function SignUpPage() {
   return (

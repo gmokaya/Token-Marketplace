@@ -617,6 +617,10 @@ h1, h2, h3, h4, h5, h6 {
   --auth-accent: #dec1b1;
 }
 
+.market-auth-shell--coffee .market-auth-background {
+  object-position: 50% center;
+}
+
 @media (max-width: 900px) {
   .market-auth-main {
     grid-template-columns: minmax(0, 1fr) minmax(320px, 390px);

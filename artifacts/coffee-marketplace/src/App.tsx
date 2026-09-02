@@ -114,9 +114,7 @@ const clerkAppearance = {
   theme: shadcn,
   cssLayerName: "clerk",
   options: {
-    logoPlacement: "inside" as const,
     logoLinkUrl: basePath || "/",
-    logoImageUrl: `${window.location.origin}${basePath}/logo.png`,
   },
   variables: {
     colorPrimary: "#1a0d05",
