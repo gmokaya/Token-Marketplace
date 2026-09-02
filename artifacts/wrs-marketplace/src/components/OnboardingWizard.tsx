@@ -17,6 +17,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import {
@@ -70,6 +77,7 @@ const onboardingSchema = z
     payoutMobileMoney: z.string().optional(),
     businessName: z.string().optional(),
     businessRegistrationNumber: z.string().optional(),
+    entityType: z.string().optional(),
     expectedVolume: z.string().optional(),
     destinationCountry: z.string().optional(),
     interests: z.array(z.string()).default([]),
@@ -98,11 +106,12 @@ const onboardingSchema = z
     }
 
     if (data.marketplaceRole === "trader") {
-      requireText("businessName", "Business name is required");
+      requireText("businessName", "Entity name is required");
       requireText(
         "businessRegistrationNumber",
-        "Registration number is required",
+        "Entity registration number is required",
       );
+      requireText("entityType", "Entity type is required");
       if (!data.commoditySelections.length) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -113,11 +122,12 @@ const onboardingSchema = z
     }
 
     if (data.marketplaceRole === "buyer") {
-      requireText("businessName", "Company name is required");
+      requireText("businessName", "Entity name is required");
       requireText(
         "businessRegistrationNumber",
-        "Company registration number is required",
+        "Entity registration number is required",
       );
+      requireText("entityType", "Entity type is required");
       if (!data.commoditySelections.length) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -168,6 +178,15 @@ const INTERESTS = {
   ],
 } as const;
 
+const ENTITY_TYPES = [
+  ["sole_proprietorship", "Sole proprietorship"],
+  ["partnership", "Partnership"],
+  ["limited_company", "Limited company"],
+  ["cooperative", "Cooperative"],
+  ["ngo_nonprofit", "NGO / Non-profit"],
+  ["other", "Other"],
+] as const;
+
 type OnboardingWizardProps = {
   marketName?: string;
 };
@@ -196,6 +215,7 @@ export default function OnboardingWizard({
       payoutMobileMoney: "",
       businessName: "",
       businessRegistrationNumber: "",
+      entityType: "",
       expectedVolume: "",
       destinationCountry: "",
       interests: [],
@@ -297,6 +317,7 @@ export default function OnboardingWizard({
       fieldsToValidate = [
         "businessName",
         "businessRegistrationNumber",
+        "entityType",
         "commoditySelections",
         "payoutMobileMoney",
       ];
@@ -304,6 +325,7 @@ export default function OnboardingWizard({
       fieldsToValidate = [
         "businessName",
         "businessRegistrationNumber",
+        "entityType",
         "commoditySelections",
         "payoutMobileMoney",
         "expectedVolume",
@@ -409,20 +431,10 @@ export default function OnboardingWizard({
   const progress = Math.round((currentStep / totalSteps) * 100);
   const question =
     currentStep === 1
-      ? currentRole === "producer"
-        ? {
-            title: "Tell us about yourself",
-            description: "Tell us where you fit.",
-          }
-        : currentRole === "trader"
-          ? {
-              title: "Tell us about your business",
-            description: "A few details about how you trade.",
-            }
-          : {
-              title: "Tell us about your sourcing",
-            description: "A few details about your sourcing.",
-            }
+      ? {
+          title: "Tell us about yourself",
+          description: "Share your role and the details that describe you.",
+        }
       : currentStep === 2
         ? {
             title: "What is relevant to your work?",
@@ -689,14 +701,14 @@ export default function OnboardingWizard({
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className={labelClass}>
-                                Company name
+                                Entity name
                               </FormLabel>
                               <FormControl>
                                 <Input
                                   {...field}
                                   className={inputClass}
                                   autoComplete="organization"
-                                  data-testid="input-company-name"
+                                  data-testid="input-entity-name"
                                 />
                               </FormControl>
                               <FormMessage />
@@ -709,19 +721,51 @@ export default function OnboardingWizard({
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className={labelClass}>
-                                Business registration number
+                                Entity registration number
                               </FormLabel>
                               <FormControl>
                                 <Input
                                   {...field}
                                   className={inputClass}
-                                  data-testid="input-registration"
+                                  data-testid="input-entity-registration"
                                 />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
+                    <FormField
+                      control={form.control}
+                      name="entityType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className={labelClass}>
+                            Entity type
+                          </FormLabel>
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
+                            <FormControl>
+                              <SelectTrigger
+                                className="onboarding-select-trigger"
+                                data-testid="select-entity-type"
+                              >
+                                <SelectValue placeholder="Select entity type" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {ENTITY_TYPES.map(([value, label]) => (
+                                <SelectItem key={value} value={value}>
+                                  {label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                       </>
                     )}
                     {currentRole === "buyer" && (

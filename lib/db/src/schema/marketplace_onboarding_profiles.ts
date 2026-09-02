@@ -18,6 +18,7 @@ export const marketplaceOnboardingProfilesTable = pgTable("marketplace_onboardin
   payoutMobileMoney: text("payout_mobile_money"),
   businessName: text("business_name"),
   businessRegistrationNumber: text("business_registration_number"),
+  entityType: text("entity_type"),
   bankDetails: text("bank_details"),
   sourcingCommodity: text("sourcing_commodity"),
   expectedVolume: text("expected_volume"),

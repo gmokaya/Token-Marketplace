@@ -419,6 +419,27 @@
   box-shadow: 0 1px 0 var(--onboarding-accent) !important;
 }
 
+.onboarding-select-trigger {
+  width: 100%;
+  min-height: 45px !important;
+  height: 45px !important;
+  border: 0 !important;
+  border-bottom: 1px solid #dfe3eb !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #202532 !important;
+  box-shadow: none !important;
+  font-family: 'PT Sans', sans-serif;
+  font-size: 16px !important;
+  font-weight: 400 !important;
+}
+
+.onboarding-select-trigger:focus {
+  border-bottom-color: var(--onboarding-accent) !important;
+  outline: none;
+  box-shadow: 0 1px 0 var(--onboarding-accent) !important;
+}
+
 .phone-number-control {
   display: flex;
   min-height: 45px;

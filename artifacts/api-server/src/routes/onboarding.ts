@@ -17,6 +17,14 @@ const allowedInterests = new Set([
 ]);
 
 const optionalText = z.string().trim().max(500).optional().nullable();
+const entityTypes = new Set([
+  "sole_proprietorship",
+  "partnership",
+  "limited_company",
+  "cooperative",
+  "ngo_nonprofit",
+  "other",
+]);
 const commoditySubtypes: Record<string, readonly string[]> = {
   Coffee: ["Arabica AA", "Arabica AB", "Arabica PB", "Robusta"],
   Tea: ["Orthodox", "CTC", "Green Tea", "Purple Tea", "White Tea"],
@@ -45,6 +53,7 @@ const onboardingSchema = z.object({
   payoutMobileMoney: optionalText,
   businessName: optionalText,
   businessRegistrationNumber: optionalText,
+  entityType: optionalText,
   bankDetails: optionalText,
   sourcingCommodity: optionalText,
   expectedVolume: optionalText,
@@ -73,16 +82,24 @@ const onboardingSchema = z.object({
   }
 
   if (data.marketplaceRole === "trader") {
-    required("businessName", "Business name is required");
-    required("businessRegistrationNumber", "Registration number is required");
+    required("businessName", "Entity name is required");
+    required("businessRegistrationNumber", "Entity registration number is required");
+    required("entityType", "Entity type is required");
+    if (data.entityType && !entityTypes.has(data.entityType)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["entityType"], message: "Select a valid entity type" });
+    }
     if (data.commoditySelections.length === 0 && data.commodities.length === 0) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["commoditySelections"], message: "Select at least one commodity" });
     }
   }
 
   if (data.marketplaceRole === "buyer") {
-    required("businessName", "Company name is required");
-    required("businessRegistrationNumber", "Registration number is required");
+    required("businessName", "Entity name is required");
+    required("businessRegistrationNumber", "Entity registration number is required");
+    required("entityType", "Entity type is required");
+    if (data.entityType && !entityTypes.has(data.entityType)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["entityType"], message: "Select a valid entity type" });
+    }
     if (data.commoditySelections.length === 0 && !data.sourcingCommodity) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["commoditySelections"], message: "Sourcing interest is required" });
     }
@@ -146,6 +163,7 @@ router.put("/onboarding/me", async (req, res) => {
     payoutMobileMoney: data.payoutMobileMoney || null,
     businessName: data.businessName || null,
     businessRegistrationNumber: data.businessRegistrationNumber || null,
+    entityType: data.entityType || null,
     bankDetails: data.bankDetails || null,
     sourcingCommodity: data.marketplaceRole === "buyer" ? legacyCommodityNames.join(", ") || data.sourcingCommodity || null : null,
     expectedVolume: data.expectedVolume || null,

@@ -3,6 +3,11 @@ import { db } from "./index";
 
 export async function applyDbConstraints() {
   await db.execute(sql`
+    ALTER TABLE marketplace_onboarding_profiles
+      ADD COLUMN IF NOT EXISTS entity_type text
+  `);
+
+  await db.execute(sql`
     CREATE OR REPLACE FUNCTION validate_ewr_state_transition()
     RETURNS TRIGGER AS $$
     BEGIN
