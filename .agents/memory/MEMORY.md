@@ -16,3 +16,4 @@
 - [Artifact build environment](artifact-build-environment.md) — manual Vite builds for managed artifacts may require both PORT and BASE_PATH
 - [External Clerk organization selection](external-clerk-org-selection.md) — TokenHarvest does not use Clerk Organizations; forced selection blocks programmatic login and onboarding
 - [Structured onboarding commodities](structured-onboarding-commodities.md) — persist commodity/sub-type pairs as JSON while mirroring flat names for legacy consumers
+- [Shared market onboarding source](shared-market-onboarding-source.md) — reuse Grain page/components directly; use relative imports and load shared CSS after each artifact's local styles

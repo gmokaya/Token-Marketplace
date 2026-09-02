@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import OnboardingWizard from "@/components/OnboardingWizard";
+import OnboardingWizard from "../components/OnboardingWizard";
 
 type OnboardingPageProps = {
   marketName?: string;
