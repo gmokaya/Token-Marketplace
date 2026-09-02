@@ -5,12 +5,14 @@ type OnboardingPageProps = {
   marketName?: string;
   backgroundSrc?: string;
   shellClass?: string;
+  market?: "grain" | "coffee" | "tea";
 };
 
 export default function OnboardingPage({
   marketName = "Grain Marketplace",
   backgroundSrc,
   shellClass = "market-auth-shell--grain",
+  market = "grain",
 }: OnboardingPageProps) {
   const bp = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -61,7 +63,7 @@ export default function OnboardingPage({
 
         <section className="market-auth-form-wrap w-full">
           <div className="market-auth-form-card market-auth-form-card--onboarding">
-            <OnboardingWizard marketName={marketName} />
+            <OnboardingWizard marketName={marketName} market={market} />
           </div>
         </section>
       </main>

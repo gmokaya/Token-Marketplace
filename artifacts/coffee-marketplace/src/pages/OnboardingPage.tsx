@@ -7,6 +7,7 @@ export default function OnboardingPage() {
       marketName="Coffee Marketplace"
       backgroundSrc={coffeeSignInImage}
       shellClass="market-auth-shell--coffee"
+      market="coffee"
     />
   );
 }

@@ -13,6 +13,26 @@ export async function applyDbConstraints() {
   `);
 
   await db.execute(sql`
+    ALTER TABLE marketplace_onboarding_profiles
+      ADD COLUMN IF NOT EXISTS coffee_origin_country text
+  `);
+
+  await db.execute(sql`
+    ALTER TABLE marketplace_onboarding_profiles
+      ADD COLUMN IF NOT EXISTS coffee_origin_region text
+  `);
+
+  await db.execute(sql`
+    ALTER TABLE marketplace_onboarding_profiles
+      ADD COLUMN IF NOT EXISTS coffee_variety text
+  `);
+
+  await db.execute(sql`
+    ALTER TABLE marketplace_onboarding_profiles
+      ADD COLUMN IF NOT EXISTS coffee_processing_type text
+  `);
+
+  await db.execute(sql`
     CREATE OR REPLACE FUNCTION validate_ewr_state_transition()
     RETURNS TRIGGER AS $$
     BEGIN

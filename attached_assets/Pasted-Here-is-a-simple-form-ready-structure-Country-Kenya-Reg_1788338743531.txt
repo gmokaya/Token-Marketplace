@@ -1,0 +1,283 @@
+Here is a simple **form-ready structure**:
+
+### Country
+
+#### Kenya
+
+**Region**
+
+* Nyeri
+* Kirinyaga
+* Murang'a
+* Kiambu
+* Embu
+* Meru
+* Machakos
+* Nakuru
+* Kericho
+* Nandi
+* Bungoma
+* Kisii
+
+**Variety**
+
+* SL28
+* SL34
+* Batian
+* Ruiru 11
+* K7
+* French Mission Bourbon
+* Blue Mountain
+* Other
+
+---
+
+#### Ethiopia
+
+**Region**
+
+* Yirgacheffe
+* Sidama
+* Guji
+* Limu
+* Jimma
+* Harrar
+* Kaffa
+* Bench Maji
+* Nekemte / Wellega
+
+**Variety**
+
+* Ethiopian Heirloom
+* Landrace
+* 74110
+* 74112
+* 74158
+* Other
+
+---
+
+#### Colombia
+
+**Region**
+
+* Huila
+* Nariño
+* Antioquia
+* Tolima
+* Cauca
+* Caldas
+* Risaralda
+* Quindío
+* Santander
+* Sierra Nevada
+
+**Variety**
+
+* Castillo
+* Caturra
+* Colombia
+* Bourbon
+* Pink Bourbon
+* Typica
+* Geisha
+* Pacamara
+* Tabi
+* Other
+
+---
+
+#### Brazil
+
+**Region**
+
+* Minas Gerais
+* Sul de Minas
+* Cerrado Mineiro
+* Mogiana
+* Chapada Diamantina
+* Espírito Santo
+
+**Variety**
+
+* Bourbon
+* Yellow Bourbon
+* Mundo Novo
+* Catuai
+* Caturra
+* Typica
+* Geisha
+* Other
+
+---
+
+#### Guatemala
+
+**Region**
+
+* Antigua
+* Huehuetenango
+* Atitlán
+* Cobán
+* Acatenango
+* Fraijanes
+* Nuevo Oriente
+* San Marcos
+
+**Variety**
+
+* Bourbon
+* Caturra
+* Catuai
+* Typica
+* Pacamara
+* Geisha
+* Other
+
+---
+
+#### Costa Rica
+
+**Region**
+
+* Tarrazú
+* West Valley
+* Central Valley
+* Brunca
+* Turrialba
+* Orosi
+
+**Variety**
+
+* Caturra
+* Catuai
+* Bourbon
+* Villa Sarchi
+* Geisha
+* SL28
+* Other
+
+---
+
+#### Panama
+
+**Region**
+
+* Boquete
+* Volcán
+* Renacimiento
+* Chiriquí
+
+**Variety**
+
+* Geisha / Gesha
+* Caturra
+* Catuai
+* Typica
+* Pacamara
+* Other
+
+---
+
+#### Rwanda
+
+**Region**
+
+* Western Province
+* Southern Province
+* Northern Province
+* Eastern Province
+
+**Variety**
+
+* Red Bourbon
+* Bourbon
+* Jackson
+* Mibirizi
+* Other
+
+---
+
+#### Burundi
+
+**Region**
+
+* Kayanza
+* Ngozi
+* Muyinga
+* Kirundo
+* Gitega
+* Karusi
+
+**Variety**
+
+* Red Bourbon
+* Bourbon
+* Jackson
+* Mibirizi
+* Other
+
+---
+
+#### Uganda
+
+**Region**
+
+* Mount Elgon
+* Bugisu
+* Rwenzori
+* West Nile
+* Central Region
+
+**Variety**
+
+* SL14
+* SL28
+* Nyasaland
+* Kent
+* Robusta
+* Other
+
+---
+
+#### Tanzania
+
+**Region**
+
+* Kilimanjaro
+* Arusha
+* Mbeya
+* Mbinga
+* Ruvuma
+* Kigoma
+* Kagera
+
+**Variety**
+
+* Kent
+* Bourbon
+* Typica
+* N39
+* Robusta
+* Other
+
+---
+
+#### Uganda
+
+**Region**
+
+* Mount Elgon
+* Rwenzori
+* West Nile
+* Central
+* Bugisu
+
+**Variety**
+
+* SL14
+* SL28
+* Kent
+* Nyasaland
+* Robusta
+* Other

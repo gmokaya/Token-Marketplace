@@ -34,57 +34,71 @@ import {
 import { CountrySelect } from "./CountrySelect";
 import { PhoneNumberInput } from "./PhoneNumberInput";
 import { VolumeSelect } from "./VolumeSelect";
+import {
+  COFFEE_ORIGIN_CATALOG,
+  COFFEE_PROCESSING_TYPES,
+} from "./coffee-origin";
 
-const commoditySelectionSchema = z
-  .object({
-    commodity: z.string(),
-    subType: z.string().nullable(),
-  })
-  .superRefine((selection, ctx) => {
-    const allowed = COMMODITY_SUBTYPES[selection.commodity];
-    if (allowed && !selection.subType) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["subType"],
-        message: `Select a ${selection.commodity} sub-type`,
-      });
-    } else if (
-      allowed &&
-      selection.subType &&
-      !allowed.includes(selection.subType)
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["subType"],
-        message: "Select a valid sub-type",
-      });
-    } else if (!allowed && selection.subType !== null) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["subType"],
-        message: "This commodity does not use a sub-type",
-      });
-    }
-  });
+type Market = "grain" | "coffee" | "tea";
 
-const onboardingSchema = z
-  .object({
-    marketplaceRole: z.enum(["producer", "trader", "buyer"]),
-    fullName: z.string().min(2, "Full name is required"),
-    country: z.string().optional(),
-    region: z.string().optional(),
-    city: z.string().optional(),
-    commoditySelections: z.array(commoditySelectionSchema).default([]),
-    payoutMobileMoney: z.string().optional(),
-    businessName: z.string().optional(),
-    businessRegistrationNumber: z.string().optional(),
-    entityType: z.string().optional(),
-    expectedVolume: z.string().optional(),
-    destinationCountry: z.string().optional(),
-    interests: z.array(z.string()).default([]),
-    producerStory: z.string().optional(),
-  })
-  .superRefine((data, ctx) => {
+const createOnboardingSchema = (market: Market) => {
+  const commoditySelectionSchema = z
+    .object({
+      commodity: z.string(),
+      subType: z.string().nullable(),
+    })
+    .superRefine((selection, ctx) => {
+      const allowed = COMMODITY_SUBTYPES[selection.commodity];
+      const coffeeOriginReplacesSubtype =
+        market === "coffee" && selection.commodity === "Coffee";
+      if (allowed && !coffeeOriginReplacesSubtype && !selection.subType) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["subType"],
+          message: `Select a ${selection.commodity} sub-type`,
+        });
+      } else if (
+        allowed &&
+        !coffeeOriginReplacesSubtype &&
+        selection.subType &&
+        !allowed.includes(selection.subType)
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["subType"],
+          message: "Select a valid sub-type",
+        });
+      } else if (!allowed && selection.subType !== null) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["subType"],
+          message: "This commodity does not use a sub-type",
+        });
+      }
+    });
+
+  return z
+    .object({
+      marketplaceRole: z.enum(["producer", "trader", "buyer"]),
+      fullName: z.string().min(2, "Full name is required"),
+      country: z.string().optional(),
+      region: z.string().optional(),
+      city: z.string().optional(),
+      coffeeOriginCountry: z.string().optional(),
+      coffeeOriginRegion: z.string().optional(),
+      coffeeVariety: z.string().optional(),
+      coffeeProcessingType: z.string().optional(),
+      commoditySelections: z.array(commoditySelectionSchema).default([]),
+      payoutMobileMoney: z.string().optional(),
+      businessName: z.string().optional(),
+      businessRegistrationNumber: z.string().optional(),
+      entityType: z.string().optional(),
+      expectedVolume: z.string().optional(),
+      destinationCountry: z.string().optional(),
+      interests: z.array(z.string()).default([]),
+      producerStory: z.string().optional(),
+    })
+    .superRefine((data, ctx) => {
     const requireText = (field: keyof OnboardingData, message: string) => {
       const value = data[field];
       if (typeof value !== "string" || value.trim().length < 2) {
@@ -113,42 +127,107 @@ const onboardingSchema = z
       }
     }
 
-    if (data.marketplaceRole === "trader") {
-      requireText("businessName", "Entity name is required");
-      requireText(
-        "businessRegistrationNumber",
-        "Entity registration number is required",
-      );
-      requireText("entityType", "Entity type is required");
-      if (!data.commoditySelections.length) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["commoditySelections"],
-          message: "Select at least one commodity",
-        });
+      if (data.marketplaceRole === "trader") {
+        requireText("businessName", "Entity name is required");
+        requireText(
+          "businessRegistrationNumber",
+          "Entity registration number is required",
+        );
+        requireText("entityType", "Entity type is required");
+        if (!data.commoditySelections.length) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["commoditySelections"],
+            message: "Select at least one commodity",
+          });
+        }
       }
-    }
 
-    if (data.marketplaceRole === "buyer") {
-      requireText("businessName", "Entity name is required");
-      requireText(
-        "businessRegistrationNumber",
-        "Entity registration number is required",
-      );
-      requireText("entityType", "Entity type is required");
-      if (!data.commoditySelections.length) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["commoditySelections"],
-          message: "Select at least one sourcing interest",
-        });
+      if (data.marketplaceRole === "buyer") {
+        requireText("businessName", "Entity name is required");
+        requireText(
+          "businessRegistrationNumber",
+          "Entity registration number is required",
+        );
+        requireText("entityType", "Entity type is required");
+        if (!data.commoditySelections.length) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["commoditySelections"],
+            message: "Select at least one sourcing interest",
+          });
+        }
+        requireText("expectedVolume", "Choose an expected volume");
+        requireText("destinationCountry", "Choose a destination country");
       }
-      requireText("expectedVolume", "Choose an expected volume");
-      requireText("destinationCountry", "Choose a destination country");
-    }
-  });
 
-type OnboardingData = z.infer<typeof onboardingSchema>;
+      if (market === "coffee") {
+        if (
+          !data.commoditySelections.some(
+            (selection) => selection.commodity === "Coffee",
+          )
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["commoditySelections"],
+            message: "Select Coffee to continue",
+          });
+        }
+        requireText("coffeeOriginCountry", "Country of origin is required");
+        requireText("coffeeOriginRegion", "Region is required");
+        requireText("coffeeVariety", "Variety is required");
+        requireText(
+          "coffeeProcessingType",
+          "Processing type is required",
+        );
+
+        const origin = data.coffeeOriginCountry
+          ? COFFEE_ORIGIN_CATALOG[data.coffeeOriginCountry]
+          : undefined;
+        if (data.coffeeOriginCountry && !origin) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["coffeeOriginCountry"],
+            message: "Select a valid country of origin",
+          });
+        }
+        if (
+          origin &&
+          data.coffeeOriginRegion &&
+          !origin.regions.includes(data.coffeeOriginRegion)
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["coffeeOriginRegion"],
+            message: "Select a valid region for this country",
+          });
+        }
+        if (
+          origin &&
+          data.coffeeVariety &&
+          !origin.varieties.includes(data.coffeeVariety)
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["coffeeVariety"],
+            message: "Select a valid variety for this country",
+          });
+        }
+        if (
+          data.coffeeProcessingType &&
+          !COFFEE_PROCESSING_TYPES.includes(data.coffeeProcessingType)
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["coffeeProcessingType"],
+            message: "Select a valid processing type",
+          });
+        }
+      }
+    });
+};
+
+type OnboardingData = z.infer<ReturnType<typeof createOnboardingSchema>>;
 
 const INTERESTS = {
   producer: [
@@ -198,12 +277,14 @@ const ENTITY_TYPES = [
 
 type OnboardingWizardProps = {
   marketName?: string;
+  market?: Market;
 };
 
 const stepLabels = ["About you", "Your market", "Your priorities"];
 
 export default function OnboardingWizard({
   marketName = "TokenHarvest",
+  market = "grain",
 }: OnboardingWizardProps) {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -212,6 +293,8 @@ export default function OnboardingWizard({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAdvancing, setIsAdvancing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const isCoffeeMarket = market === "coffee";
+  const onboardingSchema = createOnboardingSchema(market);
 
   const form = useForm<OnboardingData>({
     resolver: zodResolver(onboardingSchema),
@@ -221,6 +304,10 @@ export default function OnboardingWizard({
       country: "",
       region: "",
       city: "",
+      coffeeOriginCountry: "",
+      coffeeOriginRegion: "",
+      coffeeVariety: "",
+      coffeeProcessingType: "",
       commoditySelections: [],
       payoutMobileMoney: "",
       businessName: "",
@@ -235,6 +322,13 @@ export default function OnboardingWizard({
   });
 
   const currentRole = form.watch("marketplaceRole");
+  const coffeeOriginCountry = form.watch("coffeeOriginCountry");
+  const coffeeOriginRegion = form.watch("coffeeOriginRegion");
+  const selectedCoffeeOrigin = coffeeOriginCountry
+    ? COFFEE_ORIGIN_CATALOG[coffeeOriginCountry]
+    : undefined;
+  const coffeeRegions = selectedCoffeeOrigin?.regions ?? [];
+  const coffeeVarieties = selectedCoffeeOrigin?.varieties ?? [];
 
   useEffect(() => {
     async function loadData() {
@@ -350,6 +444,14 @@ export default function OnboardingWizard({
         "destinationCountry",
       ];
     }
+    if (isCoffeeMarket) {
+      fieldsToValidate.push(
+        "coffeeOriginCountry",
+        "coffeeOriginRegion",
+        "coffeeVariety",
+        "coffeeProcessingType",
+      );
+    }
 
     try {
       if (await form.trigger(fieldsToValidate as Array<keyof OnboardingData>)) {
@@ -374,9 +476,9 @@ export default function OnboardingWizard({
 
     setIsSubmitting(true);
     try {
-      await customFetch("/api/onboarding/me", {
+       await customFetch("/api/onboarding/me", {
         method: "PUT",
-        body: JSON.stringify(data),
+         body: JSON.stringify({ ...data, market }),
       });
       localStorage.removeItem("onboarding-draft");
       localStorage.removeItem("onboardingRole");
@@ -454,10 +556,16 @@ export default function OnboardingWizard({
           description: "Share your role and the details that describe you.",
         }
       : currentStep === 2
-        ? {
-            title: "What is relevant to your work?",
-            description: "Choose the products and details that fit.",
-          }
+        ? currentRole === "producer"
+          ? {
+              title: "Tell us more about your production",
+              description:
+                "Choose what you produce and the details that describe your harvest.",
+            }
+          : {
+              title: "What is relevant to your work?",
+              description: "Choose the products and details that fit.",
+            }
         : currentRole === "producer"
           ? {
               title: "What would help your farm thrive?",
@@ -761,12 +869,156 @@ export default function OnboardingWizard({
                             <CommoditySelect
                               value={field.value}
                               onChange={field.onChange}
+                              coffeeOnly={isCoffeeMarket}
                             />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
+                    {isCoffeeMarket && (
+                      <div className="space-y-4">
+                        <FormField
+                          control={form.control}
+                          name="coffeeOriginCountry"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className={labelClass}>
+                                Coffee country of origin
+                              </FormLabel>
+                              <Select
+                                value={field.value}
+                                onValueChange={(value) => {
+                                  field.onChange(value);
+                                  form.setValue("coffeeOriginRegion", "");
+                                  form.setValue("coffeeVariety", "");
+                                }}
+                              >
+                                <FormControl>
+                                  <SelectTrigger
+                                    className="onboarding-select-trigger"
+                                    data-testid="select-coffee-origin-country"
+                                  >
+                                    <SelectValue placeholder="Select country of origin" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {Object.keys(COFFEE_ORIGIN_CATALOG).map(
+                                    (country) => (
+                                      <SelectItem key={country} value={country}>
+                                        {country}
+                                      </SelectItem>
+                                    ),
+                                  )}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="coffeeOriginRegion"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className={labelClass}>
+                                Coffee region
+                              </FormLabel>
+                              <Select
+                                value={field.value}
+                                onValueChange={(value) => {
+                                  field.onChange(value);
+                                  form.setValue("coffeeVariety", "");
+                                }}
+                                disabled={!coffeeOriginCountry}
+                              >
+                                <FormControl>
+                                  <SelectTrigger
+                                    className="onboarding-select-trigger"
+                                    data-testid="select-coffee-origin-region"
+                                  >
+                                    <SelectValue placeholder="Select region" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {coffeeRegions.map((region) => (
+                                    <SelectItem key={region} value={region}>
+                                      {region}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="coffeeVariety"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className={labelClass}>
+                                Coffee variety
+                              </FormLabel>
+                              <Select
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                disabled={!coffeeOriginCountry}
+                              >
+                                <FormControl>
+                                  <SelectTrigger
+                                    className="onboarding-select-trigger"
+                                    data-testid="select-coffee-variety"
+                                  >
+                                    <SelectValue placeholder="Select variety" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {coffeeVarieties.map((variety) => (
+                                    <SelectItem key={variety} value={variety}>
+                                      {variety}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="coffeeProcessingType"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className={labelClass}>
+                                Coffee processing type
+                              </FormLabel>
+                              <Select
+                                value={field.value}
+                                onValueChange={field.onChange}
+                              >
+                                <FormControl>
+                                  <SelectTrigger
+                                    className="onboarding-select-trigger"
+                                    data-testid="select-coffee-processing-type"
+                                  >
+                                    <SelectValue placeholder="Select processing type" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {COFFEE_PROCESSING_TYPES.map((type) => (
+                                    <SelectItem key={type} value={type}>
+                                      {type}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    )}
                     <FormField
                       control={form.control}
                       name="payoutMobileMoney"

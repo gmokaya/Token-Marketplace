@@ -7,6 +7,7 @@ export default function OnboardingPage() {
       marketName="Tea Marketplace"
       backgroundSrc={teaSignInImage}
       shellClass="market-auth-shell--tea"
+      market="tea"
     />
   );
 }

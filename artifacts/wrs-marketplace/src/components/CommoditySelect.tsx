@@ -9,6 +9,7 @@ type Props = {
   value: CommoditySelection[];
   onChange: (value: CommoditySelection[]) => void;
   singleSelect?: boolean;
+  coffeeOnly?: boolean;
 };
 
 const COMMODITIES = [
@@ -63,7 +64,12 @@ export function normalizeLegacyCommodity(value: string): CommoditySelection {
   return { commodity: "Other", subType: null };
 }
 
-export function CommoditySelect({ value = [], onChange, singleSelect = false }: Props) {
+export function CommoditySelect({
+  value = [],
+  onChange,
+  singleSelect = false,
+  coffeeOnly = false,
+}: Props) {
   const toggleCommodity = (comm: string) => {
     const existing = value.find((v) => v.commodity === comm);
     if (existing) {
@@ -101,7 +107,7 @@ export function CommoditySelect({ value = [], onChange, singleSelect = false }: 
   return (
     <div className="commodity-select">
       <div className="commodity-option-list">
-        {COMMODITIES.map((comm) => {
+        {(coffeeOnly ? ["Coffee"] : COMMODITIES).map((comm) => {
           const isSelected = value.some((v) => v.commodity === comm);
           return (
             <button
@@ -122,11 +128,11 @@ export function CommoditySelect({ value = [], onChange, singleSelect = false }: 
         })}
       </div>
 
-      {selectedCommodities.some((comm) => COMMODITY_SUBTYPES[comm]) && (
+      {selectedCommodities.some((comm) => COMMODITY_SUBTYPES[comm] && !(coffeeOnly && comm === "Coffee")) && (
         <div className="commodity-subtype-groups">
           {selectedCommodities.map((comm) => {
             const subTypes = COMMODITY_SUBTYPES[comm];
-            if (!subTypes) return null;
+            if (!subTypes || (coffeeOnly && comm === "Coffee")) return null;
             const selections = value.filter((v) => v.commodity === comm);
 
             return (
@@ -141,7 +147,7 @@ export function CommoditySelect({ value = [], onChange, singleSelect = false }: 
                       <button
                         key={st}
                         type="button"
-                        onClick={() => setSubType(v.commodity, st)}
+                        onClick={() => setSubType(comm, st)}
                         aria-pressed={isSelected}
                         data-testid={`commodity-subtype-${st.toLowerCase().replace(/\s+/g, "-")}`}
                         className={cn(
