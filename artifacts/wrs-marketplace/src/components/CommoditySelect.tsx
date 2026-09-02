@@ -76,15 +76,27 @@ export function CommoditySelect({ value = [], onChange, singleSelect = false }: 
   };
 
   const setSubType = (comm: string, subType: string) => {
-    onChange(
-      value.map((v) => {
-        if (v.commodity === comm) {
-          return { ...v, subType };
-        }
-        return v;
-      })
-    );
+    const currentSelections = value.filter((v) => v.commodity === comm);
+    const isGrain = comm === "Grain";
+    const isSelected = currentSelections.some((v) => v.subType === subType);
+    const nextSelections = isGrain
+      ? isSelected
+        ? currentSelections.filter((v) => v.subType !== subType)
+        : [
+            ...currentSelections.filter((v) => v.subType !== null),
+            { commodity: comm, subType },
+          ]
+      : [{ commodity: comm, subType }];
+    const replacement = nextSelections.length
+      ? nextSelections
+      : [{ commodity: comm, subType: null }];
+    const firstIndex = value.findIndex((v) => v.commodity === comm);
+    const nextValue = value.filter((v) => v.commodity !== comm);
+    nextValue.splice(Math.min(firstIndex, nextValue.length), 0, ...replacement);
+    onChange(nextValue);
   };
+
+  const selectedCommodities = Array.from(new Set(value.map((v) => v.commodity)));
 
   return (
     <div className="commodity-select">
@@ -110,20 +122,21 @@ export function CommoditySelect({ value = [], onChange, singleSelect = false }: 
         })}
       </div>
 
-      {value.some(v => COMMODITY_SUBTYPES[v.commodity]) && (
+      {selectedCommodities.some((comm) => COMMODITY_SUBTYPES[comm]) && (
         <div className="commodity-subtype-groups">
-          {value.map((v) => {
-            const subTypes = COMMODITY_SUBTYPES[v.commodity];
+          {selectedCommodities.map((comm) => {
+            const subTypes = COMMODITY_SUBTYPES[comm];
             if (!subTypes) return null;
+            const selections = value.filter((v) => v.commodity === comm);
 
             return (
-              <div key={v.commodity} className="commodity-subtype-group animate-in fade-in slide-in-from-top-2 duration-300">
+              <div key={comm} className="commodity-subtype-group animate-in fade-in slide-in-from-top-2 duration-300">
                 <div className="commodity-subtype-label">
-                  Select {v.commodity} sub-type
+                  Select {comm} {comm === "Grain" ? "sub-types" : "sub-type"}
                 </div>
                 <div className="commodity-subtype-list">
                   {subTypes.map((st) => {
-                    const isSelected = v.subType === st;
+                    const isSelected = selections.some((v) => v.subType === st);
                     return (
                       <button
                         key={st}
