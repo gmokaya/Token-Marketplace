@@ -397,54 +397,48 @@ export default function OnboardingWizard({
     );
   }
 
-  const progress = Math.round((currentStep / 3) * 100);
+  const totalSteps = stepLabels.length;
+  const progress = Math.round((currentStep / totalSteps) * 100);
   const question =
     currentStep === 1
       ? currentRole === "producer"
         ? {
             title: "Tell us about yourself",
-            description:
-              "A few details help us tailor the market to your work.",
+            description: "Tell us where you fit.",
           }
         : currentRole === "trader"
           ? {
               title: "Tell us about your business",
-              description:
-                "Help us understand how you move products through the market.",
+            description: "A few details about how you trade.",
             }
           : {
               title: "Tell us about your sourcing",
-              description:
-                "We use this to connect you with the right supply and support.",
+            description: "A few details about your sourcing.",
             }
       : currentStep === 2
         ? {
             title: "What is relevant to your work?",
-            description:
-              "Choose the products and details that best describe your place in the market.",
+            description: "Choose the products and details that fit.",
           }
         : currentRole === "producer"
           ? {
               title: "What would help your farm thrive?",
-              description:
-                "Select as many as apply. You can update these preferences later.",
+            description: "Select all that apply.",
             }
           : currentRole === "trader"
             ? {
                 title: "What would make trading easier?",
-                description:
-                  "Select the areas where TokenHarvest can support your business.",
+              description: "Select the areas where we can help.",
               }
             : {
                 title: "What matters most in your sourcing program?",
-                description:
-                  "Select as many as apply. You can update these preferences later.",
+              description: "Select all that apply.",
               };
 
   const inputClass =
-    "onboarding-line-input w-full px-1 py-3 text-[17px] text-[#202532] transition-all placeholder:text-[#a4a9b3] focus:outline-none";
+    "onboarding-line-input w-full px-1 py-3 text-[16px] text-[#202532] transition-all placeholder:text-[#a4a9b3] focus:outline-none";
   const labelClass =
-    "block px-1 mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#8c929f]";
+    "block px-1 mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#8c929f]";
 
   return (
     <div className="market-onboarding onboarding-workspace">
@@ -455,10 +449,17 @@ export default function OnboardingWizard({
         </div>
         <div
           className="onboarding-progress-ring"
-          aria-label={`${progress}% complete`}
+          role="progressbar"
+          aria-label="Profile completion"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={progress}
+          style={{
+            background: `conic-gradient(var(--onboarding-accent) ${progress}%, #eef0f5 ${progress}% 100%)`,
+          }}
         >
           <strong>{progress}%</strong>
-          <span>{currentStep} / 3</span>
+          <span>{currentStep} / {totalSteps}</span>
         </div>
         <nav className="onboarding-step-list">
           {stepLabels.map((label, index) => {
@@ -489,24 +490,19 @@ export default function OnboardingWizard({
         </nav>
         <div className="onboarding-rail-bottom">
           <div className="onboarding-secure-note">
-            <span aria-hidden="true">⌁</span> Your progress is saved
+            <span aria-hidden="true">✓</span> Saved
           </div>
-          <p>
-            Complete your profile to access a trusted market built around your
-            work.
-          </p>
         </div>
       </aside>
 
       <section className="onboarding-question-pane">
         <div className="onboarding-topbar">
           <p>
-            You are joining <strong>{marketName}</strong>
+            Joining <strong>{marketName}</strong>
           </p>
-          <span>Private &amp; secure</span>
         </div>
         <div className="onboarding-mobile-progress">
-          <span>Step {currentStep} of 3</span>
+          <span>Step {currentStep} of {totalSteps}</span>
           <div>
             <i style={{ width: `${progress}%` }} />
           </div>
@@ -519,7 +515,7 @@ export default function OnboardingWizard({
           >
             <div className="onboarding-question-content animate-in fade-in slide-in-from-right-4 duration-500">
               <p className="onboarding-question-kicker">
-                Question {currentStep} / 3
+                Step {currentStep} of {totalSteps}
               </p>
               <h1>{question.title}</h1>
               <p className="onboarding-question-description">
@@ -535,7 +531,7 @@ export default function OnboardingWizard({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className={labelClass}>
-                            I am joining as
+                            Role
                           </FormLabel>
                           <div className="onboarding-role-options">
                             {(["producer", "trader", "buyer"] as const).map(
@@ -853,8 +849,7 @@ export default function OnboardingWizard({
           </form>
         </Form>
         <div className="onboarding-bottom-hint">
-          <span>Save and continue later</span>
-          <span>⌘</span>
+          <span>Saved</span>
         </div>
       </section>
     </div>
