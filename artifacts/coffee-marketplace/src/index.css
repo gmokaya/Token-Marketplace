@@ -446,6 +446,10 @@ h1, h2, h3, h4, h5, h6 {
   display: inline;
 }
 
+.market-auth-story-highlight {
+  color: #fcd34d;
+}
+
 .market-auth-story-description {
   max-width: 510px;
   margin: 28px 0 0;
@@ -878,6 +882,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .market-auth-shell--auth .market-auth-form-card {
+  height: clamp(360px, 70.5vh, 494px);
+  max-height: calc(100svh - 32px);
+  overflow-y: auto;
   padding: clamp(28px, 4vw, 44px);
   border: 1px solid rgba(255, 255, 255, 0.34);
   border-radius: 20px;
@@ -939,6 +946,9 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .market-auth-shell--auth .market-auth-form-card {
+    height: auto;
+    max-height: none;
+    overflow-y: visible;
     padding: 28px 22px;
   }
 }

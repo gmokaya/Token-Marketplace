@@ -67,16 +67,19 @@ export default function SignInPage() {
               eyebrow: "Flavour starts at origin",
               title: "Know the cup\nbefore the roast.",
               description: "Source specialty lots with process, grade, and provenance recorded before they reach your roastery.",
+              accentWords: ["cup", "roast", "process", "grade", "provenance"],
             },
             {
               eyebrow: "Repeatable quality",
               title: "Repeatable lots,\nrecorded clearly.",
               description: "Compare flavour, process, and grade data so the next shipment starts from a known profile.",
+              accentWords: ["Repeatable lots", "flavour", "grade", "shipment", "profile"],
             },
             {
               eyebrow: "Producer to shipment",
               title: "Keep every handoff\nin view.",
               description: "Follow custody from producer through warehouse, export documents, and shipment in one record.",
+              accentWords: ["handoff", "warehouse", "export documents", "shipment", "record"],
             },
           ]}
         />
@@ -84,7 +87,7 @@ export default function SignInPage() {
         <section className="market-auth-form-wrap">
           <div className={`market-auth-form-card ${isSignUp ? "market-auth-form-card--signup" : "market-auth-form-card--signin"}`}>
             <div className="market-auth-form-heading">
-              <h1>{isSignUp ? "Create your Coffee Marketplace account" : "Sign in to Coffee Marketplace"}</h1>
+              <h1>{isSignUp ? "Create Coffee Marketplace account" : "Sign in to Coffee Marketplace"}</h1>
               <p>
                 {isSignUp
                   ? "Join the sourcing desk for traceable specialty coffee."

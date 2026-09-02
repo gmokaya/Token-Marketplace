@@ -87,7 +87,7 @@ export default function SignInPage() {
         <section className="market-auth-form-wrap">
           <div className={`market-auth-form-card ${isSignUp ? "market-auth-form-card--signup" : "market-auth-form-card--signin"}`}>
             <div className="market-auth-form-heading">
-              <h1>{isSignUp ? "Create your Tea Marketplace account" : "Sign in to Tea Marketplace"}</h1>
+              <h1>{isSignUp ? "Create Tea Marketplace account" : "Sign in to Tea Marketplace"}</h1>
               <p>
                 {isSignUp
                   ? "Join the sourcing desk for traceable East African tea."

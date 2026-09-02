@@ -72,16 +72,19 @@ export default function SignInPage() {
               eyebrow: "Certified storage",
               title: "Know the lot\nbefore it moves.",
               description: "See grade, volume, warehouse status, and a clear route from stored grain to delivery.",
+              accentWords: ["lot", "moves", "grade", "delivery"],
             },
             {
               eyebrow: "Finance-ready trade",
               title: "Turn stored grain\ninto working capital.",
               description: "Connect warehouse receipts with forward contracts and trade finance built for the real supply chain.",
+              accentWords: ["stored grain", "working capital", "warehouse receipts", "trade finance"],
             },
             {
               eyebrow: "Market visibility",
               title: "Buy with a record,\nnot a promise.",
               description: "Compare verified East African supply through one sourcing desk made for serious grain buyers.",
+              accentWords: ["record", "promise", "East African supply"],
             },
           ]}
         />
@@ -89,7 +92,7 @@ export default function SignInPage() {
         <section className="market-auth-form-wrap">
           <div className={`market-auth-form-card ${isSignUp ? "market-auth-form-card--signup" : "market-auth-form-card--signin"}`}>
             <div className="market-auth-form-heading">
-              <h1>{isSignUp ? "Create your Grain Marketplace account" : "Sign in to Grain Marketplace"}</h1>
+              <h1>{isSignUp ? "Create Grain Marketplace account" : "Sign in to Grain Marketplace"}</h1>
               <p>
                 {isSignUp
                   ? "Join the sourcing desk for certified, delivery-ready grain."

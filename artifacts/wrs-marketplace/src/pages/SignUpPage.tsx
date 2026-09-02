@@ -25,16 +25,19 @@ export default function SignUpPage({
       eyebrow: "Certified storage",
       title: "Know the lot\nbefore it moves.",
       description: "See grade, volume, warehouse status, and a clear route from stored grain to delivery.",
+      accentWords: ["lot", "moves", "grade", "delivery"],
     },
     {
       eyebrow: "Finance-ready trade",
       title: "Turn stored grain\ninto working capital.",
       description: "Connect warehouse receipts with forward contracts and trade finance built for the real supply chain.",
+      accentWords: ["stored grain", "working capital", "warehouse receipts", "trade finance"],
     },
     {
       eyebrow: "Market visibility",
       title: "Buy with a record,\nnot a promise.",
       description: "Compare verified East African supply through one sourcing desk made for serious grain buyers.",
+      accentWords: ["record", "promise", "East African supply"],
     },
   ],
 }: SignUpPageProps) {
@@ -47,7 +50,7 @@ export default function SignUpPage({
   };
 
   return (
-    <div className={`market-auth-shell ${shellClass}`}>
+    <div className={`market-auth-shell market-auth-shell--auth ${shellClass}`}>
       <img
         src={backgroundSrc ?? grainSignInImage}
         alt=""

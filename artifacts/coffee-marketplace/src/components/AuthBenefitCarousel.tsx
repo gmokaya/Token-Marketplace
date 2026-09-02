@@ -5,12 +5,31 @@ export interface BenefitSlide {
   eyebrow: string;
   title: string;
   description: string;
+  accentWords?: string[];
 }
 
 interface AuthBenefitCarouselProps {
   eyebrow: string;
   slides: BenefitSlide[];
   accentColor: string;
+}
+
+function renderAccentedText(text: string, accentWords?: string[]) {
+  if (!accentWords?.length) return text;
+
+  const escapedWords = accentWords.map((word) => word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const matcher = new RegExp(`(\\b(?:${escapedWords.join("|")})\\b)`, "gi");
+  const words = new Set(accentWords.map((word) => word.toLowerCase()));
+
+  return text.split(matcher).map((part, index) =>
+    words.has(part.toLowerCase()) ? (
+      <span key={`${part}-${index}`} className="market-auth-story-highlight">
+        {part}
+      </span>
+    ) : (
+      part
+    ),
+  );
 }
 
 export function AuthBenefitCarousel({
@@ -62,12 +81,14 @@ export function AuthBenefitCarousel({
             <h2 className="market-auth-story-title">
               {slide.title.split("\n").map((line, lineIndex) => (
                 <span key={line}>
-                  {line}
+                  {renderAccentedText(line, slide.accentWords)}
                   {lineIndex < slide.title.split("\n").length - 1 && <br />}
                 </span>
               ))}
             </h2>
-            <p className="market-auth-story-description">{slide.description}</p>
+            <p className="market-auth-story-description">
+              {renderAccentedText(slide.description, slide.accentWords)}
+            </p>
           </article>
         ))}
       </div>
