@@ -4,40 +4,51 @@ import { AppHeader } from "./AppHeader";
 import { Show } from "@clerk/react";
 import { useGetMe } from "@workspace/api-client-react";
 import { Link } from "wouter";
-import { AlertTriangle, X } from "lucide-react";
+import { ShieldAlert, X } from "lucide-react";
 
 interface LayoutProps {
   children: ReactNode;
 }
 
-function KybBanner() {
+function KybReminder() {
   const { data: user } = useGetMe();
   const [dismissed, setDismissed] = useState(false);
 
   if (dismissed) return null;
   if (!user) return null;
-  if ((user as any).tier === "ADMIN") return null;
-  const status = (user as any).onboardingStatus ?? "PENDING_KYB_APPROVAL";
-  if (status !== "PENDING_KYB_APPROVAL") return null;
+  if (user.tier === "ADMIN" || user.kybStatus === "VERIFIED") return null;
 
   return (
-    <div className="flex items-center gap-3 bg-slate-50 border-b border-slate-200 px-4 py-2.5">
-      <AlertTriangle className="w-4 h-4 text-slate-500 shrink-0" />
-      <p className="text-xs text-slate-800 flex-1">
-        <strong>Compliance profile incomplete.</strong>{" "}
-        Submit your KYB details to unlock full trading access.{" "}
-        <Link href="/profile" className="underline underline-offset-2 font-semibold hover:text-slate-950">
-          Complete now →
-        </Link>
-      </p>
-      <button
-        onClick={() => setDismissed(true)}
-        className="text-slate-500 hover:text-slate-800 transition-colors ml-2"
-        aria-label="Dismiss"
-      >
-        <X className="w-4 h-4" />
-      </button>
-    </div>
+    <aside
+      className="fixed bottom-6 right-6 z-50 w-[min(360px,calc(100vw-2rem))] rounded-xl border border-slate-200 bg-white p-4 shadow-2xl shadow-slate-950/15"
+      role="status"
+      aria-live="polite"
+    >
+      <div className="flex items-start gap-3">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100">
+          <ShieldAlert className="h-5 w-5 text-slate-700" aria-hidden="true" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold text-slate-950">Complete your KYC</p>
+          <p className="mt-1 text-xs leading-5 text-slate-600">
+            Finish your verification to unlock full trading, financing, and marketplace features.
+          </p>
+          <Link
+            href="/profile"
+            className="mt-3 inline-flex items-center text-xs font-semibold text-slate-950 underline underline-offset-4 hover:text-slate-600"
+          >
+            Complete KYC <span aria-hidden="true" className="ml-1">→</span>
+          </Link>
+        </div>
+        <button
+          onClick={() => setDismissed(true)}
+          className="shrink-0 rounded p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-800"
+          aria-label="Dismiss KYC reminder"
+        >
+          <X className="h-4 w-4" aria-hidden="true" />
+        </button>
+      </div>
+    </aside>
   );
 }
 
@@ -59,7 +70,7 @@ export function Layout({ children }: LayoutProps) {
     <div className="flex flex-col h-screen bg-background overflow-hidden">
       <Show when="signed-in">
         <AppHeader collapsed={collapsed} onToggle={handleToggle} />
-        <KybBanner />
+        <KybReminder />
       </Show>
 
       <div className="flex flex-1 overflow-hidden">
