@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @layer theme, base, clerk, components, utilities;
 @import "tailwindcss";
 @import "tw-animate-css";
@@ -51,6 +50,22 @@
   src: url('/grain/fonts/PTSans-BoldItalic.ttf') format('truetype');
   font-weight: 700;
   font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Simplo';
+  src: url('/grain/fonts/Simplo-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Simplo';
+  src: url('/grain/fonts/Simplo-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
   font-display: swap;
 }
 
@@ -171,8 +186,8 @@
   --chart-5: 0 0% 48%;
 
   --app-font-sans: 'PT Sans', sans-serif;
-  --app-font-serif: Georgia, serif;
-  --app-font-mono: 'JetBrains Mono', monospace;
+  --app-font-serif: 'PT Sans', sans-serif;
+  --app-font-mono: 'PT Sans', sans-serif;
   --radius: 0rem;
 }
 
@@ -286,24 +301,7 @@ html {
   }
 }
 
-/* ── Simplo display font ───────────────────────────────── */
-@font-face {
-  font-family: 'Simplo';
-  src: url('/grain/fonts/Simplo-Regular.otf') format('opentype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Simplo';
-  src: url('/grain/fonts/Simplo-Bold.otf') format('opentype');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* All headings: Simplo first, PT Sans as fallback */
+/* Simplo is reserved for headings; PT Sans remains the body/UI font. */
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Simplo', 'PT Sans', sans-serif;
 }
@@ -983,7 +981,7 @@ h1, h2, h3, h4, h5, h6 {
   grid-template-columns: 246px minmax(0, 1fr);
   min-height: 680px;
   width: 100%;
-  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: 'PT Sans', sans-serif;
 }
 
 .onboarding-rail {

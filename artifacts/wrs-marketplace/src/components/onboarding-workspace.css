@@ -199,7 +199,7 @@
   width: fit-content;
   padding: 0 8px;
   color: #273143;
-  font-family: 'Belleza', 'PT Sans', sans-serif;
+  font-family: 'Belleza', sans-serif;
   font-size: 21px;
   font-weight: 400;
   letter-spacing: -0.047em;
@@ -407,7 +407,7 @@
 }
 
 .onboarding-question-content h1 {
-  font-family: 'Simplo', 'PT Sans', sans-serif;
+  font-family: 'PT Sans', sans-serif;
   max-width: 670px;
   margin: 0;
   color: #252b39;

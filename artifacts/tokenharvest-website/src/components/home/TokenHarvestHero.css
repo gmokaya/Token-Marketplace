@@ -61,7 +61,7 @@
 .th-commodity-quote-mark {
   margin: 0 0 -16px;
   color: var(--th-coral);
-  font-family: Georgia, serif;
+  font-family: "Simplo", "PT Sans", sans-serif;
   font-size: 42px;
   line-height: .7;
 }

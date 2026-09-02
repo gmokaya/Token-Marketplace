@@ -1098,7 +1098,7 @@ function TickerTab({ ticker, setTicker, onSave, saving }: {
 
       {/* Live preview */}
       <PreviewCard>
-        <div style={{ background: "rgba(13,13,13,0.97)", height: 44, display: "flex", alignItems: "stretch", overflow: "hidden", fontFamily: "'Jost',sans-serif" }}>
+        <div style={{ background: "rgba(13,13,13,0.97)", height: 44, display: "flex", alignItems: "stretch", overflow: "hidden", fontFamily: "'PT Sans',sans-serif" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 18px", background: ACCENT, color: "#fff", flexShrink: 0, fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" }}>
             <span style={{ display: "block", width: 7, height: 7, borderRadius: "50%", background: "#fff" }} />
             Live Markets

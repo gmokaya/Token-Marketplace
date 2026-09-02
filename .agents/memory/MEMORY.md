@@ -5,6 +5,7 @@
 - [Transaction retry under load](concurrency-retry.md) — wrap money/inventory db.transaction in lib/db's withTxRetry (retries 40001/40P01); keep side effects outside the retried closure
 - [Financing eligibility & pre-auth API surface](financing-and-preauth-surface.md) — financeable = unencumbered (INGESTED/MARKET_LISTED + no lien); ewr-api/wrsc pre-Clerk surface must never run on default secrets in prod
 - [Font declared in CSS but not loaded](font-loading-vs-css-declaration.md) — --app-font-* token falls back silently unless index.html also loads that Google Font; match both when cloning styling
+- [Marketplace font hierarchy](marketplace-font-hierarchy.md) — Simplo headings, Belleza logos, PT Sans body; load only these local families
 - [Sub-path artifact Clerk redirects](subpath-artifact-clerk-redirect.md) — non-root artifact needs signInFallbackRedirectUrl=basePath + redirectToSignIn({redirectUrl}) or auth bounces to the root app
 - [Managed Clerk proxy wiring](clerk-dev-proxy-env.md) — production must retain the platform proxy env and canonical host-derived key wiring; dev intentionally uses no proxy
 - [Grain visual palette](grain-visual-palette.md) — Grain uses coal, graphite, platinum, and slate accents; avoid the warm coffee/amber palette

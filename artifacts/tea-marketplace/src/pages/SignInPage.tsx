@@ -50,6 +50,7 @@ export default function SignInPage() {
   return (
     <div className="market-auth-shell market-auth-shell--auth market-auth-shell--tea">
       <img src={teaSignInImage} alt="" className="market-auth-background" fetchPriority="high" />
+        <div className="market-auth-overlay" />
 
       <header className="market-auth-header">
         <Link href="/">

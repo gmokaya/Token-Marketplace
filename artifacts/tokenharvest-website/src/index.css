@@ -53,43 +53,10 @@
   font-display: swap;
 }
 
-/* ── Simplo display font family ── */
-@font-face {
-  font-family: 'Simplo';
-  src: url('/fonts/Simplo-Thin.otf') format('opentype');
-  font-weight: 100;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Simplo';
-  src: url('/fonts/Simplo-Light.otf') format('opentype');
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-
 @font-face {
   font-family: 'Simplo';
   src: url('/fonts/Simplo-Regular.otf') format('opentype');
   font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Simplo';
-  src: url('/fonts/Simplo-Medium.otf') format('opentype');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Simplo';
-  src: url('/fonts/Simplo-Demi.otf') format('opentype');
-  font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
@@ -104,73 +71,17 @@
 
 @font-face {
   font-family: 'Simplo';
-  src: url('/fonts/Simplo-Heavy.otf') format('opentype');
-  font-weight: 800;
+  src: url('/fonts/Simplo-Regular.otf') format('opentype');
+  font-weight: 100 600;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
   font-family: 'Simplo';
-  src: url('/fonts/Simplo-Black.otf') format('opentype');
-  font-weight: 900;
+  src: url('/fonts/Simplo-Bold.otf') format('opentype');
+  font-weight: 800 900;
   font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Simplo';
-  src: url('/fonts/Simplo-It.otf') format('opentype');
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Simplo';
-  src: url('/fonts/Simplo-LightIt.otf') format('opentype');
-  font-weight: 300;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Simplo';
-  src: url('/fonts/Simplo-MediumIt.otf') format('opentype');
-  font-weight: 500;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Simplo';
-  src: url('/fonts/Simplo-DemiIt.otf') format('opentype');
-  font-weight: 600;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Simplo';
-  src: url('/fonts/Simplo-BoldIt.otf') format('opentype');
-  font-weight: 700;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Simplo';
-  src: url('/fonts/Simplo-HeavyIt.otf') format('opentype');
-  font-weight: 800;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Simplo';
-  src: url('/fonts/Simplo-BlackIt.otf') format('opentype');
-  font-weight: 900;
-  font-style: italic;
   font-display: swap;
 }
 
@@ -290,8 +201,8 @@
   --chart-5: 0 80% 40%;
 
   --app-font-sans: 'PT Sans', sans-serif;
-  --app-font-serif: Georgia, serif;
-  --app-font-mono: 'JetBrains Mono', monospace;
+  --app-font-serif: 'PT Sans', sans-serif;
+  --app-font-mono: 'PT Sans', sans-serif;
   --radius: 0rem;
 }
 
@@ -387,7 +298,7 @@ html {
   }
 }
 
-/* All headings: Simplo first, PT Sans as fallback */
+/* Simplo is reserved for headings; PT Sans remains the body/UI font. */
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Simplo', 'PT Sans', sans-serif;
 }

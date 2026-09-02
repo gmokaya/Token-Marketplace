@@ -53,6 +53,22 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'Simplo';
+  src: url('/tea/fonts/Simplo-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Simplo';
+  src: url('/tea/fonts/Simplo-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme inline {
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
@@ -169,8 +185,8 @@
   --chart-5: 0 80% 40%;
 
   --app-font-sans: 'PT Sans', sans-serif;
-  --app-font-serif: Georgia, serif;
-  --app-font-mono: 'JetBrains Mono', monospace;
+  --app-font-serif: 'PT Sans', sans-serif;
+  --app-font-mono: 'PT Sans', sans-serif;
   --radius: 0rem;
 }
 
@@ -291,24 +307,7 @@
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 }
 
-/* ── Simplo display font ───────────────────────────────── */
-@font-face {
-  font-family: 'Simplo';
-  src: url('/tea/fonts/Simplo-Regular.otf') format('opentype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Simplo';
-  src: url('/tea/fonts/Simplo-Bold.otf') format('opentype');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* All headings: Simplo first, PT Sans as fallback */
+/* Simplo is reserved for headings; PT Sans remains the body/UI font. */
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Simplo', 'PT Sans', sans-serif;
 }
@@ -417,9 +416,14 @@ h1, h2, h3, h4, h5, h6 {
   pointer-events: none;
 }
 
+.market-auth-story-slide[aria-hidden="true"] {
+  visibility: hidden;
+}
+
 .market-auth-story-slide.is-active {
   opacity: 1;
   transform: translateY(0);
+  visibility: visible;
   pointer-events: auto;
 }
 
