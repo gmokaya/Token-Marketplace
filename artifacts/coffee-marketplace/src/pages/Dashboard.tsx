@@ -15,9 +15,6 @@ export default function Dashboard() {
       case "ADMIN":
         setLocation("/admin/auctions", { replace: true });
         break;
-      case "ENABLER":
-        setLocation("/broker", { replace: true });
-        break;
       default:
         setLocation("/market", { replace: true });
     }

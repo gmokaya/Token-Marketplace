@@ -12,10 +12,9 @@ export default function Dashboard() {
     if (!user) return;
     if (user.tier === "ADMIN") {
       setLocation("/admin/auctions", { replace: true });
-    } else if (user.tier === "ENABLER") {
-      setLocation("/broker", { replace: true });
+    } else {
+      setLocation("/market", { replace: true });
     }
-    // Other roles stay on /dashboard — show a generic placeholder below
   }, [user, setLocation]);
 
   if (isLoading || user?.tier === "ADMIN" || user?.tier === "ENABLER") {

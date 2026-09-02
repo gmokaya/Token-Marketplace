@@ -8,6 +8,8 @@ import { ShieldAlert, X } from "lucide-react";
 
 interface LayoutProps {
   children: ReactNode;
+  marketName?: string;
+  market?: "grain" | "coffee" | "tea";
 }
 
 function KybReminder() {
@@ -52,22 +54,22 @@ function KybReminder() {
   );
 }
 
-export function Layout({ children }: LayoutProps) {
+export function Layout({ children, marketName = "Grain Market", market = "grain" }: LayoutProps) {
   const [collapsed, setCollapsed] = useState(() => {
-    try { return localStorage.getItem("sidebar-collapsed") === "true"; }
+    try { return localStorage.getItem("th-sidebar-collapsed") === "true"; }
     catch { return false; }
   });
 
   const handleToggle = () => {
     setCollapsed(prev => {
       const next = !prev;
-      try { localStorage.setItem("sidebar-collapsed", String(next)); } catch {}
+      try { localStorage.setItem("th-sidebar-collapsed", String(next)); } catch {}
       return next;
     });
   };
 
   return (
-    <div className="flex flex-col h-screen bg-background overflow-hidden">
+    <div className="flex h-screen flex-col overflow-hidden bg-[#f5f6f6] text-[#25292c]">
       <Show when="signed-in">
         <AppHeader collapsed={collapsed} onToggle={handleToggle} />
         <KybReminder />
@@ -75,11 +77,11 @@ export function Layout({ children }: LayoutProps) {
 
       <div className="flex flex-1 overflow-hidden">
         <Show when="signed-in">
-          <Sidebar collapsed={collapsed} />
+          <Sidebar collapsed={collapsed} marketName={marketName} market={market} />
         </Show>
 
         <main className="flex-1 overflow-y-auto">
-          <div className="mx-auto p-6 max-w-7xl">
+          <div className="mx-auto w-full max-w-[1400px] p-6 md:p-8">
             {children}
           </div>
         </main>

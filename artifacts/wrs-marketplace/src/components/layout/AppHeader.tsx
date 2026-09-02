@@ -1,7 +1,6 @@
 import { Moon, Sun, PanelLeftClose, PanelLeftOpen, LogOut, Home } from "lucide-react";
 import { useClerk, useUser } from "@clerk/react";
 import { useGetMe } from "@workspace/api-client-react";
-import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { formatTier } from "@/lib/formatTier";
@@ -17,7 +16,7 @@ function useDarkMode() {
   );
 
   useEffect(() => {
-    const saved = localStorage.getItem("theme");
+    const saved = localStorage.getItem("th-theme");
     if (saved === "dark") {
       document.documentElement.classList.add("dark");
       setDark(true);
@@ -31,7 +30,7 @@ function useDarkMode() {
     const html = document.documentElement;
     const nowDark = !html.classList.contains("dark");
     html.classList.toggle("dark", nowDark);
-    localStorage.setItem("theme", nowDark ? "dark" : "light");
+    localStorage.setItem("th-theme", nowDark ? "dark" : "light");
     setDark(nowDark);
   };
 
@@ -52,10 +51,10 @@ export function AppHeader({ collapsed, onToggle }: AppHeaderProps) {
   const tierLabel = formatTier(dbUser?.tier);
 
   return (
-    <header className="sticky top-0 z-50 flex items-center justify-between h-14 pl-4 pr-3 bg-card border-b border-border shrink-0">
+    <header className="sticky top-0 z-50 flex h-14 shrink-0 items-center justify-between border-b border-[#dfe3e3] bg-[#fbfcfc] pl-4 pr-3 text-[#25292c]">
       <div className="flex items-center gap-1">
         <Link href="/" className="flex items-center">
-          <span className="tokenharvest-wordmark text-2xl text-foreground dark:text-white shrink-0">
+          <span className="tokenharvest-wordmark shrink-0 text-2xl text-[#25292c]">
             TokenHarvest
           </span>
         </Link>
@@ -63,7 +62,7 @@ export function AppHeader({ collapsed, onToggle }: AppHeaderProps) {
         <button
           onClick={onToggle}
           aria-label="Toggle sidebar"
-          className="flex items-center justify-center w-8 h-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          className="flex h-8 w-8 items-center justify-center text-[#7b8588] transition-colors hover:bg-[#eef1f1] hover:text-[#25292c]"
         >
           {collapsed
             ? <PanelLeftOpen className="w-4 h-4" />
@@ -73,7 +72,7 @@ export function AppHeader({ collapsed, onToggle }: AppHeaderProps) {
         <Link href="/">
           <button
             title="View public site"
-            className="flex items-center gap-1.5 h-8 px-2.5 rounded-md text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            className="flex h-8 items-center gap-1.5 px-2.5 text-xs font-medium text-[#7b8588] transition-colors hover:bg-[#eef1f1] hover:text-[#25292c]"
           >
             <Home className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">View site</span>
@@ -85,32 +84,32 @@ export function AppHeader({ collapsed, onToggle }: AppHeaderProps) {
         <button
           onClick={toggleDark}
           aria-label="Toggle dark mode"
-          className="flex items-center justify-center w-8 h-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          className="flex h-8 w-8 items-center justify-center text-[#7b8588] transition-colors hover:bg-[#eef1f1] hover:text-[#25292c]"
         >
           {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </button>
 
-        <div className="w-px h-5 bg-border mx-1" />
+        <div className="mx-1 h-5 w-px bg-[#dfe3e3]" />
 
         <div className="flex items-center gap-2">
           <div
-            className="flex items-center justify-center w-7 h-7 rounded-full bg-primary text-primary-foreground text-xs font-bold shrink-0"
+            className="flex h-7 w-7 shrink-0 items-center justify-center bg-[#25292c] text-xs font-bold text-white"
             title={user?.fullName ?? user?.primaryEmailAddress?.emailAddress ?? ""}
           >
             {initials}
           </div>
           <div className="hidden sm:block text-right">
-            <p className="text-xs font-semibold leading-none text-foreground truncate max-w-[120px]">
+            <p className="max-w-[120px] truncate text-xs font-semibold leading-none text-[#25292c]">
               {user?.fullName ?? user?.primaryEmailAddress?.emailAddress}
             </p>
             {tierLabel && (
-              <p className="text-[10px] text-muted-foreground mt-0.5 leading-none">{tierLabel}</p>
+              <p className="mt-0.5 text-[10px] leading-none text-[#7b8588]">{tierLabel}</p>
             )}
           </div>
           <button
             onClick={() => signOut()}
             aria-label="Sign out"
-            className="flex items-center justify-center w-8 h-8 rounded-md text-muted-foreground hover:text-destructive hover:bg-muted transition-colors"
+            className="flex h-8 w-8 items-center justify-center text-[#7b8588] transition-colors hover:bg-[#eef1f1] hover:text-red-700"
           >
             <LogOut className="w-4 h-4" />
           </button>

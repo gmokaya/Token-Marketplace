@@ -14,6 +14,7 @@ import SignInPage from "@/pages/SignInPage";
 import Dashboard from "@/pages/Dashboard";
 import OnboardingPage from "@/pages/OnboardingPage";
 import Profile from "@/pages/Profile";
+import Market from "@/pages/market/Market";
 import AdminEarnings from "@/pages/AdminEarnings";
 import AdminUsers from "@/pages/AdminUsers";
 import AuditLog from "@/pages/AuditLog";
@@ -158,6 +159,7 @@ function ClerkProviderWithRoutes() {
                 <Switch>
                   <Route path="/dashboard"><Dashboard /></Route>
                   <Route path="/profile"><Profile /></Route>
+                  <Route path="/market"><Market /></Route>
                   <Route path="/admin/auctions"><AdminAuctions /></Route>
                   <Route path="/admin/auctions/new"><NewAuction /></Route>
                   <Route path="/admin/ewrs"><AdminEwrs /></Route>
