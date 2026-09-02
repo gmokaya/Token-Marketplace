@@ -1648,6 +1648,11 @@ h1, h2, h3, h4, h5, h6 {
   .market-auth-shell--auth .market-auth-form-card--signup {
     min-height: 0;
   }
+
+  .market-auth-shell--auth .market-auth-form-card--signin {
+    height: auto;
+    min-height: 0;
+  }
 }
 
 @media (min-width: 761px) and (max-height: 560px) {
