@@ -17,6 +17,30 @@ const allowedInterests = new Set([
 ]);
 
 const optionalText = z.string().trim().max(500).optional().nullable();
+function normalizeSelectionList(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.filter((item): item is string => typeof item === "string");
+  }
+  if (typeof value !== "string") return [];
+
+  const trimmed = value.trim();
+  if (!trimmed) return [];
+  try {
+    const parsed = JSON.parse(trimmed);
+    if (Array.isArray(parsed)) {
+      return parsed.filter(
+        (item): item is string => typeof item === "string",
+      );
+    }
+  } catch {
+    // Existing profiles may contain one plain-text selection.
+  }
+  return [trimmed];
+}
+const selectionList = z.preprocess(
+  normalizeSelectionList,
+  z.array(z.string().trim().min(1).max(120)).max(20),
+);
 const entityTypes = new Set([
   "individual",
   "sole_proprietorship",
@@ -144,8 +168,8 @@ const onboardingSchema = z.object({
   city: optionalText,
   coffeeOriginCountry: optionalText,
   coffeeOriginRegion: optionalText,
-  coffeeVariety: optionalText,
-  coffeeProcessingType: optionalText,
+  coffeeVariety: selectionList,
+  coffeeProcessingType: selectionList,
   teaOriginCountry: optionalText,
   teaOriginRegion: optionalText,
   teaVariety: optionalText,
@@ -171,6 +195,12 @@ const onboardingSchema = z.object({
   const required = (key: keyof typeof data, message: string) => {
     const value = data[key];
     if (typeof value !== "string" || value.trim().length < 2) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: [key], message });
+    }
+  };
+  const requiredSelections = (key: keyof typeof data, message: string) => {
+    const value = data[key];
+    if (!Array.isArray(value) || value.length === 0) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: [key], message });
     }
   };
@@ -258,8 +288,8 @@ const onboardingSchema = z.object({
     }
     required("coffeeOriginCountry", "Country of origin is required");
     required("coffeeOriginRegion", "Region is required");
-    required("coffeeVariety", "Variety is required");
-    required("coffeeProcessingType", "Processing type is required");
+    requiredSelections("coffeeVariety", "Select at least one variety");
+    requiredSelections("coffeeProcessingType", "Select at least one processing type");
 
     const origin = data.coffeeOriginCountry ? coffeeOriginCatalog[data.coffeeOriginCountry] : undefined;
     if (data.coffeeOriginCountry && !origin) {
@@ -268,10 +298,17 @@ const onboardingSchema = z.object({
     if (origin && data.coffeeOriginRegion && !origin.regions.includes(data.coffeeOriginRegion)) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["coffeeOriginRegion"], message: "Select a valid region for this country" });
     }
-    if (origin && data.coffeeVariety && !origin.varieties.includes(data.coffeeVariety)) {
+    if (
+      origin &&
+      data.coffeeVariety.some((variety) => !origin.varieties.includes(variety))
+    ) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["coffeeVariety"], message: "Select a valid variety for this country" });
     }
-    if (data.coffeeProcessingType && !coffeeProcessingTypes.has(data.coffeeProcessingType)) {
+    if (
+      data.coffeeProcessingType.some(
+        (processingType) => !coffeeProcessingTypes.has(processingType),
+      )
+    ) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["coffeeProcessingType"], message: "Select a valid processing type" });
     }
   }
@@ -377,8 +414,12 @@ router.put("/onboarding/me", async (req, res) => {
       ? {
           coffeeOriginCountry: data.coffeeOriginCountry || null,
           coffeeOriginRegion: data.coffeeOriginRegion || null,
-          coffeeVariety: data.coffeeVariety || null,
-          coffeeProcessingType: data.coffeeProcessingType || null,
+          coffeeVariety: data.coffeeVariety.length
+            ? JSON.stringify(data.coffeeVariety)
+            : null,
+          coffeeProcessingType: data.coffeeProcessingType.length
+            ? JSON.stringify(data.coffeeProcessingType)
+            : null,
         }
       : data.market === "tea"
         ? {

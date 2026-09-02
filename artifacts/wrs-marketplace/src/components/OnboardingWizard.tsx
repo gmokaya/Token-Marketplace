@@ -37,6 +37,7 @@ import { VolumeSelect } from "./VolumeSelect";
 import {
   COFFEE_ORIGIN_CATALOG,
   COFFEE_PROCESSING_TYPES,
+  getCoffeeVarieties,
 } from "./coffee-origin";
 import {
   TEA_GRADES,
@@ -44,9 +45,36 @@ import {
   TEA_PROCESSING_METHODS,
   TEA_TYPES,
   TEA_VARIETIES,
+  getTeaVarieties,
 } from "./tea-origin";
 
 type Market = "grain" | "coffee" | "tea";
+
+function normalizeSelectionList(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.filter((item): item is string => typeof item === "string");
+  }
+  if (typeof value !== "string") return [];
+
+  const trimmed = value.trim();
+  if (!trimmed) return [];
+  try {
+    const parsed = JSON.parse(trimmed);
+    if (Array.isArray(parsed)) {
+      return parsed.filter(
+        (item): item is string => typeof item === "string",
+      );
+    }
+  } catch {
+    // Legacy profiles stored a single selection as plain text.
+  }
+  return [trimmed];
+}
+
+const selectionListSchema = z.preprocess(
+  normalizeSelectionList,
+  z.array(z.string().trim().min(1)).max(20),
+);
 
 const createOnboardingSchema = (market: Market) => {
   const commoditySelectionSchema = z
@@ -93,8 +121,8 @@ const createOnboardingSchema = (market: Market) => {
       city: z.string().optional(),
       coffeeOriginCountry: z.string().optional(),
       coffeeOriginRegion: z.string().optional(),
-      coffeeVariety: z.string().optional(),
-      coffeeProcessingType: z.string().optional(),
+      coffeeVariety: selectionListSchema,
+      coffeeProcessingType: selectionListSchema,
       teaOriginCountry: z.string().optional(),
       teaOriginRegion: z.string().optional(),
       teaVariety: z.string().optional(),
@@ -115,6 +143,15 @@ const createOnboardingSchema = (market: Market) => {
     const requireText = (field: keyof OnboardingData, message: string) => {
       const value = data[field];
       if (typeof value !== "string" || value.trim().length < 2) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: [field], message });
+      }
+    };
+    const requireSelections = (
+      field: keyof OnboardingData,
+      message: string,
+    ) => {
+      const value = data[field];
+      if (!Array.isArray(value) || value.length === 0) {
         ctx.addIssue({ code: z.ZodIssueCode.custom, path: [field], message });
       }
     };
@@ -188,10 +225,10 @@ const createOnboardingSchema = (market: Market) => {
         }
         requireText("coffeeOriginCountry", "Country of origin is required");
         requireText("coffeeOriginRegion", "Region is required");
-        requireText("coffeeVariety", "Variety is required");
-        requireText(
+        requireSelections("coffeeVariety", "Select at least one variety");
+        requireSelections(
           "coffeeProcessingType",
-          "Processing type is required",
+          "Select at least one processing type",
         );
 
         const origin = data.coffeeOriginCountry
@@ -217,18 +254,26 @@ const createOnboardingSchema = (market: Market) => {
         }
         if (
           origin &&
-          data.coffeeVariety &&
-          !origin.varieties.includes(data.coffeeVariety)
+          data.coffeeOriginRegion &&
+          data.coffeeVariety.some(
+            (variety) =>
+              !getCoffeeVarieties(
+                data.coffeeOriginCountry,
+                data.coffeeOriginRegion,
+              ).includes(variety),
+          )
         ) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ["coffeeVariety"],
-            message: "Select a valid variety for this country",
+            message: "Select a valid variety for this region",
           });
         }
         if (
-          data.coffeeProcessingType &&
-          !COFFEE_PROCESSING_TYPES.includes(data.coffeeProcessingType)
+          data.coffeeProcessingType.some(
+            (processingType) =>
+              !COFFEE_PROCESSING_TYPES.includes(processingType),
+          )
         ) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
@@ -376,25 +421,43 @@ function ChoicePills({
   value,
   onChange,
   disabled = false,
+  multiple = false,
   testIdPrefix,
 }: {
   options: readonly string[];
-  value?: string;
-  onChange: (value: string) => void;
+  value?: string | string[];
+  onChange: (value: string | string[]) => void;
   disabled?: boolean;
+  multiple?: boolean;
   testIdPrefix: string;
 }) {
+  const selectedValues = Array.isArray(value)
+    ? value
+    : value
+      ? [value]
+      : [];
+
   return (
     <div className="onboarding-pill-options">
       {options.map((option) => {
-        const isSelected = value === option;
+        const isSelected = selectedValues.includes(option);
         return (
           <button
             key={option}
             type="button"
             aria-pressed={isSelected}
             disabled={disabled}
-            onClick={() => onChange(option)}
+            onClick={() => {
+              if (!multiple) {
+                onChange(option);
+                return;
+              }
+              onChange(
+                isSelected
+                  ? selectedValues.filter((item) => item !== option)
+                  : [...selectedValues, option],
+              );
+            }}
             className={cn(
               "onboarding-pill-option",
               isSelected && "is-selected",
@@ -435,8 +498,8 @@ export default function OnboardingWizard({
       city: "",
       coffeeOriginCountry: "",
       coffeeOriginRegion: "",
-      coffeeVariety: "",
-      coffeeProcessingType: "",
+      coffeeVariety: [],
+      coffeeProcessingType: [],
       teaOriginCountry: "",
       teaOriginRegion: "",
       teaVariety: "",
@@ -464,12 +527,16 @@ export default function OnboardingWizard({
     ? COFFEE_ORIGIN_CATALOG[coffeeOriginCountry]
     : undefined;
   const coffeeRegions = selectedCoffeeOrigin?.regions ?? [];
-  const coffeeVarieties = selectedCoffeeOrigin?.varieties ?? [];
+  const coffeeVarieties = getCoffeeVarieties(
+    coffeeOriginCountry,
+    coffeeOriginRegion,
+  );
   const teaOriginCountry = form.watch("teaOriginCountry");
   const teaOriginRegion = form.watch("teaOriginRegion");
   const teaVariety = form.watch("teaVariety");
   const teaType = form.watch("teaType");
   const teaProcessingMethod = form.watch("teaProcessingMethod");
+  const teaVarieties = getTeaVarieties(teaOriginCountry, teaOriginRegion);
   const selectedTeaOrigin = teaOriginCountry
     ? TEA_ORIGIN_CATALOG[teaOriginCountry]
     : undefined;
@@ -504,6 +571,10 @@ export default function OnboardingWizard({
             normalizeLegacyCommodity(merged.sourcingCommodity),
           ];
         }
+        merged.coffeeVariety = normalizeSelectionList(merged.coffeeVariety);
+        merged.coffeeProcessingType = normalizeSelectionList(
+          merged.coffeeProcessingType,
+        );
         form.reset(merged);
       } catch {
         const localValue = localStorage.getItem("onboarding-draft");
@@ -527,6 +598,12 @@ export default function OnboardingWizard({
               normalizeLegacyCommodity(localData.sourcingCommodity),
             ];
           }
+          localData.coffeeVariety = normalizeSelectionList(
+            localData.coffeeVariety,
+          );
+          localData.coffeeProcessingType = normalizeSelectionList(
+            localData.coffeeProcessingType,
+          );
           form.reset({
             ...localData,
             marketplaceRole: localData.marketplaceRole || initialRole,
@@ -1038,7 +1115,7 @@ export default function OnboardingWizard({
                                 onValueChange={(value) => {
                                   field.onChange(value);
                                   form.setValue("coffeeOriginRegion", "");
-                                  form.setValue("coffeeVariety", "");
+                                  form.setValue("coffeeVariety", []);
                                 }}
                               >
                                 <FormControl>
@@ -1075,7 +1152,7 @@ export default function OnboardingWizard({
                                 value={field.value}
                                 onValueChange={(value) => {
                                   field.onChange(value);
-                                  form.setValue("coffeeVariety", "");
+                                  form.setValue("coffeeVariety", []);
                                 }}
                                 disabled={!coffeeOriginCountry}
                               >
@@ -1113,6 +1190,7 @@ export default function OnboardingWizard({
                                 value={field.value}
                                 onChange={field.onChange}
                                 disabled={!coffeeOriginRegion}
+                                multiple
                                 testIdPrefix="coffee-variety"
                               />
                               <FormMessage />
@@ -1131,6 +1209,7 @@ export default function OnboardingWizard({
                                 options={COFFEE_PROCESSING_TYPES}
                                 value={field.value}
                                 onChange={field.onChange}
+                                multiple
                                 testIdPrefix="coffee-processing"
                               />
                               <FormMessage />
@@ -1223,7 +1302,7 @@ export default function OnboardingWizard({
                                 Tea variety
                               </FormLabel>
                               <ChoicePills
-                                options={TEA_VARIETIES}
+                                options={teaVarieties}
                                 value={field.value}
                                 onChange={field.onChange}
                                 disabled={!teaOriginRegion}

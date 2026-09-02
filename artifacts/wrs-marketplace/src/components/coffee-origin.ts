@@ -1,20 +1,58 @@
 export type CoffeeOriginDetails = {
   regions: string[];
   varieties: string[];
+  varietiesByRegion?: Record<string, string[]>;
 };
 
 export const COFFEE_ORIGIN_CATALOG: Record<string, CoffeeOriginDetails> = {
   Kenya: {
     regions: ["Nyeri", "Kirinyaga", "Murang'a", "Kiambu", "Embu", "Meru", "Machakos", "Nakuru", "Kericho", "Nandi", "Bungoma", "Kisii"],
     varieties: ["SL28", "SL34", "Batian", "Ruiru 11", "K7", "French Mission Bourbon", "Blue Mountain", "Other"],
+    varietiesByRegion: {
+      Nyeri: ["SL28", "SL34", "Batian", "Ruiru 11", "K7", "Other"],
+      Kirinyaga: ["SL28", "SL34", "Batian", "Ruiru 11", "K7", "Other"],
+      "Murang'a": ["SL28", "SL34", "Batian", "Ruiru 11", "K7", "Other"],
+      Kiambu: ["SL28", "SL34", "Batian", "Ruiru 11", "K7", "Other"],
+      Embu: ["SL28", "SL34", "Batian", "Ruiru 11", "Other"],
+      Meru: ["SL28", "SL34", "Batian", "Ruiru 11", "Other"],
+      Machakos: ["SL28", "Batian", "Ruiru 11", "K7", "Other"],
+      Nakuru: ["SL28", "SL34", "Batian", "Ruiru 11", "Other"],
+      Kericho: ["SL28", "SL34", "Batian", "Ruiru 11", "K7", "Other"],
+      Nandi: ["SL28", "SL34", "Batian", "Ruiru 11", "K7", "Other"],
+      Bungoma: ["SL28", "SL34", "Batian", "Ruiru 11", "Other"],
+      Kisii: ["SL28", "SL34", "Batian", "Ruiru 11", "K7", "Other"],
+    },
   },
   Ethiopia: {
     regions: ["Yirgacheffe", "Sidama", "Guji", "Limu", "Jimma", "Harrar", "Kaffa", "Bench Maji", "Nekemte / Wellega"],
     varieties: ["Ethiopian Heirloom", "Landrace", "74110", "74112", "74158", "Other"],
+    varietiesByRegion: {
+      Yirgacheffe: ["Ethiopian Heirloom", "74110", "74112", "Other"],
+      Sidama: ["Ethiopian Heirloom", "74110", "74112", "74158", "Other"],
+      Guji: ["Ethiopian Heirloom", "74110", "74158", "Other"],
+      Limu: ["Ethiopian Heirloom", "Landrace", "74110", "74112", "Other"],
+      Jimma: ["Ethiopian Heirloom", "Landrace", "74110", "Other"],
+      Harrar: ["Ethiopian Heirloom", "Landrace", "74110", "Other"],
+      Kaffa: ["Ethiopian Heirloom", "Landrace", "74110", "74112", "Other"],
+      "Bench Maji": ["Ethiopian Heirloom", "Landrace", "74110", "74158", "Other"],
+      "Nekemte / Wellega": ["Ethiopian Heirloom", "Landrace", "74110", "74112", "Other"],
+    },
   },
   Colombia: {
     regions: ["Huila", "Nariño", "Antioquia", "Tolima", "Cauca", "Caldas", "Risaralda", "Quindío", "Santander", "Sierra Nevada"],
     varieties: ["Castillo", "Caturra", "Colombia", "Bourbon", "Pink Bourbon", "Typica", "Geisha", "Pacamara", "Tabi", "Other"],
+    varietiesByRegion: {
+      Huila: ["Castillo", "Caturra", "Pink Bourbon", "Typica", "Other"],
+      Nariño: ["Castillo", "Caturra", "Bourbon", "Typica", "Other"],
+      Antioquia: ["Castillo", "Caturra", "Colombia", "Other"],
+      Tolima: ["Castillo", "Caturra", "Colombia", "Pink Bourbon", "Other"],
+      Cauca: ["Castillo", "Caturra", "Colombia", "Bourbon", "Other"],
+      Caldas: ["Castillo", "Caturra", "Colombia", "Bourbon", "Other"],
+      Risaralda: ["Castillo", "Caturra", "Colombia", "Typica", "Other"],
+      "Quindío": ["Castillo", "Caturra", "Colombia", "Typica", "Other"],
+      Santander: ["Castillo", "Caturra", "Bourbon", "Typica", "Other"],
+      "Sierra Nevada": ["Castillo", "Caturra", "Bourbon", "Typica", "Other"],
+    },
   },
   Brazil: {
     regions: ["Minas Gerais", "Sul de Minas", "Cerrado Mineiro", "Mogiana", "Chapada Diamantina", "Espírito Santo"],
@@ -67,3 +105,9 @@ export const COFFEE_PROCESSING_TYPES = [
   "Experimental",
   "Other",
 ];
+
+export function getCoffeeVarieties(country?: string, region?: string) {
+  const origin = country ? COFFEE_ORIGIN_CATALOG[country] : undefined;
+  if (!origin || !region) return [];
+  return origin.varietiesByRegion?.[region] ?? origin.varieties;
+}

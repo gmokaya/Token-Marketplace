@@ -166,8 +166,9 @@ function ClerkProviderWithRoutes() {
 
             {/* App pages, wrapped in Layout */}
             <Route>
-              <Layout>
-                <Switch>
+              <ProtectedRoute>
+                <Layout>
+                  <Switch>
                   <Route path="/profile"><ProtectedRoute><Profile /></ProtectedRoute></Route>
                   <Route path="/dashboard"><ProtectedRoute><Dashboard /></ProtectedRoute></Route>
 
@@ -205,8 +206,9 @@ function ClerkProviderWithRoutes() {
                       404 Not Found
                     </div>
                   </Route>
-                </Switch>
-              </Layout>
+                  </Switch>
+                </Layout>
+              </ProtectedRoute>
             </Route>
           </Switch>
         </TooltipProvider>

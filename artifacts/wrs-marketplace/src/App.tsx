@@ -151,28 +151,34 @@ function ClerkProviderWithRoutes() {
 
             {/* Authenticated pages */}
             <Route path="/onboarding"><ProtectedRoute><OnboardingPage /></ProtectedRoute></Route>
-            <Route path="/dashboard"><ProtectedRoute><Dashboard /></ProtectedRoute></Route>
-            <Route path="/profile"><ProtectedRoute><Profile /></ProtectedRoute></Route>
 
             {/* Admin routes */}
-            <Route path="/admin/auctions"><ProtectedRoute><AdminAuctions /></ProtectedRoute></Route>
-            <Route path="/admin/auctions/new"><ProtectedRoute><NewAuction /></ProtectedRoute></Route>
-            <Route path="/admin/ewrs"><ProtectedRoute><AdminEwrs /></ProtectedRoute></Route>
-            <Route path="/admin/lots"><ProtectedRoute><AdminLots /></ProtectedRoute></Route>
-            <Route path="/admin/users"><ProtectedRoute><AdminUsers /></ProtectedRoute></Route>
-            <Route path="/admin/earnings"><ProtectedRoute><AdminEarnings /></ProtectedRoute></Route>
-            <Route path="/admin/audit"><ProtectedRoute><AuditLog /></ProtectedRoute></Route>
-
-            {/* Broker routes */}
-            <Route path="/broker"><ProtectedRoute><BrokerDashboard /></ProtectedRoute></Route>
-
-            {/* Settings */}
-            <Route path="/settings/api-access"><ProtectedRoute><ApiAccess /></ProtectedRoute></Route>
-
             <Route>
-              <div className="flex items-center justify-center h-screen text-muted-foreground">
-                404 Not Found
-              </div>
+              <ProtectedRoute>
+                <Switch>
+                  <Route path="/dashboard"><Dashboard /></Route>
+                  <Route path="/profile"><Profile /></Route>
+                  <Route path="/admin/auctions"><AdminAuctions /></Route>
+                  <Route path="/admin/auctions/new"><NewAuction /></Route>
+                  <Route path="/admin/ewrs"><AdminEwrs /></Route>
+                  <Route path="/admin/lots"><AdminLots /></Route>
+                  <Route path="/admin/users"><AdminUsers /></Route>
+                  <Route path="/admin/earnings"><AdminEarnings /></Route>
+                  <Route path="/admin/audit"><AuditLog /></Route>
+
+                  {/* Broker routes */}
+                  <Route path="/broker"><BrokerDashboard /></Route>
+
+                  {/* Settings */}
+                  <Route path="/settings/api-access"><ApiAccess /></Route>
+
+                  <Route>
+                    <div className="flex items-center justify-center h-screen text-muted-foreground">
+                      404 Not Found
+                    </div>
+                  </Route>
+                </Switch>
+              </ProtectedRoute>
             </Route>
           </Switch>
         </TooltipProvider>
