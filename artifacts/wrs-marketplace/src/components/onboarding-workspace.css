@@ -10,6 +10,11 @@
   font-family: 'PT Sans', sans-serif;
 }
 
+.market-auth-shell .tokenharvest-wordmark {
+  font-synthesis: none;
+  font-weight: 400 !important;
+}
+
 .market-auth-shell::before,
 .market-auth-shell::after {
   content: "";
