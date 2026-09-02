@@ -48,7 +48,7 @@ function HomeRedirect() {
   return (
     <>
       <Show when="signed-in">
-        <Redirect to="/dashboard" />
+        <Redirect to="/onboarding" />
       </Show>
       <Show when="signed-out">
         <Home />
@@ -133,7 +133,7 @@ function ClerkProviderWithRoutes() {
       appearance={clerkAppearance}
       signInUrl={`${basePath}/sign-in`}
       signUpUrl={`${basePath}/sign-in?mode=sign-up`}
-      signInFallbackRedirectUrl={`${basePath}/dashboard`}
+      signInFallbackRedirectUrl={`${basePath}/onboarding`}
       signUpFallbackRedirectUrl={`${basePath}/onboarding`}
       routerPush={(to) => setLocation(stripBase(to))}
       routerReplace={(to) => setLocation(stripBase(to), { replace: true })}

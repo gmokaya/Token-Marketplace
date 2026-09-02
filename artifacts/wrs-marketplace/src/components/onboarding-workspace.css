@@ -555,10 +555,17 @@
 }
 
 .onboarding-role-options,
-.onboarding-interest-chips {
+.onboarding-interest-chips,
+.onboarding-pill-options {
   display: flex;
   flex-wrap: wrap;
   gap: 11px;
+}
+
+.onboarding-origin-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
 }
 
 .market-onboarding .onboarding-pill-option,
@@ -602,6 +609,13 @@
   background: var(--onboarding-accent-soft) !important;
   color: var(--onboarding-accent-strong) !important;
   box-shadow: 0 8px 20px var(--onboarding-accent-shadow), inset 0 0 0 1px var(--onboarding-accent);
+}
+
+.market-onboarding .onboarding-pill-option:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+  transform: none;
+  box-shadow: none;
 }
 
 .commodity-select {
@@ -938,6 +952,11 @@
   }
 
   .onboarding-producer-location-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .onboarding-origin-grid {
     grid-template-columns: 1fr;
     gap: 24px;
   }

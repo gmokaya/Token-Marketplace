@@ -371,6 +371,46 @@ type OnboardingWizardProps = {
 
 const stepLabels = ["About you", "Your market", "Your entity", "Your priorities"];
 
+function ChoicePills({
+  options,
+  value,
+  onChange,
+  disabled = false,
+  testIdPrefix,
+}: {
+  options: readonly string[];
+  value?: string;
+  onChange: (value: string) => void;
+  disabled?: boolean;
+  testIdPrefix: string;
+}) {
+  return (
+    <div className="onboarding-pill-options">
+      {options.map((option) => {
+        const isSelected = value === option;
+        return (
+          <button
+            key={option}
+            type="button"
+            aria-pressed={isSelected}
+            disabled={disabled}
+            onClick={() => onChange(option)}
+            className={cn(
+              "onboarding-pill-option",
+              isSelected && "is-selected",
+            )}
+            data-testid={`pill-${testIdPrefix}-${option
+              .toLowerCase()
+              .replace(/\s+/g, "-")}`}
+          >
+            {option}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function OnboardingWizard({
   marketName = "TokenHarvest",
   market = "grain",
@@ -984,6 +1024,7 @@ export default function OnboardingWizard({
                     />
                     {isCoffeeMarket && (
                       <div className="space-y-4">
+                        <div className="onboarding-origin-grid">
                         <FormField
                           control={form.control}
                           name="coffeeOriginCountry"
@@ -1058,6 +1099,7 @@ export default function OnboardingWizard({
                             </FormItem>
                           )}
                         />
+                        </div>
                         <FormField
                           control={form.control}
                           name="coffeeVariety"
@@ -1066,27 +1108,13 @@ export default function OnboardingWizard({
                               <FormLabel className={labelClass}>
                                 Coffee variety
                               </FormLabel>
-                              <Select
+                              <ChoicePills
+                                options={coffeeVarieties}
                                 value={field.value}
-                                onValueChange={field.onChange}
-                                disabled={!coffeeOriginCountry}
-                              >
-                                <FormControl>
-                                  <SelectTrigger
-                                    className="onboarding-select-trigger"
-                                    data-testid="select-coffee-variety"
-                                  >
-                                    <SelectValue placeholder="Select variety" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {coffeeVarieties.map((variety) => (
-                                    <SelectItem key={variety} value={variety}>
-                                      {variety}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                                onChange={field.onChange}
+                                disabled={!coffeeOriginRegion}
+                                testIdPrefix="coffee-variety"
+                              />
                               <FormMessage />
                             </FormItem>
                           )}
@@ -1099,26 +1127,12 @@ export default function OnboardingWizard({
                               <FormLabel className={labelClass}>
                                 Coffee processing type
                               </FormLabel>
-                              <Select
+                              <ChoicePills
+                                options={COFFEE_PROCESSING_TYPES}
                                 value={field.value}
-                                onValueChange={field.onChange}
-                              >
-                                <FormControl>
-                                  <SelectTrigger
-                                    className="onboarding-select-trigger"
-                                    data-testid="select-coffee-processing-type"
-                                  >
-                                    <SelectValue placeholder="Select processing type" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {COFFEE_PROCESSING_TYPES.map((type) => (
-                                    <SelectItem key={type} value={type}>
-                                      {type}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                                onChange={field.onChange}
+                                testIdPrefix="coffee-processing"
+                              />
                               <FormMessage />
                             </FormItem>
                           )}
@@ -1127,6 +1141,7 @@ export default function OnboardingWizard({
                     )}
                     {isTeaMarket && (
                       <div className="space-y-4">
+                        <div className="onboarding-origin-grid">
                         <FormField
                           control={form.control}
                           name="teaOriginCountry"
@@ -1198,6 +1213,7 @@ export default function OnboardingWizard({
                             </FormItem>
                           )}
                         />
+                        </div>
                         <FormField
                           control={form.control}
                           name="teaVariety"
@@ -1206,27 +1222,13 @@ export default function OnboardingWizard({
                               <FormLabel className={labelClass}>
                                 Tea variety
                               </FormLabel>
-                              <Select
+                              <ChoicePills
+                                options={TEA_VARIETIES}
                                 value={field.value}
-                                onValueChange={field.onChange}
+                                onChange={field.onChange}
                                 disabled={!teaOriginRegion}
-                              >
-                                <FormControl>
-                                  <SelectTrigger
-                                    className="onboarding-select-trigger"
-                                    data-testid="select-tea-variety"
-                                  >
-                                    <SelectValue placeholder="Select tea variety" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {TEA_VARIETIES.map((variety) => (
-                                    <SelectItem key={variety} value={variety}>
-                                      {variety}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                                testIdPrefix="tea-variety"
+                              />
                               <FormMessage />
                             </FormItem>
                           )}
@@ -1272,27 +1274,13 @@ export default function OnboardingWizard({
                               <FormLabel className={labelClass}>
                                 Processing method
                               </FormLabel>
-                              <Select
+                              <ChoicePills
+                                options={TEA_PROCESSING_METHODS}
                                 value={field.value}
-                                onValueChange={field.onChange}
+                                onChange={field.onChange}
                                 disabled={!teaType}
-                              >
-                                <FormControl>
-                                  <SelectTrigger
-                                    className="onboarding-select-trigger"
-                                    data-testid="select-tea-processing-method"
-                                  >
-                                    <SelectValue placeholder="Select processing method" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {TEA_PROCESSING_METHODS.map((method) => (
-                                    <SelectItem key={method} value={method}>
-                                      {method}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                                testIdPrefix="tea-processing"
+                              />
                               <FormMessage />
                             </FormItem>
                           )}
