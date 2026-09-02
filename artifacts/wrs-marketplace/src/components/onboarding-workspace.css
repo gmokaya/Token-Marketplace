@@ -10,6 +10,56 @@
   font-family: 'PT Sans', sans-serif;
 }
 
+.market-auth-shell::before,
+.market-auth-shell::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.market-auth-shell::before {
+  top: 7%;
+  right: -170px;
+  width: min(46vw, 590px);
+  height: min(78vw, 780px);
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    var(--onboarding-accent-strong) 0%,
+    transparent 70%
+  );
+  opacity: 0.18;
+  transform: rotate(13deg);
+  filter: blur(18px);
+}
+
+.market-auth-shell::after {
+  top: 11%;
+  right: -80px;
+  width: min(46vw, 560px);
+  height: min(46vw, 560px);
+  opacity: 0.82;
+  transform: rotate(-5deg);
+  background-image: url("@assets/market-background-coins.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  filter: drop-shadow(0 4px 10px rgba(19, 29, 37, 0.1));
+}
+
+.market-auth-shell--onboarding::before {
+  top: 18%;
+  right: -220px;
+  opacity: 0.12;
+}
+
+.market-auth-shell--onboarding::after {
+  top: 18%;
+  right: -110px;
+  opacity: 0.58;
+}
+
 .market-auth-shell--grain {
   --onboarding-accent: #5c6a78;
   --onboarding-accent-strong: #384652;
@@ -774,6 +824,32 @@
 }
 
 @media (max-width: 820px) {
+  .market-auth-shell::before {
+    top: 24%;
+    right: -250px;
+    width: 430px;
+    height: 560px;
+    opacity: 0.11;
+  }
+
+  .market-auth-shell::after {
+    top: 23%;
+    right: -155px;
+    width: 330px;
+    height: 340px;
+    opacity: 0.58;
+  }
+
+  .market-auth-shell--onboarding::before {
+    top: 27%;
+    right: -255px;
+  }
+
+  .market-auth-shell--onboarding::after {
+    top: 25%;
+    right: -170px;
+  }
+
   .market-auth-shell--onboarding .market-auth-header,
   .market-auth-shell--onboarding .market-auth-main {
     width: min(calc(100% - 32px), 650px);

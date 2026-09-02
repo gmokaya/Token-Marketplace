@@ -73,6 +73,7 @@ const onboardingSchema = z
     fullName: z.string().min(2, "Full name is required"),
     country: z.string().optional(),
     region: z.string().optional(),
+    city: z.string().optional(),
     commoditySelections: z.array(commoditySelectionSchema).default([]),
     payoutMobileMoney: z.string().optional(),
     businessName: z.string().optional(),
@@ -211,6 +212,7 @@ export default function OnboardingWizard({
       fullName: "",
       country: "",
       region: "",
+      city: "",
       commoditySelections: [],
       payoutMobileMoney: "",
       businessName: "",
@@ -310,6 +312,8 @@ export default function OnboardingWizard({
       fieldsToValidate = ["fullName"];
       if (currentRole === "producer") {
         fieldsToValidate.push("country", "region");
+      } else {
+        fieldsToValidate.push("country", "city");
       }
     } else if (currentRole === "producer") {
       fieldsToValidate = ["commoditySelections", "payoutMobileMoney"];
@@ -619,7 +623,9 @@ export default function OnboardingWizard({
                                   value={field.value}
                                   onChange={field.onChange}
                                   ariaLabel="Country"
-                                  placeholder="Select country"
+                                  placeholder={
+                                    currentRole === "buyer" ? "USA" : "Uganda"
+                                  }
                                 />
                               </FormControl>
                               <FormMessage />
@@ -640,6 +646,54 @@ export default function OnboardingWizard({
                                   className={inputClass}
                                   placeholder="e.g. Rift Valley"
                                   data-testid="input-region"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    )}
+                    {(currentRole === "trader" || currentRole === "buyer") && (
+                      <div className="onboarding-producer-location-grid">
+                        <FormField
+                          control={form.control}
+                          name="country"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className={labelClass}>
+                                Country
+                              </FormLabel>
+                              <FormControl>
+                                <CountrySelect
+                                  value={field.value}
+                                  onChange={field.onChange}
+                                  ariaLabel="Country"
+                                  placeholder="Select country"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="city"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className={labelClass}>
+                                City
+                              </FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  className={inputClass}
+                                  placeholder={
+                                    currentRole === "buyer"
+                                      ? "New York"
+                                      : "Kampala"
+                                  }
+                                  data-testid="input-city"
                                 />
                               </FormControl>
                               <FormMessage />

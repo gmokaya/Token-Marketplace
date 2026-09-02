@@ -13,6 +13,7 @@ export const marketplaceOnboardingProfilesTable = pgTable("marketplace_onboardin
   fullName: text("full_name").notNull(),
   country: text("country"),
   region: text("region"),
+  city: text("city"),
   commodities: text("commodities").array().notNull().default([]),
   commoditySelections: jsonb("commodity_selections").$type<CommoditySelection[]>().notNull().default([]),
   payoutMobileMoney: text("payout_mobile_money"),

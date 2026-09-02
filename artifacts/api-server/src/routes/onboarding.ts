@@ -48,6 +48,7 @@ const onboardingSchema = z.object({
   fullName: z.string().trim().min(2).max(120),
   country: optionalText,
   region: optionalText,
+  city: optionalText,
   commodities: z.array(z.string().trim().min(1).max(80)).max(20).default([]),
   commoditySelections: z.array(commoditySelectionSchema).max(20).default([]),
   payoutMobileMoney: optionalText,
@@ -82,6 +83,8 @@ const onboardingSchema = z.object({
   }
 
   if (data.marketplaceRole === "trader") {
+    required("country", "Country is required");
+    required("city", "City is required");
     required("businessName", "Entity name is required");
     required("businessRegistrationNumber", "Entity registration number is required");
     required("entityType", "Entity type is required");
@@ -94,6 +97,8 @@ const onboardingSchema = z.object({
   }
 
   if (data.marketplaceRole === "buyer") {
+    required("country", "Country is required");
+    required("city", "City is required");
     required("businessName", "Entity name is required");
     required("businessRegistrationNumber", "Entity registration number is required");
     required("entityType", "Entity type is required");
@@ -158,6 +163,7 @@ router.put("/onboarding/me", async (req, res) => {
     fullName: data.fullName,
     country: data.country || null,
     region: data.region || null,
+    city: data.city || null,
     commodities: legacyCommodityNames,
     commoditySelections,
     payoutMobileMoney: data.payoutMobileMoney || null,
