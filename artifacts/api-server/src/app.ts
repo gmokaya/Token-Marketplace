@@ -6,9 +6,15 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import pinoHttp from "pino-http";
 import { clerkMiddleware } from "@clerk/express";
+import { publishableKeyFromHost } from "@clerk/shared/keys";
 import router from "./routes";
 import healthRouter from "./routes/health";
 import { logger } from "./lib/logger";
+import {
+  CLERK_PROXY_PATH,
+  clerkProxyMiddleware,
+  getClerkProxyHost,
+} from "./middlewares/clerkProxyMiddleware";
 import {
   getRuntimeProfile,
   marketAllowsCommodity,
@@ -86,6 +92,8 @@ export function createApp(profile: RuntimeProfile = getRuntimeProfile()): Expres
     next();
   });
 
+  app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
+
   // Security headers. CSP is disabled here because this is an API server.
   app.use(helmet({ contentSecurityPolicy: false }));
   app.use(compression());
@@ -96,8 +104,11 @@ export function createApp(profile: RuntimeProfile = getRuntimeProfile()): Expres
   app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 
   app.use(
-    clerkMiddleware(() => ({
-      publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
+    clerkMiddleware((req) => ({
+      publishableKey: publishableKeyFromHost(
+        getClerkProxyHost(req) ?? "",
+        process.env.CLERK_PUBLISHABLE_KEY,
+      ),
     })),
   );
 

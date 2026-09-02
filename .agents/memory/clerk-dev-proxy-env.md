@@ -1,10 +1,10 @@
 ---
-name: Clerk proxy modes
-description: Distinguish Replit-managed and external Clerk proxy configuration
+name: Managed Clerk proxy wiring
+description: Preserve the canonical host-aware Clerk setup across development and production
 ---
 
-For Replit-managed Clerk, local Vite workflows must omit `VITE_CLERK_PROXY_URL` because the proxy is production-only. For this project’s external Clerk account, clients must use the raw external publishable key, must not pass a proxy URL, and the API server must not mount the Replit-managed proxy middleware.
+This project uses Replit-managed Clerk. Development intentionally has no proxy URL, while production receives a platform-provided proxy URL that must remain available to the Vite build. Use host-derived publishable keys on both client and server, pass the proxy env to the client unconditionally, and mount the canonical proxy middleware before body parsers.
 
-**Why:** `publishableKeyFromHost` keeps a development fallback key but replaces a live external key with a key derived from the Replit host. That sends Clerk JS to the wrong domain. A managed proxy path mixed with an external key causes the same class of failure.
+**Why:** Removing the production proxy env made published clients load Clerk from the direct custom hostname, which failed before React could render and left every market page blank.
 
-**How to apply:** For managed Clerk, retain host-derived key and proxy wiring, unsetting the proxy only in dev scripts. For external Clerk, unset the proxy in both dev and production build commands, pass the raw client and server publishable keys, omit proxy props and mounts, and keep all credentials in workspace secrets.
+**How to apply:** Keep the proxy env empty only in dev commands; never unset it in production builds. Re-sync all Clerk wiring with the current managed-Clerk templates instead of hand-rolling proxy behavior.

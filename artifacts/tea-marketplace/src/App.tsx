@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { ClerkProvider, Show, useAuth, useClerk } from '@clerk/react';
+import { publishableKeyFromHost } from '@clerk/react/internal';
 import { useAutoLogout } from "@/lib/useAutoLogout";
 import { shadcn } from '@clerk/themes';
 import { Switch, Route, useLocation, Router as WouterRouter, Redirect } from 'wouter';
@@ -40,7 +41,11 @@ import AdminAudit from "@/pages/admin/AdminAudit";
 
 import ApiAccess from "@/pages/settings/ApiAccess";
 
-const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+const clerkPubKey = publishableKeyFromHost(
+  window.location.hostname,
+  import.meta.env.VITE_CLERK_PUBLISHABLE_KEY,
+);
+const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL;
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 setBaseUrl("/api/v1/tea");
 
@@ -139,6 +144,7 @@ function ClerkProviderWithRoutes() {
   return (
     <ClerkProvider
       publishableKey={clerkPubKey}
+      proxyUrl={clerkProxyUrl}
       appearance={clerkAppearance}
       signInUrl={`${basePath}/sign-in`}
       signUpUrl={`${basePath}/sign-in?mode=sign-up`}

@@ -66,6 +66,9 @@ export function clerkProxyMiddleware(): RequestHandler {
   return createProxyMiddleware({
     target: CLERK_FAPI,
     changeOrigin: true,
+    // Take over the response so it can be re-sent with a Content-Length (see
+    // proxyRes); the deployment edge rejects chunked proxied responses.
+    selfHandleResponse: true,
     pathRewrite: (path: string) =>
       path.replace(new RegExp(`^${CLERK_PROXY_PATH}`), ""),
     on: {
@@ -85,6 +88,47 @@ export function clerkProxyMiddleware(): RequestHandler {
         if (clientIp) {
           proxyReq.setHeader("X-Forwarded-For", clientIp);
         }
+      },
+      // Clerk's dynamic Frontend API responses arrive without Content-Length.
+      // Buffer only those responses so the deployment edge does not reject
+      // chunked proxy responses.
+      proxyRes: (proxyRes, req, res) => {
+        const headers = { ...proxyRes.headers };
+        delete headers["transfer-encoding"];
+        delete headers.connection;
+        delete headers["keep-alive"];
+
+        const status = proxyRes.statusCode ?? 502;
+        if (status < 200 || status === 204) {
+          delete headers["content-length"];
+        }
+
+        const bodyless =
+          req.method === "HEAD" ||
+          status < 200 ||
+          status === 204 ||
+          status === 304;
+        if (headers["content-length"] !== undefined || bodyless) {
+          res.writeHead(status, headers);
+          proxyRes.on("error", () => res.destroy());
+          proxyRes.pipe(res);
+          return;
+        }
+
+        const chunks: Buffer[] = [];
+        proxyRes.on("data", (chunk: Buffer) => chunks.push(chunk));
+        proxyRes.on("end", () => {
+          const body = Buffer.concat(chunks);
+          headers["content-length"] = String(body.length);
+          res.writeHead(status, headers);
+          res.end(body);
+        });
+        proxyRes.on("error", () => {
+          if (!res.headersSent) {
+            res.writeHead(502, { "content-length": "0" });
+          }
+          res.end();
+        });
       },
     },
   }) as RequestHandler;

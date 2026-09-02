@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { ClerkProvider, Show, useClerk } from '@clerk/react';
+import { publishableKeyFromHost } from '@clerk/react/internal';
 import { useAutoLogout } from "@/lib/useAutoLogout";
 import { shadcn } from '@clerk/themes';
 import { Switch, Route, useLocation, Router as WouterRouter } from 'wouter';
@@ -15,7 +16,11 @@ import GetStarted from "@/pages/GetStarted";
 import InvestorsPartners from "@/pages/InvestorsPartners";
 import AdminHomepage from "@/pages/AdminHomepage";
 
-const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+const clerkPubKey = publishableKeyFromHost(
+  window.location.hostname,
+  import.meta.env.VITE_CLERK_PUBLISHABLE_KEY,
+);
+const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL;
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 function stripBase(path: string) {
@@ -77,6 +82,7 @@ function ClerkProviderWithRoutes() {
   return (
     <ClerkProvider
       publishableKey={clerkPubKey}
+      proxyUrl={clerkProxyUrl}
       appearance={clerkAppearance}
       signInUrl={`${basePath}/grain/sign-in`}
       signUpUrl={`${basePath}/grain/sign-in?mode=sign-up`}
