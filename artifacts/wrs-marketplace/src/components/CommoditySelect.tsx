@@ -17,12 +17,8 @@ const COMMODITIES = [
   "Grain",
   "Avocado",
   "Honey",
-  "Macadamia",
-  "Soybeans",
-  "Sesame",
-  "Sunflower",
-  "Cocoa",
-  "Spices",
+  "Nuts",
+  "Other",
 ];
 
 export const COMMODITY_SUBTYPES: Record<string, string[]> = {
@@ -51,7 +47,20 @@ export function normalizeLegacyCommodity(value: string): CommoditySelection {
   if (grainSubType) return { commodity: "Grain", subType: grainSubType };
 
   if (lower === "grain") return { commodity: "Grain", subType: null };
-  return { commodity: normalized, subType: null };
+
+  if (
+    lower.includes("nut") ||
+    ["macadamia", "almond", "cashew", "peanut", "pecan", "walnut"].some((item) =>
+      lower.includes(item),
+    )
+  ) {
+    return { commodity: "Nuts", subType: null };
+  }
+
+  if (lower === "avocado") return { commodity: "Avocado", subType: null };
+  if (lower === "honey") return { commodity: "Honey", subType: null };
+  if (lower === "other") return { commodity: "Other", subType: null };
+  return { commodity: "Other", subType: null };
 }
 
 export function CommoditySelect({ value = [], onChange, singleSelect = false }: Props) {
@@ -90,7 +99,7 @@ export function CommoditySelect({ value = [], onChange, singleSelect = false }: 
               aria-pressed={isSelected}
               data-testid={`commodity-${comm.toLowerCase()}`}
               className={cn(
-                "inline-flex items-center justify-center px-4 py-2.5 rounded-full text-[14px] font-medium transition-all duration-200 cursor-pointer border",
+                "inline-flex items-center justify-center px-4 py-2.5 text-[14px] font-medium transition-all duration-200 cursor-pointer border",
                 isSelected
                   ? "bg-[#606A5C] border-[#606A5C] text-white shadow-sm"
                   : "bg-[#f5f5f7] border-[#e5e5ea] text-[#1d1d1f] hover:bg-[#e5e5ea]"
@@ -124,7 +133,7 @@ export function CommoditySelect({ value = [], onChange, singleSelect = false }: 
                         aria-pressed={isSelected}
                         data-testid={`commodity-subtype-${st.toLowerCase().replace(/\s+/g, "-")}`}
                         className={cn(
-                          "inline-flex items-center justify-center px-3 py-1.5 rounded-full text-[13px] font-medium transition-all duration-200 cursor-pointer border",
+                           "inline-flex items-center justify-center px-3 py-1.5 text-[13px] font-medium transition-all duration-200 cursor-pointer border",
                           isSelected
                             ? "bg-[#606A5C] border-[#606A5C] text-white shadow-sm"
                             : "bg-[#f5f5f7] border-[#e5e5ea] text-[#1d1d1f] hover:bg-[#e5e5ea]"

@@ -20,12 +20,12 @@
 }
 
 .market-auth-shell--coffee {
-  --onboarding-accent: #ed7a32;
-  --onboarding-accent-strong: #c6531d;
-  --onboarding-accent-soft: #fff0e6;
-  --onboarding-accent-wash: #fff8f3;
-  --onboarding-accent-border: #f2c3a5;
-  --onboarding-accent-shadow: rgba(198, 83, 29, 0.2);
+  --onboarding-accent: #a96f53;
+  --onboarding-accent-strong: #80513d;
+  --onboarding-accent-soft: #f5ebe6;
+  --onboarding-accent-wash: #fcf8f5;
+  --onboarding-accent-border: #e4cec2;
+  --onboarding-accent-shadow: rgba(128, 81, 61, 0.12);
 }
 
 .market-auth-shell--tea {
@@ -82,8 +82,8 @@
   margin: 0 !important;
   padding: 0 !important;
   border: 1px solid var(--onboarding-accent-border) !important;
-  border-top: 4px solid var(--onboarding-accent) !important;
-  border-radius: 16px !important;
+  border-top: 3px solid var(--onboarding-accent) !important;
+  border-radius: 0 !important;
   background: #fff !important;
   box-shadow: 0 22px 58px var(--onboarding-accent-shadow) !important;
   overflow: hidden !important;
@@ -132,7 +132,7 @@
   margin: 0;
   padding: 0;
   border: 1px solid var(--onboarding-accent-border) !important;
-  border-top: 4px solid var(--onboarding-accent) !important;
+  border-top: 3px solid var(--onboarding-accent) !important;
   border-radius: 0 !important;
   background: #fff;
   box-shadow: 0 22px 58px var(--onboarding-accent-shadow);
@@ -436,10 +436,10 @@
   gap: 9px;
 }
 
-.onboarding-pill-option,
-.onboarding-interest-chip {
+.market-onboarding .onboarding-pill-option,
+.market-onboarding .onboarding-interest-chip {
   border: 1px solid #e0e4eb !important;
-  border-radius: 999px !important;
+  border-radius: 0 !important;
   background: #fff !important;
   color: #586171 !important;
   cursor: pointer;
@@ -448,35 +448,39 @@
   transition: border-color 180ms ease, background 180ms ease, color 180ms ease, transform 180ms ease;
 }
 
-.onboarding-pill-option {
+.market-onboarding .onboarding-pill-option {
   padding: 12px 18px;
 }
 
-.onboarding-interest-chip {
+.market-onboarding .onboarding-interest-chip {
   padding: 10px 13px;
 }
 
-.onboarding-pill-option:hover,
-.onboarding-interest-chip:hover {
+.market-onboarding .onboarding-pill-option:hover,
+.market-onboarding .onboarding-interest-chip:hover {
   border-color: var(--onboarding-accent-border) !important;
   background: var(--onboarding-accent-soft) !important;
   color: var(--onboarding-accent-strong) !important;
 }
 
-.onboarding-pill-option.is-selected,
-.onboarding-interest-chip.is-selected {
+.market-onboarding .onboarding-pill-option.is-selected,
+.market-onboarding .onboarding-interest-chip.is-selected {
   border-color: var(--onboarding-accent) !important;
-  background: var(--onboarding-accent) !important;
-  color: #fff !important;
+  background: var(--onboarding-accent-soft) !important;
+  color: var(--onboarding-accent-strong) !important;
+  box-shadow: inset 3px 0 0 var(--onboarding-accent);
 }
 
 .market-onboarding [data-testid^="commodity-"] {
   border: 1px solid #e0e4eb !important;
-  border-radius: 999px !important;
+  border-radius: 0 !important;
 }
 
 .market-onboarding [data-testid^="commodity-"][aria-pressed="true"] {
   border-color: var(--onboarding-accent) !important;
+  background: var(--onboarding-accent-soft) !important;
+  color: var(--onboarding-accent-strong) !important;
+  box-shadow: inset 3px 0 0 var(--onboarding-accent);
 }
 
 .market-onboarding [data-testid^="volume-"] {
@@ -488,8 +492,9 @@
 
 .market-onboarding [data-testid^="volume-"][aria-checked="true"] {
   border-color: var(--onboarding-accent) !important;
-  background: var(--onboarding-accent) !important;
-  color: #fff !important;
+  background: var(--onboarding-accent-soft) !important;
+  color: var(--onboarding-accent-strong) !important;
+  box-shadow: inset 3px 0 0 var(--onboarding-accent);
 }
 
 .market-onboarding [data-testid="country-combobox"] {
@@ -598,7 +603,7 @@
   }
 
   .onboarding-topbar {
-    padding: 17px 20px;
+    padding: 14px 18px;
   }
 
   .onboarding-mobile-progress {
@@ -631,7 +636,7 @@
 
   .onboarding-question-content {
     width: min(100% - 40px, 650px);
-    padding: 34px 0 38px;
+    padding: 28px 0 32px;
   }
 
   .onboarding-question-content h1 {
@@ -640,6 +645,7 @@
 
   .onboarding-question-nav {
     width: min(100% - 40px, 650px);
+    gap: 14px;
   }
 }
 
@@ -662,8 +668,8 @@
   }
 
   .onboarding-question-content {
-    width: calc(100% - 32px);
-    padding: 30px 0 32px;
+    width: calc(100% - 28px);
+    padding: 26px 0 28px;
   }
 
   .onboarding-question-description {
@@ -676,7 +682,7 @@
   }
 
   .onboarding-question-nav {
-    width: calc(100% - 32px);
+    width: calc(100% - 28px);
   }
 
   .onboarding-next {
