@@ -20,8 +20,7 @@ import {
 } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { useToast } from "@/hooks/use-toast";
-
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+import { apiUrl } from "@/lib/apiUrl";
 
 const FACILITY_LABELS: Record<string, string> = {
   DRY_GRAIN_SILO:                    "Dry Grain Silo",
@@ -104,7 +103,7 @@ export default function LotDetail() {
   const { data: publications = [] } = useQuery<any[]>({
     queryKey: pubQueryKey,
     queryFn: async ({ signal }) => {
-      const res = await fetch(`${BASE}/api/listing-publications?lotId=${lotId}`, {
+      const res = await fetch(apiUrl(`/api/listing-publications?lotId=${lotId}`), {
         credentials: "include", signal,
       });
       if (!res.ok) throw new Error("Failed to load publication status");
@@ -127,7 +126,7 @@ export default function LotDetail() {
   // Publish mutation
   const publish = useMutation({
     mutationFn: async () => {
-      const res = await fetch(`${BASE}/api/tea/lots/${lotId}/publish`, {
+      const res = await fetch(apiUrl(`/api/tea/lots/${lotId}/publish`), {
         method: "POST", credentials: "include",
         headers: { "Content-Type": "application/json" },
       });
@@ -147,7 +146,7 @@ export default function LotDetail() {
   // Retry mutation
   const retry = useMutation({
     mutationFn: async () => {
-      const res = await fetch(`${BASE}/api/tea/lots/${lotId}/publish/retry`, {
+      const res = await fetch(apiUrl(`/api/tea/lots/${lotId}/publish/retry`), {
         method: "POST", credentials: "include",
         headers: { "Content-Type": "application/json" },
       });

@@ -414,8 +414,15 @@ router.post("/forwards/:contractId/complete", async (req, res) => {
   }
 });
 
-export function startForwardMaturityWorker() {
-  setInterval(async () => {
+export type ForwardMaturityWorkerHandle = { stop(): Promise<void> };
+
+export function startForwardMaturityWorker(): ForwardMaturityWorkerHandle {
+  let running = false;
+  let stopped = false;
+  let activeTick: Promise<void> | null = null;
+  const tick = async () => {
+    if (stopped || running) return;
+    running = true;
     try {
       const now = new Date();
       const activeContracts = await db
@@ -459,8 +466,21 @@ export function startForwardMaturityWorker() {
       }
     } catch (err) {
       logger.error({ err }, "[ForwardMaturityWorker] Error");
+    } finally {
+      running = false;
     }
+  };
+
+  const interval = setInterval(() => {
+    if (!stopped && !running) activeTick = tick();
   }, 60_000);
+  return {
+    async stop() {
+      stopped = true;
+      clearInterval(interval);
+      await activeTick;
+    },
+  };
 }
 
 export default router;

@@ -260,8 +260,15 @@ router.patch("/orders/:orderId", async (req, res) => {
 
 // ── Order expiry background worker ────────────────────────────────────────────
 
-export function startOrderExpiryWorker() {
-  setInterval(async () => {
+export type OrderExpiryWorkerHandle = { stop(): Promise<void> };
+
+export function startOrderExpiryWorker(): OrderExpiryWorkerHandle {
+  let running = false;
+  let stopped = false;
+  let activeTick: Promise<void> | null = null;
+  const tick = async () => {
+    if (stopped || running) return;
+    running = true;
     try {
       const now = new Date();
 
@@ -339,8 +346,21 @@ export function startOrderExpiryWorker() {
       }
     } catch (err) {
       logger.error({ err }, "[ExpiryWorker] Error processing expired orders");
+    } finally {
+      running = false;
     }
+  };
+
+  const interval = setInterval(() => {
+    if (!stopped && !running) activeTick = tick();
   }, 60_000);
+  return {
+    async stop() {
+      stopped = true;
+      clearInterval(interval);
+      await activeTick;
+    },
+  };
 }
 
 export default router;

@@ -507,8 +507,15 @@ router.post("/auctions/:auctionId/bids", async (req, res) => {
 // across all server instances for the auction expiry sweep.
 const EXPIRY_WORKER_LOCK_KEY = 7_369_621n;
 
-export async function startAuctionExpiryWorker() {
-  setInterval(async () => {
+export type AuctionExpiryWorkerHandle = { stop(): Promise<void> };
+
+export function startAuctionExpiryWorker(): AuctionExpiryWorkerHandle {
+  let running = false;
+  let stopped = false;
+  let activeTick: Promise<void> | null = null;
+  const tick = async () => {
+    if (stopped || running) return;
+    running = true;
     // ── Leader election via PostgreSQL session-level advisory lock ─────────
     // pg_try_advisory_lock / pg_advisory_unlock are session-scoped, so acquire
     // and release MUST happen on the same physical connection. We pin a single
@@ -669,8 +676,30 @@ export async function startAuctionExpiryWorker() {
         }
         lockClient.release();
       }
+      running = false;
+    }
+  };
+
+  const interval = setInterval(() => {
+    if (!stopped && !running) {
+      activeTick = tick()
+        .catch((err) => {
+          logger.error({ err }, "[AuctionExpiryWorker] Unhandled tick error");
+        })
+        .finally(() => {
+          activeTick = null;
+        });
     }
   }, 15_000);
+  return {
+    async stop() {
+      stopped = true;
+      clearInterval(interval);
+      await activeTick?.catch((err) => {
+        logger.error({ err }, "[AuctionExpiryWorker] Error while stopping");
+      });
+    },
+  };
 }
 
 export default router;

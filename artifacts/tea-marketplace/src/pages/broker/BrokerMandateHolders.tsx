@@ -48,8 +48,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { format } from "date-fns";
-
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+import { apiUrl } from "@/lib/apiUrl";
 
 interface AvailableEwr {
   id: number;
@@ -268,7 +267,7 @@ export default function BrokerMandateHolders() {
   >({
     queryKey: ["/api/ewrs/broker-available"],
     queryFn: async ({ signal }) => {
-      const res = await fetch(`${BASE}/api/ewrs/broker-available`, { signal });
+      const res = await fetch(apiUrl("/api/ewrs/broker-available"), { signal });
       if (!res.ok) throw new Error("Failed to load available eWRs");
       return res.json();
     },

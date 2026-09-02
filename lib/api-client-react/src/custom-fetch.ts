@@ -66,7 +66,15 @@ function applyBaseUrl(input: RequestInfo | URL): RequestInfo | URL {
   // Only prepend to relative paths (starting with /)
   if (!url.startsWith("/")) return input;
 
-  const absolute = `${_baseUrl}${url}`;
+  // Market-owned API runtimes use a path base such as `/api/v1/tea`.
+  // Generated clients already prefix endpoints with `/api`, so replace that
+  // prefix rather than producing `/api/v1/tea/api/...`. Absolute origin/Expo
+  // bases retain the original prepend behavior.
+  const path =
+    _baseUrl.startsWith("/api/") && /^\/api(?=\/|\?|#|$)/.test(url)
+      ? url.slice(4)
+      : url;
+  const absolute = `${_baseUrl}${path}`;
   if (typeof input === "string") return absolute;
   if (isUrl(input)) return new URL(absolute);
   return new Request(absolute, input as Request);

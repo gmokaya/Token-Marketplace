@@ -9,8 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Search, Users, ShieldCheck, RefreshCw } from "lucide-react";
 import { formatTier } from "@/lib/formatTier";
-
-const API = import.meta.env.VITE_API_URL ?? "";
+import { apiUrl } from "@/lib/apiUrl";
 
 type AdminUser = {
   id: number;
@@ -45,13 +44,13 @@ async function fetchAdminUsers(tier: string, search: string): Promise<AdminUser[
   const params = new URLSearchParams();
   if (tier && tier !== "ALL") params.set("tier", tier);
   if (search.trim()) params.set("search", search.trim());
-  const res = await fetch(`${API}/api/admin/users?${params}`, { credentials: "include" });
+  const res = await fetch(apiUrl(`/api/admin/users?${params}`), { credentials: "include" });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 
 async function patchUser(id: number, data: { tier?: string; kybStatus?: string }): Promise<AdminUser> {
-  const res = await fetch(`${API}/api/admin/users/${id}`, {
+  const res = await fetch(apiUrl(`/api/admin/users/${id}`), {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     credentials: "include",

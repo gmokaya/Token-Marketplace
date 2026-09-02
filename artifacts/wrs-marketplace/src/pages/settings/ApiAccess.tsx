@@ -187,7 +187,7 @@ function SetupGuide() {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
 
-  const apiBase = (import.meta.env.VITE_API_URL as string | undefined) ?? "/api";
+  const apiBase = "/api/v1/grain";
 
   const curlExample = `curl -X POST "${apiBase}/ewrs" \\
   -H "Content-Type: application/json" \\

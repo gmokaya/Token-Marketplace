@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
+import { apiUrl } from "@/lib/apiUrl";
 
 const ACCENT = "hsl(180 62% 10%)";
-const API = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
 const REFRESH_MS = 5 * 60 * 1000;
 
 type MarketClose = {
@@ -61,7 +61,7 @@ export function PriceTicker() {
 
     const load = async () => {
       try {
-        const response = await fetch(`${API}/api/market-data/daily-closes`);
+        const response = await fetch(apiUrl("/api/market-data/daily-closes"));
         if (!response.ok) throw new Error(`Market close feed failed: ${response.status}`);
         const data = (await response.json()) as MarketCloseFeed;
         if (!active) return;

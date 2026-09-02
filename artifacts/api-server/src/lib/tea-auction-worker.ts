@@ -321,10 +321,32 @@ async function runTeaAuctionWorker(): Promise<void> {
   }
 }
 
-export function startTeaAuctionWorker(): void {
-  setInterval(() => {
-    runTeaAuctionWorker().catch((err) =>
+export type TeaAuctionWorkerHandle = { stop(): Promise<void> };
+
+export function startTeaAuctionWorker(): TeaAuctionWorkerHandle {
+  let running = false;
+  let stopped = false;
+  let activeTick: Promise<void> | null = null;
+  const tick = async () => {
+    if (stopped || running) return;
+    running = true;
+    try {
+      await runTeaAuctionWorker();
+    } catch (err) {
       logger.error({ err }, "[TeaWorker] Unhandled error")
-    );
+    } finally {
+      running = false;
+    }
+  };
+
+  const interval = setInterval(() => {
+    if (!stopped && !running) activeTick = tick();
   }, POLL_INTERVAL_MS);
+  return {
+    async stop() {
+      stopped = true;
+      clearInterval(interval);
+      await activeTick;
+    },
+  };
 }

@@ -8,13 +8,21 @@ import { startAuctionExpiryWorker, broadcastSseEvent, broadcastReconnectHint } f
 import { startTeaAuctionWorker } from "./lib/tea-auction-worker";
 import { startAvocadoDegradationWorker } from "./routes/ewrs";
 import { startForwardMaturityWorker } from "./routes/forwards";
-import { startAuctionPubSubSubscriber, setAuctionEventHandler, setReconnectHandler } from "./lib/pg-pubsub";
-import { applyDbConstraints, ensurePublicationConstraint } from "@workspace/db/migrate";
-import { setPublicationConstraintReady } from "./lib/publication-constraint";
-import { ensureAdminUser } from "./lib/ensure-admin";
+import {
+  startAuctionPubSubSubscriber,
+  stopAuctionPubSubSubscriber,
+  setAuctionEventHandler,
+  setReconnectHandler,
+} from "./lib/pg-pubsub";
+import { verifyPublicationConstraintReady } from "./lib/publication-constraint";
 import { startMarketCloseWorker } from "./lib/market-close-service";
+import { getRuntimeProfile } from "./lib/runtime-profile";
+import { markRuntimeDraining } from "./lib/runtime-health";
 
 const rawPort = process.env["PORT"];
+const runtimeProfile = getRuntimeProfile();
+type WorkerHandle = { stop(): Promise<void> };
+const workerHandles: WorkerHandle[] = [];
 
 if (!rawPort) {
   throw new Error(
@@ -41,40 +49,43 @@ const server: Server = app.listen(port, async (err) => {
     process.exit(1);
   }
 
-  logger.info({ port }, "Server listening");
+  logger.info(
+    {
+      port,
+      role: runtimeProfile.role,
+      market: runtimeProfile.market,
+      basePath: runtimeProfile.basePath,
+      workerGroups: [...runtimeProfile.workerGroups],
+    },
+    "Server listening",
+  );
 
   try {
-    await applyDbConstraints();
-    logger.info("DB constraints applied");
-  } catch (constraintErr) {
-    logger.warn({ err: constraintErr }, "Could not apply DB constraints — continuing");
-  }
-
-  // Publication constraint must succeed for publish routes to work.
-  // Deduplicates existing rows then creates the unique index; throws on failure.
-  try {
-    await ensurePublicationConstraint();
-    setPublicationConstraintReady();
-    logger.info("Publication constraint ready");
+    const ready = await verifyPublicationConstraintReady();
+    if (!ready) {
+      logger.error("Publication constraint is not ready; waiting for database bootstrap");
+    }
   } catch (pubConstraintErr) {
     logger.error(
       { err: pubConstraintErr },
-      "Publication constraint setup failed — publish operations will be blocked until resolved",
+      "Could not verify publication constraint; readiness will remain false",
     );
   }
 
-  try {
-    await ensureAdminUser();
-  } catch (adminErr) {
-    logger.warn({ err: adminErr }, "Could not ensure admin user — continuing");
+  if (runtimeProfile.workerGroups.has("core")) {
+    workerHandles.push(
+      startOrderExpiryWorker(),
+      startAuctionExpiryWorker(),
+      startForwardMaturityWorker(),
+      startMarketCloseWorker(),
+    );
   }
-
-  startOrderExpiryWorker();
-  startAuctionExpiryWorker();
-  startAvocadoDegradationWorker();
-  startForwardMaturityWorker();
-  startTeaAuctionWorker();
-  startMarketCloseWorker();
+  if (runtimeProfile.workerGroups.has("grain")) {
+    workerHandles.push(startAvocadoDegradationWorker());
+  }
+  if (runtimeProfile.workerGroups.has("tea")) {
+    workerHandles.push(startTeaAuctionWorker());
+  }
 
   // Wire pg LISTEN/NOTIFY so every instance fans out SSE events received from any instance
   setAuctionEventHandler((payload) => {
@@ -84,9 +95,10 @@ const server: Server = app.listen(port, async (err) => {
   setReconnectHandler((_gapMs) => {
     broadcastReconnectHint();
   });
-  startAuctionPubSubSubscriber().catch((err) =>
-    logger.error({ err }, "Failed to start auction pub/sub subscriber"),
-  );
+  startAuctionPubSubSubscriber()
+    .catch((err) =>
+      logger.error({ err }, "Failed to start auction pub/sub subscriber"),
+    );
 });
 
 // Track open sockets so shutdown can deterministically close long-lived
@@ -105,7 +117,14 @@ let shuttingDown = false;
 const shutdown = (signal: string) => {
   if (shuttingDown) return;
   shuttingDown = true;
+  markRuntimeDraining();
   logger.info({ signal, openSockets: openSockets.size }, "Shutting down gracefully");
+  const dependencyDrain = Promise.all([
+    ...workerHandles.splice(0).map((worker) => worker.stop()),
+    // This module-level stop is registered before the initial LISTEN connection
+    // resolves, so it also closes the SIGTERM-during-connect race.
+    stopAuctionPubSubSubscriber(),
+  ]);
 
   const forceExit = setTimeout(() => {
     logger.error("Forced shutdown after timeout");
@@ -116,6 +135,7 @@ const shutdown = (signal: string) => {
   server.close(async (err) => {
     if (err) logger.error({ err }, "Error closing HTTP server");
     try {
+      await dependencyDrain;
       await pool.end();
       logger.info("DB pool drained");
     } catch (poolErr) {

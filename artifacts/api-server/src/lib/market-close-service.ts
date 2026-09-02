@@ -415,16 +415,34 @@ export async function getDailyMarketCloseFeed(
   };
 }
 
-export function startMarketCloseWorker(): void {
+export type MarketCloseWorkerHandle = { stop(): Promise<void> };
+
+export function startMarketCloseWorker(): MarketCloseWorkerHandle {
+  let running = false;
+  let stopped = false;
+  let activeTick: Promise<void> | null = null;
   const run = async () => {
+    if (stopped || running) return;
+    running = true;
     try {
       await finalizeMarketCloseSnapshots();
     } catch (error) {
       logger.error({ err: error }, "Market close finalization failed");
+    } finally {
+      running = false;
     }
   };
 
-  void run();
-  const interval = setInterval(run, 60_000);
+  activeTick = run();
+  const interval = setInterval(() => {
+    if (!stopped && !running) activeTick = run();
+  }, 60_000);
   interval.unref();
+  return {
+    async stop() {
+      stopped = true;
+      clearInterval(interval);
+      await activeTick;
+    },
+  };
 }

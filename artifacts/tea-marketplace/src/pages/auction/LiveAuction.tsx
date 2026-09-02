@@ -15,6 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { Gavel, Clock, AlertCircle } from "lucide-react";
+import { apiUrl } from "@/lib/apiUrl";
 
 /** Maps a bidder ID to a stable anonymized label ("Buyer A", "Buyer B", …) */
 function anonymize(bidderId: number | string, registry: Map<string, string>): string {
@@ -66,9 +67,7 @@ export default function LiveAuction() {
   });
 
   useEffect(() => {
-    const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
-    const apiBase = basePath.replace(/^\/tea/, "");
-    const es = new EventSource(`${apiBase}/api/auctions/stream`);
+    const es = new EventSource(apiUrl("/api/auctions/stream"));
 
     es.addEventListener("bid", (e) => {
       try {

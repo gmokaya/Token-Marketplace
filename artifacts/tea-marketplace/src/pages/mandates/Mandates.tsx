@@ -29,8 +29,7 @@ import { useToast } from "@/hooks/use-toast";
 import { FileText, ShieldX, Plus, ShieldCheck } from "lucide-react";
 import { format } from "date-fns";
 import { PageHeader } from "@/components/ui/page-header";
-
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+import { apiUrl } from "@/lib/apiUrl";
 
 interface BrokerUser {
   id: number;
@@ -67,7 +66,7 @@ export default function Mandates() {
   const { data: brokers = [] } = useQuery<BrokerUser[]>({
     queryKey: ["/api/users/brokers"],
     queryFn: async ({ signal }) => {
-      const res = await fetch(`${BASE}/api/users/brokers`, { signal });
+      const res = await fetch(apiUrl("/api/users/brokers"), { signal });
       if (!res.ok) throw new Error("Failed to load brokers");
       return res.json();
     },

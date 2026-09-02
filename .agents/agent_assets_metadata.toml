@@ -6,12 +6,14 @@ id = "zTjelc_1pd_dMPGanC3qE"
 uri = "file://docs/tea-factory-api-integration.pdf"
 type = "pdf"
 title = "Tea Factory API Integration Reference"
+logical_id = "d33f2516-579a-4862-b87e-b79424829447"
 
 [[outputs]]
 id = "M014AhYp9iZPWv9TdDN4V"
 uri = "file://docs/TokenHarvest-API-Integration-Guide.pdf"
 type = "pdf"
 title = "TokenHarvest Tea Marketplace — API Integration Guide"
+logical_id = "9f279f0e-a2ef-4b9c-aa34-8bd67eda1df9"
 
 [[outputs]]
 id = "8ngaTh8RaxnvsRMtQaOSe"
@@ -19,4 +21,4 @@ uri = "file://docs/producer-marketplace-integration.pdf"
 type = "pdf"
 title = "Tea Producer Portal — Marketplace Integration Guide"
 description = "Downloadable PDF covering direct producer listings, broker mandates, marketplace auction sessions, bidding, post-auction decisions, settlement, API routes, business rules, and errors."
-
+logical_id = "1c99cceb-82c5-40ae-bd17-e0d8075bd35a"

@@ -457,9 +457,16 @@ router.get("/ewrs/:ewrId", async (req, res) => {
 });
 
 // ── Avocado degradation worker — runs daily ──────────────────────────────────
-export function startAvocadoDegradationWorker() {
+export type AvocadoDegradationWorkerHandle = { stop(): Promise<void> };
+
+export function startAvocadoDegradationWorker(): AvocadoDegradationWorkerHandle {
   const RUN_EVERY_MS = 24 * 60 * 60 * 1000; // 24 hours
-  setInterval(async () => {
+  let running = false;
+  let stopped = false;
+  let activeTick: Promise<void> | null = null;
+  const tick = async () => {
+    if (stopped || running) return;
+    running = true;
     try {
       const avocadoEwrs = await db
         .select({ id: ewrsTable.id, avocadoDegradationCoefficient: ewrsTable.avocadoDegradationCoefficient })
@@ -480,8 +487,21 @@ export function startAvocadoDegradationWorker() {
         console.log(`[DegradationWorker] Updated ${avocadoEwrs.length} avocado eWR(s)`);
     } catch (err) {
       logger.error({ err }, "[DegradationWorker] Error");
+    } finally {
+      running = false;
     }
+  };
+
+  const interval = setInterval(() => {
+    if (!stopped && !running) activeTick = tick();
   }, RUN_EVERY_MS);
+  return {
+    async stop() {
+      stopped = true;
+      clearInterval(interval);
+      await activeTick;
+    },
+  };
 }
 
 export default router;

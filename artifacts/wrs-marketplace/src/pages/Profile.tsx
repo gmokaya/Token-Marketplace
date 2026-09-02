@@ -15,8 +15,6 @@ import * as z from "zod";
 import { Building2, Phone, CreditCard, Shield, CheckCircle2, Clock, AlertCircle, ClipboardList, ChevronDown, ChevronUp, Pencil, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
-
 const ONBOARDING_COLORS: Record<string, string> = {
   PENDING_KYB_APPROVAL: "bg-slate-100 text-slate-700 border-slate-300",
   WRSC_VERIFIED: "bg-blue-100 text-blue-800 border-blue-200",
@@ -124,7 +122,7 @@ function KybForm({ tier, existingProfile, onSuccess }: { tier: string; existingP
   async function onSubmit(profileValues: any) {
     setSubmitting(true);
     try {
-      const res = await customFetch(`${basePath}/api/profiles/me`, {
+      const res = await customFetch("/api/profiles/me", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ profile: profileValues }),
@@ -378,7 +376,7 @@ export default function Profile() {
 
   useEffect(() => {
     if (!user) return;
-    customFetch(`${basePath}/api/profiles/me`)
+    customFetch("/api/profiles/me")
       .then((r) => (r as Response).json())
       .then((data) => {
         setProfile(data);
@@ -390,7 +388,7 @@ export default function Profile() {
   async function handleIdentitySubmit(values: z.infer<typeof identitySchema>) {
     setSavingIdentity(true);
     try {
-      const res = await customFetch(`${basePath}/api/users/me`, {
+      const res = await customFetch("/api/users/me", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
@@ -413,7 +411,7 @@ export default function Profile() {
     setKybOpen(false);
     setProfileLoading(true);
     if (!user) return;
-    customFetch(`${basePath}/api/profiles/me`)
+    customFetch("/api/profiles/me")
       .then((r) => (r as Response).json())
       .then((data) => { setProfile(data); setProfileLoading(false); })
       .catch(() => setProfileLoading(false));

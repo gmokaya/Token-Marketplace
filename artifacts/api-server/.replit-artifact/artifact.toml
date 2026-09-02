@@ -1,5 +1,5 @@
 kind = "api"
-previewPath = "/api" # TODO - should be excluded from preview in the first place
+previewPath = "/api"
 title = "API Server"
 version = "1.0.0"
 id = "3B4_FFSkEVBkAeYMFRJ2e"
@@ -8,6 +8,14 @@ id = "3B4_FFSkEVBkAeYMFRJ2e"
 localPort = 8080
 name = "API Server"
 paths = ["/api"]
+
+[services.env]
+PORT = "8080"
+API_RUNTIME_ROLE = "gateway"
+API_BASE_PATH = "/api"
+API_WORKER_GROUPS = ""
+DB_APPLICATION_NAME = "tokenharvest-gateway"
+DB_POOL_MAX = "20"
 
 [services.development]
 run = "pnpm --filter @workspace/api-server run dev"
@@ -21,12 +29,276 @@ args = ["pnpm", "--filter", "@workspace/api-server", "run", "build"]
 NODE_ENV = "production"
 
 [services.production.run]
-# we don't run through pnpm to make startup faster in production
 args = ["node", "--enable-source-maps", "artifacts/api-server/dist/index.mjs"]
 
 [services.production.run.env]
-PORT = "8080"
 NODE_ENV = "production"
 
 [services.production.health.startup]
-path = "/api/healthz"
+path = "/api/readyz"
+
+[[services]]
+localPort = 8083
+name = "Grain API"
+paths = ["/api/v1/grain"]
+
+[services.env]
+PORT = "8083"
+API_RUNTIME_ROLE = "grain"
+API_BASE_PATH = "/api/v1/grain"
+API_WORKER_GROUPS = ""
+DB_APPLICATION_NAME = "tokenharvest-grain-api"
+DB_POOL_MAX = "10"
+
+[services.development]
+run = "pnpm --filter @workspace/api-server run dev:grain"
+
+[services.production]
+
+[services.production.build]
+args = ["pnpm", "--filter", "@workspace/api-server", "run", "build"]
+
+[services.production.build.env]
+NODE_ENV = "production"
+
+[services.production.run]
+args = ["node", "--enable-source-maps", "artifacts/api-server/dist/index.mjs"]
+
+[services.production.run.env]
+NODE_ENV = "production"
+
+[services.production.health.startup]
+path = "/api/v1/grain/readyz"
+
+[[services]]
+localPort = 8084
+name = "Coffee API"
+paths = ["/api/v1/coffee"]
+
+[services.env]
+PORT = "8084"
+API_RUNTIME_ROLE = "coffee"
+API_BASE_PATH = "/api/v1/coffee"
+API_WORKER_GROUPS = ""
+DB_APPLICATION_NAME = "tokenharvest-coffee-api"
+DB_POOL_MAX = "10"
+
+[services.development]
+run = "pnpm --filter @workspace/api-server run dev:coffee"
+
+[services.production]
+
+[services.production.build]
+args = ["pnpm", "--filter", "@workspace/api-server", "run", "build"]
+
+[services.production.build.env]
+NODE_ENV = "production"
+
+[services.production.run]
+args = ["node", "--enable-source-maps", "artifacts/api-server/dist/index.mjs"]
+
+[services.production.run.env]
+NODE_ENV = "production"
+
+[services.production.health.startup]
+path = "/api/v1/coffee/readyz"
+
+[[services]]
+localPort = 8085
+name = "Tea API"
+paths = ["/api/v1/tea"]
+
+[services.env]
+PORT = "8085"
+API_RUNTIME_ROLE = "tea"
+API_BASE_PATH = "/api/v1/tea"
+API_WORKER_GROUPS = ""
+DB_APPLICATION_NAME = "tokenharvest-tea-api"
+DB_POOL_MAX = "10"
+
+[services.development]
+run = "pnpm --filter @workspace/api-server run dev:tea"
+
+[services.production]
+
+[services.production.build]
+args = ["pnpm", "--filter", "@workspace/api-server", "run", "build"]
+
+[services.production.build.env]
+NODE_ENV = "production"
+
+[services.production.run]
+args = ["node", "--enable-source-maps", "artifacts/api-server/dist/index.mjs"]
+
+[services.production.run.env]
+NODE_ENV = "production"
+
+[services.production.health.startup]
+path = "/api/v1/tea/readyz"
+
+[[services]]
+localPort = 8087
+name = "Core Workers"
+paths = ["/api/internal/workers/core"]
+
+[services.env]
+PORT = "8087"
+API_RUNTIME_ROLE = "worker"
+API_BASE_PATH = "/api/internal/workers/core"
+API_WORKER_GROUPS = "core"
+DB_APPLICATION_NAME = "tokenharvest-core-workers"
+DB_POOL_MAX = "8"
+API_HTTP_MODE = "health-only"
+
+[services.development]
+run = "pnpm --filter @workspace/api-server run dev:worker:core"
+
+[services.production]
+
+[services.production.build]
+args = ["pnpm", "--filter", "@workspace/api-server", "run", "build"]
+
+[services.production.build.env]
+NODE_ENV = "production"
+
+[services.production.run]
+args = ["node", "--enable-source-maps", "artifacts/api-server/dist/index.mjs"]
+
+[services.production.run.env]
+NODE_ENV = "production"
+
+[services.production.health.startup]
+path = "/api/internal/workers/core/readyz"
+
+[[services]]
+localPort = 8088
+name = "Grain Workers"
+paths = ["/api/internal/workers/grain"]
+
+[services.env]
+PORT = "8088"
+API_RUNTIME_ROLE = "worker"
+API_BASE_PATH = "/api/internal/workers/grain"
+API_WORKER_GROUPS = "grain"
+DB_APPLICATION_NAME = "tokenharvest-grain-workers"
+DB_POOL_MAX = "6"
+API_HTTP_MODE = "health-only"
+
+[services.development]
+run = "pnpm --filter @workspace/api-server run dev:worker:grain"
+
+[services.production]
+
+[services.production.build]
+args = ["pnpm", "--filter", "@workspace/api-server", "run", "build"]
+
+[services.production.build.env]
+NODE_ENV = "production"
+
+[services.production.run]
+args = ["node", "--enable-source-maps", "artifacts/api-server/dist/index.mjs"]
+
+[services.production.run.env]
+NODE_ENV = "production"
+
+[services.production.health.startup]
+path = "/api/internal/workers/grain/readyz"
+
+[[services]]
+localPort = 8089
+name = "Coffee Workers"
+paths = ["/api/internal/workers/coffee"]
+
+[services.env]
+PORT = "8089"
+API_RUNTIME_ROLE = "worker"
+API_BASE_PATH = "/api/internal/workers/coffee"
+API_WORKER_GROUPS = "coffee"
+DB_APPLICATION_NAME = "tokenharvest-coffee-workers"
+DB_POOL_MAX = "4"
+API_HTTP_MODE = "health-only"
+
+[services.development]
+run = "pnpm --filter @workspace/api-server run dev:worker:coffee"
+
+[services.production]
+
+[services.production.build]
+args = ["pnpm", "--filter", "@workspace/api-server", "run", "build"]
+
+[services.production.build.env]
+NODE_ENV = "production"
+
+[services.production.run]
+args = ["node", "--enable-source-maps", "artifacts/api-server/dist/index.mjs"]
+
+[services.production.run.env]
+NODE_ENV = "production"
+
+[services.production.health.startup]
+path = "/api/internal/workers/coffee/readyz"
+
+[[services]]
+localPort = 8090
+name = "Tea Workers"
+paths = ["/api/internal/workers/tea"]
+
+[services.env]
+PORT = "8090"
+API_RUNTIME_ROLE = "worker"
+API_BASE_PATH = "/api/internal/workers/tea"
+API_WORKER_GROUPS = "tea"
+DB_APPLICATION_NAME = "tokenharvest-tea-workers"
+DB_POOL_MAX = "8"
+API_HTTP_MODE = "health-only"
+
+[services.development]
+run = "pnpm --filter @workspace/api-server run dev:worker:tea"
+
+[services.production]
+
+[services.production.build]
+args = ["pnpm", "--filter", "@workspace/api-server", "run", "build"]
+
+[services.production.build.env]
+NODE_ENV = "production"
+
+[services.production.run]
+args = ["node", "--enable-source-maps", "artifacts/api-server/dist/index.mjs"]
+
+[services.production.run.env]
+NODE_ENV = "production"
+
+[services.production.health.startup]
+path = "/api/internal/workers/tea/readyz"
+
+[[services]]
+localPort = 8091
+name = "Database Bootstrap"
+paths = ["/api/internal/bootstrap"]
+
+[services.env]
+PORT = "8091"
+API_BASE_PATH = "/api/internal/bootstrap"
+DB_APPLICATION_NAME = "tokenharvest-database-bootstrap"
+DB_POOL_MAX = "2"
+
+[services.development]
+run = "pnpm --filter @workspace/api-server run dev:bootstrap"
+
+[services.production]
+
+[services.production.build]
+args = ["pnpm", "--filter", "@workspace/api-server", "run", "build"]
+
+[services.production.build.env]
+NODE_ENV = "production"
+
+[services.production.run]
+args = ["node", "--enable-source-maps", "artifacts/api-server/dist/bootstrap.mjs"]
+
+[services.production.run.env]
+NODE_ENV = "production"
+
+[services.production.health.startup]
+path = "/api/internal/bootstrap/readyz"

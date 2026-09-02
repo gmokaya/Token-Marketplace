@@ -28,6 +28,9 @@ export const pool = new Pool({
   max: toInt(process.env.DB_POOL_MAX, 20),
   idleTimeoutMillis: toInt(process.env.DB_POOL_IDLE_TIMEOUT_MS, 30_000),
   connectionTimeoutMillis: toInt(process.env.DB_POOL_CONNECTION_TIMEOUT_MS, 10_000),
+  statement_timeout: toInt(process.env.DB_STATEMENT_TIMEOUT_MS, 20_000),
+  query_timeout: toInt(process.env.DB_QUERY_TIMEOUT_MS, 25_000),
+  application_name: process.env.DB_APPLICATION_NAME ?? process.env.API_RUNTIME_ROLE ?? "tokenharvest-api",
 });
 
 // A pool always emits 'error' on idle clients that get dropped by the server

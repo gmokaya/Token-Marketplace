@@ -17,8 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { PageHeader } from "@/components/ui/page-header";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
-
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+import { apiUrl } from "@/lib/apiUrl";
 
 const createLotSchema = z.object({
   ewrId: z.coerce.number().min(1, "Select an eWR from your mandate holders"),
@@ -67,7 +66,7 @@ export default function NewTeaLot() {
   const { data: availableEwrs = [], isLoading: ewrsLoading } = useQuery<AvailableEwr[]>({
     queryKey: ["/api/ewrs/broker-available"],
     queryFn: async ({ signal }) => {
-      const res = await fetch(`${BASE}/api/ewrs/broker-available`, { signal });
+      const res = await fetch(apiUrl("/api/ewrs/broker-available"), { signal });
       if (!res.ok) throw new Error("Failed to load available eWRs");
       return res.json();
     },

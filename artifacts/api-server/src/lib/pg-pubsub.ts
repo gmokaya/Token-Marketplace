@@ -11,6 +11,7 @@ export type AuctionEventPayload =
 
 type NotifyHandler = (payload: AuctionEventPayload) => void;
 type ReconnectHandler = (gapMs: number) => void;
+export type StopAuctionPubSubSubscriber = () => Promise<void>;
 
 let notifyHandler: NotifyHandler | null = null;
 let reconnectHandler: ReconnectHandler | null = null;
@@ -29,6 +30,11 @@ type SubscriberStatus = "initializing" | "connected" | "reconnecting";
 let _subscriberStatus: SubscriberStatus = "initializing";
 let _disconnectedAt: number | null = null;
 let _degradedAlertEmitted = false;
+let _listenClient: pg.Client | null = null;
+let _reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+let _stopping = false;
+let _connectionGeneration = 0;
+let _stopHandle: StopAuctionPubSubSubscriber | null = null;
 
 export function getSubscriberStatus(): { status: SubscriberStatus; reconnectingForMs: number | null } {
   return {
@@ -50,24 +56,6 @@ async function createListenClient(): Promise<pg.Client> {
   await client.connect();
   await client.query(`LISTEN ${CHANNEL}`);
 
-  client.on("notification", (msg: pg.Notification) => {
-    if (msg.channel !== CHANNEL || !msg.payload) return;
-    try {
-      const payload = JSON.parse(msg.payload) as AuctionEventPayload;
-      notifyHandler?.(payload);
-    } catch (err: unknown) {
-      logger.warn({ err, raw: msg.payload }, "[PgPubSub] Failed to parse notification payload");
-    }
-  });
-
-  client.on("error", (err: Error) => {
-    logger.warn({ err }, "[PgPubSub] LISTEN client error — will reconnect");
-    if (_subscriberStatus !== "reconnecting") {
-      _subscriberStatus = "reconnecting";
-      _disconnectedAt = Date.now();
-    }
-  });
-
   return client;
 }
 
@@ -84,8 +72,82 @@ function checkDegradedThreshold() {
   }
 }
 
-export async function startAuctionPubSubSubscriber() {
-  async function connect() {
+function markReconnecting(): void {
+  if (_subscriberStatus !== "reconnecting") {
+    _subscriberStatus = "reconnecting";
+    _disconnectedAt = Date.now();
+  }
+}
+
+function clearReconnectTimer(): void {
+  if (_reconnectTimer) {
+    clearTimeout(_reconnectTimer);
+    _reconnectTimer = null;
+  }
+}
+
+export async function startAuctionPubSubSubscriber(): Promise<StopAuctionPubSubSubscriber> {
+  if (_stopHandle) return _stopHandle;
+
+  _stopping = false;
+  _subscriberStatus = "initializing";
+  _disconnectedAt = null;
+  _degradedAlertEmitted = false;
+  const generation = ++_connectionGeneration;
+
+  const scheduleReconnect = () => {
+    if (_stopping || generation !== _connectionGeneration || _reconnectTimer) return;
+    _reconnectTimer = setTimeout(() => {
+      _reconnectTimer = null;
+      void connect();
+    }, RECONNECT_DELAY_MS);
+    _reconnectTimer.unref();
+  };
+
+  const handleDisconnect = (client: pg.Client, err?: Error) => {
+    if (_stopping || generation !== _connectionGeneration || _listenClient !== client) return;
+    if (err) logger.warn({ err }, "[PgPubSub] LISTEN client error — will reconnect");
+    _listenClient = null;
+    markReconnecting();
+    logger.warn(`[PgPubSub] LISTEN client disconnected — reconnecting in ${RECONNECT_DELAY_MS}ms`);
+    scheduleReconnect();
+    if (err) {
+      // Some client errors are not followed by an "end" event. Explicitly
+      // release that connection after scheduling the replacement.
+      void client.end().catch((closeErr: unknown) => {
+        logger.warn({ err: closeErr }, "[PgPubSub] Failed to close errored LISTEN client");
+      });
+    }
+  };
+
+  const stop: StopAuctionPubSubSubscriber = async () => {
+    if (_stopHandle !== stop) return;
+    _stopping = true;
+    ++_connectionGeneration;
+    clearReconnectTimer();
+    const client = _listenClient;
+    _listenClient = null;
+    _stopHandle = null;
+    _subscriberStatus = "initializing";
+    _disconnectedAt = null;
+    _degradedAlertEmitted = false;
+
+    await Promise.all([
+      client?.end().catch((err: unknown) => {
+        logger.warn({ err }, "[PgPubSub] Failed to close LISTEN client");
+      }),
+      _notifyPool?.end().catch((err: unknown) => {
+        logger.warn({ err }, "[PgPubSub] Failed to close NOTIFY pool");
+      }),
+    ]);
+    _notifyPool = null;
+  };
+  // Register before awaiting the first connection so shutdown can also cancel
+  // an in-flight initial connect.
+  _stopHandle = stop;
+
+  async function connect(): Promise<void> {
+    if (_stopping || generation !== _connectionGeneration) return;
     checkDegradedThreshold();
 
     try {
@@ -93,6 +155,11 @@ export async function startAuctionPubSubSubscriber() {
       const gapStart = _disconnectedAt;
 
       const client = await createListenClient();
+      if (_stopping || generation !== _connectionGeneration) {
+        await client.end().catch(() => undefined);
+        return;
+      }
+      _listenClient = client;
 
       _subscriberStatus = "connected";
       _degradedAlertEmitted = false;
@@ -110,23 +177,39 @@ export async function startAuctionPubSubSubscriber() {
         logger.info(`[PgPubSub] Subscribed to channel "${CHANNEL}"`);
       }
 
-      client.on("end", () => {
-        _subscriberStatus = "reconnecting";
-        _disconnectedAt = Date.now();
-        logger.warn(`[PgPubSub] LISTEN client disconnected — reconnecting in ${RECONNECT_DELAY_MS}ms`);
-        setTimeout(connect, RECONNECT_DELAY_MS);
+      client.on("notification", (msg: pg.Notification) => {
+        if (
+          msg.channel !== CHANNEL ||
+          !msg.payload ||
+          _stopping ||
+          generation !== _connectionGeneration ||
+          _listenClient !== client
+        ) {
+          return;
+        }
+        try {
+          notifyHandler?.(JSON.parse(msg.payload) as AuctionEventPayload);
+        } catch (err: unknown) {
+          logger.warn({ err, raw: msg.payload }, "[PgPubSub] Failed to parse notification payload");
+        }
       });
+
+      client.on("error", (err: Error) => handleDisconnect(client, err));
+      client.on("end", () => handleDisconnect(client));
     } catch (err) {
-      if (_subscriberStatus !== "reconnecting") {
-        _subscriberStatus = "reconnecting";
-        _disconnectedAt = Date.now();
-      }
+      if (_stopping || generation !== _connectionGeneration) return;
+      markReconnecting();
       logger.warn({ err }, `[PgPubSub] Failed to connect — retrying in ${RECONNECT_DELAY_MS}ms`);
-      setTimeout(connect, RECONNECT_DELAY_MS);
+      scheduleReconnect();
     }
   }
 
   await connect();
+  return stop;
+}
+
+export async function stopAuctionPubSubSubscriber(): Promise<void> {
+  await _stopHandle?.();
 }
 
 let _notifyPool: pg.Pool | null = null;

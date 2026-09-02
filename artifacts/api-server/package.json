@@ -5,8 +5,22 @@
   "type": "module",
   "scripts": {
     "dev": "export NODE_ENV=development && tsx ./src/index.ts",
+    "dev:core": "API_RUNTIME_ROLE=core API_WORKER_GROUPS= API_BASE_PATH=/api/v1/core tsx ./src/index.ts",
+    "dev:grain": "API_RUNTIME_ROLE=grain API_WORKER_GROUPS= API_BASE_PATH=/api/v1/grain tsx ./src/index.ts",
+    "dev:coffee": "API_RUNTIME_ROLE=coffee API_WORKER_GROUPS= API_BASE_PATH=/api/v1/coffee tsx ./src/index.ts",
+    "dev:tea": "API_RUNTIME_ROLE=tea API_WORKER_GROUPS= API_BASE_PATH=/api/v1/tea tsx ./src/index.ts",
+    "dev:worker:core": "API_RUNTIME_ROLE=worker API_HTTP_MODE=health-only API_WORKER_GROUPS=core API_BASE_PATH=/api/internal/workers/core tsx ./src/index.ts",
+    "dev:worker:grain": "API_RUNTIME_ROLE=worker API_HTTP_MODE=health-only API_WORKER_GROUPS=grain API_BASE_PATH=/api/internal/workers/grain tsx ./src/index.ts",
+    "dev:worker:coffee": "API_RUNTIME_ROLE=worker API_HTTP_MODE=health-only API_WORKER_GROUPS=coffee API_BASE_PATH=/api/internal/workers/coffee tsx ./src/index.ts",
+    "dev:worker:tea": "API_RUNTIME_ROLE=worker API_HTTP_MODE=health-only API_WORKER_GROUPS=tea API_BASE_PATH=/api/internal/workers/tea tsx ./src/index.ts",
+    "dev:workers": "API_RUNTIME_ROLE=worker API_HTTP_MODE=health-only API_WORKER_GROUPS=core,grain,coffee,tea API_BASE_PATH=/api/internal/workers tsx ./src/index.ts",
+    "dev:bootstrap": "API_BASE_PATH=/api/internal/bootstrap tsx ./src/bootstrap.ts",
     "build": "node ./build.mjs",
     "start": "node --enable-source-maps ./dist/index.mjs",
+    "start:profile": "node --enable-source-maps ./dist/index.mjs",
+    "start:bootstrap": "node --enable-source-maps ./dist/bootstrap.mjs",
+    "test:isolation": "bash ./scripts/verify-market-isolation.sh",
+    "test:client-routing": "node ./scripts/verify-market-client-routing.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
