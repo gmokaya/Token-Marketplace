@@ -18,6 +18,7 @@ const allowedInterests = new Set([
 
 const optionalText = z.string().trim().max(500).optional().nullable();
 const entityTypes = new Set([
+  "individual",
   "sole_proprietorship",
   "partnership",
   "limited_company",
@@ -77,6 +78,8 @@ const onboardingSchema = z.object({
   if (data.marketplaceRole === "producer") {
     required("country", "Country is required");
     required("region", "Region is required");
+    required("businessName", "Entity name is required");
+    required("businessRegistrationNumber", "Entity registration number is required");
     required("entityType", "Entity type is required");
     if (data.entityType && !entityTypes.has(data.entityType)) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["entityType"], message: "Select a valid entity type" });

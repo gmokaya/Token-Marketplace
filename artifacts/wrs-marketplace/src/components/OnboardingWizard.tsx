@@ -97,6 +97,11 @@ const onboardingSchema = z
     if (data.marketplaceRole === "producer") {
       requireText("country", "Country is required");
       requireText("region", "Region is required");
+      requireText("businessName", "Entity name is required");
+      requireText(
+        "businessRegistrationNumber",
+        "Entity registration number is required",
+      );
       requireText("entityType", "Entity type is required");
       if (!data.commoditySelections.length) {
         ctx.addIssue({
@@ -181,6 +186,7 @@ const INTERESTS = {
 } as const;
 
 const ENTITY_TYPES = [
+  ["individual", "Individual"],
   ["sole_proprietorship", "Sole proprietorship"],
   ["partnership", "Partnership"],
   ["limited_company", "Limited company"],
@@ -317,8 +323,13 @@ export default function OnboardingWizard({
         fieldsToValidate.push("country", "city");
       }
     } else if (currentRole === "producer") {
-      fieldsToValidate = ["commoditySelections", "payoutMobileMoney"];
-      fieldsToValidate.push("entityType");
+      fieldsToValidate = [
+        "businessName",
+        "businessRegistrationNumber",
+        "entityType",
+        "commoditySelections",
+        "payoutMobileMoney",
+      ];
     } else if (currentRole === "trader") {
       fieldsToValidate = [
         "businessName",
@@ -655,7 +666,9 @@ export default function OnboardingWizard({
                         />
                       </div>
                     )}
-                    {(currentRole === "trader" || currentRole === "buyer") && (
+                    {(currentRole === "producer" ||
+                      currentRole === "trader" ||
+                      currentRole === "buyer") && (
                       <div className="onboarding-producer-location-grid">
                         <FormField
                           control={form.control}
