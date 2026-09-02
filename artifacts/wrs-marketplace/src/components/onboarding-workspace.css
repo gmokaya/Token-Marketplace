@@ -509,7 +509,7 @@
 .market-onboarding .onboarding-interest-chip {
   position: relative;
   border: 1px solid #e1e6ee !important;
-  border-radius: 14px !important;
+  border-radius: 999px !important;
   background: linear-gradient(180deg, #fff 0%, #f8fafc 100%) !important;
   color: #586171 !important;
   cursor: pointer;
