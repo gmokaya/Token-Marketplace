@@ -25,8 +25,8 @@ import {
   normalizeLegacyCommodity,
 } from "./CommoditySelect";
 import { CountrySelect } from "./CountrySelect";
+import { PhoneNumberInput } from "./PhoneNumberInput";
 import { VolumeSelect } from "./VolumeSelect";
-import "./onboarding-workspace.css";
 
 const commoditySelectionSchema = z
   .object({
@@ -86,7 +86,7 @@ const onboardingSchema = z
     if (data.marketplaceRole === "producer") {
       requireText("country", "Country is required");
       requireText("region", "Region is required");
-      requireText("payoutMobileMoney", "Mobile money number is required");
+      requireText("payoutMobileMoney", "Mobile number is required");
       if (!data.commoditySelections.length) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -667,16 +667,12 @@ export default function OnboardingWizard({
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className={labelClass}>
-                              Mobile money number
+                              Mobile number
                             </FormLabel>
                             <FormControl>
-                              <Input
-                                {...field}
-                                inputMode="tel"
-                                autoComplete="tel"
-                                className={inputClass}
-                                placeholder="+254 712 345 678"
-                                data-testid="input-mobile-money"
+                              <PhoneNumberInput
+                                value={field.value}
+                                onChange={field.onChange}
                               />
                             </FormControl>
                             <FormMessage />

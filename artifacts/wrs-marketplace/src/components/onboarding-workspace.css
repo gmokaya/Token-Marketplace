@@ -419,6 +419,71 @@
   box-shadow: 0 1px 0 var(--onboarding-accent) !important;
 }
 
+.phone-number-control {
+  display: flex;
+  min-height: 45px;
+  align-items: stretch;
+  border-bottom: 1px solid #dfe3eb;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.phone-number-control:focus-within {
+  border-bottom-color: var(--onboarding-accent);
+  box-shadow: 0 1px 0 var(--onboarding-accent);
+}
+
+.phone-number-country-trigger {
+  width: auto !important;
+  min-width: 92px;
+  height: 45px !important;
+  gap: 7px;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #596372 !important;
+  box-shadow: none !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+}
+
+.phone-number-country-value,
+.phone-number-country-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.phone-number-country-option {
+  width: 100%;
+  gap: 9px;
+}
+
+.phone-number-country-dial {
+  margin-left: auto;
+  color: #8b93a0;
+}
+
+.phone-number-country-content {
+  min-width: 238px !important;
+  max-height: 300px;
+}
+
+.phone-number-local-input {
+  min-height: 45px !important;
+  flex: 1;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #202532 !important;
+  box-shadow: none !important;
+}
+
+.phone-number-local-input:focus {
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 .onboarding-fields textarea.onboarding-story-input {
   min-height: 100px;
   border: 1px solid #e1e5ec !important;
