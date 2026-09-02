@@ -444,12 +444,13 @@ type OnboardingWizardProps = {
 
 const stepLabels = ["About you", "Your market", "Your entity", "Your priorities"];
 
-function ChoicePills({
+function ChoiceSelect({
   options,
   value,
   onChange,
   disabled = false,
   multiple = false,
+  placeholder = "Select an option",
   testIdPrefix,
 }: {
   options: readonly string[];
@@ -457,6 +458,7 @@ function ChoicePills({
   onChange: (value: string | string[]) => void;
   disabled?: boolean;
   multiple?: boolean;
+  placeholder?: string;
   testIdPrefix: string;
 }) {
   const selectedValues = Array.isArray(value)
@@ -466,39 +468,45 @@ function ChoicePills({
       : [];
 
   return (
-    <div className="onboarding-pill-options">
-      {options.map((option) => {
-        const isSelected = selectedValues.includes(option);
-        return (
-          <button
-            key={option}
-            type="button"
-            aria-pressed={isSelected}
-            disabled={disabled}
-            onClick={() => {
-              if (!multiple) {
-                onChange(option);
-                return;
-              }
-              onChange(
-                isSelected
-                  ? selectedValues.filter((item) => item !== option)
-                  : [...selectedValues, option],
-              );
-            }}
-            className={cn(
-              "onboarding-pill-option",
-              isSelected && "is-selected",
-            )}
-            data-testid={`pill-${testIdPrefix}-${option
-              .toLowerCase()
-              .replace(/\s+/g, "-")}`}
-          >
-            {option}
-          </button>
+    <Select
+      value=""
+      onValueChange={(option) => {
+        if (!multiple) {
+          onChange(option);
+          return;
+        }
+        onChange(
+          selectedValues.includes(option)
+            ? selectedValues.filter((item) => item !== option)
+            : [...selectedValues, option],
         );
-      })}
-    </div>
+      }}
+      disabled={disabled}
+    >
+      <FormControl>
+        <SelectTrigger
+          className="onboarding-select-trigger"
+          data-testid={`select-${testIdPrefix}`}
+        >
+          <span
+            className={cn(
+              "truncate text-left",
+              !selectedValues.length && "text-[#a4a9b3]",
+            )}
+          >
+            {selectedValues.length ? selectedValues.join(", ") : placeholder}
+          </span>
+        </SelectTrigger>
+      </FormControl>
+      <SelectContent>
+        {options.map((option) => (
+          <SelectItem key={option} value={option}>
+            {multiple && selectedValues.includes(option) ? "✓ " : ""}
+            {option}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
 
@@ -1191,7 +1199,7 @@ export default function OnboardingWizard({
                                   ? "Coffee country of origin"
                                   : "Coffee source countries"}
                               </FormLabel>
-                              <ChoicePills
+                              <ChoiceSelect
                                 options={Object.keys(COFFEE_ORIGIN_CATALOG)}
                                 value={field.value}
                                 onChange={(value) => {
@@ -1202,6 +1210,7 @@ export default function OnboardingWizard({
                                   form.setValue("coffeeVariety", []);
                                 }}
                                 multiple
+                                placeholder="Select country of origin"
                                 testIdPrefix="coffee-origin-country"
                               />
                               <FormMessage />
@@ -1218,7 +1227,7 @@ export default function OnboardingWizard({
                                   ? "Coffee region"
                                   : "Coffee source regions"}
                               </FormLabel>
-                              <ChoicePills
+                              <ChoiceSelect
                                 options={coffeeRegions}
                                 value={field.value}
                                 onChange={(value) => {
@@ -1229,6 +1238,7 @@ export default function OnboardingWizard({
                                 }}
                                 disabled={!coffeeOriginCountry.length}
                                 multiple
+                                placeholder="Select region"
                                 testIdPrefix="coffee-origin-region"
                               />
                               <FormMessage />
@@ -1244,12 +1254,13 @@ export default function OnboardingWizard({
                               <FormLabel className={labelClass}>
                                 Coffee variety
                               </FormLabel>
-                              <ChoicePills
+                              <ChoiceSelect
                                 options={coffeeVarieties}
                                 value={field.value}
                                 onChange={field.onChange}
                                 disabled={!coffeeOriginRegion.length}
                                 multiple
+                                placeholder="Select variety"
                                 testIdPrefix="coffee-variety"
                               />
                               <FormMessage />
@@ -1264,11 +1275,12 @@ export default function OnboardingWizard({
                               <FormLabel className={labelClass}>
                                 Coffee processing type
                               </FormLabel>
-                              <ChoicePills
+                              <ChoiceSelect
                                 options={COFFEE_PROCESSING_TYPES}
                                 value={field.value}
                                 onChange={field.onChange}
                                 multiple
+                                placeholder="Select processing type"
                                 testIdPrefix="coffee-processing"
                               />
                               <FormMessage />
@@ -1290,7 +1302,7 @@ export default function OnboardingWizard({
                                   ? "Tea country of origin"
                                   : "Tea source countries"}
                               </FormLabel>
-                              <ChoicePills
+                              <ChoiceSelect
                                 options={Object.keys(TEA_ORIGIN_CATALOG)}
                                 value={field.value}
                                 onChange={(value) => {
@@ -1301,6 +1313,7 @@ export default function OnboardingWizard({
                                   form.setValue("teaVariety", []);
                                 }}
                                 multiple
+                                placeholder="Select country of origin"
                                 testIdPrefix="tea-origin-country"
                               />
                               <FormMessage />
@@ -1317,7 +1330,7 @@ export default function OnboardingWizard({
                                   ? "Tea region"
                                   : "Tea source regions"}
                               </FormLabel>
-                              <ChoicePills
+                              <ChoiceSelect
                                 options={teaRegions}
                                 value={field.value}
                                 onChange={(value) => {
@@ -1328,6 +1341,7 @@ export default function OnboardingWizard({
                                 }}
                                 disabled={!teaOriginCountry.length}
                                 multiple
+                                placeholder="Select region"
                                 testIdPrefix="tea-origin-region"
                               />
                               <FormMessage />
@@ -1343,12 +1357,13 @@ export default function OnboardingWizard({
                               <FormLabel className={labelClass}>
                                 Tea variety
                               </FormLabel>
-                              <ChoicePills
+                              <ChoiceSelect
                                 options={teaVarieties}
                                 value={field.value}
                                 onChange={field.onChange}
                                 disabled={!teaOriginRegion.length}
                                 multiple
+                                placeholder="Select tea variety"
                                 testIdPrefix="tea-variety"
                               />
                               <FormMessage />
@@ -1396,13 +1411,27 @@ export default function OnboardingWizard({
                               <FormLabel className={labelClass}>
                                 Processing method
                               </FormLabel>
-                              <ChoicePills
-                                options={TEA_PROCESSING_METHODS}
+                              <Select
                                 value={field.value}
-                                onChange={field.onChange}
+                                onValueChange={field.onChange}
                                 disabled={!teaType}
-                                testIdPrefix="tea-processing"
-                              />
+                              >
+                                <FormControl>
+                                  <SelectTrigger
+                                    className="onboarding-select-trigger"
+                                    data-testid="select-tea-processing-method"
+                                  >
+                                    <SelectValue placeholder="Select processing method" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {TEA_PROCESSING_METHODS.map((method) => (
+                                    <SelectItem key={method} value={method}>
+                                      {method}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
                               <FormMessage />
                             </FormItem>
                           )}
