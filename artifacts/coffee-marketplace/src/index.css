@@ -841,6 +841,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .market-auth-shell--auth {
+  height: 100svh;
+  min-height: 100svh;
+  overflow: hidden;
   background: #0c1115;
   color: #fff;
   font-family: 'PT Sans', sans-serif;
@@ -882,6 +885,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .market-auth-shell--auth .market-auth-form-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   height: clamp(360px, 70.5vh, 494px);
   max-height: calc(100svh - 32px);
   overflow-y: auto;
@@ -891,6 +897,14 @@ h1, h2, h3, h4, h5, h6 {
   background: rgba(255, 255, 255, 0.97);
   box-shadow: 0 28px 80px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(24px);
+}
+
+.market-auth-shell--auth .market-auth-form-card--signin {
+  overflow: visible;
+}
+
+.market-auth-shell--auth .market-auth-form-card--signup {
+  justify-content: flex-start;
 }
 
 .market-auth-shell--auth .market-auth-footer a {
@@ -906,6 +920,8 @@ h1, h2, h3, h4, h5, h6 {
 
 @media (max-width: 760px) {
   .market-auth-shell--auth {
+    height: auto;
+    min-height: 100svh;
     overflow-y: visible;
   }
 

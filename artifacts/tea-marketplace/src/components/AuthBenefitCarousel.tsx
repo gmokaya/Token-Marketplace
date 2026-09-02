@@ -86,9 +86,7 @@ export function AuthBenefitCarousel({
                 </span>
               ))}
             </h2>
-            <p className="market-auth-story-description">
-              {renderAccentedText(slide.description, slide.accentWords)}
-            </p>
+            <p className="market-auth-story-description">{slide.description}</p>
           </article>
         ))}
       </div>

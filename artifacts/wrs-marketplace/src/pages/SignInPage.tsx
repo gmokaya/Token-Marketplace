@@ -66,7 +66,7 @@ export default function SignInPage() {
       <main className="market-auth-main">
         <AuthBenefitCarousel
           eyebrow="Grain sourcing desk · 03"
-          accentColor="#46515b"
+          accentColor="#b5bec7"
           slides={[
             {
               eyebrow: "Certified storage",

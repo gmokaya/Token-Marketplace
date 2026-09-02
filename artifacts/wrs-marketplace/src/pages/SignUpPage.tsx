@@ -68,7 +68,7 @@ export default function SignUpPage({
       <main className="market-auth-main">
         <AuthBenefitCarousel
           eyebrow={benefitEyebrow}
-          accentColor="#46515b"
+          accentColor="#b5bec7"
           slides={benefitSlides}
         />
 
