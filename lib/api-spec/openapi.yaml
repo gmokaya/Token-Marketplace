@@ -3506,6 +3506,21 @@ components:
           enum: [PENDING, VERIFIED, REJECTED]
         company:
           type: ["string", "null"]
+        socialBio:
+          type: ["string", "null"]
+          description: Short public introduction for the marketplace profile.
+        websiteUrl:
+          type: ["string", "null"]
+          format: uri
+        linkedinUrl:
+          type: ["string", "null"]
+          format: uri
+        instagramUrl:
+          type: ["string", "null"]
+          format: uri
+        xUrl:
+          type: ["string", "null"]
+          format: uri
         createdAt:
           type: string
           format: date-time
@@ -3517,6 +3532,21 @@ components:
           type: string
         company:
           type: string
+        socialBio:
+          type: string
+          maxLength: 500
+        websiteUrl:
+          type: string
+          format: uri
+        linkedinUrl:
+          type: string
+          format: uri
+        instagramUrl:
+          type: string
+          format: uri
+        xUrl:
+          type: string
+          format: uri
         tier:
           type: string
           enum: [PRODUCER, OFF_TAKER, ENABLER, FINANCIER, COOPERATIVE, ADMIN]

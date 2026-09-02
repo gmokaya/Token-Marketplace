@@ -1,19 +1,78 @@
 import { Router } from "express";
 import { getAuth, clerkClient } from "@clerk/express";
 import { db } from "@workspace/db";
-import { usersTable } from "@workspace/db";
+import { usersTable, marketplaceOnboardingProfilesTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 
 const ADMIN_EMAIL = "gnyakundi@trevitagroup.com";
 
 const router = Router();
 
+const socialUrlFields = [
+  ["websiteUrl", "Website URL"],
+  ["linkedinUrl", "LinkedIn URL"],
+  ["instagramUrl", "Instagram URL"],
+  ["xUrl", "X/Twitter URL"],
+] as const;
+
+function parseSocialField(value: unknown, label: string, maxLength = 500): string | null | undefined {
+  if (value === undefined) return undefined;
+  if (value === null || value === "") return null;
+  if (typeof value !== "string") throw new Error(`${label} must be a string`);
+
+  const normalized = value.trim();
+  if (!normalized) return null;
+  if (normalized.length > maxLength) throw new Error(`${label} is too long`);
+  if (label !== "Social bio") {
+    let parsed: URL;
+    try {
+      parsed = new URL(normalized);
+    } catch {
+      throw new Error(`${label} must be a valid URL`);
+    }
+    if (!["http:", "https:"].includes(parsed.protocol)) {
+      throw new Error(`${label} must use http or https`);
+    }
+  }
+  return normalized;
+}
+
 router.get("/users/me", async (req, res) => {
   const { userId: clerkId } = getAuth(req);
   if (!clerkId) return res.status(401).json({ error: "Unauthorized" });
 
   const [user] = await db.select().from(usersTable).where(eq(usersTable.clerkId, clerkId)).limit(1);
-  if (user) return res.json(user);
+  if (user) {
+    // Older onboarding submissions stored these values only in the onboarding
+    // profile. Backfill the identity fields when the account is first loaded.
+    if (!user.phone || !user.nationalId) {
+      const [onboarding] = await db
+        .select({
+          payoutMobileMoney: marketplaceOnboardingProfilesTable.payoutMobileMoney,
+          businessRegistrationNumber: marketplaceOnboardingProfilesTable.businessRegistrationNumber,
+        })
+        .from(marketplaceOnboardingProfilesTable)
+        .where(eq(marketplaceOnboardingProfilesTable.userId, user.id))
+        .limit(1);
+
+      const identityBackfill: Partial<typeof usersTable.$inferInsert> = {};
+      if (!user.phone && onboarding?.payoutMobileMoney) {
+        identityBackfill.phone = onboarding.payoutMobileMoney;
+      }
+      if (!user.nationalId && onboarding?.businessRegistrationNumber) {
+        identityBackfill.nationalId = onboarding.businessRegistrationNumber;
+      }
+      if (Object.keys(identityBackfill).length > 0) {
+        const [backfilled] = await db
+          .update(usersTable)
+          .set(identityBackfill)
+          .where(eq(usersTable.id, user.id))
+          .returning();
+        return res.json(backfilled);
+      }
+    }
+    return res.json(user);
+  }
 
   try {
     const clerkUser = await clerkClient.users.getUser(clerkId);
@@ -77,37 +136,60 @@ router.patch("/users/me", async (req, res) => {
   const { userId: clerkId } = getAuth(req);
   if (!clerkId) return res.status(401).json({ error: "Unauthorized" });
 
-  const { name, company, tier, phone, nationalId } = req.body as {
+  const { name, company, tier, phone, nationalId, socialBio, websiteUrl, linkedinUrl, instagramUrl, xUrl } = req.body as {
     name?: string; company?: string; tier?: string; phone?: string; nationalId?: string;
+    socialBio?: string | null; websiteUrl?: string | null; linkedinUrl?: string | null;
+    instagramUrl?: string | null; xUrl?: string | null;
   };
 
   const [existing] = await db.select().from(usersTable).where(eq(usersTable.clerkId, clerkId)).limit(1);
 
   if (!existing) {
     if (!name || !tier) return res.status(400).json({ error: "name and tier are required for new users" });
-    const [created] = await db.insert(usersTable).values({
-      clerkId,
-      name,
-      email: req.body.email ?? `${clerkId}@placeholder.wrs`,
-      tier: tier as "PRODUCER" | "OFF_TAKER" | "ENABLER" | "FINANCIER" | "COOPERATIVE" | "ADMIN",
-      company: company ?? null,
-      phone: phone ?? null,
-      nationalId: nationalId ?? null,
-    }).returning();
-    return res.json(created);
+    try {
+      const [created] = await db.insert(usersTable).values({
+        clerkId,
+        name,
+        email: req.body.email ?? `${clerkId}@placeholder.wrs`,
+        tier: tier as "PRODUCER" | "OFF_TAKER" | "ENABLER" | "FINANCIER" | "COOPERATIVE" | "ADMIN",
+        company: company ?? null,
+        phone: phone ?? null,
+        nationalId: nationalId ?? null,
+        socialBio: parseSocialField(socialBio, "Social bio"),
+        websiteUrl: parseSocialField(websiteUrl, "Website URL"),
+        linkedinUrl: parseSocialField(linkedinUrl, "LinkedIn URL"),
+        instagramUrl: parseSocialField(instagramUrl, "Instagram URL"),
+        xUrl: parseSocialField(xUrl, "X/Twitter URL"),
+      }).returning();
+      return res.json(created);
+    } catch (error) {
+      res.status(400).json({ error: error instanceof Error ? error.message : "Invalid profile details" });
+      return;
+    }
   }
 
-  const updateData: Partial<typeof usersTable.$inferInsert> = {};
-  if (name !== undefined) updateData.name = name;
-  if (company !== undefined) updateData.company = company;
-  if (phone !== undefined) updateData.phone = phone;
-  if (nationalId !== undefined) updateData.nationalId = nationalId;
   if (tier !== undefined) {
-    return res.status(403).json({ error: "Tier cannot be changed after initial registration" });
+    res.status(403).json({ error: "Tier cannot be changed after initial registration" });
+    return;
   }
 
-  const [updated] = await db.update(usersTable).set(updateData).where(eq(usersTable.clerkId, clerkId)).returning();
-  return res.json(updated);
+  try {
+    const updateData: Partial<typeof usersTable.$inferInsert> = {};
+    if (name !== undefined) updateData.name = name;
+    if (company !== undefined) updateData.company = company;
+    if (phone !== undefined) updateData.phone = phone;
+    if (nationalId !== undefined) updateData.nationalId = nationalId;
+    if (socialBio !== undefined) updateData.socialBio = parseSocialField(socialBio, "Social bio");
+    for (const [field, label] of socialUrlFields) {
+      const value = req.body[field];
+      if (value !== undefined) updateData[field] = parseSocialField(value, label);
+    }
+
+    const [updated] = await db.update(usersTable).set(updateData).where(eq(usersTable.clerkId, clerkId)).returning();
+    res.json(updated);
+  } catch (error) {
+    res.status(400).json({ error: error instanceof Error ? error.message : "Invalid profile details" });
+  }
 });
 
 // ── GET /users/brokers — list all ENABLER-tier users for mandate picker ────────

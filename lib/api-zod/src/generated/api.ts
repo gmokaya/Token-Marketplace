@@ -111,6 +111,11 @@ export const GetMeResponse = zod.object({
   "reputationScore": zod.number(),
   "kybStatus": zod.enum(['PENDING', 'VERIFIED', 'REJECTED']),
   "company": zod.string().nullish(),
+  "socialBio": zod.string().nullish().describe('Short public introduction for the marketplace profile.'),
+  "websiteUrl": zod.string().url().nullish(),
+  "linkedinUrl": zod.string().url().nullish(),
+  "instagramUrl": zod.string().url().nullish(),
+  "xUrl": zod.string().url().nullish(),
   "createdAt": zod.coerce.date()
 })
 
@@ -118,9 +123,18 @@ export const GetMeResponse = zod.object({
 /**
  * @summary Update current user profile
  */
+export const updateMeBodySocialBioMax = 500;
+
+
+
 export const UpdateMeBody = zod.object({
   "name": zod.string().optional(),
   "company": zod.string().optional(),
+  "socialBio": zod.string().max(updateMeBodySocialBioMax).optional(),
+  "websiteUrl": zod.string().url().optional(),
+  "linkedinUrl": zod.string().url().optional(),
+  "instagramUrl": zod.string().url().optional(),
+  "xUrl": zod.string().url().optional(),
   "tier": zod.enum(['PRODUCER', 'OFF_TAKER', 'ENABLER', 'FINANCIER', 'COOPERATIVE', 'ADMIN']).optional()
 })
 
@@ -133,6 +147,11 @@ export const UpdateMeResponse = zod.object({
   "reputationScore": zod.number(),
   "kybStatus": zod.enum(['PENDING', 'VERIFIED', 'REJECTED']),
   "company": zod.string().nullish(),
+  "socialBio": zod.string().nullish().describe('Short public introduction for the marketplace profile.'),
+  "websiteUrl": zod.string().url().nullish(),
+  "linkedinUrl": zod.string().url().nullish(),
+  "instagramUrl": zod.string().url().nullish(),
+  "xUrl": zod.string().url().nullish(),
   "createdAt": zod.coerce.date()
 })
 
@@ -153,6 +172,11 @@ export const GetUserResponse = zod.object({
   "reputationScore": zod.number(),
   "kybStatus": zod.enum(['PENDING', 'VERIFIED', 'REJECTED']),
   "company": zod.string().nullish(),
+  "socialBio": zod.string().nullish().describe('Short public introduction for the marketplace profile.'),
+  "websiteUrl": zod.string().url().nullish(),
+  "linkedinUrl": zod.string().url().nullish(),
+  "instagramUrl": zod.string().url().nullish(),
+  "xUrl": zod.string().url().nullish(),
   "createdAt": zod.coerce.date()
 })
 

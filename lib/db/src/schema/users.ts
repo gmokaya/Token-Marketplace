@@ -18,6 +18,11 @@ export const usersTable = pgTable("users", {
   company: text("company"),
   phone: text("phone"),
   nationalId: text("national_id"),
+  socialBio: text("social_bio"),
+  websiteUrl: text("website_url"),
+  linkedinUrl: text("linkedin_url"),
+  instagramUrl: text("instagram_url"),
+  xUrl: text("x_url"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

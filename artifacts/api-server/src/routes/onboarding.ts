@@ -411,6 +411,8 @@ router.put("/onboarding/me", async (req, res) => {
     .set({
       name: data.fullName,
       company: data.businessName || null,
+      phone: data.payoutMobileMoney || null,
+      nationalId: data.businessRegistrationNumber || null,
       tier,
       onboardingStatus: "WRSC_VERIFIED",
     })

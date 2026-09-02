@@ -2,9 +2,9 @@ import { Layout } from "@/components/layout/Layout";
 import { useGetMe, getGetMeQueryKey } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useState, useEffect } from "react";
 import { customFetch } from "@workspace/api-client-react";
@@ -12,22 +12,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Building2, Phone, CreditCard, Shield, CheckCircle2, Clock, AlertCircle, ClipboardList, ChevronDown, ChevronUp, Pencil, X } from "lucide-react";
+import { Building2, Phone, CreditCard, Shield, ClipboardList, ChevronDown, ChevronUp, Pencil, X, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-const ONBOARDING_COLORS: Record<string, string> = {
-  PENDING_KYB_APPROVAL: "bg-slate-100 text-slate-700 border-slate-300",
-  WRSC_VERIFIED: "bg-blue-100 text-blue-800 border-blue-200",
-  ACTIVE: "bg-green-100 text-green-800 border-green-200",
-  REJECTED: "bg-red-100 text-red-700 border-red-200",
-};
-
-const ONBOARDING_ICONS: Record<string, React.ReactNode> = {
-  PENDING_KYB_APPROVAL: <Clock className="w-3 h-3" />,
-  WRSC_VERIFIED: <CheckCircle2 className="w-3 h-3" />,
-  ACTIVE: <CheckCircle2 className="w-3 h-3" />,
-  REJECTED: <AlertCircle className="w-3 h-3" />,
-};
 
 const producerSchema = z.object({
   entityName: z.string().min(2, "Required"),
@@ -96,6 +82,14 @@ const identitySchema = z.object({
   company: z.string().min(2, "Company / entity name is required"),
   phone: z.string().min(8, "A valid phone number is required"),
   nationalId: z.string().min(4, "National ID or passport number is required"),
+});
+
+const socialProfileSchema = z.object({
+  socialBio: z.string().max(500, "Keep your introduction under 500 characters").optional(),
+  websiteUrl: z.string().url("Enter a valid URL").or(z.literal("")).optional(),
+  linkedinUrl: z.string().url("Enter a valid URL").or(z.literal("")).optional(),
+  instagramUrl: z.string().url("Enter a valid URL").or(z.literal("")).optional(),
+  xUrl: z.string().url("Enter a valid URL").or(z.literal("")).optional(),
 });
 
 const schemaForTier = (tier: string) => {
@@ -353,7 +347,9 @@ export default function Profile() {
   const [profileLoading, setProfileLoading] = useState(true);
   const [kybOpen, setKybOpen] = useState(false);
   const [editIdentity, setEditIdentity] = useState(false);
+  const [editSocial, setEditSocial] = useState(false);
   const [savingIdentity, setSavingIdentity] = useState(false);
+  const [savingSocial, setSavingSocial] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -364,6 +360,17 @@ export default function Profile() {
     defaultValues: { name: "", company: "", phone: "", nationalId: "" },
   });
 
+  const socialForm = useForm<z.infer<typeof socialProfileSchema>>({
+    resolver: zodResolver(socialProfileSchema),
+    defaultValues: {
+      socialBio: "",
+      websiteUrl: "",
+      linkedinUrl: "",
+      instagramUrl: "",
+      xUrl: "",
+    },
+  });
+
   useEffect(() => {
     if (!u) return;
     identityForm.reset({
@@ -371,6 +378,17 @@ export default function Profile() {
       company: u.company ?? "",
       phone: u.phone ?? "",
       nationalId: u.nationalId ?? "",
+    });
+  }, [u?.id]);
+
+  useEffect(() => {
+    if (!u) return;
+    socialForm.reset({
+      socialBio: u.socialBio ?? "",
+      websiteUrl: u.websiteUrl ?? "",
+      linkedinUrl: u.linkedinUrl ?? "",
+      instagramUrl: u.instagramUrl ?? "",
+      xUrl: u.xUrl ?? "",
     });
   }, [u?.id]);
 
@@ -404,6 +422,25 @@ export default function Profile() {
     }
   }
 
+  async function handleSocialSubmit(values: z.infer<typeof socialProfileSchema>) {
+    setSavingSocial(true);
+    try {
+      const res = await customFetch("/api/users/me", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      }) as Response;
+      const data = await res.json();
+      queryClient.setQueryData(getGetMeQueryKey(), data);
+      toast({ title: "Social profile updated", description: "Your public profile details have been saved." });
+      setEditSocial(false);
+    } catch (err: any) {
+      toast({ title: "Update failed", description: err?.message ?? "Please try again.", variant: "destructive" });
+    } finally {
+      setSavingSocial(false);
+    }
+  }
+
   const isLoading = userLoading || profileLoading;
   const tierProfile = profile?.tierProfile;
 
@@ -425,21 +462,11 @@ export default function Profile() {
     );
   }
 
-  const onboardingStatus = u?.onboardingStatus ?? "PENDING_KYB_APPROVAL";
-  const statusColor = ONBOARDING_COLORS[onboardingStatus] ?? "bg-gray-100 text-gray-700";
-  const statusIcon = ONBOARDING_ICONS[onboardingStatus] ?? null;
-
   return (
     <Layout>
       <div className="max-w-3xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold tracking-tight">User Profile</h1>
-          <Badge variant="outline" className={`text-xs font-medium px-2.5 py-1 border ${statusColor}`}>
-            <span className="flex items-center gap-1.5">
-              {statusIcon}
-              {onboardingStatus.replace(/_/g, " ")}
-            </span>
-          </Badge>
         </div>
 
         <Card>
@@ -514,7 +541,7 @@ export default function Profile() {
                     )} />
                     <FormField control={identityForm.control} name="nationalId" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>National ID / Passport <span className="text-destructive">*</span></FormLabel>
+                        <FormLabel>Entity ID / Registration No. <span className="text-destructive">*</span></FormLabel>
                         <FormControl><Input placeholder="12345678" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
@@ -566,7 +593,7 @@ export default function Profile() {
                   <p className="font-medium text-lg">{u?.phone || "N/A"}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">National ID</p>
+                  <p className="text-sm text-muted-foreground">Entity ID / Registration No.</p>
                   <p className="font-medium text-lg">{u?.nationalId || "N/A"}</p>
                 </div>
               </div>
@@ -591,6 +618,109 @@ export default function Profile() {
             </div>
           </CardContent>
         </Card>
+
+        {(u?.tier === "PRODUCER" || u?.tier === "OFF_TAKER") && (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2 text-sm">
+                  <Share2 className="w-4 h-4 text-primary" />
+                  Social Profile
+                </CardTitle>
+                {!editSocial ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs h-7 px-2.5 gap-1.5"
+                    onClick={() => setEditSocial(true)}
+                  >
+                    <Pencil className="w-3 h-3" /> Edit
+                  </Button>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs h-7 px-2.5 gap-1.5 text-muted-foreground"
+                    onClick={() => {
+                      socialForm.reset({
+                        socialBio: u?.socialBio ?? "",
+                        websiteUrl: u?.websiteUrl ?? "",
+                        linkedinUrl: u?.linkedinUrl ?? "",
+                        instagramUrl: u?.instagramUrl ?? "",
+                        xUrl: u?.xUrl ?? "",
+                      });
+                      setEditSocial(false);
+                    }}
+                  >
+                    <X className="w-3 h-3" /> Cancel
+                  </Button>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              {editSocial ? (
+                <Form {...socialForm}>
+                  <form onSubmit={socialForm.handleSubmit(handleSocialSubmit)} className="space-y-4">
+                    <FormField control={socialForm.control} name="socialBio" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>About you</FormLabel>
+                        <FormControl>
+                          <Textarea rows={4} placeholder="Tell buyers and partners a little about your work..." {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <FormField control={socialForm.control} name="websiteUrl" render={({ field }) => (
+                        <FormItem><FormLabel>Website</FormLabel><FormControl><Input placeholder="https://yourbusiness.com" {...field} /></FormControl><FormMessage /></FormItem>
+                      )} />
+                      <FormField control={socialForm.control} name="linkedinUrl" render={({ field }) => (
+                        <FormItem><FormLabel>LinkedIn</FormLabel><FormControl><Input placeholder="https://linkedin.com/company/..." {...field} /></FormControl><FormMessage /></FormItem>
+                      )} />
+                      <FormField control={socialForm.control} name="instagramUrl" render={({ field }) => (
+                        <FormItem><FormLabel>Instagram</FormLabel><FormControl><Input placeholder="https://instagram.com/..." {...field} /></FormControl><FormMessage /></FormItem>
+                      )} />
+                      <FormField control={socialForm.control} name="xUrl" render={({ field }) => (
+                        <FormItem><FormLabel>X / Twitter</FormLabel><FormControl><Input placeholder="https://x.com/..." {...field} /></FormControl><FormMessage /></FormItem>
+                      )} />
+                    </div>
+                    <div className="flex gap-3 pt-1">
+                      <Button type="submit" size="sm" disabled={savingSocial}>
+                        {savingSocial ? "Saving..." : "Save social profile"}
+                      </Button>
+                      <Button type="button" variant="ghost" size="sm" onClick={() => setEditSocial(false)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </form>
+                </Form>
+              ) : (
+                <div className="space-y-4">
+                  <p className="text-sm leading-6 text-muted-foreground">{u?.socialBio || "Add a short introduction so buyers and partners can learn more about you."}</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                    {[
+                      ["Website", u?.websiteUrl],
+                      ["LinkedIn", u?.linkedinUrl],
+                      ["Instagram", u?.instagramUrl],
+                      ["X / Twitter", u?.xUrl],
+                    ].map(([label, value]) => (
+                      <div key={label as string}>
+                        <p className="text-muted-foreground">{label}</p>
+                        {value ? (
+                          <a href={value as string} target="_blank" rel="noreferrer" className="font-medium text-primary underline underline-offset-2 break-all">
+                            {value as string}
+                          </a>
+                        ) : (
+                          <p className="font-medium">N/A</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {!tierProfile && u?.tier && u.tier !== "ADMIN" && (
           <Card className="border-slate-200">
@@ -633,7 +763,7 @@ export default function Profile() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-sm">
                 <Building2 className="w-4 h-4 text-primary" />
-                Producer Profile
+                  Compliance Profile · Producer
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -658,7 +788,7 @@ export default function Profile() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-sm">
                 <CreditCard className="w-4 h-4 text-primary" />
-                Off-Taker Profile
+                  Compliance Profile · Buyer / Trader
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">

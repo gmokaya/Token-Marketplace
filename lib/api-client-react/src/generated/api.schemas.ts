@@ -75,6 +75,19 @@ export interface User {
   kybStatus: UserKybStatus;
   /** @nullable */
   company?: string | null;
+  /**
+     * Short public introduction for the marketplace profile.
+     * @nullable
+     */
+  socialBio?: string | null;
+  /** @nullable */
+  websiteUrl?: string | null;
+  /** @nullable */
+  linkedinUrl?: string | null;
+  /** @nullable */
+  instagramUrl?: string | null;
+  /** @nullable */
+  xUrl?: string | null;
   createdAt: string;
 }
 
@@ -93,6 +106,12 @@ export const UserUpdateTier = {
 export interface UserUpdate {
   name?: string;
   company?: string;
+  /** @maxLength 500 */
+  socialBio?: string;
+  websiteUrl?: string;
+  linkedinUrl?: string;
+  instagramUrl?: string;
+  xUrl?: string;
   tier?: UserUpdateTier;
 }
 
