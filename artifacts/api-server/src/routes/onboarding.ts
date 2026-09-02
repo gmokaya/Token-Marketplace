@@ -166,13 +166,13 @@ const onboardingSchema = z.object({
   country: optionalText,
   region: optionalText,
   city: optionalText,
-  coffeeOriginCountry: optionalText,
-  coffeeOriginRegion: optionalText,
+  coffeeOriginCountry: selectionList,
+  coffeeOriginRegion: selectionList,
   coffeeVariety: selectionList,
   coffeeProcessingType: selectionList,
-  teaOriginCountry: optionalText,
-  teaOriginRegion: optionalText,
-  teaVariety: optionalText,
+  teaOriginCountry: selectionList,
+  teaOriginRegion: selectionList,
+  teaVariety: selectionList,
   teaType: optionalText,
   teaProcessingMethod: optionalText,
   teaGrade: optionalText,
@@ -286,21 +286,46 @@ const onboardingSchema = z.object({
     if (!data.commoditySelections.some((selection) => selection.commodity === "Coffee")) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["commoditySelections"], message: "Select Coffee to continue" });
     }
-    required("coffeeOriginCountry", "Country of origin is required");
-    required("coffeeOriginRegion", "Region is required");
+    requiredSelections(
+      "coffeeOriginCountry",
+      "Select at least one country of origin",
+    );
+    requiredSelections("coffeeOriginRegion", "Select at least one region");
     requiredSelections("coffeeVariety", "Select at least one variety");
     requiredSelections("coffeeProcessingType", "Select at least one processing type");
 
-    const origin = data.coffeeOriginCountry ? coffeeOriginCatalog[data.coffeeOriginCountry] : undefined;
-    if (data.coffeeOriginCountry && !origin) {
+    const origins = data.coffeeOriginCountry
+      .map((country) => coffeeOriginCatalog[country])
+      .filter(Boolean);
+    if (
+      data.coffeeOriginCountry.some(
+        (country) => !coffeeOriginCatalog[country],
+      )
+    ) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["coffeeOriginCountry"], message: "Select a valid country of origin" });
     }
-    if (origin && data.coffeeOriginRegion && !origin.regions.includes(data.coffeeOriginRegion)) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["coffeeOriginRegion"], message: "Select a valid region for this country" });
+    if (
+      data.coffeeOriginRegion.some(
+        (region) =>
+          !data.coffeeOriginCountry.some((country) =>
+            coffeeOriginCatalog[country]?.regions.includes(region),
+          ),
+      )
+    ) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["coffeeOriginRegion"], message: "Select valid regions for the chosen countries" });
     }
     if (
-      origin &&
-      data.coffeeVariety.some((variety) => !origin.varieties.includes(variety))
+      origins.length &&
+      data.coffeeVariety.some(
+        (variety) =>
+          !data.coffeeOriginCountry.some((country) =>
+            data.coffeeOriginRegion.some(
+              (region) =>
+                coffeeOriginCatalog[country]?.regions.includes(region) &&
+                coffeeOriginCatalog[country].varieties.includes(variety),
+            ),
+          ),
+      )
     ) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["coffeeVariety"], message: "Select a valid variety for this country" });
     }
@@ -317,21 +342,40 @@ const onboardingSchema = z.object({
     if (!data.commoditySelections.some((selection) => selection.commodity === "Tea")) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["commoditySelections"], message: "Select Tea to continue" });
     }
-    required("teaOriginCountry", "Country of origin is required");
-    required("teaOriginRegion", "Region is required");
-    required("teaVariety", "Tea variety is required");
+    requiredSelections(
+      "teaOriginCountry",
+      "Select at least one country of origin",
+    );
+    requiredSelections("teaOriginRegion", "Select at least one region");
+    requiredSelections("teaVariety", "Select at least one tea variety");
     required("teaType", "Tea type is required");
     required("teaProcessingMethod", "Processing method is required");
     required("teaGrade", "Grade is required");
 
-    const origin = data.teaOriginCountry ? teaOriginCatalog[data.teaOriginCountry] : undefined;
-    if (data.teaOriginCountry && !origin) {
+    const origins = data.teaOriginCountry
+      .map((country) => teaOriginCatalog[country])
+      .filter(Boolean);
+    if (
+      data.teaOriginCountry.some(
+        (country) => !teaOriginCatalog[country],
+      )
+    ) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["teaOriginCountry"], message: "Select a valid country of origin" });
     }
-    if (origin && data.teaOriginRegion && !origin.regions.includes(data.teaOriginRegion)) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["teaOriginRegion"], message: "Select a valid region for this country" });
+    if (
+      data.teaOriginRegion.some(
+        (region) =>
+          !data.teaOriginCountry.some((country) =>
+            teaOriginCatalog[country]?.regions.includes(region),
+          ),
+      )
+    ) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["teaOriginRegion"], message: "Select valid regions for the chosen countries" });
     }
-    if (data.teaVariety && !teaVarieties.has(data.teaVariety)) {
+    if (
+      origins.length &&
+      data.teaVariety.some((variety) => !teaVarieties.has(variety))
+    ) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["teaVariety"], message: "Select a valid tea variety" });
     }
     if (data.teaType && !teaTypes.has(data.teaType)) {
@@ -412,8 +456,12 @@ router.put("/onboarding/me", async (req, res) => {
     updatedAt: now,
     ...(data.market === "coffee"
       ? {
-          coffeeOriginCountry: data.coffeeOriginCountry || null,
-          coffeeOriginRegion: data.coffeeOriginRegion || null,
+          coffeeOriginCountry: data.coffeeOriginCountry.length
+            ? JSON.stringify(data.coffeeOriginCountry)
+            : null,
+          coffeeOriginRegion: data.coffeeOriginRegion.length
+            ? JSON.stringify(data.coffeeOriginRegion)
+            : null,
           coffeeVariety: data.coffeeVariety.length
             ? JSON.stringify(data.coffeeVariety)
             : null,
@@ -423,9 +471,15 @@ router.put("/onboarding/me", async (req, res) => {
         }
       : data.market === "tea"
         ? {
-            teaOriginCountry: data.teaOriginCountry || null,
-            teaOriginRegion: data.teaOriginRegion || null,
-            teaVariety: data.teaVariety || null,
+            teaOriginCountry: data.teaOriginCountry.length
+              ? JSON.stringify(data.teaOriginCountry)
+              : null,
+            teaOriginRegion: data.teaOriginRegion.length
+              ? JSON.stringify(data.teaOriginRegion)
+              : null,
+            teaVariety: data.teaVariety.length
+              ? JSON.stringify(data.teaVariety)
+              : null,
             teaType: data.teaType || null,
             teaProcessingMethod: data.teaProcessingMethod || null,
             teaGrade: data.teaGrade || null,

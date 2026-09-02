@@ -44,7 +44,6 @@ import {
   TEA_ORIGIN_CATALOG,
   TEA_PROCESSING_METHODS,
   TEA_TYPES,
-  TEA_VARIETIES,
   getTeaVarieties,
 } from "./tea-origin";
 
@@ -119,13 +118,13 @@ const createOnboardingSchema = (market: Market) => {
       country: z.string().optional(),
       region: z.string().optional(),
       city: z.string().optional(),
-      coffeeOriginCountry: z.string().optional(),
-      coffeeOriginRegion: z.string().optional(),
+      coffeeOriginCountry: selectionListSchema,
+      coffeeOriginRegion: selectionListSchema,
       coffeeVariety: selectionListSchema,
       coffeeProcessingType: selectionListSchema,
-      teaOriginCountry: z.string().optional(),
-      teaOriginRegion: z.string().optional(),
-      teaVariety: z.string().optional(),
+      teaOriginCountry: selectionListSchema,
+      teaOriginRegion: selectionListSchema,
+      teaVariety: selectionListSchema,
       teaType: z.string().optional(),
       teaProcessingMethod: z.string().optional(),
       teaGrade: z.string().optional(),
@@ -223,18 +222,25 @@ const createOnboardingSchema = (market: Market) => {
             message: "Select Coffee to continue",
           });
         }
-        requireText("coffeeOriginCountry", "Country of origin is required");
-        requireText("coffeeOriginRegion", "Region is required");
+        requireSelections(
+          "coffeeOriginCountry",
+          "Select at least one country of origin",
+        );
+        requireSelections("coffeeOriginRegion", "Select at least one region");
         requireSelections("coffeeVariety", "Select at least one variety");
         requireSelections(
           "coffeeProcessingType",
           "Select at least one processing type",
         );
 
-        const origin = data.coffeeOriginCountry
-          ? COFFEE_ORIGIN_CATALOG[data.coffeeOriginCountry]
-          : undefined;
-        if (data.coffeeOriginCountry && !origin) {
+        const origins = data.coffeeOriginCountry
+          .map((country) => COFFEE_ORIGIN_CATALOG[country])
+          .filter(Boolean);
+        if (
+          data.coffeeOriginCountry.some(
+            (country) => !COFFEE_ORIGIN_CATALOG[country],
+          )
+        ) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ["coffeeOriginCountry"],
@@ -242,25 +248,29 @@ const createOnboardingSchema = (market: Market) => {
           });
         }
         if (
-          origin &&
-          data.coffeeOriginRegion &&
-          !origin.regions.includes(data.coffeeOriginRegion)
+          data.coffeeOriginRegion.some(
+            (region) =>
+              !data.coffeeOriginCountry.some((country) =>
+                COFFEE_ORIGIN_CATALOG[country]?.regions.includes(region),
+              ),
+          )
         ) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ["coffeeOriginRegion"],
-            message: "Select a valid region for this country",
+            message: "Select valid regions for the chosen countries",
           });
         }
         if (
-          origin &&
-          data.coffeeOriginRegion &&
+          origins.length &&
           data.coffeeVariety.some(
             (variety) =>
-              !getCoffeeVarieties(
-                data.coffeeOriginCountry,
-                data.coffeeOriginRegion,
-              ).includes(variety),
+              !data.coffeeOriginCountry.some((country) =>
+                data.coffeeOriginRegion.some((region) =>
+                  COFFEE_ORIGIN_CATALOG[country]?.regions.includes(region) &&
+                  getCoffeeVarieties(country, region).includes(variety),
+                ),
+              ),
           )
         ) {
           ctx.addIssue({
@@ -295,17 +305,24 @@ const createOnboardingSchema = (market: Market) => {
             message: "Select Tea to continue",
           });
         }
-        requireText("teaOriginCountry", "Country of origin is required");
-        requireText("teaOriginRegion", "Region is required");
-        requireText("teaVariety", "Tea variety is required");
+        requireSelections(
+          "teaOriginCountry",
+          "Select at least one country of origin",
+        );
+        requireSelections("teaOriginRegion", "Select at least one region");
+        requireSelections("teaVariety", "Select at least one tea variety");
         requireText("teaType", "Tea type is required");
         requireText("teaProcessingMethod", "Processing method is required");
         requireText("teaGrade", "Grade is required");
 
-        const origin = data.teaOriginCountry
-          ? TEA_ORIGIN_CATALOG[data.teaOriginCountry]
-          : undefined;
-        if (data.teaOriginCountry && !origin) {
+        const origins = data.teaOriginCountry
+          .map((country) => TEA_ORIGIN_CATALOG[country])
+          .filter(Boolean);
+        if (
+          data.teaOriginCountry.some(
+            (country) => !TEA_ORIGIN_CATALOG[country],
+          )
+        ) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ["teaOriginCountry"],
@@ -313,19 +330,30 @@ const createOnboardingSchema = (market: Market) => {
           });
         }
         if (
-          origin &&
-          data.teaOriginRegion &&
-          !origin.regions.includes(data.teaOriginRegion)
+          data.teaOriginRegion.some(
+            (region) =>
+              !data.teaOriginCountry.some((country) =>
+                TEA_ORIGIN_CATALOG[country]?.regions.includes(region),
+              ),
+          )
         ) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ["teaOriginRegion"],
-            message: "Select a valid region for this country",
+            message: "Select valid regions for the chosen countries",
           });
         }
         if (
-          data.teaVariety &&
-          !TEA_VARIETIES.includes(data.teaVariety)
+          origins.length &&
+          data.teaVariety.some(
+            (variety) =>
+              !data.teaOriginCountry.some((country) =>
+                data.teaOriginRegion.some((region) =>
+                  TEA_ORIGIN_CATALOG[country]?.regions.includes(region) &&
+                  getTeaVarieties(country, region).includes(variety),
+                ),
+              ),
+          )
         ) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
@@ -496,13 +524,13 @@ export default function OnboardingWizard({
       country: "",
       region: "",
       city: "",
-      coffeeOriginCountry: "",
-      coffeeOriginRegion: "",
+      coffeeOriginCountry: [],
+      coffeeOriginRegion: [],
       coffeeVariety: [],
       coffeeProcessingType: [],
-      teaOriginCountry: "",
-      teaOriginRegion: "",
-      teaVariety: "",
+      teaOriginCountry: [],
+      teaOriginRegion: [],
+      teaVariety: [],
       teaType: "",
       teaProcessingMethod: "",
       teaGrade: "",
@@ -523,24 +551,47 @@ export default function OnboardingWizard({
   const isTeaMarket = market === "tea";
   const coffeeOriginCountry = form.watch("coffeeOriginCountry");
   const coffeeOriginRegion = form.watch("coffeeOriginRegion");
-  const selectedCoffeeOrigin = coffeeOriginCountry
-    ? COFFEE_ORIGIN_CATALOG[coffeeOriginCountry]
-    : undefined;
-  const coffeeRegions = selectedCoffeeOrigin?.regions ?? [];
-  const coffeeVarieties = getCoffeeVarieties(
-    coffeeOriginCountry,
-    coffeeOriginRegion,
+  const coffeeRegions = Array.from(
+    new Set(
+      coffeeOriginCountry.flatMap(
+        (country) => COFFEE_ORIGIN_CATALOG[country]?.regions ?? [],
+      ),
+    ),
+  );
+  const coffeeVarieties = Array.from(
+    new Set(
+      coffeeOriginCountry.flatMap((country) =>
+        coffeeOriginRegion.flatMap((region) =>
+          COFFEE_ORIGIN_CATALOG[country]?.regions.includes(region)
+            ? getCoffeeVarieties(country, region)
+            : [],
+        ),
+      ),
+    ),
   );
   const teaOriginCountry = form.watch("teaOriginCountry");
   const teaOriginRegion = form.watch("teaOriginRegion");
   const teaVariety = form.watch("teaVariety");
   const teaType = form.watch("teaType");
   const teaProcessingMethod = form.watch("teaProcessingMethod");
-  const teaVarieties = getTeaVarieties(teaOriginCountry, teaOriginRegion);
-  const selectedTeaOrigin = teaOriginCountry
-    ? TEA_ORIGIN_CATALOG[teaOriginCountry]
-    : undefined;
-  const teaRegions = selectedTeaOrigin?.regions ?? [];
+  const teaRegions = Array.from(
+    new Set(
+      teaOriginCountry.flatMap(
+        (country) => TEA_ORIGIN_CATALOG[country]?.regions ?? [],
+      ),
+    ),
+  );
+  const teaVarieties = Array.from(
+    new Set(
+      teaOriginCountry.flatMap((country) =>
+        teaOriginRegion.flatMap((region) =>
+          TEA_ORIGIN_CATALOG[country]?.regions.includes(region)
+            ? getTeaVarieties(country, region)
+            : [],
+        ),
+      ),
+    ),
+  );
 
   useEffect(() => {
     async function loadData() {
@@ -575,6 +626,17 @@ export default function OnboardingWizard({
         merged.coffeeProcessingType = normalizeSelectionList(
           merged.coffeeProcessingType,
         );
+        merged.coffeeOriginCountry = normalizeSelectionList(
+          merged.coffeeOriginCountry,
+        );
+        merged.coffeeOriginRegion = normalizeSelectionList(
+          merged.coffeeOriginRegion,
+        );
+        merged.teaOriginCountry = normalizeSelectionList(
+          merged.teaOriginCountry,
+        );
+        merged.teaOriginRegion = normalizeSelectionList(merged.teaOriginRegion);
+        merged.teaVariety = normalizeSelectionList(merged.teaVariety);
         form.reset(merged);
       } catch {
         const localValue = localStorage.getItem("onboarding-draft");
@@ -604,6 +666,19 @@ export default function OnboardingWizard({
           localData.coffeeProcessingType = normalizeSelectionList(
             localData.coffeeProcessingType,
           );
+          localData.coffeeOriginCountry = normalizeSelectionList(
+            localData.coffeeOriginCountry,
+          );
+          localData.coffeeOriginRegion = normalizeSelectionList(
+            localData.coffeeOriginRegion,
+          );
+          localData.teaOriginCountry = normalizeSelectionList(
+            localData.teaOriginCountry,
+          );
+          localData.teaOriginRegion = normalizeSelectionList(
+            localData.teaOriginRegion,
+          );
+          localData.teaVariety = normalizeSelectionList(localData.teaVariety);
           form.reset({
             ...localData,
             marketplaceRole: localData.marketplaceRole || initialRole,
@@ -1084,9 +1159,13 @@ export default function OnboardingWizard({
                           <FormLabel className={labelClass}>
                             {currentRole === "producer"
                               ? "What do you produce?"
-                              : currentRole === "buyer"
-                                ? "What are you sourcing?"
-                                : "What do you trade?"}
+                              : market === "tea"
+                                ? "What teas do you source?"
+                                : market === "coffee"
+                                  ? "What coffee do you source?"
+                                  : currentRole === "buyer"
+                                    ? "What are you sourcing?"
+                                    : "What do you trade?"}
                           </FormLabel>
                           <FormControl>
                             <CommoditySelect
@@ -1108,34 +1187,23 @@ export default function OnboardingWizard({
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className={labelClass}>
-                                Coffee country of origin
+                                {currentRole === "producer"
+                                  ? "Coffee country of origin"
+                                  : "Coffee source countries"}
                               </FormLabel>
-                              <Select
+                              <ChoicePills
+                                options={Object.keys(COFFEE_ORIGIN_CATALOG)}
                                 value={field.value}
-                                onValueChange={(value) => {
-                                  field.onChange(value);
-                                  form.setValue("coffeeOriginRegion", "");
+                                onChange={(value) => {
+                                  field.onChange(
+                                    Array.isArray(value) ? value : [value],
+                                  );
+                                  form.setValue("coffeeOriginRegion", []);
                                   form.setValue("coffeeVariety", []);
                                 }}
-                              >
-                                <FormControl>
-                                  <SelectTrigger
-                                    className="onboarding-select-trigger"
-                                    data-testid="select-coffee-origin-country"
-                                  >
-                                    <SelectValue placeholder="Select country of origin" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {Object.keys(COFFEE_ORIGIN_CATALOG).map(
-                                    (country) => (
-                                      <SelectItem key={country} value={country}>
-                                        {country}
-                                      </SelectItem>
-                                    ),
-                                  )}
-                                </SelectContent>
-                              </Select>
+                                multiple
+                                testIdPrefix="coffee-origin-country"
+                              />
                               <FormMessage />
                             </FormItem>
                           )}
@@ -1146,32 +1214,23 @@ export default function OnboardingWizard({
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className={labelClass}>
-                                Coffee region
+                                {currentRole === "producer"
+                                  ? "Coffee region"
+                                  : "Coffee source regions"}
                               </FormLabel>
-                              <Select
+                              <ChoicePills
+                                options={coffeeRegions}
                                 value={field.value}
-                                onValueChange={(value) => {
-                                  field.onChange(value);
+                                onChange={(value) => {
+                                  field.onChange(
+                                    Array.isArray(value) ? value : [value],
+                                  );
                                   form.setValue("coffeeVariety", []);
                                 }}
-                                disabled={!coffeeOriginCountry}
-                              >
-                                <FormControl>
-                                  <SelectTrigger
-                                    className="onboarding-select-trigger"
-                                    data-testid="select-coffee-origin-region"
-                                  >
-                                    <SelectValue placeholder="Select region" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {coffeeRegions.map((region) => (
-                                    <SelectItem key={region} value={region}>
-                                      {region}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                                disabled={!coffeeOriginCountry.length}
+                                multiple
+                                testIdPrefix="coffee-origin-region"
+                              />
                               <FormMessage />
                             </FormItem>
                           )}
@@ -1189,7 +1248,7 @@ export default function OnboardingWizard({
                                 options={coffeeVarieties}
                                 value={field.value}
                                 onChange={field.onChange}
-                                disabled={!coffeeOriginRegion}
+                                disabled={!coffeeOriginRegion.length}
                                 multiple
                                 testIdPrefix="coffee-variety"
                               />
@@ -1227,34 +1286,23 @@ export default function OnboardingWizard({
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className={labelClass}>
-                                Tea country of origin
+                                {currentRole === "producer"
+                                  ? "Tea country of origin"
+                                  : "Tea source countries"}
                               </FormLabel>
-                              <Select
+                              <ChoicePills
+                                options={Object.keys(TEA_ORIGIN_CATALOG)}
                                 value={field.value}
-                                onValueChange={(value) => {
-                                  field.onChange(value);
-                                  form.setValue("teaOriginRegion", "");
-                                  form.setValue("teaVariety", "");
+                                onChange={(value) => {
+                                  field.onChange(
+                                    Array.isArray(value) ? value : [value],
+                                  );
+                                  form.setValue("teaOriginRegion", []);
+                                  form.setValue("teaVariety", []);
                                 }}
-                              >
-                                <FormControl>
-                                  <SelectTrigger
-                                    className="onboarding-select-trigger"
-                                    data-testid="select-tea-origin-country"
-                                  >
-                                    <SelectValue placeholder="Select country of origin" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {Object.keys(TEA_ORIGIN_CATALOG).map(
-                                    (country) => (
-                                      <SelectItem key={country} value={country}>
-                                        {country}
-                                      </SelectItem>
-                                    ),
-                                  )}
-                                </SelectContent>
-                              </Select>
+                                multiple
+                                testIdPrefix="tea-origin-country"
+                              />
                               <FormMessage />
                             </FormItem>
                           )}
@@ -1265,29 +1313,23 @@ export default function OnboardingWizard({
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className={labelClass}>
-                                Tea region
+                                {currentRole === "producer"
+                                  ? "Tea region"
+                                  : "Tea source regions"}
                               </FormLabel>
-                              <Select
+                              <ChoicePills
+                                options={teaRegions}
                                 value={field.value}
-                                onValueChange={field.onChange}
-                                disabled={!teaOriginCountry}
-                              >
-                                <FormControl>
-                                  <SelectTrigger
-                                    className="onboarding-select-trigger"
-                                    data-testid="select-tea-origin-region"
-                                  >
-                                    <SelectValue placeholder="Select region" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {teaRegions.map((region) => (
-                                    <SelectItem key={region} value={region}>
-                                      {region}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                                onChange={(value) => {
+                                  field.onChange(
+                                    Array.isArray(value) ? value : [value],
+                                  );
+                                  form.setValue("teaVariety", []);
+                                }}
+                                disabled={!teaOriginCountry.length}
+                                multiple
+                                testIdPrefix="tea-origin-region"
+                              />
                               <FormMessage />
                             </FormItem>
                           )}
@@ -1305,7 +1347,8 @@ export default function OnboardingWizard({
                                 options={teaVarieties}
                                 value={field.value}
                                 onChange={field.onChange}
-                                disabled={!teaOriginRegion}
+                                disabled={!teaOriginRegion.length}
+                                multiple
                                 testIdPrefix="tea-variety"
                               />
                               <FormMessage />
@@ -1323,7 +1366,7 @@ export default function OnboardingWizard({
                               <Select
                                 value={field.value}
                                 onValueChange={field.onChange}
-                                disabled={!teaVariety}
+                                disabled={!teaVariety.length}
                               >
                                 <FormControl>
                                   <SelectTrigger
