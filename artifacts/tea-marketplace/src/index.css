@@ -859,6 +859,10 @@ h1, h2, h3, h4, h5, h6 {
   display: block;
 }
 
+.market-auth-shell--auth .market-auth-story {
+  transform: translateY(clamp(10px, 2vh, 18px));
+}
+
 .market-auth-shell--auth .market-auth-header,
 .market-auth-shell--auth .market-auth-main {
   width: min(1400px, calc(100% - 48px));
@@ -893,9 +897,8 @@ h1, h2, h3, h4, h5, h6 {
   flex-direction: column;
   justify-content: center;
   height: clamp(360px, 70.5vh, 494px);
-  max-height: calc(100svh - 32px);
-  overflow-y: auto;
-  padding: clamp(28px, 4vw, 44px);
+  overflow: visible;
+  padding: clamp(36px, 4vw, 48px);
   border: 1px solid rgba(255, 255, 255, 0.34);
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.97);
@@ -908,6 +911,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .market-auth-shell--auth .market-auth-form-card--signup {
+  height: auto;
+  min-height: clamp(560px, 80vh, 640px);
   justify-content: flex-start;
 }
 
@@ -951,6 +956,7 @@ h1, h2, h3, h4, h5, h6 {
   .market-auth-shell--auth .market-auth-story {
     order: 2;
     padding: 8px 0 22px;
+    transform: none;
   }
 
   .market-auth-shell--auth .market-auth-story-stage {
@@ -967,8 +973,9 @@ h1, h2, h3, h4, h5, h6 {
 
   .market-auth-shell--auth .market-auth-form-card {
     height: auto;
+    min-height: 0;
     max-height: none;
-    overflow-y: visible;
+    overflow: visible;
     padding: 28px 22px;
   }
 }
