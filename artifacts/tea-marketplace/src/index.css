@@ -450,6 +450,10 @@ h1, h2, h3, h4, h5, h6 {
   display: inline;
 }
 
+.market-auth-story-highlight {
+  color: #b8c98a;
+}
+
 .market-auth-story-description {
   max-width: 510px;
   margin: 28px 0 0;

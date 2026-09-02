@@ -66,17 +66,20 @@ export default function SignInPage() {
             {
               eyebrow: "Origin with a signature",
               title: "Know the leaf\nbefore it arrives.",
-              description: "Source speciality tea with origin, grade, harvest, and factory records in one clear view.",
+              description: "See tea origin, grade, harvest, and factory records in one clear view.",
+              accentWords: ["leaf", "origin", "harvest"],
             },
             {
               eyebrow: "GI-protected supply",
               title: "Distinctive tea,\nbacked by proof.",
-              description: "Find expressive East African lots with the provenance and protection serious tea buyers need.",
+              description: "Find East African lots with provenance and protection buyers can trust.",
+              accentWords: ["tea", "proof", "East African", "provenance"],
             },
             {
               eyebrow: "Factory to shelf",
-              title: "Trace every handoff,\nfrom garden to shelf.",
-              description: "Keep harvest, processing, packing, and shipment records connected to the lot you buy.",
+              title: "Trace every handoff,\ngarden to shelf.",
+              description: "Keep harvest, packing, and shipment records connected to every lot.",
+              accentWords: ["Trace", "handoff", "garden", "shelf", "harvest", "shipment"],
             },
           ]}
         />
