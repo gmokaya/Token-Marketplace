@@ -29,6 +29,7 @@ type CountrySelectProps = {
   onChange: (val: string) => void;
   ariaLabel?: string;
   placeholder?: string;
+  firstCountryCode?: string;
 };
 
 export function CountrySelect({
@@ -36,8 +37,17 @@ export function CountrySelect({
   onChange,
   ariaLabel = "Destination country",
   placeholder = "Select destination country",
+  firstCountryCode,
 }: CountrySelectProps) {
   const [open, setOpen] = useState(false);
+  const pinnedCountries = firstCountryCode
+    ? [
+        COUNTRIES.find((country) => country.code === firstCountryCode),
+        ...PINNED_COUNTRIES.filter(
+          (country) => country.code !== firstCountryCode,
+        ),
+      ].filter(Boolean) as typeof COUNTRIES
+    : PINNED_COUNTRIES;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -60,7 +70,7 @@ export function CountrySelect({
           <CommandList className="max-h-[280px]">
             <CommandEmpty className="py-4 text-center text-[14px] text-[#86868b]">No country found.</CommandEmpty>
             <CommandGroup heading="Major Markets & East Africa" className="text-[#86868b] [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-2 [&_[cmdk-group-heading]]:text-[12px] [&_[cmdk-group-heading]]:font-medium">
-              {PINNED_COUNTRIES.map((country) => (
+              {pinnedCountries.map((country) => (
                 <CommandItem
                   key={country.code}
                   value={country.name}

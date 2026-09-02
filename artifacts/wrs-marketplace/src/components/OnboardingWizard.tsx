@@ -97,6 +97,7 @@ const onboardingSchema = z
     if (data.marketplaceRole === "producer") {
       requireText("country", "Country is required");
       requireText("region", "Region is required");
+      requireText("entityType", "Entity type is required");
       if (!data.commoditySelections.length) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -317,6 +318,7 @@ export default function OnboardingWizard({
       }
     } else if (currentRole === "producer") {
       fieldsToValidate = ["commoditySelections", "payoutMobileMoney"];
+      fieldsToValidate.push("entityType");
     } else if (currentRole === "trader") {
       fieldsToValidate = [
         "businessName",
@@ -623,9 +625,8 @@ export default function OnboardingWizard({
                                   value={field.value}
                                   onChange={field.onChange}
                                   ariaLabel="Country"
-                                  placeholder={
-                                    currentRole === "buyer" ? "USA" : "Uganda"
-                                  }
+                                  placeholder="Select country"
+                                  firstCountryCode="KE"
                                 />
                               </FormControl>
                               <FormMessage />
@@ -669,7 +670,12 @@ export default function OnboardingWizard({
                                   value={field.value}
                                   onChange={field.onChange}
                                   ariaLabel="Country"
-                                  placeholder="Select country"
+                                  placeholder={
+                                    currentRole === "buyer" ? "USA" : "Uganda"
+                                  }
+                                  firstCountryCode={
+                                    currentRole === "buyer" ? "US" : "UG"
+                                  }
                                 />
                               </FormControl>
                               <FormMessage />
@@ -788,6 +794,8 @@ export default function OnboardingWizard({
                             </FormItem>
                           )}
                         />
+                      </>
+                    )}
                     <FormField
                       control={form.control}
                       name="entityType"
@@ -820,8 +828,6 @@ export default function OnboardingWizard({
                         </FormItem>
                       )}
                     />
-                      </>
-                    )}
                     {currentRole === "buyer" && (
                       <>
                         <FormField
