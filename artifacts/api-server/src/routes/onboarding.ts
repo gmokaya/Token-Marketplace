@@ -134,15 +134,6 @@ const commoditySubtypes: Record<string, readonly string[]> = {
 const commoditySelectionSchema = z.object({
   commodity: z.string().trim().min(1).max(80),
   subType: z.string().trim().min(1).max(80).nullable(),
-}).superRefine((selection, ctx) => {
-  const allowed = commoditySubtypes[selection.commodity];
-  if (allowed && !selection.subType) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["subType"], message: `Select a ${selection.commodity} sub-type` });
-  } else if (allowed && selection.subType && !allowed.includes(selection.subType)) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["subType"], message: "Invalid commodity sub-type" });
-  } else if (!allowed && selection.subType !== null) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["subType"], message: "Sub-type is not supported for this commodity" });
-  }
 });
 const onboardingSchema = z.object({
   market: z.enum(["grain", "coffee", "tea"]).optional(),
@@ -229,6 +220,37 @@ const onboardingSchema = z.object({
     }
     required("expectedVolume", "Expected volume is required");
     required("destinationCountry", "Destination country is required");
+  }
+
+  for (const [index, selection] of data.commoditySelections.entries()) {
+    const allowed = commoditySubtypes[selection.commodity];
+    const marketOriginReplacesSubtype =
+      (data.market === "coffee" && selection.commodity === "Coffee") ||
+      (data.market === "tea" && selection.commodity === "Tea");
+    if (allowed && !marketOriginReplacesSubtype && !selection.subType) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["commoditySelections", index, "subType"],
+        message: `Select a ${selection.commodity} sub-type`,
+      });
+    } else if (
+      allowed &&
+      !marketOriginReplacesSubtype &&
+      selection.subType &&
+      !allowed.includes(selection.subType)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["commoditySelections", index, "subType"],
+        message: "Invalid commodity sub-type",
+      });
+    } else if (!allowed && selection.subType !== null) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["commoditySelections", index, "subType"],
+        message: "Sub-type is not supported for this commodity",
+      });
+    }
   }
 
   if (data.market === "coffee") {

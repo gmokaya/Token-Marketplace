@@ -532,7 +532,7 @@ export default function OnboardingWizard({
         "payoutMobileMoney",
       ];
     }
-    if (isCoffeeMarket) {
+    if (currentStep === 2 && isCoffeeMarket) {
       fieldsToValidate.push(
         "coffeeOriginCountry",
         "coffeeOriginRegion",
@@ -540,7 +540,7 @@ export default function OnboardingWizard({
         "coffeeProcessingType",
       );
     }
-    if (isTeaMarket) {
+    if (currentStep === 2 && isTeaMarket) {
       fieldsToValidate.push(
         "teaOriginCountry",
         "teaOriginRegion",
