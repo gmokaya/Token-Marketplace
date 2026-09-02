@@ -612,6 +612,10 @@ h1, h2, h3, h4, h5, h6 {
   --auth-accent: #b8d7c1;
 }
 
+.market-auth-shell--tea .market-auth-background {
+  object-position: 46% center;
+}
+
 .market-auth-shell--coffee {
   --auth-accent: #dec1b1;
 }

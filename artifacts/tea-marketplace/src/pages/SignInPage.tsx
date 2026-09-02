@@ -1,7 +1,7 @@
 import { SignIn, SignUp } from "@clerk/react";
 import { Link } from "wouter";
 import { AuthBenefitCarousel } from "@/components/AuthBenefitCarousel";
-import teaSignInImage from "@assets/images_(28)_1788267884985.jpg";
+import teaSignInImage from "@assets/pexels-abellpaul53-7427928_1788340388344.jpg";
 
 const clerkAppearance = {
   variables: {
