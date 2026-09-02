@@ -2,7 +2,11 @@ import { Show, useClerk } from "@clerk/react";
 import { ReactNode, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { customFetch, useGetMe, getGetMeQueryKey } from "@workspace/api-client-react";
+import {
+  customFetch,
+  useGetMe,
+  getGetMeQueryKey,
+} from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function ProtectedRoute({ children }: { children: ReactNode }) {
@@ -18,8 +22,8 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   );
 }
 
-/** Redirect imperatively so we can carry the current full URL as redirect_url.
- *  After sign-in Clerk will return the user to the exact page they requested. */
+/** Redirect imperatively so Clerk carries the current full URL as redirect_url.
+ *  After sign-in the user is returned to the exact page they requested. */
 function RedirectToSignIn() {
   const { redirectToSignIn } = useClerk();
   useEffect(() => {
@@ -30,13 +34,21 @@ function RedirectToSignIn() {
 
 function EnsureProfile({ children }: { children: ReactNode }) {
   const [location, setLocation] = useLocation();
-  const { data: user, error: userError, isLoading: userLoading } = useGetMe({
+  const {
+    data: user,
+    error: userError,
+    isLoading: userLoading,
+  } = useGetMe({
     query: {
       queryKey: getGetMeQueryKey(),
       retry: false,
     },
   });
-  const { data: onboarding, error: onboardingError, isLoading: onboardingLoading } = useQuery({
+  const {
+    data: onboarding,
+    error: onboardingError,
+    isLoading: onboardingLoading,
+  } = useQuery({
     queryKey: ["/api/onboarding/me"],
     queryFn: () => customFetch("/api/onboarding/me"),
     retry: false,
@@ -50,14 +62,19 @@ function EnsureProfile({ children }: { children: ReactNode }) {
     if (isLoading) return;
     if (isMissing && location !== "/onboarding") {
       setLocation("/onboarding");
-    } else if (!isMissing && !error && onboarding && location === "/onboarding") {
+    } else if (
+      !isMissing &&
+      !error &&
+      onboarding &&
+      location === "/onboarding"
+    ) {
       setLocation("/dashboard");
     }
   }, [error, isLoading, isMissing, location, onboarding, setLocation]);
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-[50vh]">
+      <div className="flex items-center justify-center h-full">
         <div className="flex flex-col items-center gap-4">
           <Skeleton className="w-12 h-12 rounded-full" />
           <Skeleton className="w-48 h-4" />
@@ -67,7 +84,8 @@ function EnsureProfile({ children }: { children: ReactNode }) {
   }
 
   if (isMissing && location !== "/onboarding") return null;
-  if (!isMissing && !error && onboarding && location === "/onboarding") return null;
+  if (!isMissing && !error && onboarding && location === "/onboarding")
+    return null;
 
   if (error && !isMissing) {
     return (
