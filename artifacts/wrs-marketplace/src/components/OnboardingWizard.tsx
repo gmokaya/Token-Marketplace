@@ -97,6 +97,7 @@ const onboardingSchema = z
     if (data.marketplaceRole === "producer") {
       requireText("country", "Country is required");
       requireText("region", "Region is required");
+      requireText("city", "City is required");
       requireText("businessName", "Entity name is required");
       requireText(
         "businessRegistrationNumber",
@@ -318,7 +319,7 @@ export default function OnboardingWizard({
     if (currentStep === 1) {
       fieldsToValidate = ["fullName"];
       if (currentRole === "producer") {
-        fieldsToValidate.push("country", "region");
+        fieldsToValidate.push("country", "region", "city");
       } else {
         fieldsToValidate.push("country", "city");
       }
@@ -664,11 +665,29 @@ export default function OnboardingWizard({
                             </FormItem>
                           )}
                         />
+                        <FormField
+                          control={form.control}
+                          name="city"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className={labelClass}>
+                                City
+                              </FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  className={inputClass}
+                                  placeholder="e.g. Nairobi"
+                                  data-testid="input-city"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       </div>
                     )}
-                    {(currentRole === "producer" ||
-                      currentRole === "trader" ||
-                      currentRole === "buyer") && (
+                    {(currentRole === "trader" || currentRole === "buyer") && (
                       <div className="onboarding-producer-location-grid">
                         <FormField
                           control={form.control}

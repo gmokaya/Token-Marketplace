@@ -78,6 +78,7 @@ const onboardingSchema = z.object({
   if (data.marketplaceRole === "producer") {
     required("country", "Country is required");
     required("region", "Region is required");
+    required("city", "City is required");
     required("businessName", "Entity name is required");
     required("businessRegistrationNumber", "Entity registration number is required");
     required("entityType", "Entity type is required");
