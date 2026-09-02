@@ -48,7 +48,7 @@ export default function SignInPage() {
   const isSignUp = new URLSearchParams(window.location.search).get("mode") === "sign-up";
 
   return (
-    <div className="market-auth-shell market-auth-shell--tea">
+    <div className="market-auth-shell market-auth-shell--auth market-auth-shell--tea">
       <img src={teaSignInImage} alt="" className="market-auth-background" fetchPriority="high" />
       <div className="market-auth-overlay" />
 
@@ -82,7 +82,7 @@ export default function SignInPage() {
         />
 
         <section className="market-auth-form-wrap">
-          <div className="market-auth-form-card">
+          <div className={`market-auth-form-card ${isSignUp ? "market-auth-form-card--signup" : "market-auth-form-card--signin"}`}>
             <div className="market-auth-form-heading">
               <p className="market-auth-form-kicker">Buyer access · Tea market</p>
               <h1>{isSignUp ? "Create your Tea Marketplace account" : "Sign in to Tea Marketplace"}</h1>

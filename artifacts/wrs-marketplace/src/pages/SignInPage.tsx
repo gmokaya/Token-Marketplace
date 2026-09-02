@@ -47,7 +47,7 @@ export default function SignInPage() {
   const isSignUp = new URLSearchParams(window.location.search).get("mode") === "sign-up";
 
   return (
-    <div className="market-auth-shell market-auth-shell--grain">
+    <div className="market-auth-shell market-auth-shell--auth market-auth-shell--grain">
       <img
         src={`${bp}/photos/hero-soybean-farmer.jpg`}
         alt=""
@@ -86,7 +86,7 @@ export default function SignInPage() {
         />
 
         <section className="market-auth-form-wrap">
-          <div className="market-auth-form-card">
+          <div className={`market-auth-form-card ${isSignUp ? "market-auth-form-card--signup" : "market-auth-form-card--signin"}`}>
             <div className="market-auth-form-heading">
               <p className="market-auth-form-kicker">Buyer access · Grain market</p>
               <h1>{isSignUp ? "Create your Grain Marketplace account" : "Sign in to Grain Marketplace"}</h1>

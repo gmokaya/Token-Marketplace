@@ -1560,3 +1560,135 @@ h1, h2, h3, h4, h5, h6 {
     padding: 0 16px;
   }
 }
+
+/* Keep the custom heading and Clerk content readable on the light auth card. */
+.market-auth-form-card--signin,
+.market-auth-form-card--signup {
+  color: #1d1d1f;
+}
+
+.market-auth-form-card--signin .market-auth-form-kicker,
+.market-auth-form-card--signup .market-auth-form-kicker {
+  color: #86868b !important;
+}
+
+.market-auth-form-card--signin .market-auth-form-heading h1,
+.market-auth-form-card--signup .market-auth-form-heading h1 {
+  color: #1d1d1f !important;
+}
+
+.market-auth-form-card--signin .market-auth-form-heading > p:last-child,
+.market-auth-form-card--signup .market-auth-form-heading > p:last-child {
+  color: #68686d !important;
+}
+
+.market-auth-form-card--signin .market-auth-form-switch,
+.market-auth-form-card--signup .market-auth-form-switch {
+  color: #68686d !important;
+}
+
+.market-auth-shell--auth {
+  background: #0c1115;
+  color: #fff;
+  font-family: 'Futura', sans-serif;
+}
+
+.market-auth-shell--auth .market-auth-background,
+.market-auth-shell--auth .market-auth-overlay,
+.market-auth-shell--auth .market-auth-story {
+  display: block;
+}
+
+.market-auth-shell--auth .market-auth-header,
+.market-auth-shell--auth .market-auth-main {
+  width: min(1400px, calc(100% - 48px));
+}
+
+.market-auth-shell--auth .market-auth-header {
+  margin: 0 auto;
+  padding: 30px 0;
+}
+
+.market-auth-shell--auth .market-auth-wordmark {
+  color: #fff;
+  font-size: clamp(1.75rem, 3vw, 2.35rem);
+}
+
+.market-auth-shell--auth .market-auth-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 430px);
+  align-items: center;
+  gap: clamp(48px, 8vw, 144px);
+  margin: 0 auto;
+  padding: clamp(20px, 4vh, 60px) 0 clamp(44px, 7vh, 88px);
+}
+
+.market-auth-shell--auth .market-auth-form-wrap {
+  display: block;
+}
+
+.market-auth-shell--auth .market-auth-form-card {
+  padding: clamp(28px, 4vw, 44px);
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(24px);
+}
+
+.market-auth-shell--auth .market-auth-footer a {
+  color: rgba(255, 255, 255, 0.56);
+}
+
+@media (max-width: 900px) {
+  .market-auth-shell--auth .market-auth-main {
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 390px);
+    gap: 34px;
+  }
+}
+
+@media (max-width: 760px) {
+  .market-auth-shell--auth {
+    overflow-y: visible;
+  }
+
+  .market-auth-shell--auth .market-auth-header,
+  .market-auth-shell--auth .market-auth-main {
+    width: min(100% - 32px, 560px);
+  }
+
+  .market-auth-shell--auth .market-auth-header {
+    padding: 22px 0 10px;
+  }
+
+  .market-auth-shell--auth .market-auth-main {
+    display: flex;
+    flex-direction: column;
+    padding: 12px 0 32px;
+  }
+
+  .market-auth-shell--auth .market-auth-form-wrap {
+    order: 1;
+  }
+
+  .market-auth-shell--auth .market-auth-story {
+    order: 2;
+    padding: 8px 0 22px;
+  }
+
+  .market-auth-shell--auth .market-auth-story-stage {
+    min-height: 210px;
+  }
+
+  .market-auth-shell--auth .market-auth-story-title {
+    font-size: clamp(2.7rem, 13vw, 4.5rem);
+  }
+
+  .market-auth-shell--auth .market-auth-story-description {
+    margin-top: 16px;
+  }
+
+  .market-auth-shell--auth .market-auth-form-card {
+    padding: 28px 22px;
+  }
+}
