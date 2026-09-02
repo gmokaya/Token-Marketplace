@@ -20,21 +20,21 @@
 }
 
 .market-auth-shell--coffee {
-  --onboarding-accent: #a96f53;
-  --onboarding-accent-strong: #80513d;
-  --onboarding-accent-soft: #f5ebe6;
-  --onboarding-accent-wash: #fcf8f5;
-  --onboarding-accent-border: #e4cec2;
-  --onboarding-accent-shadow: rgba(128, 81, 61, 0.12);
+  --onboarding-accent: #9d725c;
+  --onboarding-accent-strong: #6f4f42;
+  --onboarding-accent-soft: #f3ebe7;
+  --onboarding-accent-wash: #fbf8f6;
+  --onboarding-accent-border: #decfc7;
+  --onboarding-accent-shadow: rgba(111, 79, 66, 0.12);
 }
 
 .market-auth-shell--tea {
-  --onboarding-accent: #20ad68;
-  --onboarding-accent-strong: #087f4b;
-  --onboarding-accent-soft: #e3f8ed;
-  --onboarding-accent-wash: #f2fcf6;
-  --onboarding-accent-border: #b6e5c9;
-  --onboarding-accent-shadow: rgba(8, 127, 75, 0.2);
+  --onboarding-accent: #6b9c7b;
+  --onboarding-accent-strong: #4c765b;
+  --onboarding-accent-soft: #e8f1eb;
+  --onboarding-accent-wash: #f7faf8;
+  --onboarding-accent-border: #cbded1;
+  --onboarding-accent-shadow: rgba(76, 118, 91, 0.12);
 }
 
 .market-auth-shell--onboarding {

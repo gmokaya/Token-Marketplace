@@ -610,11 +610,11 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .market-auth-shell--tea {
-  --auth-accent: #86efac;
+  --auth-accent: #b8d7c1;
 }
 
 .market-auth-shell--coffee {
-  --auth-accent: #fcd34d;
+  --auth-accent: #dec1b1;
 }
 
 @media (max-width: 900px) {
