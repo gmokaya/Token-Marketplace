@@ -10,6 +10,7 @@ type Props = {
   onChange: (value: CommoditySelection[]) => void;
   singleSelect?: boolean;
   coffeeOnly?: boolean;
+  teaOnly?: boolean;
 };
 
 const COMMODITIES = [
@@ -69,7 +70,10 @@ export function CommoditySelect({
   onChange,
   singleSelect = false,
   coffeeOnly = false,
+  teaOnly = false,
 }: Props) {
+  const marketOnly = coffeeOnly || teaOnly;
+  const marketCommodity = coffeeOnly ? "Coffee" : "Tea";
   const toggleCommodity = (comm: string) => {
     const existing = value.find((v) => v.commodity === comm);
     if (existing) {
@@ -107,7 +111,7 @@ export function CommoditySelect({
   return (
     <div className="commodity-select">
       <div className="commodity-option-list">
-        {(coffeeOnly ? ["Coffee"] : COMMODITIES).map((comm) => {
+        {(marketOnly ? [marketCommodity] : COMMODITIES).map((comm) => {
           const isSelected = value.some((v) => v.commodity === comm);
           return (
             <button
@@ -128,11 +132,11 @@ export function CommoditySelect({
         })}
       </div>
 
-      {selectedCommodities.some((comm) => COMMODITY_SUBTYPES[comm] && !(coffeeOnly && comm === "Coffee")) && (
+      {selectedCommodities.some((comm) => COMMODITY_SUBTYPES[comm] && !(marketOnly && comm === marketCommodity)) && (
         <div className="commodity-subtype-groups">
           {selectedCommodities.map((comm) => {
             const subTypes = COMMODITY_SUBTYPES[comm];
-            if (!subTypes || (coffeeOnly && comm === "Coffee")) return null;
+            if (!subTypes || (marketOnly && comm === marketCommodity)) return null;
             const selections = value.filter((v) => v.commodity === comm);
 
             return (

@@ -38,6 +38,13 @@ import {
   COFFEE_ORIGIN_CATALOG,
   COFFEE_PROCESSING_TYPES,
 } from "./coffee-origin";
+import {
+  TEA_GRADES,
+  TEA_ORIGIN_CATALOG,
+  TEA_PROCESSING_METHODS,
+  TEA_TYPES,
+  TEA_VARIETIES,
+} from "./tea-origin";
 
 type Market = "grain" | "coffee" | "tea";
 
@@ -49,9 +56,10 @@ const createOnboardingSchema = (market: Market) => {
     })
     .superRefine((selection, ctx) => {
       const allowed = COMMODITY_SUBTYPES[selection.commodity];
-      const coffeeOriginReplacesSubtype =
-        market === "coffee" && selection.commodity === "Coffee";
-      if (allowed && !coffeeOriginReplacesSubtype && !selection.subType) {
+      const marketOriginReplacesSubtype =
+        (market === "coffee" && selection.commodity === "Coffee") ||
+        (market === "tea" && selection.commodity === "Tea");
+      if (allowed && !marketOriginReplacesSubtype && !selection.subType) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["subType"],
@@ -59,7 +67,7 @@ const createOnboardingSchema = (market: Market) => {
         });
       } else if (
         allowed &&
-        !coffeeOriginReplacesSubtype &&
+        !marketOriginReplacesSubtype &&
         selection.subType &&
         !allowed.includes(selection.subType)
       ) {
@@ -88,6 +96,12 @@ const createOnboardingSchema = (market: Market) => {
       coffeeOriginRegion: z.string().optional(),
       coffeeVariety: z.string().optional(),
       coffeeProcessingType: z.string().optional(),
+      teaOriginCountry: z.string().optional(),
+      teaOriginRegion: z.string().optional(),
+      teaVariety: z.string().optional(),
+      teaType: z.string().optional(),
+      teaProcessingMethod: z.string().optional(),
+      teaGrade: z.string().optional(),
       commoditySelections: z.array(commoditySelectionSchema).default([]),
       payoutMobileMoney: z.string().optional(),
       businessName: z.string().optional(),
@@ -224,6 +238,82 @@ const createOnboardingSchema = (market: Market) => {
           });
         }
       }
+
+      if (market === "tea") {
+        if (
+          !data.commoditySelections.some(
+            (selection) => selection.commodity === "Tea",
+          )
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["commoditySelections"],
+            message: "Select Tea to continue",
+          });
+        }
+        requireText("teaOriginCountry", "Country of origin is required");
+        requireText("teaOriginRegion", "Region is required");
+        requireText("teaVariety", "Tea variety is required");
+        requireText("teaType", "Tea type is required");
+        requireText("teaProcessingMethod", "Processing method is required");
+        requireText("teaGrade", "Grade is required");
+
+        const origin = data.teaOriginCountry
+          ? TEA_ORIGIN_CATALOG[data.teaOriginCountry]
+          : undefined;
+        if (data.teaOriginCountry && !origin) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["teaOriginCountry"],
+            message: "Select a valid country of origin",
+          });
+        }
+        if (
+          origin &&
+          data.teaOriginRegion &&
+          !origin.regions.includes(data.teaOriginRegion)
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["teaOriginRegion"],
+            message: "Select a valid region for this country",
+          });
+        }
+        if (
+          data.teaVariety &&
+          !TEA_VARIETIES.includes(data.teaVariety)
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["teaVariety"],
+            message: "Select a valid tea variety",
+          });
+        }
+        if (data.teaType && !TEA_TYPES.includes(data.teaType)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["teaType"],
+            message: "Select a valid tea type",
+          });
+        }
+        if (
+          data.teaProcessingMethod &&
+          !TEA_PROCESSING_METHODS.includes(data.teaProcessingMethod)
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["teaProcessingMethod"],
+            message: "Select a valid processing method",
+          });
+        }
+        if (data.teaGrade && !TEA_GRADES.includes(data.teaGrade)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["teaGrade"],
+            message: "Select a valid grade",
+          });
+        }
+      }
     });
 };
 
@@ -280,7 +370,7 @@ type OnboardingWizardProps = {
   market?: Market;
 };
 
-const stepLabels = ["About you", "Your market", "Your priorities"];
+const stepLabels = ["About you", "Your market", "Your entity", "Your priorities"];
 
 export default function OnboardingWizard({
   marketName = "TokenHarvest",
@@ -308,6 +398,12 @@ export default function OnboardingWizard({
       coffeeOriginRegion: "",
       coffeeVariety: "",
       coffeeProcessingType: "",
+      teaOriginCountry: "",
+      teaOriginRegion: "",
+      teaVariety: "",
+      teaType: "",
+      teaProcessingMethod: "",
+      teaGrade: "",
       commoditySelections: [],
       payoutMobileMoney: "",
       businessName: "",
@@ -322,6 +418,7 @@ export default function OnboardingWizard({
   });
 
   const currentRole = form.watch("marketplaceRole");
+  const isTeaMarket = market === "tea";
   const coffeeOriginCountry = form.watch("coffeeOriginCountry");
   const coffeeOriginRegion = form.watch("coffeeOriginRegion");
   const selectedCoffeeOrigin = coffeeOriginCountry
@@ -329,6 +426,11 @@ export default function OnboardingWizard({
     : undefined;
   const coffeeRegions = selectedCoffeeOrigin?.regions ?? [];
   const coffeeVarieties = selectedCoffeeOrigin?.varieties ?? [];
+  const teaOriginCountry = form.watch("teaOriginCountry");
+  const selectedTeaOrigin = teaOriginCountry
+    ? TEA_ORIGIN_CATALOG[teaOriginCountry]
+    : undefined;
+  const teaRegions = selectedTeaOrigin?.regions ?? [];
 
   useEffect(() => {
     async function loadData() {
@@ -407,7 +509,7 @@ export default function OnboardingWizard({
   }, [form]);
 
   const nextStep = async () => {
-    if (isAdvancing || currentStep >= 3) return;
+    if (isAdvancing || currentStep >= 4) return;
     setIsAdvancing(true);
     let fieldsToValidate: string[] = [];
     if (currentStep === 1) {
@@ -417,31 +519,17 @@ export default function OnboardingWizard({
       } else {
         fieldsToValidate.push("country", "city");
       }
-    } else if (currentRole === "producer") {
+    } else if (currentStep === 2) {
+      fieldsToValidate = ["commoditySelections"];
+      if (currentRole === "buyer") {
+        fieldsToValidate.push("expectedVolume", "destinationCountry");
+      }
+    } else if (currentStep === 3) {
       fieldsToValidate = [
         "businessName",
         "businessRegistrationNumber",
         "entityType",
-        "commoditySelections",
         "payoutMobileMoney",
-      ];
-    } else if (currentRole === "trader") {
-      fieldsToValidate = [
-        "businessName",
-        "businessRegistrationNumber",
-        "entityType",
-        "commoditySelections",
-        "payoutMobileMoney",
-      ];
-    } else {
-      fieldsToValidate = [
-        "businessName",
-        "businessRegistrationNumber",
-        "entityType",
-        "commoditySelections",
-        "payoutMobileMoney",
-        "expectedVolume",
-        "destinationCountry",
       ];
     }
     if (isCoffeeMarket) {
@@ -452,10 +540,20 @@ export default function OnboardingWizard({
         "coffeeProcessingType",
       );
     }
+    if (isTeaMarket) {
+      fieldsToValidate.push(
+        "teaOriginCountry",
+        "teaOriginRegion",
+        "teaVariety",
+        "teaType",
+        "teaProcessingMethod",
+        "teaGrade",
+      );
+    }
 
     try {
       if (await form.trigger(fieldsToValidate as Array<keyof OnboardingData>)) {
-        setCurrentStep((step) => Math.min(3, step + 1));
+        setCurrentStep((step) => Math.min(4, step + 1));
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
     } finally {
@@ -469,7 +567,7 @@ export default function OnboardingWizard({
   };
 
   const onSubmit = async (data: OnboardingData) => {
-    if (currentStep < 3) {
+    if (currentStep < 4) {
       await nextStep();
       return;
     }
@@ -566,20 +664,25 @@ export default function OnboardingWizard({
               title: "What is relevant to your work?",
               description: "Choose the products and details that fit.",
             }
-        : currentRole === "producer"
+        : currentStep === 3
           ? {
-              title: "What would help your farm thrive?",
-            description: "Select all that apply.",
+              title: "Tell us about your entity",
+              description: "Add your entity details and mobile number.",
             }
-          : currentRole === "trader"
+          : currentRole === "producer"
             ? {
-                title: "What would make trading easier?",
-              description: "Select the areas where we can help.",
+                title: "What would help your farm thrive?",
+                description: "Select all that apply.",
               }
-            : {
-                title: "What matters most in your sourcing program?",
-              description: "Select all that apply.",
-              };
+            : currentRole === "trader"
+              ? {
+                  title: "What would make trading easier?",
+                  description: "Select the areas where we can help.",
+                }
+              : {
+                  title: "What matters most in your sourcing program?",
+                  description: "Select all that apply.",
+                };
 
   const inputClass =
     "onboarding-line-input w-full px-1 py-3 text-[16px] text-[#202532] transition-all placeholder:text-[#a4a9b3] focus:outline-none";
@@ -870,6 +973,7 @@ export default function OnboardingWizard({
                               value={field.value}
                               onChange={field.onChange}
                               coffeeOnly={isCoffeeMarket}
+                              teaOnly={isTeaMarket}
                             />
                           </FormControl>
                           <FormMessage />
@@ -1019,99 +1123,213 @@ export default function OnboardingWizard({
                         />
                       </div>
                     )}
-                    <FormField
-                      control={form.control}
-                      name="payoutMobileMoney"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className={labelClass}>
-                            Mobile number
-                          </FormLabel>
-                          <FormControl>
-                            <PhoneNumberInput
-                              value={field.value}
-                              onChange={field.onChange}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    {(currentRole === "trader" || currentRole === "buyer") && (
-                      <>
+                    {isTeaMarket && (
+                      <div className="space-y-4">
                         <FormField
                           control={form.control}
-                          name="businessName"
+                          name="teaOriginCountry"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className={labelClass}>
-                                Entity name
+                                Tea country of origin
                               </FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...field}
-                                  className={inputClass}
-                                  autoComplete="organization"
-                                  data-testid="input-entity-name"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="businessRegistrationNumber"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className={labelClass}>
-                                Entity registration number
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...field}
-                                  className={inputClass}
-                                  data-testid="input-entity-registration"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </>
-                    )}
-                    <FormField
-                      control={form.control}
-                      name="entityType"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className={labelClass}>
-                            Entity type
-                          </FormLabel>
-                          <Select
-                            value={field.value}
-                            onValueChange={field.onChange}
-                          >
-                            <FormControl>
-                              <SelectTrigger
-                                className="onboarding-select-trigger"
-                                data-testid="select-entity-type"
+                              <Select
+                                value={field.value}
+                                onValueChange={(value) => {
+                                  field.onChange(value);
+                                  form.setValue("teaOriginRegion", "");
+                                  form.setValue("teaVariety", "");
+                                }}
                               >
-                                <SelectValue placeholder="Select entity type" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {ENTITY_TYPES.map(([value, label]) => (
-                                <SelectItem key={value} value={value}>
-                                  {label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                                <FormControl>
+                                  <SelectTrigger
+                                    className="onboarding-select-trigger"
+                                    data-testid="select-tea-origin-country"
+                                  >
+                                    <SelectValue placeholder="Select country of origin" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {Object.keys(TEA_ORIGIN_CATALOG).map(
+                                    (country) => (
+                                      <SelectItem key={country} value={country}>
+                                        {country}
+                                      </SelectItem>
+                                    ),
+                                  )}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="teaOriginRegion"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className={labelClass}>
+                                Tea region
+                              </FormLabel>
+                              <Select
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                disabled={!teaOriginCountry}
+                              >
+                                <FormControl>
+                                  <SelectTrigger
+                                    className="onboarding-select-trigger"
+                                    data-testid="select-tea-origin-region"
+                                  >
+                                    <SelectValue placeholder="Select region" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {teaRegions.map((region) => (
+                                    <SelectItem key={region} value={region}>
+                                      {region}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="teaVariety"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className={labelClass}>
+                                Tea variety
+                              </FormLabel>
+                              <Select
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                disabled={!teaOriginRegion}
+                              >
+                                <FormControl>
+                                  <SelectTrigger
+                                    className="onboarding-select-trigger"
+                                    data-testid="select-tea-variety"
+                                  >
+                                    <SelectValue placeholder="Select tea variety" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {TEA_VARIETIES.map((variety) => (
+                                    <SelectItem key={variety} value={variety}>
+                                      {variety}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="teaType"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className={labelClass}>
+                                Tea type
+                              </FormLabel>
+                              <Select
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                disabled={!teaVariety}
+                              >
+                                <FormControl>
+                                  <SelectTrigger
+                                    className="onboarding-select-trigger"
+                                    data-testid="select-tea-type"
+                                  >
+                                    <SelectValue placeholder="Select tea type" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {TEA_TYPES.map((type) => (
+                                    <SelectItem key={type} value={type}>
+                                      {type}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="teaProcessingMethod"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className={labelClass}>
+                                Processing method
+                              </FormLabel>
+                              <Select
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                disabled={!teaType}
+                              >
+                                <FormControl>
+                                  <SelectTrigger
+                                    className="onboarding-select-trigger"
+                                    data-testid="select-tea-processing-method"
+                                  >
+                                    <SelectValue placeholder="Select processing method" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {TEA_PROCESSING_METHODS.map((method) => (
+                                    <SelectItem key={method} value={method}>
+                                      {method}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="teaGrade"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className={labelClass}>
+                                Grade
+                              </FormLabel>
+                              <Select
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                disabled={!teaProcessingMethod}
+                              >
+                                <FormControl>
+                                  <SelectTrigger
+                                    className="onboarding-select-trigger"
+                                    data-testid="select-tea-grade"
+                                  >
+                                    <SelectValue placeholder="Select grade" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {TEA_GRADES.map((grade) => (
+                                    <SelectItem key={grade} value={grade}>
+                                      {grade}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    )}
                     {currentRole === "buyer" && (
                       <>
                         <FormField
@@ -1156,6 +1374,100 @@ export default function OnboardingWizard({
                 )}
 
                 {currentStep === 3 && (
+                  <>
+                    <FormField
+                      control={form.control}
+                      name="payoutMobileMoney"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className={labelClass}>
+                            Mobile number
+                          </FormLabel>
+                          <FormControl>
+                            <PhoneNumberInput
+                              value={field.value}
+                              onChange={field.onChange}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="businessName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className={labelClass}>
+                            Entity name
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              className={inputClass}
+                              autoComplete="organization"
+                              data-testid="input-entity-name"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="businessRegistrationNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className={labelClass}>
+                            Entity registration number
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              className={inputClass}
+                              data-testid="input-entity-registration"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="entityType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className={labelClass}>
+                            Entity type
+                          </FormLabel>
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
+                            <FormControl>
+                              <SelectTrigger
+                                className="onboarding-select-trigger"
+                                data-testid="select-entity-type"
+                              >
+                                <SelectValue placeholder="Select entity type" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {ENTITY_TYPES.map(([value, label]) => (
+                                <SelectItem key={value} value={value}>
+                                  {label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </>
+                )}
+
+                {currentStep === 4 && (
                   <>
                     {currentRole === "producer" && (
                       <FormField
@@ -1233,7 +1545,7 @@ export default function OnboardingWizard({
               ) : (
                 <span />
               )}
-              {currentStep < 3 ? (
+              {currentStep < 4 ? (
                 <Button
                   type="button"
                   onClick={(event) => {

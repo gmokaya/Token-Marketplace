@@ -89,6 +89,43 @@ const coffeeProcessingTypes = new Set([
   "Experimental",
   "Other",
 ]);
+const teaOriginCatalog: Record<string, { regions: readonly string[] }> = {
+  Kenya: { regions: ["Kericho", "Nandi", "Bomet", "Nyamira", "Kiambu", "Murang'a", "Nyeri", "Embu", "Kakamega"] },
+  China: { regions: ["Yunnan", "Fujian", "Zhejiang", "Anhui", "Hunan", "Hubei", "Jiangxi", "Sichuan", "Guangdong", "Guangxi"] },
+  India: { regions: ["Assam", "Darjeeling", "Nilgiri", "Dooars-Terai", "Kangra", "Sikkim", "Tripura", "Himachal Pradesh", "Kerala", "Karnataka"] },
+  "Sri Lanka": { regions: ["Uva", "Dimbula", "Nuwara Eliya", "Kandy", "Ruhuna", "Sabaragamuwa", "Uda Pussellawa"] },
+  Japan: { regions: ["Shizuoka", "Kagoshima", "Mie", "Kyoto", "Uji", "Fukuoka", "Miyazaki", "Kumamoto", "Saga", "Nara"] },
+  Taiwan: { regions: ["Alishan", "Lishan", "Nantou", "Yushan", "Wenshan", "Hsinchu", "Taoyuan", "Miaoli", "Pinglin"] },
+  Vietnam: { regions: ["Thai Nguyen", "Lam Dong", "Ha Giang", "Yen Bai", "Son La", "Lai Chau", "Nghe An"] },
+  Rwanda: { regions: ["Northern Province", "Southern Province", "Western Province", "Eastern Province"] },
+  Malawi: { regions: ["Thyolo", "Mulanje", "Nkhata Bay", "Viphya", "Nkhotakota", "Mzuzu"] },
+  Tanzania: { regions: ["Mbeya", "Njombe", "Iringa", "Tanga", "Rungwe", "Usambara", "Lushoto", "Tukuyu"] },
+  Uganda: { regions: ["Fort Portal", "Kabale", "Kisoro", "Bundibugyo", "Rwenzori", "Zombo", "Bushenyi", "Kigezi"] },
+  Bangladesh: { regions: ["Sylhet", "Moulvibazar", "Habiganj", "Chattogram", "Panchagarh"] },
+  Nepal: { regions: ["Ilam", "Jhapa", "Panchthar", "Dhankuta", "Terhathum", "Taplejung"] },
+  Indonesia: { regions: ["West Java", "Central Java", "North Sumatra", "South Sumatra", "West Sumatra", "Bali", "East Java", "Sulawesi", "Papua"] },
+  Turkey: { regions: ["Rize", "Trabzon", "Artvin", "Giresun"] },
+  Other: { regions: ["Other"] },
+};
+const teaVarieties = new Set([
+  "Assamica", "Sinensis", "Assam", "Ceylon", "Darjeeling", "Yabukita",
+  "Saemidori", "Okumidori", "Qing Xin", "Jin Xuan", "TRFK 6/8", "TRFK 7/3",
+  "TRFK 11/4", "TRFK 12/12", "TRFK 31/27", "TRFK 108", "TRFK 303/152",
+  "TRFK 338", "TRFK 340", "TRFK 357", "Shan Tuyet", "Other",
+]);
+const teaTypes = new Set([
+  "Black Tea", "Green Tea", "White Tea", "Oolong Tea", "Yellow Tea", "Dark Tea",
+  "Purple Tea", "Matcha", "Herbal / Tisane", "Flavoured Tea", "Blended Tea", "Other",
+]);
+const teaProcessingMethods = new Set([
+  "CTC", "Orthodox", "Hand-Processed", "Steamed", "Pan-Fired", "Sun-Dried",
+  "Withered", "Semi-Oxidized", "Fully Oxidized", "Unoxidized", "Fermented",
+  "Post-Fermented", "Smoked", "Scented", "Blended", "Other",
+]);
+const teaGrades = new Set([
+  "Whole Leaf", "Broken Leaf", "Fannings", "Dust", "Premium", "Specialty",
+  "Conventional", "Other",
+]);
 const commoditySubtypes: Record<string, readonly string[]> = {
   Coffee: ["Arabica AA", "Arabica AB", "Arabica PB", "Robusta"],
   Tea: ["Orthodox", "CTC", "Green Tea", "Purple Tea", "White Tea"],
@@ -118,6 +155,12 @@ const onboardingSchema = z.object({
   coffeeOriginRegion: optionalText,
   coffeeVariety: optionalText,
   coffeeProcessingType: optionalText,
+  teaOriginCountry: optionalText,
+  teaOriginRegion: optionalText,
+  teaVariety: optionalText,
+  teaType: optionalText,
+  teaProcessingMethod: optionalText,
+  teaGrade: optionalText,
   commodities: z.array(z.string().trim().min(1).max(80)).max(20).default([]),
   commoditySelections: z.array(commoditySelectionSchema).max(20).default([]),
   payoutMobileMoney: optionalText,
@@ -211,6 +254,38 @@ const onboardingSchema = z.object({
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["coffeeProcessingType"], message: "Select a valid processing type" });
     }
   }
+
+  if (data.market === "tea") {
+    if (!data.commoditySelections.some((selection) => selection.commodity === "Tea")) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["commoditySelections"], message: "Select Tea to continue" });
+    }
+    required("teaOriginCountry", "Country of origin is required");
+    required("teaOriginRegion", "Region is required");
+    required("teaVariety", "Tea variety is required");
+    required("teaType", "Tea type is required");
+    required("teaProcessingMethod", "Processing method is required");
+    required("teaGrade", "Grade is required");
+
+    const origin = data.teaOriginCountry ? teaOriginCatalog[data.teaOriginCountry] : undefined;
+    if (data.teaOriginCountry && !origin) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["teaOriginCountry"], message: "Select a valid country of origin" });
+    }
+    if (origin && data.teaOriginRegion && !origin.regions.includes(data.teaOriginRegion)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["teaOriginRegion"], message: "Select a valid region for this country" });
+    }
+    if (data.teaVariety && !teaVarieties.has(data.teaVariety)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["teaVariety"], message: "Select a valid tea variety" });
+    }
+    if (data.teaType && !teaTypes.has(data.teaType)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["teaType"], message: "Select a valid tea type" });
+    }
+    if (data.teaProcessingMethod && !teaProcessingMethods.has(data.teaProcessingMethod)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["teaProcessingMethod"], message: "Select a valid processing method" });
+    }
+    if (data.teaGrade && !teaGrades.has(data.teaGrade)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["teaGrade"], message: "Select a valid grade" });
+    }
+  }
 });
 
 async function getCurrentUser(clerkId: string) {
@@ -284,6 +359,15 @@ router.put("/onboarding/me", async (req, res) => {
           coffeeVariety: data.coffeeVariety || null,
           coffeeProcessingType: data.coffeeProcessingType || null,
         }
+      : data.market === "tea"
+        ? {
+            teaOriginCountry: data.teaOriginCountry || null,
+            teaOriginRegion: data.teaOriginRegion || null,
+            teaVariety: data.teaVariety || null,
+            teaType: data.teaType || null,
+            teaProcessingMethod: data.teaProcessingMethod || null,
+            teaGrade: data.teaGrade || null,
+          }
       : {}),
   };
 
