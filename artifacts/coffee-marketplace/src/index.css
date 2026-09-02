@@ -944,7 +944,7 @@ h1, h2, h3, h4, h5, h6 {
     right: 0;
     width: min(430px, 100%);
     margin: 0;
-    transform: scale(0.82);
+    transform: translateY(-50%) scale(0.82);
     transform-origin: right center;
   }
 
@@ -959,7 +959,7 @@ h1, h2, h3, h4, h5, h6 {
 
 @media (min-width: 761px) and (max-height: 560px) {
   .market-auth-shell--auth .market-auth-form-wrap {
-    transform: scale(0.72);
+    transform: translateY(-50%) scale(0.72);
   }
 }
 
