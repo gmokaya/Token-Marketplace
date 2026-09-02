@@ -4,7 +4,7 @@ import { AppHeader } from "./AppHeader";
 import { Show } from "@clerk/react";
 import { useGetMe } from "@workspace/api-client-react";
 import { Link } from "wouter";
-import { ShieldAlert, X } from "lucide-react";
+import { AlertTriangle, X } from "lucide-react";
 
 interface LayoutProps {
   children: ReactNode;
@@ -12,7 +12,7 @@ interface LayoutProps {
   market?: "grain" | "coffee" | "tea";
 }
 
-function KybReminder() {
+function KybBanner() {
   const { data: user } = useGetMe();
   const [dismissed, setDismissed] = useState(false);
 
@@ -21,36 +21,30 @@ function KybReminder() {
   if (user.tier === "ADMIN" || user.kybStatus === "VERIFIED") return null;
 
   return (
-    <aside
-      className="fixed bottom-6 right-6 z-50 w-[min(360px,calc(100vw-2rem))] rounded-xl border border-slate-200 bg-white p-4 shadow-2xl shadow-slate-950/15"
+    <div
+      className="flex shrink-0 items-center gap-3 border-b border-slate-200 bg-slate-50 px-4 py-2.5"
       role="status"
       aria-live="polite"
     >
-      <div className="flex items-start gap-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100">
-          <ShieldAlert className="h-5 w-5 text-slate-700" aria-hidden="true" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-slate-950">Complete your KYC</p>
-          <p className="mt-1 text-xs leading-5 text-slate-600">
-            Finish your verification to unlock full trading, financing, and marketplace features.
-          </p>
-          <Link
-            href="/profile"
-            className="mt-3 inline-flex items-center text-xs font-semibold text-slate-950 underline underline-offset-4 hover:text-slate-600"
-          >
-            Complete KYC <span aria-hidden="true" className="ml-1">→</span>
-          </Link>
-        </div>
-        <button
-          onClick={() => setDismissed(true)}
-          className="shrink-0 rounded p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-800"
-          aria-label="Dismiss KYC reminder"
+      <AlertTriangle className="h-4 w-4 shrink-0 text-slate-500" aria-hidden="true" />
+      <p className="flex-1 text-xs text-slate-800">
+        <strong>Compliance profile incomplete.</strong>{" "}
+        Finish your verification to unlock full trading, financing, and marketplace features.{" "}
+        <Link
+          href="/profile"
+          className="font-semibold underline underline-offset-2 hover:text-slate-950"
         >
-          <X className="h-4 w-4" aria-hidden="true" />
-        </button>
-      </div>
-    </aside>
+          Complete KYC →
+        </Link>
+      </p>
+      <button
+        onClick={() => setDismissed(true)}
+        className="ml-2 text-slate-500 transition-colors hover:text-slate-800"
+        aria-label="Dismiss KYC reminder"
+      >
+        <X className="h-4 w-4" />
+      </button>
+    </div>
   );
 }
 
@@ -72,7 +66,7 @@ export function Layout({ children, marketName = "Grain Market", market = "grain"
     <div className="flex h-screen flex-col overflow-hidden bg-[#f5f6f6] text-[#25292c]">
       <Show when="signed-in">
         <AppHeader collapsed={collapsed} onToggle={handleToggle} />
-        <KybReminder />
+        <KybBanner />
       </Show>
 
       <div className="flex flex-1 overflow-hidden">

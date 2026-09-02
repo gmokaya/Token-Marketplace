@@ -57,7 +57,7 @@ export default function MarketWorkspace({ market }: { market: MarketKind }) {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-col gap-5 border-b border-[#dfe3e3] pb-6 lg:flex-row lg:items-end lg:justify-between">
+      <header className="border-b border-[#dfe3e3] pb-4">
         <div>
           <div className="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#7b8588]">
             <span className="h-2 w-2 bg-[#25292c]" aria-hidden="true" />
@@ -67,7 +67,7 @@ export default function MarketWorkspace({ market }: { market: MarketKind }) {
           <p className="mt-2 max-w-2xl text-sm text-[#6e797c]">{copy.description}</p>
         </div>
 
-        <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto">
+        <div className="mt-5 flex w-full flex-col gap-2 sm:flex-row">
           <label className="relative min-w-0 flex-1 sm:w-64">
             <span className="sr-only">Search the {copy.name}</span>
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8a9496]" aria-hidden="true" />
