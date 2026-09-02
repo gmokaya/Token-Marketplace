@@ -1,7 +1,7 @@
 import { SignIn, SignUp } from "@clerk/react";
 import { Link } from "wouter";
 import { AuthBenefitCarousel } from "@/components/AuthBenefitCarousel";
-import coffeeSignInImage from "@assets/pexels-irvin-david-906313077-36040333_1788340660345.jpg";
+import coffeeSignInImage from "@assets/pexels-1500mcoffee-29639326_1788340936508.jpg";
 
 const clerkAppearance = {
   variables: {
@@ -84,7 +84,6 @@ export default function SignInPage() {
         <section className="market-auth-form-wrap">
           <div className={`market-auth-form-card ${isSignUp ? "market-auth-form-card--signup" : "market-auth-form-card--signin"}`}>
             <div className="market-auth-form-heading">
-              <p className="market-auth-form-kicker">Buyer access · Coffee market</p>
               <h1>{isSignUp ? "Create your Coffee Marketplace account" : "Sign in to Coffee Marketplace"}</h1>
               <p>
                 {isSignUp

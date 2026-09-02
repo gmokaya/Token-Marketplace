@@ -427,6 +427,7 @@ export default function OnboardingWizard({
   const coffeeRegions = selectedCoffeeOrigin?.regions ?? [];
   const coffeeVarieties = selectedCoffeeOrigin?.varieties ?? [];
   const teaOriginCountry = form.watch("teaOriginCountry");
+  const teaOriginRegion = form.watch("teaOriginRegion");
   const selectedTeaOrigin = teaOriginCountry
     ? TEA_ORIGIN_CATALOG[teaOriginCountry]
     : undefined;

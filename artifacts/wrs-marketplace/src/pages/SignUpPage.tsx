@@ -3,6 +3,7 @@ import { AuthBenefitCarousel } from "@/components/AuthBenefitCarousel";
 import type { BenefitSlide } from "@/components/AuthBenefitCarousel";
 import { Sprout, ShoppingBag, Truck } from "lucide-react";
 import { Link } from "wouter";
+import grainSignInImage from "@assets/pexels-mwesigwa-joel-455894964-38668656_1788340914738.jpg";
 
 type SignUpPageProps = {
   marketName?: string;
@@ -48,7 +49,7 @@ export default function SignUpPage({
   return (
     <div className={`market-auth-shell ${shellClass}`}>
       <img
-        src={backgroundSrc ?? `${bp}/photos/hero-soybean-farmer.jpg`}
+        src={backgroundSrc ?? grainSignInImage}
         alt=""
         className="market-auth-background"
         fetchPriority="high"

@@ -1,6 +1,7 @@
 import { SignIn, SignUp } from "@clerk/react";
 import { Link } from "wouter";
 import { AuthBenefitCarousel } from "@/components/AuthBenefitCarousel";
+import grainSignInImage from "@assets/pexels-mwesigwa-joel-455894964-38668656_1788340914738.jpg";
 
 const clerkAppearance = {
   variables: {
@@ -49,7 +50,7 @@ export default function SignInPage() {
   return (
     <div className="market-auth-shell market-auth-shell--auth market-auth-shell--grain">
       <img
-        src={`${bp}/photos/hero-soybean-farmer.jpg`}
+        src={grainSignInImage}
         alt=""
         className="market-auth-background"
         fetchPriority="high"
@@ -88,7 +89,6 @@ export default function SignInPage() {
         <section className="market-auth-form-wrap">
           <div className={`market-auth-form-card ${isSignUp ? "market-auth-form-card--signup" : "market-auth-form-card--signin"}`}>
             <div className="market-auth-form-heading">
-              <p className="market-auth-form-kicker">Buyer access · Grain market</p>
               <h1>{isSignUp ? "Create your Grain Marketplace account" : "Sign in to Grain Marketplace"}</h1>
               <p>
                 {isSignUp

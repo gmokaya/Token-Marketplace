@@ -39,30 +39,10 @@
   filter: blur(18px);
 }
 
-.market-auth-shell::after {
-  top: 11%;
-  right: -80px;
-  width: min(46vw, 560px);
-  height: min(46vw, 560px);
-  opacity: 0.82;
-  transform: rotate(-5deg);
-  background-image: url("@assets/market-background-coins.png");
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: contain;
-  filter: drop-shadow(0 4px 10px rgba(19, 29, 37, 0.1));
-}
-
 .market-auth-shell--onboarding::before {
   top: 18%;
   right: -220px;
   opacity: 0.12;
-}
-
-.market-auth-shell--onboarding::after {
-  top: 18%;
-  right: -110px;
-  opacity: 0.58;
 }
 
 .market-auth-shell--grain {
