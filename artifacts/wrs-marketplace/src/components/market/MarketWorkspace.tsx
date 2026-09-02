@@ -33,14 +33,14 @@ function EmptyStat({ label, detail, icon: Icon }: {
   icon: typeof Layers3;
 }) {
   return (
-    <div className="relative min-h-[108px] overflow-hidden border border-[#dfe3e3] bg-white p-4">
-      <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[#7b8588]">
-        <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+    <div className="relative min-h-[75px] overflow-hidden border border-[#dfe3e3] bg-white p-2.5">
+      <div className="flex items-center gap-1.5 text-[8px] font-bold uppercase tracking-[0.16em] text-[#7b8588]">
+        <Icon className="h-3 w-3" aria-hidden="true" />
         {label}
       </div>
-      <div className="mt-4 font-mono text-xl font-bold text-[#9aa3a5]">— no data</div>
-      <div className="mt-1 text-xs text-[#8b9496]">{detail}</div>
-      <Icon className="absolute -bottom-4 -right-3 h-20 w-20 text-[#eef1f1]" aria-hidden="true" />
+      <div className="mt-2.5 font-mono text-sm font-bold text-[#9aa3a5]">— no data</div>
+      <div className="mt-0.5 text-[9px] text-[#8b9496]">{detail}</div>
+      <Icon className="absolute -bottom-4 -right-3 h-16 w-16 text-[#eef1f1]" aria-hidden="true" />
     </div>
   );
 }
@@ -56,36 +56,36 @@ export default function MarketWorkspace({ market }: { market: MarketKind }) {
   );
 
   return (
-    <div className="space-y-6">
-      <header className="border-b border-[#dfe3e3] pb-4">
+    <div className="space-y-4">
+      <header className="flex items-start justify-between gap-6 border-b border-[#dfe3e3] pb-4">
         <div>
-          <div className="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#7b8588]">
-            <span className="h-2 w-2 bg-[#25292c]" aria-hidden="true" />
+          <div className="mb-2 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.2em] text-[#7b8588]">
+            <span className="h-1.5 w-1.5 bg-[#25292c]" aria-hidden="true" />
             {copy.name}
           </div>
-          <h1 className="font-sans text-3xl font-bold tracking-[-0.03em] text-[#202427]">Spot Market</h1>
-          <p className="mt-2 max-w-2xl text-sm text-[#6e797c]">{copy.description}</p>
+          <h1 className="font-sans text-xl font-bold tracking-[-0.03em] text-[#202427]">Spot Market</h1>
+          <p className="mt-1 max-w-2xl text-[10px] text-[#6e797c]">{copy.description}</p>
         </div>
 
-        <div className="mt-5 flex w-full flex-col gap-2 sm:flex-row">
-          <label className="relative min-w-0 flex-1 sm:w-64">
+        <div className="mt-8 flex shrink-0 gap-2">
+          <label className="relative w-[170px]">
             <span className="sr-only">Search the {copy.name}</span>
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8a9496]" aria-hidden="true" />
+            <Search className="pointer-events-none absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-[#8a9496]" aria-hidden="true" />
             <Input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Search origins, grades..."
-              className="h-10 rounded-none border-[#dfe3e3] bg-white pl-9 text-sm shadow-none focus-visible:ring-1 focus-visible:ring-[#25292c]"
+              className="h-7 rounded-none border-[#dfe3e3] bg-white pl-7 text-[10px] shadow-none focus-visible:ring-1 focus-visible:ring-[#25292c]"
             />
           </label>
           <Button
             type="button"
             variant="outline"
-            className="h-10 rounded-none border-[#dfe3e3] bg-white px-3 text-[#4f5a5d] shadow-none hover:bg-[#f0f2f2]"
+            className="h-7 rounded-none border-[#dfe3e3] bg-white px-2.5 text-[10px] text-[#4f5a5d] shadow-none hover:bg-[#f0f2f2]"
             onClick={() => setOrigin(origin ? "" : "origin")}
             aria-pressed={Boolean(origin)}
           >
-            <Filter className="mr-2 h-4 w-4" aria-hidden="true" />
+            <Filter className="mr-1.5 h-3 w-3" aria-hidden="true" />
             Filter
           </Button>
         </div>
@@ -112,7 +112,7 @@ export default function MarketWorkspace({ market }: { market: MarketKind }) {
         </div>
       )}
 
-      <section aria-label={`${copy.name} summary`} className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <section aria-label={`${copy.name} summary`} className="grid grid-cols-2 gap-2 md:grid-cols-4">
         <EmptyStat icon={Layers3} label="Active listings" detail="lots available" />
         <EmptyStat icon={Package} label="Total volume" detail="settled USD" />
         <EmptyStat icon={Warehouse} label="Warehouse receipts" detail="eWRs on platform" />
@@ -126,14 +126,14 @@ export default function MarketWorkspace({ market }: { market: MarketKind }) {
             <p className="mt-1 text-sm text-[#7b8588]">Fixed-price lots available for immediate purchase.</p>
           </div>
         </div>
-        <div className="flex min-h-[250px] flex-col items-center justify-center border border-[#dfe3e3] bg-white px-6 text-center">
-          <div className="mb-4 flex h-14 w-14 items-center justify-center border border-[#e1e6e6] bg-[#f8f9f9]">
-            <Search className="h-7 w-7 text-[#b7c0c1]" aria-hidden="true" />
+        <div className="flex min-h-[168px] flex-col items-center justify-center border border-[#dfe3e3] bg-white px-6 text-center">
+          <div className="mb-3 flex h-10 w-10 items-center justify-center border border-[#e1e6e6] bg-[#f8f9f9]">
+            <Search className="h-5 w-5 text-[#b7c0c1]" aria-hidden="true" />
           </div>
-          <h3 className="text-base font-semibold text-[#3d4649]">
+          <h3 className="text-xs font-semibold text-[#3d4649]">
             {hasFilters ? "No lots match your filters" : "No active listings"}
           </h3>
-          <p className="mt-1 max-w-sm text-sm text-[#879194]">
+          <p className="mt-1 max-w-sm text-[10px] text-[#879194]">
             {hasFilters ? "Try adjusting your filters or clearing them." : copy.emptyDescription}
           </p>
           {hasFilters && (

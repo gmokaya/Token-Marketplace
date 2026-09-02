@@ -22,33 +22,39 @@ function KybBanner() {
 
   return (
     <div
-      className="flex shrink-0 items-center gap-3 border-b border-slate-200 bg-slate-50 px-4 py-2.5"
+      className="fixed bottom-4 right-4 z-50 flex w-[240px] items-start gap-2.5 border border-slate-200 bg-white p-3 shadow-lg shadow-slate-950/10"
       role="status"
       aria-live="polite"
     >
-      <AlertTriangle className="h-4 w-4 shrink-0 text-slate-500" aria-hidden="true" />
-      <p className="flex-1 text-xs text-slate-800">
-        <strong>Compliance profile incomplete.</strong>{" "}
-        Finish your verification to unlock full trading, financing, and marketplace features.{" "}
+      <div className="flex h-6 w-6 shrink-0 items-center justify-center border border-slate-200 bg-slate-50">
+        <AlertTriangle className="h-3.5 w-3.5 text-slate-600" aria-hidden="true" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-[10px] font-bold leading-4 text-slate-900">Complete your KYC</p>
+        <p className="text-[9px] leading-3.5 text-slate-600">
+          Finish your verification to unlock full trading, financing, and marketplace features.
+        </p>
         <Link
           href="/profile"
-          className="font-semibold underline underline-offset-2 hover:text-slate-950"
+          className="mt-1 inline-flex text-[9px] font-bold text-slate-900 underline underline-offset-2 hover:text-slate-600"
         >
-          Complete KYC →
+          Complete KYC <span aria-hidden="true" className="ml-1">→</span>
         </Link>
-      </p>
+      </div>
       <button
         onClick={() => setDismissed(true)}
-        className="ml-2 text-slate-500 transition-colors hover:text-slate-800"
+        className="shrink-0 text-slate-400 transition-colors hover:text-slate-800"
         aria-label="Dismiss KYC reminder"
       >
-        <X className="h-4 w-4" />
+        <X className="h-3 w-3" aria-hidden="true" />
       </button>
     </div>
   );
 }
 
 export function Layout({ children, marketName = "Grain Market", market = "grain" }: LayoutProps) {
+  const { data: me } = useGetMe();
+  const isAdmin = me?.tier === "ADMIN";
   const [collapsed, setCollapsed] = useState(() => {
     try { return localStorage.getItem("th-sidebar-collapsed") === "true"; }
     catch { return false; }
@@ -65,17 +71,21 @@ export function Layout({ children, marketName = "Grain Market", market = "grain"
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#f5f6f6] text-[#25292c]">
       <Show when="signed-in">
-        <AppHeader collapsed={collapsed} onToggle={handleToggle} />
+        {isAdmin && <AppHeader collapsed={collapsed} onToggle={handleToggle} />}
         <KybBanner />
       </Show>
 
       <div className="flex flex-1 overflow-hidden">
         <Show when="signed-in">
-          <Sidebar collapsed={collapsed} marketName={marketName} market={market} />
+          <Sidebar
+            collapsed={isAdmin ? collapsed : false}
+            marketName={marketName}
+            market={market}
+          />
         </Show>
 
         <main className="flex-1 overflow-y-auto">
-          <div className="mx-auto w-full max-w-[1400px] p-6 md:p-8">
+          <div className="mx-auto w-full max-w-none p-5">
             {children}
           </div>
         </main>
