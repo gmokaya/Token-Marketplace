@@ -24,7 +24,19 @@ const COUNTRIES = ISO_COUNTRY_CODES
 const PINNED_COUNTRIES = PINNED_CODES.map((code) => COUNTRIES.find((country) => country.code === code)).filter(Boolean) as typeof COUNTRIES;
 const OTHER_COUNTRIES = COUNTRIES.filter((country) => !PINNED_CODES.includes(country.code));
 
-export function CountrySelect({ value, onChange }: { value?: string; onChange: (val: string) => void }) {
+type CountrySelectProps = {
+  value?: string;
+  onChange: (val: string) => void;
+  ariaLabel?: string;
+  placeholder?: string;
+};
+
+export function CountrySelect({
+  value,
+  onChange,
+  ariaLabel = "Destination country",
+  placeholder = "Select destination country",
+}: CountrySelectProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -34,11 +46,11 @@ export function CountrySelect({ value, onChange }: { value?: string; onChange: (
           type="button"
           role="combobox"
           aria-expanded={open}
-          aria-label="Destination country"
+          aria-label={ariaLabel}
           data-testid="country-combobox"
           className="flex w-full items-center justify-between h-12 rounded-xl border border-[#e5e5ea] bg-[#f5f5f7] px-4 font-normal text-[15px] transition-all hover:bg-white hover:border-[#606A5C] focus:bg-white focus:border-[#606A5C] focus:outline-none focus:ring-1 focus:ring-[#606A5C]/20 text-[#1d1d1f]"
         >
-          {value ? value : <span className="text-[#86868b]">Select destination country</span>}
+          {value ? value : <span className="text-[#86868b]">{placeholder}</span>}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50 text-[#86868b]" />
         </button>
       </PopoverTrigger>

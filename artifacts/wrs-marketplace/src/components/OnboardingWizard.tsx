@@ -64,6 +64,7 @@ const onboardingSchema = z
   .object({
     marketplaceRole: z.enum(["producer", "trader", "buyer"]),
     fullName: z.string().min(2, "Full name is required"),
+    country: z.string().optional(),
     region: z.string().optional(),
     commoditySelections: z.array(commoditySelectionSchema).default([]),
     payoutMobileMoney: z.string().optional(),
@@ -83,7 +84,8 @@ const onboardingSchema = z
     };
 
     if (data.marketplaceRole === "producer") {
-      requireText("region", "Region or county is required");
+      requireText("country", "Country is required");
+      requireText("region", "Region is required");
       requireText("payoutMobileMoney", "Mobile money number is required");
       if (!data.commoditySelections.length) {
         ctx.addIssue({
@@ -187,6 +189,7 @@ export default function OnboardingWizard({
     defaultValues: {
       marketplaceRole: "producer",
       fullName: "",
+      country: "",
       region: "",
       commoditySelections: [],
       payoutMobileMoney: "",
@@ -284,7 +287,9 @@ export default function OnboardingWizard({
     let fieldsToValidate: string[] = [];
     if (currentStep === 1) {
       fieldsToValidate = ["fullName"];
-      if (currentRole === "producer") fieldsToValidate.push("region");
+      if (currentRole === "producer") {
+        fieldsToValidate.push("country", "region");
+      }
     } else if (currentRole === "producer") {
       fieldsToValidate = ["commoditySelections", "payoutMobileMoney"];
     } else if (currentRole === "trader") {
@@ -585,26 +590,48 @@ export default function OnboardingWizard({
                       )}
                     />
                     {currentRole === "producer" && (
-                      <FormField
-                        control={form.control}
-                        name="region"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className={labelClass}>
-                              Region or county
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                className={inputClass}
-                                placeholder="e.g. Rift Valley, Kenya"
-                                data-testid="input-region"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      <div className="onboarding-producer-location-grid">
+                        <FormField
+                          control={form.control}
+                          name="country"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className={labelClass}>
+                                Country
+                              </FormLabel>
+                              <FormControl>
+                                <CountrySelect
+                                  value={field.value}
+                                  onChange={field.onChange}
+                                  ariaLabel="Country"
+                                  placeholder="Select country"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="region"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className={labelClass}>
+                                Region
+                              </FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  className={inputClass}
+                                  placeholder="e.g. Rift Valley"
+                                  data-testid="input-region"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                     )}
                   </>
                 )}

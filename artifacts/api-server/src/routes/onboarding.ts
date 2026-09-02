@@ -38,6 +38,7 @@ const commoditySelectionSchema = z.object({
 const onboardingSchema = z.object({
   marketplaceRole: roleSchema,
   fullName: z.string().trim().min(2).max(120),
+  country: optionalText,
   region: optionalText,
   commodities: z.array(z.string().trim().min(1).max(80)).max(20).default([]),
   commoditySelections: z.array(commoditySelectionSchema).max(20).default([]),
@@ -62,7 +63,8 @@ const onboardingSchema = z.object({
   };
 
   if (data.marketplaceRole === "producer") {
-    required("region", "Region or county is required");
+    required("country", "Country is required");
+    required("region", "Region is required");
     required("payoutMobileMoney", "Mobile money number is required");
     if (data.commoditySelections.length === 0 && data.commodities.length === 0) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["commoditySelections"], message: "Select at least one commodity" });
@@ -136,6 +138,7 @@ router.put("/onboarding/me", async (req, res) => {
     userId: user.id,
     marketplaceRole: data.marketplaceRole,
     fullName: data.fullName,
+    country: data.country || null,
     region: data.region || null,
     commodities: legacyCommodityNames,
     commoditySelections,

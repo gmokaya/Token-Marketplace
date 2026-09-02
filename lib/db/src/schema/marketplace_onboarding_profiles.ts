@@ -11,6 +11,7 @@ export const marketplaceOnboardingProfilesTable = pgTable("marketplace_onboardin
   userId: integer("user_id").notNull().unique().references(() => usersTable.id),
   marketplaceRole: text("marketplace_role").notNull(),
   fullName: text("full_name").notNull(),
+  country: text("country"),
   region: text("region"),
   commodities: text("commodities").array().notNull().default([]),
   commoditySelections: jsonb("commodity_selections").$type<CommoditySelection[]>().notNull().default([]),
