@@ -11,7 +11,6 @@ import { setAuthTokenGetter, setBaseUrl } from "@workspace/api-client-react";
 
 import Home from "@/pages/Home";
 import SignInPage from "@/pages/SignInPage";
-import SignUpPage from "@/pages/SignUpPage";
 import Dashboard from "@/pages/Dashboard";
 import OnboardingPage from "@/pages/OnboardingPage";
 import Profile from "@/pages/Profile";
@@ -147,7 +146,7 @@ function ClerkProviderWithRoutes() {
           <Switch>
             {/* Public pages */}
             <Route path="/" component={HomeRedirect} />
-            <Route path="/sign-up" component={SignUpPage} />
+            <Route path="/sign-up"><Redirect to="/sign-in?mode=sign-up" /></Route>
             <Route path="/sign-in/*?" component={SignInPage} />
 
             {/* Authenticated pages */}

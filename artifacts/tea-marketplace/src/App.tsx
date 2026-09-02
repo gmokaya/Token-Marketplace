@@ -14,7 +14,6 @@ import { Layout } from "@/components/layout/Layout";
 
 import Home from "@/pages/Home";
 import SignInPage from "@/pages/SignInPage";
-import SignUpPage from "@/pages/SignUpPage";
 import OnboardingPage from "@/pages/OnboardingPage";
 import Dashboard from "@/pages/Dashboard";
 import Profile from "@/pages/Profile";
@@ -161,7 +160,7 @@ function ClerkProviderWithRoutes() {
           <Switch>
             {/* Full-screen pages, no Layout wrapper */}
             <Route path="/" component={HomeRedirect} />
-            <Route path="/sign-up" component={SignUpPage} />
+            <Route path="/sign-up"><Redirect to="/sign-in?mode=sign-up" /></Route>
             <Route path="/sign-in/*?" component={SignInPage} />
             <Route path="/onboarding"><ProtectedRoute><OnboardingPage /></ProtectedRoute></Route>
 
