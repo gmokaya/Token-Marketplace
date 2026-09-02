@@ -83,10 +83,11 @@ const onboardingSchema = z
       }
     };
 
+    requireText("payoutMobileMoney", "Mobile number is required");
+
     if (data.marketplaceRole === "producer") {
       requireText("country", "Country is required");
       requireText("region", "Region is required");
-      requireText("payoutMobileMoney", "Mobile number is required");
       if (!data.commoditySelections.length) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -297,12 +298,14 @@ export default function OnboardingWizard({
         "businessName",
         "businessRegistrationNumber",
         "commoditySelections",
+        "payoutMobileMoney",
       ];
     } else {
       fieldsToValidate = [
         "businessName",
         "businessRegistrationNumber",
         "commoditySelections",
+        "payoutMobileMoney",
         "expectedVolume",
         "destinationCountry",
       ];
@@ -660,26 +663,24 @@ export default function OnboardingWizard({
                         </FormItem>
                       )}
                     />
-                    {currentRole === "producer" && (
-                      <FormField
-                        control={form.control}
-                        name="payoutMobileMoney"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className={labelClass}>
-                              Mobile number
-                            </FormLabel>
-                            <FormControl>
-                              <PhoneNumberInput
-                                value={field.value}
-                                onChange={field.onChange}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    )}
+                    <FormField
+                      control={form.control}
+                      name="payoutMobileMoney"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className={labelClass}>
+                            Mobile number
+                          </FormLabel>
+                          <FormControl>
+                            <PhoneNumberInput
+                              value={field.value}
+                              onChange={field.onChange}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                     {(currentRole === "trader" || currentRole === "buyer") && (
                       <>
                         <FormField

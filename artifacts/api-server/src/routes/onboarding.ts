@@ -62,10 +62,11 @@ const onboardingSchema = z.object({
     }
   };
 
+  required("payoutMobileMoney", "Mobile number is required");
+
   if (data.marketplaceRole === "producer") {
     required("country", "Country is required");
     required("region", "Region is required");
-    required("payoutMobileMoney", "Mobile number is required");
     if (data.commoditySelections.length === 0 && data.commodities.length === 0) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["commoditySelections"], message: "Select at least one commodity" });
     }
