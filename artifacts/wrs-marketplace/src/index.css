@@ -446,7 +446,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .market-auth-story-highlight {
-  color: #d7e0e8;
+  color: #46515b;
 }
 
 .market-auth-story-description {
@@ -608,7 +608,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .market-auth-shell--grain {
-  --auth-accent: #d7e0e8;
+  --auth-accent: #46515b;
 }
 
 .market-auth-shell--tea {
@@ -1627,7 +1627,7 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .market-auth-shell--auth .market-auth-story-stage {
-    min-height: 210px;
+    min-height: 360px;
   }
 
   .market-auth-shell--auth .market-auth-story-title {
