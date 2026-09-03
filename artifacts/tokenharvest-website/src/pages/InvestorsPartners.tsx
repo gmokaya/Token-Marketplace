@@ -31,12 +31,12 @@ export default function InvestorsPartners() {
               through one auditable marketplace for East African commodities.
             </p>
             <div className="mt-10 flex flex-wrap gap-3">
-              <Link
-                href="/get-started"
+              <span
+                aria-disabled="true"
                 className="inline-flex items-center gap-3 rounded-full bg-[#DFFC4A] px-5 py-3 text-sm font-semibold text-[#073B35] transition-transform hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#DFFC4A] focus-visible:ring-offset-2"
               >
-                Explore the marketplace <ArrowRight size={15} />
-              </Link>
+                Launching Soon
+              </span>
               <a
                 href="#partner-opportunities"
                 className="inline-flex items-center gap-3 rounded-full border border-[#073B35]/30 px-5 py-3 text-sm font-semibold text-[#073B35] transition-colors hover:border-[#073B35] hover:text-[#073B35] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#DFFC4A]"

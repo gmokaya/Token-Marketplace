@@ -163,7 +163,7 @@ const DEF_STATS: HpStat[] = [
 const DEF_CTA: HpCta = {
   heading: "Bring your useful instinct.\nMove trade forward.",
   subheadline: "Join producers, off-takers, and financiers building clearer, more useful commodity trade across East Africa.",
-  cta1: "Get Started",
+  cta1: "Launching Soon",
   cta2: "Sign In",
 };
 const DEF_MARKETS: MarketCardData[] = [
@@ -469,7 +469,7 @@ const FINANCE_PRODUCTS = [
     body: "Inputs, labor, and logistics shouldn't wait on a sale to clear. Access capital ahead of export so the next cycle starts on time.",
     proof: "Funds released before shipment, not after",
     eligibility: "Available once a forward contract or export order is confirmed.",
-    cta: "Explore Harvest Fund",
+    cta: "Launching Soon",
   },
   {
     eyebrow: "Fast Pay",
@@ -479,7 +479,7 @@ const FINANCE_PRODUCTS = [
     body: "Waiting on payment terms shouldn't limit how many deals you can run. Convert a confirmed sale into cash and keep trading without the lag.",
     proof: "Access cash as soon as a trade is confirmed",
     eligibility: "Available on any buyer-approved sale on the marketplace.",
-    cta: "Explore Fast Pay",
+    cta: "Launching Soon",
   },
   {
     eyebrow: "Order Finance",
@@ -489,7 +489,7 @@ const FINANCE_PRODUCTS = [
     body: "A good deal shouldn't be capped by what's sitting in your account today. Finance part of a confirmed order and let the trade fund itself.",
     proof: "Finance a share of the order value upfront",
     eligibility: "Available once a purchase order is matched and confirmed.",
-    cta: "Explore Order Finance",
+    cta: "Launching Soon",
   },
 ] as const;
 
@@ -529,15 +529,14 @@ function FinanceCard({
         </div>
       </div>
 
-      <Link href="/get-started" style={{
+      <span style={{
         display: "flex", alignItems: "center", gap: 6,
         color: "var(--finance-ink)",
         fontSize: 14, fontWeight: 600,
-        transition: "color 0.2s",
         textDecoration: "none",
       }}>
-        {cta} <ArrowRight className="homepage-finance-card-cta-icon" size={14} />
-      </Link>
+        {cta}
+      </span>
     </div>
   );
 }
@@ -927,10 +926,11 @@ export default function Home() {
                     Go to Dashboard <ArrowRight size={15} />
                   </Link>
                 ) : (
-                  <Link href="/get-started"
+                  <span
+                    aria-disabled="true"
                     style={{ background: ACCENT_LIGHT, color: ACCENT, padding: "10px 22px", borderRadius: 999, textDecoration: "none", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 7 }}>
-                    Get Started <ArrowRight size={15} />
-                  </Link>
+                    Launching Soon
+                  </span>
                 )}
               </div>
               {/* Hamburger - hidden on desktop via CSS, shown on mobile */}
@@ -993,10 +993,11 @@ export default function Home() {
                     Go to Dashboard <ArrowRight size={16} />
                   </Link>
                 ) : (
-                    <Link href="/get-started" onClick={() => setMobileMenuOpen(false)}
+                    <span
+                      aria-disabled="true"
                      style={{ background: ACCENT_LIGHT, color: ACCENT, padding: "16px 24px", borderRadius: 999, textDecoration: "none", fontSize: 15, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-                    Get Started <ArrowRight size={16} />
-                  </Link>
+                    Launching Soon
+                  </span>
                 )}
               </div>
             </div>
@@ -1224,7 +1225,7 @@ export default function Home() {
             <div style={{ position: "relative", zIndex: 1, maxWidth: 700, margin: "0 auto", padding: "0 32px", textAlign: "center" }}>
               <div style={{ display: "inline-flex", alignItems: "center", gap: 9, marginBottom: 13 }}>
                 <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#808A87" }} />
-                <span style={{ color: "#F6F4EF", fontSize: 12, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" }}>Get Started</span>
+                 <span style={{ color: "#F6F4EF", fontSize: 12, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" }}>Launching Soon</span>
               </div>
               <h2 style={{ fontSize: "clamp(2.1rem, 4.2vw, 46px)", fontWeight: 400, color: "#fff", lineHeight: 1.1, margin: "0 0 18px", whiteSpace: "pre-line", letterSpacing: "-0.03em" }}>
                 {cta.heading}
@@ -1233,10 +1234,11 @@ export default function Home() {
                 {cta.subheadline}
               </p>
               <div style={{ display: "flex", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
-                <Link href="/get-started"
+                <span
+                  aria-disabled="true"
                   style={{ background: ACCENT_LIGHT, color: ACCENT, padding: "13px 22px", borderRadius: 999, textDecoration: "none", fontSize: 13, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 8 }}>
-                  {cta.cta1} <ArrowRight size={16} />
-                </Link>
+                  Launching Soon
+                </span>
                 <button onClick={() => setContactOpen(true)}
                    style={{ background: "rgba(246,244,239,0.06)", color: "#F6F4EF", padding: "13px 22px", border: "1px solid rgba(246,244,239,0.38)", borderRadius: 999, cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "'PT Sans',sans-serif", display: "inline-flex", alignItems: "center", gap: 8 }}>
                   Contact Us
@@ -1256,7 +1258,7 @@ export default function Home() {
                   <span className="homepage-footer-location">Tatu City, Kenya</span>
                 </div>
                 <nav className="homepage-footer-links" aria-label="Footer navigation">
-                  <Link href="/get-started">Marketplace</Link>
+                   <span>Marketplace — Launching Soon</span>
                   <a href="https://portal.tokenharvest.ke" target="_blank" rel="noreferrer">Producer</a>
                   <button type="button" onClick={() => scrollTo("about")}>About</button>
                   <a href="https://tokenharvest.app" target="_blank" rel="noreferrer">App</a>
