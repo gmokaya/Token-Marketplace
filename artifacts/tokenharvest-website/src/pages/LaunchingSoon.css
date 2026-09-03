@@ -8,6 +8,11 @@
   flex-shrink: 0;
 }
 
+.launching-soon-wordmark {
+  display: inline-block;
+  transform: translateY(7px);
+}
+
 .launching-soon-main {
   display: flex;
   min-height: 0;
@@ -32,7 +37,8 @@
   }
 
   .launching-soon-section {
-    gap: 32px !important;
+    row-gap: 32px !important;
+    column-gap: 48px !important;
   }
 
   .launching-soon-badge {
@@ -94,7 +100,8 @@
   }
 
   .launching-soon-section {
-    gap: 20px !important;
+    row-gap: 20px !important;
+    column-gap: 36px !important;
   }
 
   .launching-soon-badge {
@@ -167,7 +174,8 @@
   }
 
   .launching-soon-section {
-    gap: 18px !important;
+    row-gap: 18px !important;
+    column-gap: 32px !important;
   }
 
   .launching-soon-headline {
@@ -209,7 +217,8 @@
   }
 
   .launching-soon-section {
-    gap: 12px !important;
+    row-gap: 18px !important;
+    column-gap: 24px !important;
   }
 
   .launching-soon-badge {

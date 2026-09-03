@@ -42,7 +42,7 @@ export default function LaunchingSoon() {
           Back to home
         </Link>
         <Link href="/" aria-label="TokenHarvest home">
-          <span className="tokenharvest-wordmark text-3xl text-[#F6F4EF] md:text-4xl">TokenHarvest</span>
+          <span className="launching-soon-wordmark tokenharvest-wordmark text-3xl text-[#F6F4EF] md:text-4xl">TokenHarvest</span>
         </Link>
       </header>
 
@@ -86,7 +86,7 @@ export default function LaunchingSoon() {
           </div>
 
           <div className="relative">
-            <div className="launching-soon-form-card relative rounded-[0.7rem] bg-[#F6F4EF] p-7 text-[#073B35] shadow-[0_24px_80px_rgba(0,0,0,0.22)] md:p-10">
+            <div className="launching-soon-form-card relative rounded-[0.4rem] bg-[#F6F4EF] p-7 text-[#073B35] shadow-[0_24px_80px_rgba(0,0,0,0.22)] md:p-10">
               {status === "done" ? (
                 <div className="launching-soon-success flex min-h-[380px] flex-col items-center justify-center text-center">
                   <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#DFFC4A]">
