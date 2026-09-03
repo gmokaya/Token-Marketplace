@@ -312,7 +312,7 @@ function MarketCard({ num, name, grade, desc, photo, link }: MarketCardData) {
           }}>{desc}</p>
            {link && (
              <Link
-               href={`/launching-soon?market=${encodeURIComponent(name)}`}
+               href="/launching-soon"
               style={{
                 color: ACCENT_LIGHT,
                 textDecoration: "none",

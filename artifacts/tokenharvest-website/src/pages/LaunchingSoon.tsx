@@ -1,25 +1,11 @@
 import { ArrowLeft, ArrowRight, Check, Mail, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { Link } from "wouter";
+import "./LaunchingSoon.css";
 
 const API = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
 
-const MARKET_NAMES: Record<string, string> = {
-  grain: "Grain",
-  nuts: "Nuts",
-  coffee: "Coffee",
-  tea: "Tea",
-  avocado: "Avocado",
-  honey: "Honey",
-};
-
-function marketFromQuery() {
-  const value = new URLSearchParams(window.location.search).get("market")?.trim().toLowerCase();
-  return value ? MARKET_NAMES[value] ?? value.replace(/\b\w/g, letter => letter.toUpperCase()) : "TokenHarvest markets";
-}
-
 export default function LaunchingSoon() {
-  const market = marketFromQuery();
   const [form, setForm] = useState({ name: "", email: "", role: "Buyer" });
   const [status, setStatus] = useState<"idle" | "sending" | "done" | "error">("idle");
 
@@ -34,7 +20,7 @@ export default function LaunchingSoon() {
         body: JSON.stringify({
           name: form.name,
           email: form.email,
-          message: `Please add me to the ${market} market waitlist. I am joining as a ${form.role}.`,
+          message: `Please add me to the TokenHarvest market access waitlist. I am joining as a ${form.role}.`,
         }),
       });
 
@@ -46,8 +32,8 @@ export default function LaunchingSoon() {
   };
 
   return (
-    <div className="min-h-screen overflow-hidden bg-[#073B35] text-[#F6F4EF]">
-      <header className="relative z-10 mx-auto flex max-w-6xl items-center justify-between px-6 py-6 md:px-10 md:py-8">
+    <div className="launching-soon-page flex flex-col overflow-hidden bg-[#073B35] text-[#F6F4EF]">
+      <header className="launching-soon-header relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6 md:px-10 md:py-8">
         <Link
           href="/"
           className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#F6F4EF]/65 transition-colors hover:text-[#F6F4EF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#DFFC4A]"
@@ -60,7 +46,7 @@ export default function LaunchingSoon() {
         </Link>
       </header>
 
-      <main className="relative mx-auto max-w-6xl px-6 pb-20 pt-12 md:px-10 md:pb-28 md:pt-24">
+      <main className="launching-soon-main relative mx-auto w-full max-w-6xl px-6 pb-20 pt-12 md:px-10 md:pb-28 md:pt-24">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute -right-40 -top-28 h-[520px] w-[520px] rounded-full border border-[#DFFC4A]/15"
@@ -70,22 +56,22 @@ export default function LaunchingSoon() {
           className="pointer-events-none absolute -right-20 top-0 h-[360px] w-[360px] rounded-full bg-[#DFFC4A]/10 blur-3xl"
         />
 
-        <section className="relative grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr] lg:gap-24">
+        <section className="launching-soon-section relative grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr] lg:gap-24">
           <div>
-            <div className="mb-7 inline-flex items-center gap-3 rounded-full border border-[#DFFC4A]/35 bg-[#DFFC4A]/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#DFFC4A]">
+            <div className="launching-soon-badge mb-7 inline-flex items-center gap-3 rounded-full border border-[#DFFC4A]/35 bg-[#DFFC4A]/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#DFFC4A]">
               <Sparkles size={14} />
-              {market} market
+              Market access
             </div>
-            <h1 className="max-w-3xl text-6xl font-light leading-[0.91] tracking-[-0.07em] md:text-8xl">
+            <h1 className="launching-soon-headline max-w-3xl text-6xl font-light leading-[0.91] tracking-[-0.07em] md:text-8xl">
               Be first in line for{" "}
-              <span className="text-[#DFFC4A]">{market}.</span>
+              <span className="text-[#DFFC4A]">what’s next.</span>
             </h1>
-            <p className="mt-8 max-w-xl text-lg leading-8 text-[#F6F4EF]/68 md:text-xl">
+            <p className="launching-soon-description mt-8 max-w-xl text-lg leading-8 text-[#F6F4EF]/68 md:text-xl">
               The next chapter of trusted commodity trade is almost here. Join the early
-              access list and get the first look when this market opens.
+              access list and get the first look when market access opens.
             </p>
 
-            <div className="mt-10 grid max-w-xl gap-4 sm:grid-cols-3">
+            <div className="launching-soon-benefits mt-10 grid max-w-xl gap-4 sm:grid-cols-3">
               {[
                 "Early access when we launch",
                 "First look at verified lots",
@@ -101,9 +87,9 @@ export default function LaunchingSoon() {
 
           <div className="relative">
             <div aria-hidden="true" className="absolute -inset-3 rounded-[2rem] border border-[#DFFC4A]/20" />
-            <div className="relative rounded-[1.5rem] bg-[#F6F4EF] p-7 text-[#073B35] shadow-[0_24px_80px_rgba(0,0,0,0.22)] md:p-10">
+            <div className="launching-soon-form-card relative rounded-[1.5rem] bg-[#F6F4EF] p-7 text-[#073B35] shadow-[0_24px_80px_rgba(0,0,0,0.22)] md:p-10">
               {status === "done" ? (
-                <div className="flex min-h-[380px] flex-col items-center justify-center text-center">
+                <div className="launching-soon-success flex min-h-[380px] flex-col items-center justify-center text-center">
                   <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#DFFC4A]">
                     <Check size={28} />
                   </div>
@@ -114,7 +100,7 @@ export default function LaunchingSoon() {
                     Your seat is saved.
                   </h2>
                   <p className="mt-6 max-w-sm text-base leading-7 text-[#073B35]/65">
-                    We’ll let you know the moment the {market} market is ready to open.
+                    We’ll let you know the moment TokenHarvest market access is ready to open.
                   </p>
                   <Link
                     href="/"
@@ -126,7 +112,7 @@ export default function LaunchingSoon() {
                 </div>
               ) : (
                 <>
-                  <div className="mb-8 flex items-start justify-between gap-4">
+                  <div className="launching-soon-form-heading mb-8 flex items-start justify-between gap-4">
                     <div>
                       <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#073B35]/55">
                         Early access
@@ -138,8 +124,8 @@ export default function LaunchingSoon() {
                     <Mail className="mt-1 shrink-0 text-[#073B35]/45" size={24} strokeWidth={1.6} />
                   </div>
 
-                  <form onSubmit={joinWaitlist} className="space-y-5">
-                    <label className="block">
+                  <form onSubmit={joinWaitlist} className="launching-soon-form space-y-5">
+                    <label className="launching-soon-field block">
                       <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.16em] text-[#073B35]/55">
                         Your name
                       </span>
@@ -153,7 +139,7 @@ export default function LaunchingSoon() {
                         className="w-full border-0 border-b border-[#073B35]/20 bg-transparent px-0 py-3 text-base outline-none transition-colors placeholder:text-[#073B35]/35 focus:border-[#073B35]"
                       />
                     </label>
-                    <label className="block">
+                    <label className="launching-soon-field block">
                       <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.16em] text-[#073B35]/55">
                         Email address
                       </span>
@@ -167,7 +153,7 @@ export default function LaunchingSoon() {
                         className="w-full border-0 border-b border-[#073B35]/20 bg-transparent px-0 py-3 text-base outline-none transition-colors placeholder:text-[#073B35]/35 focus:border-[#073B35]"
                       />
                     </label>
-                    <label className="block">
+                    <label className="launching-soon-field block">
                       <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.16em] text-[#073B35]/55">
                         I’m joining as a
                       </span>
@@ -192,13 +178,13 @@ export default function LaunchingSoon() {
                     <button
                       type="submit"
                       disabled={status === "sending"}
-                      className="inline-flex w-full items-center justify-center gap-3 rounded-full bg-[#DFFC4A] px-5 py-4 text-sm font-bold text-[#073B35] transition-transform hover:-translate-y-1 disabled:cursor-wait disabled:opacity-65 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#073B35] focus-visible:ring-offset-2"
+                      className="launching-soon-submit inline-flex w-full items-center justify-center gap-3 rounded-full bg-[#DFFC4A] px-5 py-4 text-sm font-bold text-[#073B35] transition-transform hover:-translate-y-1 disabled:cursor-wait disabled:opacity-65 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#073B35] focus-visible:ring-offset-2"
                     >
                       {status === "sending" ? "Saving your spot…" : "Join the waitlist"}
                       <ArrowRight size={16} />
                     </button>
-                    <p className="text-center text-xs leading-5 text-[#073B35]/45">
-                      No noise. Just a note when {market} is ready.
+                    <p className="launching-soon-note text-center text-xs leading-5 text-[#073B35]/45">
+                      No noise. Just a note when the next market is ready.
                     </p>
                   </form>
                 </>
@@ -208,7 +194,7 @@ export default function LaunchingSoon() {
         </section>
       </main>
 
-      <footer className="border-t border-[#F6F4EF]/10 px-6 py-7 md:px-10">
+      <footer className="launching-soon-footer border-t border-[#F6F4EF]/10 px-6 py-7 md:px-10">
         <div className="mx-auto flex max-w-6xl flex-col gap-3 text-xs uppercase tracking-[0.14em] text-[#F6F4EF]/45 sm:flex-row sm:items-center sm:justify-between">
           <span>TokenHarvest — Origin, traded forward.</span>
           <span>Market access is coming soon.</span>

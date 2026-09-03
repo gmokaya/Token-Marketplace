@@ -1,0 +1,277 @@
+.launching-soon-page {
+  height: 100dvh;
+  min-height: 0;
+}
+
+.launching-soon-header,
+.launching-soon-footer {
+  flex-shrink: 0;
+}
+
+.launching-soon-main {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  align-items: center;
+  overflow: hidden;
+}
+
+.launching-soon-section {
+  width: 100%;
+}
+
+@media (max-height: 900px) {
+  .launching-soon-header {
+    padding-top: 14px !important;
+    padding-bottom: 14px !important;
+  }
+
+  .launching-soon-main {
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+  }
+
+  .launching-soon-section {
+    gap: 32px !important;
+  }
+
+  .launching-soon-badge {
+    margin-bottom: 16px !important;
+  }
+
+  .launching-soon-headline {
+    font-size: clamp(3.7rem, 6vw, 5.8rem) !important;
+  }
+
+  .launching-soon-description {
+    margin-top: 18px !important;
+    font-size: 16px !important;
+    line-height: 1.55 !important;
+  }
+
+  .launching-soon-benefits {
+    margin-top: 22px !important;
+  }
+
+  .launching-soon-form-card {
+    padding: 26px 30px !important;
+  }
+
+  .launching-soon-form-heading {
+    margin-bottom: 20px !important;
+  }
+
+  .launching-soon-form {
+    gap: 13px !important;
+  }
+
+  .launching-soon-field input,
+  .launching-soon-field select {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+  }
+
+  .launching-soon-submit {
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+  }
+
+  .launching-soon-footer {
+    padding-top: 14px !important;
+    padding-bottom: 14px !important;
+  }
+}
+
+@media (max-height: 700px) {
+  .launching-soon-header {
+    padding-top: 7px !important;
+    padding-bottom: 7px !important;
+  }
+
+  .launching-soon-main {
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+  }
+
+  .launching-soon-section {
+    gap: 20px !important;
+  }
+
+  .launching-soon-badge {
+    margin-bottom: 10px !important;
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+  }
+
+  .launching-soon-headline {
+    font-size: clamp(3.2rem, 5.4vw, 4.8rem) !important;
+  }
+
+  .launching-soon-description {
+    margin-top: 12px !important;
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+  }
+
+  .launching-soon-benefits {
+    margin-top: 14px !important;
+  }
+
+  .launching-soon-form-card {
+    padding: 18px 24px !important;
+  }
+
+  .launching-soon-form-heading {
+    margin-bottom: 12px !important;
+  }
+
+  .launching-soon-form-heading h2 {
+    font-size: 2rem !important;
+  }
+
+  .launching-soon-form {
+    gap: 8px !important;
+  }
+
+  .launching-soon-field span {
+    margin-bottom: 0 !important;
+    font-size: 10px !important;
+  }
+
+  .launching-soon-field input,
+  .launching-soon-field select {
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+    font-size: 14px !important;
+  }
+
+  .launching-soon-submit {
+    padding-top: 9px !important;
+    padding-bottom: 9px !important;
+  }
+
+  .launching-soon-note {
+    font-size: 10px !important;
+    line-height: 1.35 !important;
+  }
+
+  .launching-soon-footer {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .launching-soon-main {
+    overflow: hidden;
+  }
+
+  .launching-soon-section {
+    gap: 18px !important;
+  }
+
+  .launching-soon-headline {
+    font-size: clamp(3.1rem, 14vw, 4.4rem) !important;
+  }
+
+  .launching-soon-description {
+    max-width: 100% !important;
+  }
+
+  .launching-soon-benefits {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .launching-soon-benefits > div {
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+  }
+
+  .launching-soon-form-card {
+    padding: 22px 24px !important;
+  }
+
+  .launching-soon-form-heading h2 {
+    font-size: 2.25rem !important;
+  }
+}
+
+@media (max-width: 720px) and (max-height: 850px) {
+  .launching-soon-header {
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+  }
+
+  .launching-soon-main {
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+  }
+
+  .launching-soon-section {
+    gap: 12px !important;
+  }
+
+  .launching-soon-badge {
+    margin-bottom: 8px !important;
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+  }
+
+  .launching-soon-description {
+    margin-top: 10px !important;
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+  }
+
+  .launching-soon-benefits {
+    display: none !important;
+  }
+
+  .launching-soon-form-card {
+    padding: 16px 20px !important;
+  }
+
+  .launching-soon-form-heading {
+    margin-bottom: 10px !important;
+  }
+
+  .launching-soon-form-heading p {
+    margin-bottom: 6px !important;
+  }
+
+  .launching-soon-form-heading h2 {
+    font-size: 2rem !important;
+  }
+
+  .launching-soon-form {
+    gap: 7px !important;
+  }
+
+  .launching-soon-field span {
+    margin-bottom: 0 !important;
+    font-size: 10px !important;
+  }
+
+  .launching-soon-field input,
+  .launching-soon-field select {
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+    font-size: 14px !important;
+  }
+
+  .launching-soon-submit {
+    padding-top: 9px !important;
+    padding-bottom: 9px !important;
+  }
+
+  .launching-soon-note {
+    margin-top: 0 !important;
+    font-size: 10px !important;
+  }
+
+  .launching-soon-footer {
+    padding-top: 7px !important;
+    padding-bottom: 7px !important;
+  }
+}
