@@ -26,6 +26,13 @@ import AdminEarnings from "@/pages/AdminEarnings";
 import AdminUsers from "@/pages/AdminUsers";
 import AuditLog from "@/pages/AuditLog";
 import ApiAccess from "@/pages/settings/ApiAccess";
+import LotDetail from "@/pages/lots/LotDetail";
+import LotSettlement from "@/pages/lots/LotSettlement";
+import Auctions from "@/pages/auction/Auctions";
+import LiveAuction from "@/pages/auction/LiveAuction";
+import Mandates from "@/pages/mandates/Mandates";
+import Warehouses from "@/pages/warehouses/Warehouses";
+import WarehouseDetail from "@/pages/warehouses/WarehouseDetail";
 
 // Admin pages
 import AdminAuctions from "@/pages/admin/AdminAuctions";
@@ -225,6 +232,13 @@ function ClerkProviderWithRoutes() {
                   <Route path="/dashboard"><Dashboard /></Route>
                   <Route path="/profile"><Profile /></Route>
                   <Route path="/market"><Market /></Route>
+                  <Route path="/lots/:listingId"><LotDetail /></Route>
+                  <Route path="/lots/:orderId/settlement"><LotSettlement /></Route>
+                  <Route path="/auctions"><Auctions /></Route>
+                  <Route path="/auctions/:auctionId"><LiveAuction /></Route>
+                  <Route path="/mandates"><Mandates /></Route>
+                  <Route path="/warehouses"><Warehouses /></Route>
+                  <Route path="/warehouses/:code"><WarehouseDetail /></Route>
                   <Route path="/admin/auctions"><AdminAuctions /></Route>
                   <Route path="/admin/auctions/new"><NewAuction /></Route>
                   <Route path="/admin/ewrs"><AdminEwrs /></Route>

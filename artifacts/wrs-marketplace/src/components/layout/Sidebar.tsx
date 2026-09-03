@@ -110,6 +110,11 @@ export function Sidebar({ collapsed, marketName = "Grain Market", market = "grai
                 <NavItem href="/admin/earnings" icon="wallet"   label="Earnings"         collapsed={collapsed} themeClass={themeClass} />
                 <NavItem href="/admin/audit"    icon="shield"   label="Audit Log"        collapsed={collapsed} themeClass={themeClass} />
               </NavGroup>
+              <NavGroup title="Market Access" collapsed={collapsed} theme={themeClass}>
+                <NavItem href="/market" icon="chart" label="Spot Market" collapsed={collapsed} themeClass={themeClass} />
+                <NavItem href="/auctions" icon="exchange" label="Live Auctions" collapsed={collapsed} themeClass={themeClass} />
+                <NavItem href="/warehouses" icon="layout" label="Warehouses" collapsed={collapsed} themeClass={themeClass} />
+              </NavGroup>
               <NavGroup title="Settings" collapsed={collapsed} theme={themeClass}>
                 <NavItem href="/settings/api-access" icon="key"  label="API Access"  collapsed={collapsed} themeClass={themeClass} />
                 <NavItem href="/profile"              icon="user" label="My Profile"  collapsed={collapsed} themeClass={themeClass} />
@@ -122,7 +127,14 @@ export function Sidebar({ collapsed, marketName = "Grain Market", market = "grai
             <>
               <NavGroup title="Market" collapsed={collapsed} theme={themeClass}>
                 <NavItem href="/market" icon="chart" label="Spot Market" collapsed={collapsed} themeClass={themeClass} />
+                <NavItem href="/auctions" icon="exchange" label="Live Auctions" collapsed={collapsed} themeClass={themeClass} />
+                <NavItem href="/warehouses" icon="layout" label="Warehouses" collapsed={collapsed} themeClass={themeClass} />
               </NavGroup>
+              {(role === "PRODUCER" || role === "COOPERATIVE" || role === "ENABLER") && (
+                <NavGroup title={role === "ENABLER" ? "Broker Access" : "Trading Tools"} collapsed={collapsed} theme={themeClass}>
+                  <NavItem href="/mandates" icon="shield" label="Broker Mandates" collapsed={collapsed} themeClass={themeClass} />
+                </NavGroup>
+              )}
               <NavGroup title="Account" collapsed={collapsed} theme={themeClass}>
                 <NavItem href="/profile" icon="user" label="My Profile" collapsed={collapsed} themeClass={themeClass} />
               </NavGroup>

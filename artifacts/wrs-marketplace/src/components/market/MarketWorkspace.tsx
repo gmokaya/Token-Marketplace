@@ -1,7 +1,10 @@
 import { useMemo, useState } from "react";
+import { Link } from "wouter";
+import { useGetMarketSummary, useListSpotListings } from "@workspace/api-client-react";
 import { Filter, Layers3, Package, Search, Warehouse } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import "./market-workspace.css";
 
 export type MarketKind = "grain" | "coffee" | "tea";
@@ -28,9 +31,10 @@ const MARKET_COPY: Record<MarketKind, {
   },
 };
 
-function EmptyStat({ label, detail, icon: Icon }: {
+function MarketStat({ label, detail, value, icon: Icon }: {
   label: string;
   detail: string;
+  value: string | number;
   icon: typeof Layers3;
 }) {
   return (
@@ -39,7 +43,7 @@ function EmptyStat({ label, detail, icon: Icon }: {
         <Icon className="h-3 w-3" aria-hidden="true" />
         {label}
       </div>
-      <div className="mt-2.5 font-mono text-sm font-bold text-[#9aa3a5]">— no data</div>
+      <div className="mt-2.5 font-mono text-sm font-bold text-[#202427]">{value}</div>
       <div className="mt-0.5 text-[9px] text-[#8b9496]">{detail}</div>
       <Icon className="absolute -bottom-4 -right-3 h-16 w-16 text-[#eef1f1]" aria-hidden="true" />
     </div>
@@ -50,11 +54,27 @@ export default function MarketWorkspace({ market }: { market: MarketKind }) {
   const copy = MARKET_COPY[market];
   const [search, setSearch] = useState("");
   const [origin, setOrigin] = useState("");
+  const maize = useListSpotListings({ commodityType: "MAIZE" });
+  const rice = useListSpotListings({ commodityType: "RICE" });
+  const { data: marketSummary } = useGetMarketSummary();
 
   const hasFilters = useMemo(
     () => Boolean(search.trim() || origin.trim()),
     [origin, search],
   );
+  const listings = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    const location = origin === "origin" ? "" : origin.trim().toLowerCase();
+    return [...(maize.data ?? []), ...(rice.data ?? [])].filter((listing) => {
+      const matchesSearch = !query || [listing.commodityType, listing.grade, listing.warehouseCode]
+        .some((value) => value?.toLowerCase().includes(query));
+      const matchesOrigin = !location || [listing.warehouseCode, listing.grade]
+        .some((value) => value?.toLowerCase().includes(location));
+      return matchesSearch && matchesOrigin;
+    });
+  }, [maize.data, origin, rice.data, search]);
+  const listingLoading = maize.isLoading || rice.isLoading;
+  const totalWeight = listings.reduce((sum, listing) => sum + (listing.weightMt ?? 0), 0);
 
   return (
     <div className="space-y-4">
@@ -114,10 +134,10 @@ export default function MarketWorkspace({ market }: { market: MarketKind }) {
       )}
 
       <section aria-label={`${copy.name} summary`} className="market-summary-grid">
-        <EmptyStat icon={Layers3} label="Active listings" detail="lots available" />
-        <EmptyStat icon={Package} label="Total volume" detail="settled USD" />
-        <EmptyStat icon={Warehouse} label="Warehouse receipts" detail="eWRs on platform" />
-        <EmptyStat icon={Search} label="Market activity" detail="live price discovery" />
+        <MarketStat icon={Layers3} label="Active listings" detail="MAIZE + RICE lots" value={listingLoading ? "…" : listings.length} />
+        <MarketStat icon={Package} label="Listed volume" detail="metric tonnes" value={listingLoading ? "…" : `${totalWeight.toFixed(1)} MT`} />
+        <MarketStat icon={Warehouse} label="Settled volume" detail="all-market USD" value={marketSummary ? `$${marketSummary.totalVolumeUsd.toLocaleString()}` : "—"} />
+        <MarketStat icon={Search} label="Market activity" detail="settled today" value={marketSummary?.totalSettledToday ?? "—"} />
       </section>
 
       <section>
@@ -127,22 +147,40 @@ export default function MarketWorkspace({ market }: { market: MarketKind }) {
             <p className="mt-1 text-sm text-[#7b8588]">Fixed-price lots available for immediate purchase.</p>
           </div>
         </div>
-        <div className="flex min-h-[168px] flex-col items-center justify-center border border-[#dfe3e3] bg-white px-6 text-center">
-          <div className="mb-3 flex h-10 w-10 items-center justify-center border border-[#e1e6e6] bg-[#f8f9f9]">
-            <Search className="h-5 w-5 text-[#b7c0c1]" aria-hidden="true" />
+        {listingLoading ? (
+          <div className="flex min-h-[168px] items-center justify-center border border-[#dfe3e3] bg-white text-sm text-[#879194]">Loading live offers…</div>
+        ) : listings.length === 0 ? (
+          <div className="flex min-h-[168px] flex-col items-center justify-center border border-[#dfe3e3] bg-white px-6 text-center">
+            <div className="mb-3 flex h-10 w-10 items-center justify-center border border-[#e1e6e6] bg-[#f8f9f9]">
+              <Search className="h-5 w-5 text-[#b7c0c1]" aria-hidden="true" />
+            </div>
+            <h3 className="text-xs font-semibold text-[#3d4649]">{hasFilters ? "No lots match your filters" : "No active listings"}</h3>
+            <p className="mt-1 max-w-sm text-[10px] text-[#879194]">{hasFilters ? "Try adjusting your filters or clearing them." : copy.emptyDescription}</p>
+            {hasFilters && <Button type="button" variant="outline" className="mt-5 h-9 rounded-none text-xs" onClick={() => { setSearch(""); setOrigin(""); }}>Clear filters</Button>}
           </div>
-          <h3 className="text-xs font-semibold text-[#3d4649]">
-            {hasFilters ? "No lots match your filters" : "No active listings"}
-          </h3>
-          <p className="mt-1 max-w-sm text-[10px] text-[#879194]">
-            {hasFilters ? "Try adjusting your filters or clearing them." : copy.emptyDescription}
-          </p>
-          {hasFilters && (
-            <Button type="button" variant="outline" className="mt-5 h-9 rounded-none text-xs" onClick={() => { setSearch(""); setOrigin(""); }}>
-              Clear filters
-            </Button>
-          )}
-        </div>
+        ) : (
+          <div className="grid gap-3 md:grid-cols-2">
+            {listings.map((listing) => (
+              <Link key={listing.id} href={`/lots/${listing.id}`} className="border border-[#dfe3e3] bg-white p-4 transition-colors hover:border-[#25292c]">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-mono text-xs font-bold">Lot #{listing.id}</span>
+                      <Badge variant="outline" className="rounded-none text-[9px]">{listing.commodityType}</Badge>
+                      {listing.grade && <Badge variant="secondary" className="rounded-none text-[9px]">{listing.grade}</Badge>}
+                    </div>
+                    <p className="mt-2 text-xs text-[#6e797c]">{listing.warehouseCode ?? "Certified warehouse"} · {listing.harvestSeason ?? "Current season"}</p>
+                  </div>
+                  <span className="font-mono text-sm font-bold text-[#202427]">${Number(listing.pricePerMt).toLocaleString()}<span className="text-[9px] font-normal text-[#879194]"> / MT</span></span>
+                </div>
+                <div className="mt-4 flex items-center justify-between border-t border-[#eef1f1] pt-3 text-[10px] text-[#7b8588]">
+                  <span>{listing.weightMt ?? "—"} MT available</span>
+                  <span className="font-semibold text-[#202427]">View lot →</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );

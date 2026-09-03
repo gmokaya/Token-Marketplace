@@ -24,3 +24,4 @@
 - [Cross-artifact shared styles](cross-artifact-responsive-styles.md) — shared dynamic Tailwind classes may be missing in consumers; use explicit CSS for critical layout and theme rules
 - [Generated API contract alignment](generated-api-contract-alignment.md) — update OpenAPI and regenerate clients when backend fields differ from generated request types; avoid casts
 - [Authenticated marketplace entry](authenticated-market-entry-routing.md) — resolve onboarding status before routing; completed accounts must never enter the wizard path
+- [Generated query options](generated-query-options.md) — generated TanStack hooks require their generated queryKey whenever custom query options are supplied
