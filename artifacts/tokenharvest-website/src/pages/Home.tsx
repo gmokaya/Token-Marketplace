@@ -1258,7 +1258,6 @@ export default function Home() {
                   <span className="homepage-footer-location">Tatu City, Kenya</span>
                 </div>
                 <nav className="homepage-footer-links" aria-label="Footer navigation">
-                   <span>Marketplace — Launching Soon</span>
                   <a href="https://portal.tokenharvest.ke" target="_blank" rel="noreferrer">Producer</a>
                   <button type="button" onClick={() => scrollTo("about")}>About</button>
                   <a href="https://tokenharvest.app" target="_blank" rel="noreferrer">App</a>
