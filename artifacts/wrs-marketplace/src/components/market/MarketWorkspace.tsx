@@ -64,7 +64,7 @@ export default function MarketWorkspace({ market }: { market: MarketKind }) {
             <span className="h-1.5 w-1.5 bg-[#25292c]" aria-hidden="true" />
             {copy.name}
           </div>
-          <h1 className="font-sans text-xl font-bold tracking-[-0.03em] text-[#202427]">Spot Market</h1>
+          <h1 className="market-workspace-title text-xl font-bold tracking-[-0.03em] text-[#202427]">Spot Market</h1>
           <p className="mt-1 max-w-2xl text-[10px] text-[#6e797c]">{copy.description}</p>
         </div>
 

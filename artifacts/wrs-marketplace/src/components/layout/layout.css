@@ -7,6 +7,16 @@
   overflow: hidden;
   background: #f5f6f6;
   color: #25292c;
+  font-family: 'PT Sans', sans-serif;
+}
+
+.market-app-shell h1,
+.market-app-shell h2,
+.market-app-shell h3,
+.market-app-shell h4,
+.market-app-shell h5,
+.market-app-shell h6 {
+  font-family: 'Simplo', 'PT Sans', sans-serif;
 }
 
 .market-app-body {
@@ -26,6 +36,16 @@
   width: 100%;
   max-width: none;
   padding: 20px;
+  font-family: 'PT Sans', sans-serif;
+}
+
+.market-app-header {
+  font-family: 'PT Sans', sans-serif;
+}
+
+.market-app-header .tokenharvest-wordmark {
+  /* Belleza remains reserved for the TokenHarvest logo mark. */
+  font-family: 'Belleza', sans-serif;
 }
 
 .market-kyb-banner {
@@ -62,6 +82,7 @@
 
 .market-kyb-title {
   margin: 0;
+  font-family: 'Simplo', 'PT Sans', sans-serif;
   font-size: 10px;
   font-weight: 700;
   line-height: 16px;
@@ -70,6 +91,7 @@
 .market-kyb-description {
   margin: 0;
   color: #475569;
+  font-family: 'PT Sans', sans-serif;
   font-size: 9px;
   line-height: 14px;
 }
@@ -78,6 +100,7 @@
   display: inline-flex;
   margin-top: 4px;
   color: #0f172a;
+  font-family: 'PT Sans', sans-serif;
   font-size: 9px;
   font-weight: 700;
   text-decoration: underline;

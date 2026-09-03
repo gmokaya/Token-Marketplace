@@ -103,8 +103,10 @@
 .market-sidebar-brand-name {
   min-width: 0;
   overflow: hidden;
-  font-family: 'Belleza', sans-serif;
+  font-family: 'Simplo', 'PT Sans', sans-serif;
   font-size: 12px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   line-height: 1;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -163,7 +165,9 @@
   gap: 12px;
   border-radius: 6px;
   padding: 8px 12px;
+  font-family: 'PT Sans', sans-serif;
   font-size: 11px;
+  font-weight: 400;
   line-height: 1.2;
   text-decoration: none;
   transition: background 160ms ease, color 160ms ease;
