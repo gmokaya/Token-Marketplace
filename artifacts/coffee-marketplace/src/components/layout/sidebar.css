@@ -309,30 +309,6 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-/* Text glyph icons use the same PT Sans family as sidebar labels. */
-.market-sidebar-brand-icon,
-.market-sidebar-nav-icon,
-.market-sidebar-role-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'PT Sans', sans-serif !important;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.market-sidebar-brand-icon {
-  font-size: 15px;
-}
-
-.market-sidebar-nav-icon {
-  width: 16px !important;
-  height: 16px !important;
-  flex-shrink: 0;
-  font-size: 16px;
-}
-
 /* TokenHarvest wordmark shared across each market sidebar. */
 .market-sidebar-logo {
   display: flex;

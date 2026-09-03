@@ -283,30 +283,6 @@
   color: rgba(244, 251, 246, 0.52) !important;
 }
 
-/* Text glyph icons use the same PT Sans family as sidebar labels. */
-.market-sidebar-brand-icon,
-.market-sidebar-nav-icon,
-.market-sidebar-role-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'PT Sans', sans-serif !important;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.market-sidebar-brand-icon {
-  font-size: 15px;
-}
-
-.market-sidebar-nav-icon {
-  width: 16px !important;
-  height: 16px !important;
-  flex-shrink: 0;
-  font-size: 16px;
-}
-
 /* Keep every selectable menu item on the same pill system. */
 .market-sidebar-nav-item,
 .market-sidebar--grain .market-sidebar-nav-item,

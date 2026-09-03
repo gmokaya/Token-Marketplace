@@ -1,31 +1,30 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { useGetMe } from "@workspace/api-client-react";
+import {
+  BarChart4,
+  Users,
+  ScrollText,
+  Gavel,
+  ShieldCheck,
+  PlusCircle,
+  List,
+  Warehouse,
+  DollarSign,
+  Key,
+  Coffee,
+  Activity,
+  Landmark,
+  Shield,
+} from "lucide-react";
 import "./sidebar.css";
 
 interface SidebarProps {
   collapsed: boolean;
 }
 
-const SIDEBAR_GLYPHS = {
-  brand: "o",
-  auction: ">",
-  newAuction: "+",
-  lots: "#",
-  ewrs: "=",
-  users: "@",
-  earnings: "$",
-  audit: "✓",
-  market: "*",
-  mandates: ">",
-  warehouses: "#",
-  api: "#",
-  overview: "=",
-  myLots: "#",
-} as const;
-
-function NavItem({ href, icon, label, collapsed }: {
-  href: string; icon: string; label: string; collapsed: boolean;
+function NavItem({ href, icon: Icon, label, collapsed }: {
+  href: string; icon: any; label: string; collapsed: boolean;
 }) {
   const [location] = useLocation();
   const active = location === href || location.startsWith(href + "/");
@@ -39,12 +38,7 @@ function NavItem({ href, icon, label, collapsed }: {
       }`}
       title={collapsed ? label : undefined}
     >
-      <span
-        className={`market-sidebar-nav-icon shrink-0 ${active ? "text-accent" : "text-sidebar-foreground/50"}`}
-        aria-hidden="true"
-      >
-        {icon}
-      </span>
+      <Icon className={`market-sidebar-nav-icon shrink-0 ${active ? "text-accent" : "text-sidebar-foreground/50"}`} />
       {!collapsed && <span className="text-sm truncate">{label}</span>}
     </Link>
   );
@@ -78,9 +72,7 @@ export function Sidebar({ collapsed }: SidebarProps) {
       </div>
       {/* Sidebar brand strip */}
       <div className={`market-sidebar-brand flex h-14 items-center border-b border-sidebar-border shrink-0 ${collapsed ? "justify-center px-2" : "px-4 gap-2"}`}>
-        <span className="market-sidebar-brand-icon text-accent shrink-0" aria-hidden="true">
-          {SIDEBAR_GLYPHS.brand}
-        </span>
+        <Coffee className="market-sidebar-brand-icon text-accent shrink-0" aria-hidden="true" />
         {!collapsed && <span className="market-sidebar-brand-name tokenharvest-wordmark text-lg text-white truncate">Coffee Market</span>}
       </div>
 
@@ -91,22 +83,22 @@ export function Sidebar({ collapsed }: SidebarProps) {
           {role === "ADMIN" && (
             <>
               <NavGroup title="Exchange Admin" collapsed={collapsed}>
-               <NavItem href="/admin/auctions" icon={SIDEBAR_GLYPHS.auction}  label="Auction Sessions" collapsed={collapsed} />
-               <NavItem href="/admin/auctions/new" icon={SIDEBAR_GLYPHS.newAuction} label="New Auction"  collapsed={collapsed} />
-               <NavItem href="/admin/lots"     icon={SIDEBAR_GLYPHS.lots}     label="All Lots"         collapsed={collapsed} />
-               <NavItem href="/admin/ewrs"     icon={SIDEBAR_GLYPHS.ewrs}     label="All eWRs"         collapsed={collapsed} />
-               <NavItem href="/admin/users"    icon={SIDEBAR_GLYPHS.users}    label="Users"            collapsed={collapsed} />
-               <NavItem href="/admin/earnings" icon={SIDEBAR_GLYPHS.earnings} label="Earnings"         collapsed={collapsed} />
-               <NavItem href="/admin/audit"    icon={SIDEBAR_GLYPHS.audit}    label="Audit Log"        collapsed={collapsed} />
+               <NavItem href="/admin/auctions" icon={Gavel}      label="Auction Sessions" collapsed={collapsed} />
+               <NavItem href="/admin/auctions/new" icon={PlusCircle} label="New Auction"  collapsed={collapsed} />
+               <NavItem href="/admin/lots"     icon={Coffee}     label="All Lots"         collapsed={collapsed} />
+               <NavItem href="/admin/ewrs"     icon={ScrollText} label="All eWRs"         collapsed={collapsed} />
+               <NavItem href="/admin/users"    icon={Users}      label="Users"            collapsed={collapsed} />
+               <NavItem href="/admin/earnings" icon={Landmark}   label="Earnings"         collapsed={collapsed} />
+               <NavItem href="/admin/audit"    icon={Shield}     label="Audit Log"        collapsed={collapsed} />
               </NavGroup>
               <NavGroup title="Market" collapsed={collapsed}>
-                 <NavItem href="/market"     icon={SIDEBAR_GLYPHS.market}     label="Spot Market"  collapsed={collapsed} />
-                 <NavItem href="/mandates"   icon={SIDEBAR_GLYPHS.mandates}   label="Mandates"     collapsed={collapsed} />
-                 <NavItem href="/warehouses" icon={SIDEBAR_GLYPHS.warehouses} label="Warehouses"   collapsed={collapsed} />
+                 <NavItem href="/market"     icon={BarChart4}   label="Spot Market"  collapsed={collapsed} />
+                 <NavItem href="/mandates"   icon={ShieldCheck} label="Mandates"     collapsed={collapsed} />
+                 <NavItem href="/warehouses" icon={Warehouse}   label="Warehouses"   collapsed={collapsed} />
               </NavGroup>
               <NavGroup title="Settings" collapsed={collapsed}>
-                 <NavItem href="/settings/api-access" icon={SIDEBAR_GLYPHS.api}     label="API Access"  collapsed={collapsed} />
-                 <NavItem href="/profile"              icon={SIDEBAR_GLYPHS.users}   label="My Profile"  collapsed={collapsed} />
+                 <NavItem href="/settings/api-access" icon={Key}   label="API Access"  collapsed={collapsed} />
+                 <NavItem href="/profile"              icon={Users} label="My Profile"  collapsed={collapsed} />
               </NavGroup>
             </>
           )}
@@ -115,19 +107,19 @@ export function Sidebar({ collapsed }: SidebarProps) {
           {role === "ENABLER" && (
             <>
               <NavGroup title="Brokerage" collapsed={collapsed}>
-                 <NavItem href="/broker"              icon={SIDEBAR_GLYPHS.overview}   label="Overview"       collapsed={collapsed} />
-                 <NavItem href="/broker/lots"         icon={SIDEBAR_GLYPHS.myLots}     label="My Lots"        collapsed={collapsed} />
-                 <NavItem href="/broker/lots/new"     icon={SIDEBAR_GLYPHS.newAuction} label="List New Lot"   collapsed={collapsed} />
-                 <NavItem href="/broker/mandates"     icon={SIDEBAR_GLYPHS.mandates}   label="Mandates"      collapsed={collapsed} />
-                 <NavItem href="/broker/auctions"     icon={SIDEBAR_GLYPHS.auction}    label="Auction Sessions" collapsed={collapsed} />
-                 <NavItem href="/broker/earnings"     icon={SIDEBAR_GLYPHS.earnings}   label="Earnings"       collapsed={collapsed} />
+                 <NavItem href="/broker"              icon={Activity}   label="Overview"       collapsed={collapsed} />
+                 <NavItem href="/broker/lots"         icon={List}       label="My Lots"        collapsed={collapsed} />
+                 <NavItem href="/broker/lots/new"     icon={PlusCircle} label="List New Lot"   collapsed={collapsed} />
+                 <NavItem href="/broker/mandates"     icon={ShieldCheck} label="Mandates"      collapsed={collapsed} />
+                 <NavItem href="/broker/auctions"     icon={Gavel}      label="Auction Sessions" collapsed={collapsed} />
+                 <NavItem href="/broker/earnings"     icon={DollarSign} label="Earnings"       collapsed={collapsed} />
               </NavGroup>
               <NavGroup title="Market" collapsed={collapsed}>
-                 <NavItem href="/market" icon={SIDEBAR_GLYPHS.market} label="Spot Market" collapsed={collapsed} />
+                 <NavItem href="/market" icon={BarChart4} label="Spot Market" collapsed={collapsed} />
               </NavGroup>
               <NavGroup title="Settings" collapsed={collapsed}>
-                 <NavItem href="/settings/api-access" icon={SIDEBAR_GLYPHS.api}   label="API Access"  collapsed={collapsed} />
-                 <NavItem href="/profile"              icon={SIDEBAR_GLYPHS.users} label="My Profile"  collapsed={collapsed} />
+                 <NavItem href="/settings/api-access" icon={Key}   label="API Access"  collapsed={collapsed} />
+                 <NavItem href="/profile"              icon={Users} label="My Profile"  collapsed={collapsed} />
               </NavGroup>
             </>
           )}
@@ -136,10 +128,10 @@ export function Sidebar({ collapsed }: SidebarProps) {
           {role && role !== "ADMIN" && role !== "ENABLER" && (
             <>
               <NavGroup title="Market" collapsed={collapsed}>
-                 <NavItem href="/market" icon={SIDEBAR_GLYPHS.market} label="Spot Market" collapsed={collapsed} />
+                 <NavItem href="/market" icon={BarChart4} label="Spot Market" collapsed={collapsed} />
               </NavGroup>
               <NavGroup title="Account" collapsed={collapsed}>
-                 <NavItem href="/profile" icon={SIDEBAR_GLYPHS.users} label="My Profile" collapsed={collapsed} />
+                 <NavItem href="/profile" icon={Users} label="My Profile" collapsed={collapsed} />
               </NavGroup>
             </>
           )}
