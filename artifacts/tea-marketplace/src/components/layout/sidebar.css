@@ -290,3 +290,11 @@
 .market-sidebar--tea .market-sidebar-nav-item {
   border-radius: 9999px !important;
 }
+
+/* Use a lighter selected pill for the forest green palette. */
+.market-sidebar.market-sidebar--tea .market-sidebar-nav-item.is-active,
+.market-sidebar.market-sidebar--tea .market-sidebar-nav-item[class*="bg-sidebar-accent"] {
+  background: #456b58 !important;
+  color: #f4fbf6 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}

@@ -293,49 +293,18 @@
   color: rgba(255, 250, 246, 0.52) !important;
 }
 
-/* The reference trader workspace uses a narrow, information-dense rail. */
-.market-sidebar.market-sidebar--coffee:not(.is-admin) {
-  width: 154px !important;
-  padding: 8px !important;
-}
-
-.market-sidebar.market-sidebar--coffee:not(.is-admin) .market-sidebar-brand {
-  height: 32px !important;
-  margin-bottom: 12px;
-  padding: 0 10px !important;
-}
-
-.market-sidebar.market-sidebar--coffee:not(.is-admin) .market-sidebar-brand-name {
-  font-size: 10px !important;
-}
-
-.market-sidebar.market-sidebar--coffee:not(.is-admin) .market-sidebar-nav-group {
-  margin-bottom: 16px !important;
-}
-
-.market-sidebar.market-sidebar--coffee:not(.is-admin) .market-sidebar-nav-group-title {
-  padding: 0 8px !important;
-  font-size: 8px !important;
-}
-
-.market-sidebar.market-sidebar--coffee:not(.is-admin) .market-sidebar-nav-item {
-  min-height: 32px !important;
-  gap: 9px !important;
-  padding: 8px !important;
-  font-size: 10px !important;
-}
-
-@media (max-width: 760px) {
-  .market-sidebar.market-sidebar--coffee:not(.is-admin) {
-    width: 72px !important;
-    padding: 8px 6px !important;
-  }
-}
-
 /* Keep every selectable menu item on the same pill system. */
 .market-sidebar-nav-item,
 .market-sidebar--grain .market-sidebar-nav-item,
 .market-sidebar--coffee .market-sidebar-nav-item,
 .market-sidebar--tea .market-sidebar-nav-item {
   border-radius: 9999px !important;
+}
+
+/* Use a lighter selected pill for the warm coffee palette. */
+.market-sidebar.market-sidebar--coffee .market-sidebar-nav-item.is-active,
+.market-sidebar.market-sidebar--coffee .market-sidebar-nav-item[class*="bg-sidebar-accent"] {
+  background: #765748 !important;
+  color: #fffaf6 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
