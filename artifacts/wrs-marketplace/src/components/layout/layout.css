@@ -192,13 +192,37 @@
 
 /* Profile surface: compact, quiet, and easy to scan */
 .market-profile-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
   width: 100%;
   max-width: 760px !important;
   margin-inline: auto;
 }
 
+.market-profile-page > * {
+  margin-top: 0 !important;
+}
+
+.market-profile-section {
+  order: 2;
+}
+
+.market-profile-identity {
+  order: 1;
+}
+
+.market-profile-social {
+  order: 2;
+}
+
+.market-profile-compliance {
+  order: 3;
+}
+
 .market-profile-page > div:first-child {
   margin-bottom: 4px;
+  order: 0;
 }
 
 .market-profile-page > div:first-child h1 {

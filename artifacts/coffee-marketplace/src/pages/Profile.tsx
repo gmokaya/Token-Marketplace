@@ -45,6 +45,7 @@ export default function Profile() {
   const updateMe = useUpdateMe();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [editIdentity, setEditIdentity] = useState(false);
   const [editSocial, setEditSocial] = useState(false);
 
   const form = useForm<ProfileFormValues>({
@@ -87,6 +88,7 @@ export default function Profile() {
       onSuccess: () => {
         toast({ title: "Profile updated", description: "Your details have been saved successfully." });
         queryClient.invalidateQueries({ queryKey: getGetMeQueryKey() });
+        setEditIdentity(false);
       },
       onError: (error) => {
         toast({ title: "Error", description: getApiErrorMessage(error, "Failed to update profile"), variant: "destructive" });
@@ -116,11 +118,11 @@ export default function Profile() {
   return (
     <div className="max-w-2xl space-y-6 market-profile-page">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">My Profile</h1>
-        <p className="text-muted-foreground mt-1">Manage your account settings and preferences.</p>
+        <h1 className="text-3xl font-bold tracking-tight">User Profile</h1>
+        <p className="text-muted-foreground mt-1">Manage your account information and preferences.</p>
       </div>
 
-      <Card>
+      <Card className="market-profile-section market-profile-compliance">
         <CardHeader>
           <CardTitle>Compliance Profile</CardTitle>
           <CardDescription>Your current platform privileges and verification</CardDescription>
@@ -164,54 +166,104 @@ export default function Profile() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="market-profile-section market-profile-identity">
         <CardHeader>
-          <CardTitle>General Identity</CardTitle>
-          <CardDescription>Update your display name and company association.</CardDescription>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-primary" />
+                General Identity
+              </CardTitle>
+              <CardDescription>Contact and account identity details.</CardDescription>
+            </div>
+            {!editIdentity ? (
+              <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setEditIdentity(true)}>
+                <Pencil className="w-3 h-3" /> Edit
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1.5 text-muted-foreground"
+                onClick={() => {
+                  form.reset({ name: me.name || "", company: me.company || "" });
+                  setEditIdentity(false);
+                }}
+              >
+                <X className="w-3 h-3" /> Cancel
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Full Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="company"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Company</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Acme Coffee Roasters" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="pt-2">
-                <Button type="submit" disabled={updateMe.isPending}>
-                  {updateMe.isPending ? "Saving..." : "Save Changes"}
-                </Button>
-              </div>
-            </form>
-          </Form>
+          {editIdentity ? (
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Full Name</FormLabel>
+                        <FormControl><Input {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div>
+                    <FormLabel>Email</FormLabel>
+                    <p className="text-sm text-muted-foreground py-2">{me.email}</p>
+                  </div>
+                  <FormField
+                    control={form.control}
+                    name="company"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Company</FormLabel>
+                        <FormControl><Input {...field} placeholder="Acme Coffee Roasters" /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div>
+                    <FormLabel>Role</FormLabel>
+                    <p className="text-sm text-muted-foreground py-2">{me.tier}</p>
+                  </div>
+                </div>
+                <div className="flex gap-3 pt-1">
+                  <Button type="submit" size="sm" disabled={updateMe.isPending}>
+                    {updateMe.isPending ? "Saving..." : "Save changes"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      form.reset({ name: me.name || "", company: me.company || "" });
+                      setEditIdentity(false);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          ) : (
+            <div className="grid grid-cols-2 gap-y-5 gap-x-6">
+              <div><p className="text-sm text-muted-foreground">Name</p><p className="font-medium text-lg">{me.name}</p></div>
+              <div><p className="text-sm text-muted-foreground">Email</p><p className="font-medium text-lg">{me.email}</p></div>
+              <div><p className="text-sm text-muted-foreground">Company</p><p className="font-medium text-lg">{me.company || "N/A"}</p></div>
+              <div><p className="text-sm text-muted-foreground">Role</p><p className="font-medium text-lg">{me.tier}</p></div>
+              <div><p className="text-sm text-muted-foreground">Reputation Score</p><p className="font-medium text-lg">{me.reputationScore}</p></div>
+              <div><p className="text-sm text-muted-foreground">KYB Status</p><p className="font-medium text-lg">{me.kybStatus}</p></div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
       {(me.tier === "PRODUCER" || me.tier === "OFF_TAKER") && (
-        <Card>
+        <Card className="market-profile-section market-profile-social">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>

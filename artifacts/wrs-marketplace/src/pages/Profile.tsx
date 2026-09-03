@@ -469,7 +469,7 @@ export default function Profile() {
           <h1 className="text-3xl font-bold tracking-tight">User Profile</h1>
         </div>
 
-        <Card>
+        <Card className="market-profile-section market-profile-identity">
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2 text-sm">
@@ -620,7 +620,7 @@ export default function Profile() {
         </Card>
 
         {(u?.tier === "PRODUCER" || u?.tier === "OFF_TAKER") && (
-          <Card>
+          <Card className="market-profile-section market-profile-social">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-sm">
@@ -723,7 +723,7 @@ export default function Profile() {
         )}
 
         {!tierProfile && u?.tier && u.tier !== "ADMIN" && (
-          <Card className="border-slate-200">
+          <Card className="market-profile-section market-profile-compliance border-slate-200">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-sm">
@@ -759,7 +759,7 @@ export default function Profile() {
         )}
 
         {tierProfile && u?.tier === "PRODUCER" && (
-          <Card>
+          <Card className="market-profile-section market-profile-compliance">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-sm">
                 <Building2 className="w-4 h-4 text-primary" />
@@ -784,7 +784,7 @@ export default function Profile() {
         )}
 
         {tierProfile && u?.tier === "OFF_TAKER" && (
-          <Card>
+          <Card className="market-profile-section market-profile-compliance">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-sm">
                 <CreditCard className="w-4 h-4 text-primary" />
@@ -809,7 +809,7 @@ export default function Profile() {
         )}
 
         {tierProfile && u?.tier === "ENABLER" && (
-          <Card>
+          <Card className="market-profile-section market-profile-compliance">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-sm">
                 <Building2 className="w-4 h-4 text-primary" />
@@ -832,7 +832,7 @@ export default function Profile() {
         )}
 
         {tierProfile && u?.tier === "FINANCIER" && (
-          <Card>
+          <Card className="market-profile-section market-profile-compliance">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-sm">
                 <CreditCard className="w-4 h-4 text-primary" />
@@ -853,7 +853,7 @@ export default function Profile() {
         )}
 
         {tierProfile && u?.tier === "COOPERATIVE" && (
-          <Card>
+          <Card className="market-profile-section market-profile-compliance">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-sm">
                 <Building2 className="w-4 h-4 text-primary" />

@@ -12,7 +12,12 @@ import * as z from "zod";
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
-import { Pencil, Share2, ShieldAlert, X } from "lucide-react";
+import { Pencil, Share2, ShieldAlert, User, X } from "lucide-react";
+
+const profileSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  company: z.string().optional(),
+});
 
 const socialProfileSchema = z.object({
   socialBio: z.string().max(500, "Keep your introduction under 500 characters").optional(),
@@ -22,6 +27,7 @@ const socialProfileSchema = z.object({
   xUrl: z.string().url("Enter a valid URL").or(z.literal("")).optional(),
 });
 
+type ProfileFormValues = z.infer<typeof profileSchema>;
 type SocialProfileFormValues = z.infer<typeof socialProfileSchema>;
 
 function getApiErrorMessage(error: { data?: unknown; message?: string }, fallback: string) {
@@ -37,7 +43,13 @@ export default function Profile() {
   const updateMe = useUpdateMe();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [editIdentity, setEditIdentity] = useState(false);
   const [editSocial, setEditSocial] = useState(false);
+  const form = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: { name: "", company: "" },
+  });
+
   const socialForm = useForm<SocialProfileFormValues>({
     resolver: zodResolver(socialProfileSchema),
     defaultValues: {
@@ -51,6 +63,10 @@ export default function Profile() {
 
   useEffect(() => {
     if (!user) return;
+    form.reset({
+      name: user.name || "",
+      company: user.company || "",
+    });
     socialForm.reset({
       socialBio: user.socialBio || "",
       websiteUrl: user.websiteUrl || "",
@@ -58,9 +74,22 @@ export default function Profile() {
       instagramUrl: user.instagramUrl || "",
       xUrl: user.xUrl || "",
     });
-  }, [user, socialForm]);
+  }, [user, form, socialForm]);
 
   if (!user) return null;
+
+  const onIdentitySubmit = (data: ProfileFormValues) => {
+    updateMe.mutate({ data }, {
+      onSuccess: () => {
+        toast({ title: "Profile updated", description: "Your details have been saved successfully." });
+        queryClient.invalidateQueries({ queryKey: getGetMeQueryKey() });
+        setEditIdentity(false);
+      },
+      onError: (error) => {
+        toast({ title: "Update failed", description: getApiErrorMessage(error, "Failed to update profile"), variant: "destructive" });
+      },
+    });
+  };
 
   const onSocialSubmit = (data: SocialProfileFormValues) => {
     updateMe.mutate({ data }, {
@@ -78,44 +107,115 @@ export default function Profile() {
   return (
     <div className="max-w-3xl space-y-8 market-profile-page">
       <PageHeader
-        title="Profile"
+        title="User Profile"
         description="Manage your account information and preferences."
       />
       
-      <Card className="rounded-none shadow-sm border border-border">
+      <Card className="market-profile-section market-profile-identity rounded-none shadow-sm border border-border">
         <CardHeader className="border-b bg-muted/5 p-6">
-          <CardTitle className="text-xl font-bold">General Identity</CardTitle>
-          <CardDescription>Name, contact and account identity details.</CardDescription>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <CardTitle className="text-xl font-bold flex items-center gap-2">
+                <User className="w-5 h-5 text-primary" />
+                General Identity
+              </CardTitle>
+              <CardDescription>Name, contact and account identity details.</CardDescription>
+            </div>
+            {!editIdentity ? (
+              <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setEditIdentity(true)}>
+                <Pencil className="w-3 h-3" /> Edit
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1.5 text-muted-foreground"
+                onClick={() => {
+                  form.reset({ name: user.name || "", company: user.company || "" });
+                  setEditIdentity(false);
+                }}
+              >
+                <X className="w-3 h-3" /> Cancel
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent className="p-8 space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-y-8 gap-x-12">
-            <div>
-              <div className="text-xs text-muted-foreground uppercase font-semibold tracking-wider mb-2">Name</div>
-              <div className="font-medium text-lg">{user.name}</div>
+          {editIdentity ? (
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onIdentitySubmit)} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField control={form.control} name="name" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Full Name</FormLabel>
+                      <FormControl><Input {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <div>
+                    <FormLabel>Email</FormLabel>
+                    <p className="text-sm text-muted-foreground py-2">{user.email}</p>
+                  </div>
+                  <FormField control={form.control} name="company" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Company</FormLabel>
+                      <FormControl><Input {...field} placeholder="Tea cooperative or buyer entity" /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <div>
+                    <FormLabel>Role</FormLabel>
+                    <p className="text-sm text-muted-foreground py-2">{user.tier}</p>
+                  </div>
+                </div>
+                <div className="flex gap-3 pt-1">
+                  <Button type="submit" size="sm" disabled={updateMe.isPending}>
+                    {updateMe.isPending ? "Saving..." : "Save changes"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      form.reset({ name: user.name || "", company: user.company || "" });
+                      setEditIdentity(false);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-8 gap-x-12">
+              <div>
+                <div className="text-xs text-muted-foreground uppercase font-semibold tracking-wider mb-2">Name</div>
+                <div className="font-medium text-lg">{user.name}</div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground uppercase font-semibold tracking-wider mb-2">Email</div>
+                <div className="font-medium text-lg">{user.email}</div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground uppercase font-semibold tracking-wider mb-2">Company</div>
+                <div className="font-medium text-lg">{user.company || '-'}</div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground uppercase font-semibold tracking-wider mb-2">Role Tier</div>
+                <Badge variant="outline" className="rounded-none px-3 py-1 text-xs tracking-wider">
+                  {user.tier}
+                </Badge>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground uppercase font-semibold tracking-wider mb-2">Reputation Score</div>
+                <div className="font-mono text-xl font-semibold">{user.reputationScore}</div>
+              </div>
             </div>
-            <div>
-              <div className="text-xs text-muted-foreground uppercase font-semibold tracking-wider mb-2">Email</div>
-              <div className="font-medium text-lg">{user.email}</div>
-            </div>
-            <div>
-              <div className="text-xs text-muted-foreground uppercase font-semibold tracking-wider mb-2">Company</div>
-              <div className="font-medium text-lg">{user.company || '-'}</div>
-            </div>
-            <div>
-              <div className="text-xs text-muted-foreground uppercase font-semibold tracking-wider mb-2">Role Tier</div>
-              <Badge variant="outline" className="rounded-none px-3 py-1 text-xs tracking-wider">
-                {user.tier}
-              </Badge>
-            </div>
-            <div>
-              <div className="text-xs text-muted-foreground uppercase font-semibold tracking-wider mb-2">Reputation Score</div>
-              <div className="font-mono text-xl font-semibold">{user.reputationScore}</div>
-            </div>
-          </div>
+          )}
         </CardContent>
       </Card>
 
-      <Card className="rounded-none shadow-sm border border-border">
+      <Card className="market-profile-section market-profile-compliance rounded-none shadow-sm border border-border">
         <CardHeader className="border-b bg-muted/5 p-6">
           <CardTitle className="text-xl font-bold flex items-center gap-2">
             <ShieldAlert className="w-5 h-5" />
@@ -139,7 +239,7 @@ export default function Profile() {
       </Card>
 
       {(user.tier === "PRODUCER" || user.tier === "OFF_TAKER") && (
-        <Card className="rounded-none shadow-sm border border-border">
+        <Card className="market-profile-section market-profile-social rounded-none shadow-sm border border-border">
           <CardHeader className="border-b bg-muted/5 p-6">
             <div className="flex items-center justify-between gap-4">
               <div>
