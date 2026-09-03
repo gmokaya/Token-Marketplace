@@ -1259,6 +1259,7 @@ export default function Home() {
                   <a href="https://portal.tokenharvest.ke" target="_blank" rel="noreferrer">Producer</a>
                   <button type="button" onClick={() => scrollTo("about")}>About</button>
                   <a href="https://tokenharvest.app" target="_blank" rel="noreferrer">App</a>
+                  <a href="https://community.tokenharvest.ke" target="_blank" rel="noreferrer">Careers</a>
                 </nav>
                 <div className="homepage-footer-social" aria-label="Social media">
                   <a href="https://www.linkedin.com/company/tokenharvest" target="_blank" rel="noreferrer" aria-label="LinkedIn" title="LinkedIn">
