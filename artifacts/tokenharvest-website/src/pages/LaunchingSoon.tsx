@@ -56,7 +56,7 @@ export default function LaunchingSoon() {
           className="pointer-events-none absolute -right-20 top-0 h-[360px] w-[360px] rounded-full bg-[#DFFC4A]/10 blur-3xl"
         />
 
-        <section className="launching-soon-section relative grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr] lg:gap-24">
+        <section className="launching-soon-section relative grid items-center gap-14 lg:grid-cols-[0.95fr_1.05fr] lg:gap-24">
           <div>
             <div className="launching-soon-badge mb-7 inline-flex items-center gap-3 rounded-full border border-[#DFFC4A]/35 bg-[#DFFC4A]/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#DFFC4A]">
               <Sparkles size={14} />
@@ -86,8 +86,7 @@ export default function LaunchingSoon() {
           </div>
 
           <div className="relative">
-            <div aria-hidden="true" className="absolute -inset-3 rounded-[2rem] border border-[#DFFC4A]/20" />
-            <div className="launching-soon-form-card relative rounded-[1.5rem] bg-[#F6F4EF] p-7 text-[#073B35] shadow-[0_24px_80px_rgba(0,0,0,0.22)] md:p-10">
+            <div className="launching-soon-form-card relative rounded-[0.7rem] bg-[#F6F4EF] p-7 text-[#073B35] shadow-[0_24px_80px_rgba(0,0,0,0.22)] md:p-10">
               {status === "done" ? (
                 <div className="launching-soon-success flex min-h-[380px] flex-col items-center justify-center text-center">
                   <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#DFFC4A]">
