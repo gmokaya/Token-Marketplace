@@ -1,10 +1,5 @@
 import { Link, useLocation } from "wouter";
 import { useGetMe } from "@workspace/api-client-react";
-import {
-  LayoutDashboard, Leaf, FileText, Gavel, BarChart2,
-  ShoppingBag, User, Shield, PlusCircle, Users,
-  ScrollText, Key, Landmark, Activity,
-} from "lucide-react";
 import { formatTier } from "@/lib/formatTier";
 import "./sidebar.css";
 
@@ -15,7 +10,7 @@ interface SidebarProps {
 interface NavItem {
   href: string;
   label: string;
-  icon: React.ElementType;
+  icon: string;
 }
 
 interface NavSection {
@@ -23,31 +18,47 @@ interface NavSection {
   items: NavItem[];
 }
 
+const SIDEBAR_GLYPHS = {
+  brand: "~",
+  auction: ">",
+  newAuction: "+",
+  lots: "#",
+  ewrs: "=",
+  users: "@",
+  earnings: "$",
+  audit: "✓",
+  market: "*",
+  mandates: ">",
+  api: "#",
+  profile: "o",
+  dashboard: "=",
+} as const;
+
 const ADMIN_SECTIONS: NavSection[] = [
   {
     heading: "Exchange Admin",
     items: [
-      { href: "/admin/auctions",     label: "Auction Sessions", icon: Gavel          },
-      { href: "/admin/auctions/new", label: "New Auction",      icon: PlusCircle     },
-      { href: "/admin/lots",         label: "All Tea Lots",     icon: Leaf           },
-      { href: "/admin/ewrs",         label: "All eWRs",         icon: ScrollText     },
-      { href: "/admin/users",        label: "Users",            icon: Users          },
-      { href: "/admin/earnings",     label: "Earnings",         icon: Landmark       },
-      { href: "/admin/audit",        label: "Audit Log",        icon: Shield         },
+      { href: "/admin/auctions",     label: "Auction Sessions", icon: SIDEBAR_GLYPHS.auction  },
+      { href: "/admin/auctions/new", label: "New Auction",      icon: SIDEBAR_GLYPHS.newAuction },
+      { href: "/admin/lots",         label: "All Tea Lots",     icon: SIDEBAR_GLYPHS.lots      },
+      { href: "/admin/ewrs",         label: "All eWRs",         icon: SIDEBAR_GLYPHS.ewrs      },
+      { href: "/admin/users",        label: "Users",            icon: SIDEBAR_GLYPHS.users     },
+      { href: "/admin/earnings",     label: "Earnings",         icon: SIDEBAR_GLYPHS.earnings  },
+      { href: "/admin/audit",        label: "Audit Log",        icon: SIDEBAR_GLYPHS.audit     },
     ],
   },
   {
     heading: "Market",
     items: [
-      { href: "/market",    label: "Market Overview", icon: BarChart2 },
-      { href: "/mandates",  label: "Mandates",        icon: FileText  },
+      { href: "/market",    label: "Market Overview", icon: SIDEBAR_GLYPHS.market   },
+      { href: "/mandates",  label: "Mandates",        icon: SIDEBAR_GLYPHS.mandates },
     ],
   },
   {
     heading: "Settings",
     items: [
-      { href: "/settings/api-access", label: "API Access",  icon: Key  },
-      { href: "/profile",             label: "Profile",      icon: User },
+      { href: "/settings/api-access", label: "API Access",  icon: SIDEBAR_GLYPHS.api     },
+      { href: "/profile",             label: "Profile",      icon: SIDEBAR_GLYPHS.profile },
     ],
   },
 ];
@@ -56,24 +67,24 @@ const BROKER_SECTIONS: NavSection[] = [
   {
     heading: "Brokerage",
     items: [
-      { href: "/broker",                 label: "Dashboard",        icon: LayoutDashboard },
-      { href: "/broker/mandate-holders", label: "Mandate Holders",  icon: Users           },
-      { href: "/broker/lots/new",        label: "List New Tea Lot", icon: PlusCircle      },
-      { href: "/mandates",               label: "My Mandates",      icon: FileText        },
-      { href: "/broker/auctions",        label: "Auction Sessions", icon: Gavel           },
+      { href: "/broker",                 label: "Dashboard",        icon: SIDEBAR_GLYPHS.dashboard  },
+      { href: "/broker/mandate-holders", label: "Mandate Holders",  icon: SIDEBAR_GLYPHS.users      },
+      { href: "/broker/lots/new",        label: "List New Tea Lot", icon: SIDEBAR_GLYPHS.newAuction },
+      { href: "/mandates",               label: "My Mandates",      icon: SIDEBAR_GLYPHS.mandates    },
+      { href: "/broker/auctions",        label: "Auction Sessions", icon: SIDEBAR_GLYPHS.auction     },
     ],
   },
   {
     heading: "Market",
     items: [
-      { href: "/market", label: "Spot Market", icon: ShoppingBag },
+      { href: "/market", label: "Spot Market", icon: SIDEBAR_GLYPHS.market },
     ],
   },
   {
     heading: "Settings",
     items: [
-      { href: "/settings/api-access", label: "API Access", icon: Key  },
-      { href: "/profile",             label: "Profile",    icon: User },
+      { href: "/settings/api-access", label: "API Access", icon: SIDEBAR_GLYPHS.api     },
+      { href: "/profile",             label: "Profile",    icon: SIDEBAR_GLYPHS.profile },
     ],
   },
 ];
@@ -82,20 +93,19 @@ const STANDARD_SECTIONS: NavSection[] = [
   {
     heading: "Market",
     items: [
-      { href: "/market", label: "Spot Market", icon: Leaf },
+      { href: "/market", label: "Spot Market", icon: SIDEBAR_GLYPHS.market },
     ],
   },
   {
     heading: "Account",
     items: [
-      { href: "/profile", label: "My Profile", icon: User },
+      { href: "/profile", label: "My Profile", icon: SIDEBAR_GLYPHS.profile },
     ],
   },
 ];
 
 function NavLink({ item, collapsed, location }: { item: NavItem; collapsed: boolean; location: string }) {
   const isActive = location === item.href || location.startsWith(`${item.href}/`);
-  const Icon = item.icon;
   return (
     <Link
       href={item.href}
@@ -109,7 +119,9 @@ function NavLink({ item, collapsed, location }: { item: NavItem; collapsed: bool
         }
       `}
     >
-      <Icon className="w-[18px] h-[18px] shrink-0" />
+      <span className="market-sidebar-nav-icon shrink-0" aria-hidden="true">
+        {item.icon}
+      </span>
       {!collapsed && <span className="text-sm truncate">{item.label}</span>}
     </Link>
   );
@@ -132,14 +144,21 @@ export function Sidebar({ collapsed }: SidebarProps) {
         ${collapsed ? "w-[72px]" : "w-60"}
       `}
     >
+      <div className="market-sidebar-logo" aria-label="TokenHarvest">
+        {collapsed ? "TH" : "TokenHarvest"}
+      </div>
       <div className="market-sidebar-brand">
-        <Leaf className="market-sidebar-brand-icon" aria-hidden="true" />
+        <span className="market-sidebar-brand-icon" aria-hidden="true">
+          {SIDEBAR_GLYPHS.brand}
+        </span>
         {!collapsed && <span className="market-sidebar-brand-name">Tea Market</span>}
       </div>
 
-      {!collapsed && tier && (
+      {!collapsed && isAdmin && tier && (
         <div className="px-4 pt-3 pb-1 flex items-center gap-2">
-          {isAdmin && <Shield className="w-3 h-3 text-primary shrink-0" />}
+          <span className="market-sidebar-role-icon text-primary shrink-0" aria-hidden="true">
+            {SIDEBAR_GLYPHS.audit}
+          </span>
           <span className={`inline-block text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 border
             ${isAdmin
               ? "bg-primary/15 text-primary border-primary/30"

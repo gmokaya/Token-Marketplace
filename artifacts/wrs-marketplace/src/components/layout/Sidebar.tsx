@@ -1,18 +1,6 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { useGetMe } from "@workspace/api-client-react";
-import {
-  Gavel,
-  ScrollText,
-  Package,
-  Users,
-  Landmark,
-  Shield,
-  Key,
-  Wheat,
-  Coffee,
-  Leaf,
-} from "lucide-react";
 import "./sidebar.css";
 
 interface SidebarProps {
@@ -27,8 +15,23 @@ const SIDEBAR_THEME_CLASSES = {
   tea: "market-sidebar--tea",
 } as const;
 
+const SIDEBAR_GLYPHS = {
+  grain: "*",
+  coffee: "o",
+  tea: "~",
+  auction: ">",
+  newAuction: "+",
+  lots: "#",
+  ewrs: "=",
+  users: "@",
+  earnings: "$",
+  audit: "✓",
+  api: "#",
+  profile: "o",
+} as const;
+
 function NavItem({ href, icon: Icon, label, collapsed, themeClass }: {
-  href: string; icon: any; label: string; collapsed: boolean; themeClass: string;
+  href: string; icon: string; label: string; collapsed: boolean; themeClass: string;
 }) {
   const [location] = useLocation();
   const active = location === href || location.startsWith(href + "/");
@@ -38,7 +41,9 @@ function NavItem({ href, icon: Icon, label, collapsed, themeClass }: {
       className={`market-sidebar-nav-item ${themeClass} ${active ? "is-active" : ""}`}
       title={collapsed ? label : undefined}
     >
-      <Icon className={`market-sidebar-nav-icon ${active ? "is-active" : ""}`} />
+      <span className={`market-sidebar-nav-icon ${active ? "is-active" : ""}`} aria-hidden="true">
+        {Icon}
+      </span>
       {!collapsed && <span className="truncate text-[11px]">{label}</span>}
     </Link>
   );
@@ -66,16 +71,25 @@ export function Sidebar({ collapsed, marketName = "Grain Market", market = "grai
   const { data: me } = useGetMe();
   const role = me?.tier;
 
-  const MarketIcon = market === "coffee" ? Coffee : market === "tea" ? Leaf : Wheat;
+  const MarketIcon = market === "coffee"
+    ? SIDEBAR_GLYPHS.coffee
+    : market === "tea"
+      ? SIDEBAR_GLYPHS.tea
+      : SIDEBAR_GLYPHS.grain;
   const themeClass = SIDEBAR_THEME_CLASSES[market];
 
   return (
     <aside
       className={`market-sidebar ${themeClass} ${collapsed ? "is-collapsed" : ""} ${role === "ADMIN" ? "is-admin" : ""}`}
     >
+      <div className="market-sidebar-logo" aria-label="TokenHarvest">
+        {collapsed ? "TH" : "TokenHarvest"}
+      </div>
       {/* Sidebar brand strip */}
       <div className="market-sidebar-brand">
-        <MarketIcon className="market-sidebar-brand-icon" aria-hidden="true" />
+        <span className="market-sidebar-brand-icon" aria-hidden="true">
+          {MarketIcon}
+        </span>
         {!collapsed && <span className="market-sidebar-brand-name">{marketName}</span>}
       </div>
 
@@ -86,16 +100,16 @@ export function Sidebar({ collapsed, marketName = "Grain Market", market = "grai
           {role === "ADMIN" && (
             <>
               <NavGroup title="Exchange Admin" collapsed={collapsed} theme={themeClass}>
-                <NavItem href="/admin/auctions" icon={Gavel}      label="Auction Sessions" collapsed={collapsed} themeClass={themeClass} />
-                <NavItem href="/admin/lots"     icon={Package}    label="All Lots"         collapsed={collapsed} themeClass={themeClass} />
-                <NavItem href="/admin/ewrs"     icon={ScrollText} label="All eWRs"         collapsed={collapsed} themeClass={themeClass} />
-                <NavItem href="/admin/users"    icon={Users}      label="Users"            collapsed={collapsed} themeClass={themeClass} />
-                <NavItem href="/admin/earnings" icon={Landmark}   label="Earnings"         collapsed={collapsed} themeClass={themeClass} />
-                <NavItem href="/admin/audit"    icon={Shield}     label="Audit Log"        collapsed={collapsed} themeClass={themeClass} />
+                <NavItem href="/admin/auctions" icon={SIDEBAR_GLYPHS.auction}  label="Auction Sessions" collapsed={collapsed} themeClass={themeClass} />
+                <NavItem href="/admin/lots"     icon={SIDEBAR_GLYPHS.lots}     label="All Lots"         collapsed={collapsed} themeClass={themeClass} />
+                <NavItem href="/admin/ewrs"     icon={SIDEBAR_GLYPHS.ewrs}     label="All eWRs"         collapsed={collapsed} themeClass={themeClass} />
+                <NavItem href="/admin/users"    icon={SIDEBAR_GLYPHS.users}    label="Users"            collapsed={collapsed} themeClass={themeClass} />
+                <NavItem href="/admin/earnings" icon={SIDEBAR_GLYPHS.earnings} label="Earnings"         collapsed={collapsed} themeClass={themeClass} />
+                <NavItem href="/admin/audit"    icon={SIDEBAR_GLYPHS.audit}    label="Audit Log"        collapsed={collapsed} themeClass={themeClass} />
               </NavGroup>
               <NavGroup title="Settings" collapsed={collapsed} theme={themeClass}>
-                <NavItem href="/settings/api-access" icon={Key}   label="API Access"  collapsed={collapsed} themeClass={themeClass} />
-                <NavItem href="/profile"              icon={Users} label="My Profile"  collapsed={collapsed} themeClass={themeClass} />
+                <NavItem href="/settings/api-access" icon={SIDEBAR_GLYPHS.api}     label="API Access"  collapsed={collapsed} themeClass={themeClass} />
+                <NavItem href="/profile"              icon={SIDEBAR_GLYPHS.profile} label="My Profile"  collapsed={collapsed} themeClass={themeClass} />
               </NavGroup>
             </>
           )}
@@ -107,7 +121,7 @@ export function Sidebar({ collapsed, marketName = "Grain Market", market = "grai
                 <NavItem href="/market" icon={MarketIcon} label="Spot Market" collapsed={collapsed} themeClass={themeClass} />
               </NavGroup>
               <NavGroup title="Account" collapsed={collapsed} theme={themeClass}>
-                <NavItem href="/profile" icon={Users} label="My Profile" collapsed={collapsed} themeClass={themeClass} />
+                <NavItem href="/profile" icon={SIDEBAR_GLYPHS.profile} label="My Profile" collapsed={collapsed} themeClass={themeClass} />
               </NavGroup>
             </>
           )}

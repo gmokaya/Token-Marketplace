@@ -283,6 +283,30 @@
   color: rgba(244, 251, 246, 0.52) !important;
 }
 
+/* Text glyph icons use the same PT Sans family as sidebar labels. */
+.market-sidebar-brand-icon,
+.market-sidebar-nav-icon,
+.market-sidebar-role-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'PT Sans', sans-serif !important;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.market-sidebar-brand-icon {
+  font-size: 15px;
+}
+
+.market-sidebar-nav-icon {
+  width: 16px !important;
+  height: 16px !important;
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
 /* Keep every selectable menu item on the same pill system. */
 .market-sidebar-nav-item,
 .market-sidebar--grain .market-sidebar-nav-item,
@@ -297,4 +321,26 @@
   background: #456b58 !important;
   color: #f4fbf6 !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* TokenHarvest wordmark shared across each market sidebar. */
+.market-sidebar-logo {
+  display: flex;
+  min-height: 30px;
+  align-items: center;
+  padding: 0 12px;
+  color: rgba(244, 251, 246, 0.94);
+  font-family: 'Belleza', sans-serif !important;
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.market-sidebar.is-collapsed .market-sidebar-logo {
+  justify-content: center;
+  padding: 0;
+  font-size: 12px;
+  letter-spacing: 0.02em;
 }
