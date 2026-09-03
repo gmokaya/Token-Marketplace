@@ -182,3 +182,70 @@
     padding: 20px 16px 32px;
   }
 }
+
+/* Profile surface: compact, quiet, and easy to scan */
+.market-profile-page {
+  width: 100%;
+  max-width: 760px !important;
+  margin-inline: auto;
+}
+
+.market-profile-page > div:first-child {
+  margin-bottom: 4px;
+}
+
+.market-profile-page > div:first-child h1 {
+  font-size: clamp(1.65rem, 3vw, 2rem);
+  letter-spacing: -0.04em;
+}
+
+.market-profile-page > [class*="rounded-xl"],
+.market-profile-page > [class*="rounded-none"] {
+  overflow: hidden;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: calc(var(--radius) + 2px) !important;
+  background: hsl(var(--card)) !important;
+  box-shadow: 0 1px 2px hsl(222 14% 15% / 0.04), 0 10px 28px hsl(222 14% 15% / 0.04) !important;
+}
+
+.market-profile-page > [class*="rounded-xl"] > [class*="p-6"],
+.market-profile-page > [class*="rounded-none"] > [class*="p-6"] {
+  padding: 20px 24px 16px !important;
+}
+
+.market-profile-page > [class*="rounded-xl"] > [class*="pt-0"],
+.market-profile-page > [class*="rounded-none"] > [class*="pt-0"],
+.market-profile-page > [class*="rounded-xl"] > [class*="p-8"],
+.market-profile-page > [class*="rounded-none"] > [class*="p-8"] {
+  padding: 0 24px 24px !important;
+}
+
+.market-profile-page > [class*="rounded-xl"] [class*="text-muted-foreground"],
+.market-profile-page > [class*="rounded-none"] [class*="text-muted-foreground"] {
+  color: hsl(var(--muted-foreground));
+}
+
+.market-profile-page > [class*="rounded-xl"] [class*="grid"] > div > p:first-child,
+.market-profile-page > [class*="rounded-none"] [class*="grid"] > div > div:first-child {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.market-profile-page > [class*="rounded-xl"] [class*="grid"] > div > p:nth-child(2),
+.market-profile-page > [class*="rounded-none"] [class*="grid"] > div > div:nth-child(2) {
+  margin-top: 5px;
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.market-profile-page [class*="font-medium"] {
+  letter-spacing: -0.01em;
+}
+
+.market-profile-page [class*="rounded-xl"] button,
+.market-profile-page [class*="rounded-none"] button {
+  border-radius: 0.5rem;
+}

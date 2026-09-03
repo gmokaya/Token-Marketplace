@@ -76,7 +76,7 @@ export default function Profile() {
   };
 
   return (
-    <div className="max-w-3xl space-y-8">
+    <div className="max-w-3xl space-y-8 market-profile-page">
       <PageHeader
         title="Profile"
         description="Manage your account information and preferences."

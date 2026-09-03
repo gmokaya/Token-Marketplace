@@ -464,7 +464,7 @@ export default function Profile() {
 
   return (
     <Layout>
-      <div className="max-w-3xl mx-auto space-y-6">
+      <div className="max-w-3xl mx-auto space-y-6 market-profile-page">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold tracking-tight">User Profile</h1>
         </div>

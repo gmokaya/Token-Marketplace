@@ -368,3 +368,38 @@
     padding: 10px 8px !important;
   }
 }
+
+/* Market-colored sidebar requested for the profile workspace */
+.market-sidebar.market-sidebar--grain {
+  border-right-color: rgba(255, 255, 255, 0.08) !important;
+  background: linear-gradient(180deg, #202a32 0%, #151b20 100%) !important;
+  color: #f7fafb !important;
+}
+
+.market-sidebar.market-sidebar--grain .market-sidebar-brand {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.market-sidebar.market-sidebar--grain .market-sidebar-brand-name,
+.market-sidebar.market-sidebar--grain .market-sidebar-nav-group-title {
+  color: rgba(247, 250, 251, 0.72) !important;
+}
+
+.market-sidebar.market-sidebar--grain .market-sidebar-nav-item {
+  color: rgba(247, 250, 251, 0.72) !important;
+}
+
+.market-sidebar.market-sidebar--grain .market-sidebar-nav-item:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #fff !important;
+}
+
+.market-sidebar.market-sidebar--grain .market-sidebar-nav-item.is-active {
+  background: #3b4652 !important;
+  color: #fff !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.market-sidebar.market-sidebar--grain .market-sidebar-loading {
+  color: rgba(247, 250, 251, 0.52) !important;
+}
