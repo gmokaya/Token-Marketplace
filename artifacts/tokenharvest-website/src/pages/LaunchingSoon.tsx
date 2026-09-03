@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, Check, Mail, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Mail } from "lucide-react";
 import { useState } from "react";
 import { Link } from "wouter";
 import "./LaunchingSoon.css";
@@ -58,10 +58,6 @@ export default function LaunchingSoon() {
 
         <section className="launching-soon-section relative grid items-center gap-14 lg:grid-cols-[0.95fr_1.05fr] lg:gap-24">
           <div>
-            <div className="launching-soon-badge mb-7 inline-flex items-center gap-3 rounded-full border border-[#DFFC4A]/35 bg-[#DFFC4A]/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#DFFC4A]">
-              <Sparkles size={14} />
-              Market access
-            </div>
             <h1 className="launching-soon-headline max-w-3xl text-6xl font-light leading-[0.91] tracking-[-0.07em] md:text-8xl">
               Be first in line for{" "}
               <span className="text-[#DFFC4A]">what’s next.</span>
