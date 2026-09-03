@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Filter, Layers3, Package, Search, Warehouse } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import "./market-workspace.css";
 
 export type MarketKind = "grain" | "coffee" | "tea";
 
@@ -46,7 +47,7 @@ function EmptyStat({ label, detail, icon: Icon }: {
 }
 
 export default function MarketWorkspace({ market }: { market: MarketKind }) {
-  const copy = MARKET_COPY[market];
+  const copy = MARKET_COPY.grain;
   const [search, setSearch] = useState("");
   const [origin, setOrigin] = useState("");
 
@@ -112,7 +113,7 @@ export default function MarketWorkspace({ market }: { market: MarketKind }) {
         </div>
       )}
 
-      <section aria-label={`${copy.name} summary`} className="grid grid-cols-2 gap-2 md:grid-cols-4">
+      <section aria-label={`${copy.name} summary`} className="market-summary-grid">
         <EmptyStat icon={Layers3} label="Active listings" detail="lots available" />
         <EmptyStat icon={Package} label="Total volume" detail="settled USD" />
         <EmptyStat icon={Warehouse} label="Warehouse receipts" detail="eWRs on platform" />
