@@ -112,6 +112,12 @@
 .th-commodity-title em {
   color: var(--th-ink);
   font-style: italic;
+  font-weight: 400;
+}
+
+.th-commodity-title span {
+  color: var(--th-sun);
+  font-weight: 600;
 }
 
 .th-commodity-title strong {
