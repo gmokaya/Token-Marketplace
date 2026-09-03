@@ -122,11 +122,16 @@ export function Sidebar({ collapsed }: SidebarProps) {
             </>
           )}
 
-          {/* Fallback for other roles: show market only */}
+          {/* Standard trader view: keep the compact Market + Account navigation visible. */}
           {role && role !== "ADMIN" && role !== "ENABLER" && (
-            <NavGroup title="Market" collapsed={collapsed}>
-              <NavItem href="/market" icon={BarChart4} label="Spot Market" collapsed={collapsed} />
-            </NavGroup>
+            <>
+              <NavGroup title="Market" collapsed={collapsed}>
+                <NavItem href="/market" icon={BarChart4} label="Spot Market" collapsed={collapsed} />
+              </NavGroup>
+              <NavGroup title="Account" collapsed={collapsed}>
+                <NavItem href="/profile" icon={Users} label="My Profile" collapsed={collapsed} />
+              </NavGroup>
+            </>
           )}
 
         </div>

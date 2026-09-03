@@ -119,7 +119,6 @@ export default function Profile() {
     <div className="max-w-2xl space-y-6 market-profile-page">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">User Profile</h1>
-        <p className="text-muted-foreground mt-1">Manage your account information and preferences.</p>
       </div>
 
       <Card className="market-profile-section market-profile-compliance">

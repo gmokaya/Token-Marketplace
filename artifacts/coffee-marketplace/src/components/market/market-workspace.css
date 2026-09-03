@@ -1,5 +1,7 @@
 .market-workspace-title {
   font-family: 'Simplo', 'PT Sans', sans-serif;
+  font-size: 1rem !important;
+  line-height: 1.2;
 }
 
 .market-summary-grid {
@@ -11,5 +13,43 @@
 @media (min-width: 768px) {
   .market-summary-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.market-workspace {
+  color: #202427;
+}
+
+.market-workspace > header {
+  min-height: 55px;
+}
+
+.market-workspace .market-summary-grid {
+  gap: 8px;
+}
+
+.market-workspace .market-summary-grid > div {
+  min-height: 58px;
+  padding: 9px 10px;
+}
+
+.market-workspace section:last-child > div:last-child {
+  min-height: 112px;
+}
+
+@media (max-width: 760px) {
+  .market-workspace > header {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .market-workspace > header > div:last-child {
+    width: 100%;
+    margin-top: 0;
+  }
+
+  .market-workspace > header label {
+    flex: 1 1 auto;
+    width: auto;
   }
 }

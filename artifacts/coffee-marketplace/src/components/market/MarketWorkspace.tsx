@@ -28,7 +28,7 @@ export default function MarketWorkspace() {
   const hasFilters = useMemo(() => Boolean(search.trim() || origin.trim()), [origin, search]);
 
   return (
-    <div className="space-y-4">
+    <div className="market-workspace space-y-4">
       <header className="flex items-start justify-between gap-6 border-b border-[#dfe3e3] pb-4">
         <div>
           <div className="mb-2 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.2em] text-[#7b8588]">

@@ -144,7 +144,7 @@
 .market-app-content {
   max-width: 1600px;
   margin: 0 auto;
-  padding: 28px 32px 48px;
+  padding: 20px 22px 48px;
 }
 
 .market-app-shell .rounded-none {
@@ -180,6 +180,67 @@
 @media (max-width: 640px) {
   .market-app-content {
     padding: 20px 16px 32px;
+  }
+}
+
+/* Coffee workspace alignment with the compact market reference. */
+.market-app-shell--coffee .market-app-content {
+  max-width: none;
+}
+
+.market-app-shell--coffee .market-profile-page {
+  max-width: 510px !important;
+  gap: 1.75rem;
+}
+
+.market-app-shell--coffee .market-profile-page > div:first-child {
+  margin-bottom: 0;
+}
+
+.market-app-shell--coffee .market-profile-page > div:first-child h1 {
+  font-size: 1.5rem;
+  line-height: 1.15;
+}
+
+.market-app-shell--coffee .market-profile-page > [class*="rounded-xl"],
+.market-app-shell--coffee .market-profile-page > [class*="rounded-none"] {
+  border-radius: 0.75rem !important;
+}
+
+.market-app-shell--coffee .market-profile-page > [class*="rounded-xl"] > [class*="p-6"],
+.market-app-shell--coffee .market-profile-page > [class*="rounded-none"] > [class*="p-6"] {
+  padding: 16px 16px 12px !important;
+}
+
+.market-app-shell--coffee .market-profile-page > [class*="rounded-xl"] > [class*="pt-0"],
+.market-app-shell--coffee .market-profile-page > [class*="rounded-none"] > [class*="pt-0"],
+.market-app-shell--coffee .market-profile-page > [class*="rounded-xl"] > [class*="p-8"],
+.market-app-shell--coffee .market-profile-page > [class*="rounded-none"] > [class*="p-8"] {
+  padding: 0 16px 16px !important;
+}
+
+.market-app-shell--coffee .market-profile-page h3 {
+  font-size: 0.78rem;
+}
+
+.market-app-shell--coffee .market-profile-page [class*="grid"] > div > p:nth-child(2),
+.market-app-shell--coffee .market-profile-page [class*="grid"] > div > div:nth-child(2) {
+  font-size: 0.76rem;
+}
+
+.market-app-shell--coffee .market-profile-page [class*="rounded-xl"] button,
+.market-app-shell--coffee .market-profile-page [class*="rounded-none"] button {
+  min-height: 28px;
+  font-size: 0.7rem;
+}
+
+@media (max-width: 640px) {
+  .market-app-shell--coffee .market-app-content {
+    padding: 16px 14px 32px;
+  }
+
+  .market-app-shell--coffee .market-profile-page {
+    max-width: none !important;
   }
 }
 
