@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 export async function ensureAdminUser() {
   const email = "gnyakundi@trevitagroup.com";
   const clerkId = "admin_trevitagroup_001";
+  const name = "Gilbert Nyakundi";
 
   const [existing] = await db
     .select({ id: usersTable.id })
@@ -13,7 +14,11 @@ export async function ensureAdminUser() {
     .limit(1);
 
   if (existing) {
-    console.log("[ensure-admin] Super admin already exists:", email);
+    await db
+      .update(usersTable)
+      .set({ name })
+      .where(eq(usersTable.id, existing.id));
+    console.log("[ensure-admin] Super admin verified:", email);
     return;
   }
 
@@ -21,7 +26,7 @@ export async function ensureAdminUser() {
     .insert(usersTable)
     .values({
       clerkId,
-      name: "George Nyakundi",
+      name,
       email,
       tier: "ADMIN",
       reputationScore: 100,

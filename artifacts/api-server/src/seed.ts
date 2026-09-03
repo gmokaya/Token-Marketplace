@@ -103,7 +103,7 @@ async function seed() {
       },
       {
         clerkId: "admin_trevitagroup_001",
-        name: "George Nyakundi",
+        name: "Gilbert Nyakundi",
         email: "gnyakundi@trevitagroup.com",
         tier: "ADMIN",
         reputationScore: 100,
