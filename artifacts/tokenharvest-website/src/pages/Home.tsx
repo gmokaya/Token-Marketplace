@@ -498,13 +498,10 @@ function FinanceCard({
 }: {
   eyebrow: string; audience: string; tone: "green" | "yellow" | "grey"; hook: string; body: string; proof: string; eligibility: string; cta: string;
 }) {
-  const [hover, setHover] = useState(false);
   return (
     <div
       className="homepage-finance-card"
       data-tone={tone}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
     >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
         <div style={{ color: "var(--finance-ink)", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>
@@ -564,8 +561,9 @@ function FinanceCarousel() {
   return (
     <div
       className="homepage-finance-carousel"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
+      role="region"
+      aria-roledescription="carousel"
+      aria-label="Trade finance offerings"
       onFocus={() => setIsPaused(true)}
       onBlur={() => setIsPaused(false)}
     >
