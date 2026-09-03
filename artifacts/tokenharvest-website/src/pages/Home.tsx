@@ -918,7 +918,7 @@ export default function Home() {
               </nav>
               <nav className="homepage-utility-links" aria-label="Utility navigation">
                 <Link href="/investors">Investors</Link>
-                <a href="/api-docs">API Docs</a>
+                <Link href="/api-docs">API Docs</Link>
                 <button type="button" onClick={() => scrollTo("cta")}>Contact</button>
               </nav>
               {/* auth buttons */}
@@ -984,7 +984,7 @@ export default function Home() {
               </nav>
               <nav className="homepage-mobile-utility-links" aria-label="Utility navigation">
                 <Link href="/investors" onClick={() => setMobileMenuOpen(false)}>Investors</Link>
-                <a href="/api-docs" onClick={() => setMobileMenuOpen(false)}>API Docs</a>
+                <Link href="/api-docs" onClick={() => setMobileMenuOpen(false)}>API Docs</Link>
                 <button type="button" onClick={() => { scrollTo("cta"); setMobileMenuOpen(false); }}>Contact</button>
               </nav>
               {/* auth */}

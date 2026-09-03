@@ -14,6 +14,7 @@ import { Layout } from "@/components/layout/Layout";
 import Home from "@/pages/Home";
 import GetStarted from "@/pages/GetStarted";
 import InvestorsPartners from "@/pages/InvestorsPartners";
+import ApiDocs from "@/pages/ApiDocs";
 import AdminHomepage from "@/pages/AdminHomepage";
 
 const clerkPubKey = publishableKeyFromHost(
@@ -99,6 +100,7 @@ function ClerkProviderWithRoutes() {
             <Route path="/" component={Home} />
             <Route path="/get-started" component={GetStarted} />
             <Route path="/investors" component={InvestorsPartners} />
+            <Route path="/api-docs" component={ApiDocs} />
             <Route path="/admin/homepage">
               <ProtectedRoute>
                 <Layout>
