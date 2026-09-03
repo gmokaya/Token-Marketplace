@@ -47,7 +47,7 @@ function EmptyStat({ label, detail, icon: Icon }: {
 }
 
 export default function MarketWorkspace({ market }: { market: MarketKind }) {
-  const copy = MARKET_COPY.grain;
+  const copy = MARKET_COPY[market];
   const [search, setSearch] = useState("");
   const [origin, setOrigin] = useState("");
 
