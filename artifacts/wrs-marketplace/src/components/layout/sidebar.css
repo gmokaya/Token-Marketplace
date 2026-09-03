@@ -56,6 +56,13 @@
   flex-shrink: 0;
 }
 
+.market-sidebar-icon {
+  display: block;
+  background-color: currentColor;
+  -webkit-mask: var(--basil-icon) center / contain no-repeat;
+  mask: var(--basil-icon) center / contain no-repeat;
+}
+
 .market-sidebar-brand-icon {
   width: 12px;
   height: 12px;

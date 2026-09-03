@@ -42,6 +42,13 @@
   color: #a1b16e;
 }
 
+.market-sidebar-icon {
+  display: block;
+  background-color: currentColor;
+  -webkit-mask: var(--basil-icon) center / contain no-repeat;
+  mask: var(--basil-icon) center / contain no-repeat;
+}
+
 .market-sidebar-brand-name {
   min-width: 0;
   overflow: hidden;
@@ -102,7 +109,8 @@
   font-weight: 500 !important;
 }
 
-.market-sidebar-nav-item svg {
+.market-sidebar-nav-item svg,
+.market-sidebar-nav-item .market-sidebar-icon {
   width: 14px !important;
   height: 14px !important;
   flex-shrink: 0;
@@ -110,7 +118,9 @@
 }
 
 .market-sidebar-nav-item.text-sidebar-accent-foreground svg,
-.market-sidebar-nav-item.text-sidebar-accent-foreground[class*="font-medium"] svg {
+.market-sidebar-nav-item.text-sidebar-accent-foreground[class*="font-medium"] svg,
+.market-sidebar-nav-item.text-sidebar-accent-foreground .market-sidebar-icon,
+.market-sidebar-nav-item.text-sidebar-accent-foreground[class*="font-medium"] .market-sidebar-icon {
   color: #a1b16e !important;
 }
 

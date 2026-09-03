@@ -1,11 +1,6 @@
+import { CSSProperties } from "react";
 import { Link, useLocation } from "wouter";
 import { useGetMe } from "@workspace/api-client-react";
-import {
-  LayoutDashboard, Leaf, FileText, Gavel, BarChart2,
-  ShoppingBag, User, Shield, PlusCircle, Users,
-  ScrollText, Key, Landmark, Activity,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 import { formatTier } from "@/lib/formatTier";
 import "./sidebar.css";
 
@@ -13,10 +8,36 @@ interface SidebarProps {
   collapsed: boolean;
 }
 
+const BASIL_ICON_BASE = `${import.meta.env.BASE_URL}icons/basil`;
+const BASIL_ICONS = {
+  bag: "bag.png",
+  bookCheck: "book-check.png",
+  box: "box.png",
+  chart: "chart.png",
+  clipboard: "clipboard.png",
+  document: "document.png",
+  exchange: "exchange.png",
+  key: "key.png",
+  layout: "layout.png",
+  plus: "plus.png",
+  settings: "settings.png",
+  shield: "shield.png",
+  user: "user.png",
+  wallet: "wallet.png",
+} as const;
+type BasilIconName = keyof typeof BASIL_ICONS;
+
+function BasilIcon({ name, className = "" }: { name: BasilIconName; className?: string }) {
+  const style = {
+    "--basil-icon": `url("${BASIL_ICON_BASE}/${BASIL_ICONS[name]}")`,
+  } as CSSProperties;
+  return <span className={`market-sidebar-icon ${className}`} style={style} aria-hidden="true" />;
+}
+
 interface NavItem {
   href: string;
   label: string;
-  icon: LucideIcon;
+  icon: BasilIconName;
 }
 
 interface NavSection {
@@ -28,27 +49,27 @@ const ADMIN_SECTIONS: NavSection[] = [
   {
     heading: "Exchange Admin",
     items: [
-      { href: "/admin/auctions",     label: "Auction Sessions", icon: Gavel      },
-      { href: "/admin/auctions/new", label: "New Auction",      icon: PlusCircle },
-      { href: "/admin/lots",         label: "All Tea Lots",     icon: Leaf       },
-      { href: "/admin/ewrs",         label: "All eWRs",         icon: ScrollText },
-      { href: "/admin/users",        label: "Users",            icon: Users      },
-      { href: "/admin/earnings",     label: "Earnings",         icon: Landmark   },
-      { href: "/admin/audit",        label: "Audit Log",        icon: Shield     },
+      { href: "/admin/auctions",     label: "Auction Sessions", icon: "exchange" },
+      { href: "/admin/auctions/new", label: "New Auction",      icon: "plus"     },
+      { href: "/admin/lots",         label: "All Tea Lots",     icon: "box"      },
+      { href: "/admin/ewrs",         label: "All eWRs",         icon: "document" },
+      { href: "/admin/users",        label: "Users",            icon: "user"     },
+      { href: "/admin/earnings",     label: "Earnings",         icon: "wallet"   },
+      { href: "/admin/audit",        label: "Audit Log",        icon: "shield"   },
     ],
   },
   {
     heading: "Market",
     items: [
-      { href: "/market",    label: "Market Overview", icon: BarChart2 },
-      { href: "/mandates",  label: "Mandates",        icon: FileText  },
+      { href: "/market",    label: "Market Overview", icon: "chart"     },
+      { href: "/mandates",  label: "Mandates",        icon: "bookCheck" },
     ],
   },
   {
     heading: "Settings",
     items: [
-      { href: "/settings/api-access", label: "API Access",  icon: Key  },
-      { href: "/profile",             label: "Profile",      icon: User },
+      { href: "/settings/api-access", label: "API Access",  icon: "key"  },
+      { href: "/profile",             label: "Profile",      icon: "user" },
     ],
   },
 ];
@@ -57,24 +78,24 @@ const BROKER_SECTIONS: NavSection[] = [
   {
     heading: "Brokerage",
     items: [
-      { href: "/broker",                 label: "Dashboard",        icon: LayoutDashboard },
-      { href: "/broker/mandate-holders", label: "Mandate Holders",  icon: Users           },
-      { href: "/broker/lots/new",        label: "List New Tea Lot", icon: PlusCircle      },
-      { href: "/mandates",               label: "My Mandates",      icon: FileText        },
-      { href: "/broker/auctions",        label: "Auction Sessions", icon: Gavel           },
+      { href: "/broker",                 label: "Dashboard",        icon: "layout"   },
+      { href: "/broker/mandate-holders", label: "Mandate Holders",  icon: "user"     },
+      { href: "/broker/lots/new",        label: "List New Tea Lot", icon: "plus"     },
+      { href: "/mandates",               label: "My Mandates",      icon: "bookCheck" },
+      { href: "/broker/auctions",        label: "Auction Sessions", icon: "exchange" },
     ],
   },
   {
     heading: "Market",
     items: [
-      { href: "/market", label: "Spot Market", icon: ShoppingBag },
+      { href: "/market", label: "Spot Market", icon: "bag" },
     ],
   },
   {
     heading: "Settings",
     items: [
-      { href: "/settings/api-access", label: "API Access", icon: Key  },
-      { href: "/profile",             label: "Profile",    icon: User },
+      { href: "/settings/api-access", label: "API Access", icon: "key"  },
+      { href: "/profile",             label: "Profile",    icon: "user" },
     ],
   },
 ];
@@ -83,20 +104,19 @@ const STANDARD_SECTIONS: NavSection[] = [
   {
     heading: "Market",
     items: [
-      { href: "/market", label: "Spot Market", icon: Leaf },
+      { href: "/market", label: "Spot Market", icon: "bag" },
     ],
   },
   {
     heading: "Account",
     items: [
-      { href: "/profile", label: "My Profile", icon: User },
+      { href: "/profile", label: "My Profile", icon: "user" },
     ],
   },
 ];
 
 function NavLink({ item, collapsed, location }: { item: NavItem; collapsed: boolean; location: string }) {
   const isActive = location === item.href || location.startsWith(`${item.href}/`);
-  const Icon = item.icon;
   return (
     <Link
       href={item.href}
@@ -110,7 +130,7 @@ function NavLink({ item, collapsed, location }: { item: NavItem; collapsed: bool
         }
       `}
     >
-      <Icon className="market-sidebar-nav-icon shrink-0" />
+      <BasilIcon name={item.icon} className="market-sidebar-nav-icon shrink-0" />
       {!collapsed && <span className="text-sm truncate">{item.label}</span>}
     </Link>
   );
@@ -137,13 +157,13 @@ export function Sidebar({ collapsed }: SidebarProps) {
         {collapsed ? "TH" : "TokenHarvest"}
       </div>
       <div className="market-sidebar-brand">
-        <Leaf className="market-sidebar-brand-icon" aria-hidden="true" />
+        <BasilIcon name="bag" className="market-sidebar-brand-icon" />
         {!collapsed && <span className="market-sidebar-brand-name">Tea Market</span>}
       </div>
 
       {!collapsed && isAdmin && tier && (
         <div className="px-4 pt-3 pb-1 flex items-center gap-2">
-          <Shield className="market-sidebar-role-icon text-primary shrink-0" aria-hidden="true" />
+          <BasilIcon name="shield" className="market-sidebar-role-icon text-primary shrink-0" />
           <span className={`inline-block text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 border
             ${isAdmin
               ? "bg-primary/15 text-primary border-primary/30"
