@@ -510,7 +510,7 @@ function FinanceCard({
         <div style={{ color: "var(--finance-ink)", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>
           {eyebrow}
         </div>
-        <div style={{ background: "rgba(246,244,239,0.94)", color: "var(--finance-ink)", fontSize: 10, fontWeight: 800, padding: "5px 9px", borderRadius: 999, letterSpacing: "0.06em" }}>
+        <div style={{ background: "rgba(246,244,239,0.94)", color: "#073B35", fontSize: 10, fontWeight: 800, padding: "5px 9px", borderRadius: 999, letterSpacing: "0.06em" }}>
           {audience}
         </div>
       </div>
