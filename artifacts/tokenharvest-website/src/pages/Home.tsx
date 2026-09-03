@@ -314,7 +314,7 @@ function MarketCard({ num, name, grade, desc, photo, link }: MarketCardData) {
             <a
               href={link}
               style={{
-                color: "#F6F4EF",
+                color: ACCENT_LIGHT,
                 textDecoration: "none",
                 fontSize: 13,
                 fontWeight: 600,
