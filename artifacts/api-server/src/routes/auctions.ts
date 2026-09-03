@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import { getAuth } from "@clerk/express";
 import pg from "pg";
-import { db, pool, withTxRetry } from "@workspace/db";
+import { db, pool, withDbRetry, withTxRetry } from "@workspace/db";
 import { publishAuctionEvent } from "../lib/pg-pubsub";
 import {
   auctionsTable,
@@ -524,7 +524,8 @@ export function startAuctionExpiryWorker(): AuctionExpiryWorkerHandle {
     let lockClient: pg.PoolClient | undefined;
     let lockAcquired = false;
     try {
-      lockClient = await pool.connect();
+      lockClient = await withDbRetry(() => pool.connect());
+        if (!lockClient) return;
       const lockRes = await lockClient.query<{ acquired: boolean }>(
         "SELECT pg_try_advisory_lock($1) AS acquired",
         [EXPIRY_WORKER_LOCK_KEY.toString()]
@@ -535,15 +536,17 @@ export function startAuctionExpiryWorker(): AuctionExpiryWorkerHandle {
       const now = new Date();
 
       // ── Phase 1: Close OPEN auctions past end_at ──────────────────────────
-      const openAuctions = await db
-        .select()
-        .from(auctionsTable)
-        .where(eq(auctionsTable.status, "OPEN"));
+      const openAuctions = await withDbRetry(() =>
+        db
+          .select()
+          .from(auctionsTable)
+          .where(eq(auctionsTable.status, "OPEN")),
+      );
 
       for (const auction of openAuctions) {
         if (auction.endAt > now) continue;
 
-        await db.transaction(async (tx) => {
+        await withTxRetry(() => db.transaction(async (tx) => {
           const affected = await tx
             .update(auctionsTable)
             .set({ status: "CLOSED" })
@@ -607,7 +610,7 @@ export function startAuctionExpiryWorker(): AuctionExpiryWorkerHandle {
               )
             );
           }
-        });
+        }));
 
         // Publish closed event via pg NOTIFY so all server instances fan-out to their local SSE clients
         await publishAuctionEvent({ type: "closed", auctionId: auction.id, data: { auctionId: auction.id } });
@@ -617,25 +620,29 @@ export function startAuctionExpiryWorker(): AuctionExpiryWorkerHandle {
       // The split-settlement engine is the ONLY path to SETTLED status for auctions.
       // If the deadline passes and no settlement record was created, cancel the auction
       // so the eWR is unlocked and the asset can be re-listed or auctioned.
-      const closedAuctions = await db
-        .select()
-        .from(auctionsTable)
-        .where(eq(auctionsTable.status, "CLOSED"));
+      const closedAuctions = await withDbRetry(() =>
+        db
+          .select()
+          .from(auctionsTable)
+          .where(eq(auctionsTable.status, "CLOSED")),
+      );
 
       for (const auction of closedAuctions) {
         if (!auction.settlementDeadlineAt || auction.settlementDeadlineAt > now) continue;
 
         // Check if a settlement record already exists for this auction
-        const [existingSettlement] = await db
-          .select({ id: settlementsTable.id })
-          .from(settlementsTable)
-          .where(and(eq(settlementsTable.entityType, "AUCTION"), eq(settlementsTable.entityId, auction.id)))
-          .limit(1);
+        const [existingSettlement] = await withDbRetry(() =>
+          db
+            .select({ id: settlementsTable.id })
+            .from(settlementsTable)
+            .where(and(eq(settlementsTable.entityType, "AUCTION"), eq(settlementsTable.entityId, auction.id)))
+            .limit(1),
+        );
 
         if (existingSettlement) continue; // Settlement initiated — split engine takes it from here
 
         // No settlement initiated before deadline — cancel and release the eWR
-        await db.transaction(async (tx) => {
+        await withTxRetry(() => db.transaction(async (tx) => {
           const affected = await tx
             .update(auctionsTable)
             .set({ status: "CANCELLED" })
@@ -653,7 +660,7 @@ export function startAuctionExpiryWorker(): AuctionExpiryWorkerHandle {
           await tx.update(ewrsTable)
             .set({ state: ewrData?.isLienActive ? "ENCUMBERED" : "INGESTED" })
             .where(eq(ewrsTable.id, auction.ewrId));
-        });
+        }));
       }
     } catch (err) {
       logger.error({ err }, "[AuctionExpiryWorker] Error");

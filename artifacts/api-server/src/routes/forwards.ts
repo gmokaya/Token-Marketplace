@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getAuth } from "@clerk/express";
-import { db, withTxRetry } from "@workspace/db";
+import { db, withDbRetry, withTxRetry } from "@workspace/db";
 import {
   forwardContractsTable,
   contractEventsTable,
@@ -425,15 +425,17 @@ export function startForwardMaturityWorker(): ForwardMaturityWorkerHandle {
     running = true;
     try {
       const now = new Date();
-      const activeContracts = await db
-        .select()
-        .from(forwardContractsTable)
-        .where(eq(forwardContractsTable.contractStatus, "ACTIVE"));
+      const activeContracts = await withDbRetry(() =>
+        db
+          .select()
+          .from(forwardContractsTable)
+          .where(eq(forwardContractsTable.contractStatus, "ACTIVE")),
+      );
 
       for (const contract of activeContracts) {
         if (contract.maturityDate > now) continue;
 
-        await db.transaction(async (tx) => {
+        await withTxRetry(() => db.transaction(async (tx) => {
           const affected = await tx
             .update(forwardContractsTable)
             .set({
@@ -460,7 +462,7 @@ export function startForwardMaturityWorker(): ForwardMaturityWorkerHandle {
           // eWR finalization is deferred to the split settlement engine — see the
           // /complete handler above. Maturity only marks the contract MATURED; the
           // eWR stays ENCUMBERED until POST /settlements (FORWARD) disburses + transfers.
-        });
+        }));
 
         console.log(`[ForwardMaturityWorker] Auto-matured contract #${contract.id}`);
       }

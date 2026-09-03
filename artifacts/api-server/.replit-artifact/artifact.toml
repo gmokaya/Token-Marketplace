@@ -15,7 +15,7 @@ API_RUNTIME_ROLE = "gateway"
 API_BASE_PATH = "/api"
 API_WORKER_GROUPS = ""
 DB_APPLICATION_NAME = "tokenharvest-gateway"
-DB_POOL_MAX = "20"
+DB_POOL_MAX = "8"
 
 [services.development]
 run = "pnpm --filter @workspace/api-server run dev"
@@ -48,7 +48,7 @@ API_RUNTIME_ROLE = "grain"
 API_BASE_PATH = "/api/v1/grain"
 API_WORKER_GROUPS = ""
 DB_APPLICATION_NAME = "tokenharvest-grain-api"
-DB_POOL_MAX = "10"
+DB_POOL_MAX = "6"
 
 [services.development]
 run = "pnpm --filter @workspace/api-server run dev:grain"
@@ -81,7 +81,7 @@ API_RUNTIME_ROLE = "coffee"
 API_BASE_PATH = "/api/v1/coffee"
 API_WORKER_GROUPS = ""
 DB_APPLICATION_NAME = "tokenharvest-coffee-api"
-DB_POOL_MAX = "10"
+DB_POOL_MAX = "6"
 
 [services.development]
 run = "pnpm --filter @workspace/api-server run dev:coffee"
@@ -114,7 +114,7 @@ API_RUNTIME_ROLE = "tea"
 API_BASE_PATH = "/api/v1/tea"
 API_WORKER_GROUPS = ""
 DB_APPLICATION_NAME = "tokenharvest-tea-api"
-DB_POOL_MAX = "10"
+DB_POOL_MAX = "6"
 
 [services.development]
 run = "pnpm --filter @workspace/api-server run dev:tea"
@@ -147,7 +147,7 @@ API_RUNTIME_ROLE = "worker"
 API_BASE_PATH = "/api/internal/workers/core"
 API_WORKER_GROUPS = "core"
 DB_APPLICATION_NAME = "tokenharvest-core-workers"
-DB_POOL_MAX = "8"
+DB_POOL_MAX = "3"
 API_HTTP_MODE = "health-only"
 
 [services.development]
@@ -181,7 +181,7 @@ API_RUNTIME_ROLE = "worker"
 API_BASE_PATH = "/api/internal/workers/grain"
 API_WORKER_GROUPS = "grain"
 DB_APPLICATION_NAME = "tokenharvest-grain-workers"
-DB_POOL_MAX = "6"
+DB_POOL_MAX = "2"
 API_HTTP_MODE = "health-only"
 
 [services.development]
@@ -215,7 +215,7 @@ API_RUNTIME_ROLE = "worker"
 API_BASE_PATH = "/api/internal/workers/coffee"
 API_WORKER_GROUPS = "coffee"
 DB_APPLICATION_NAME = "tokenharvest-coffee-workers"
-DB_POOL_MAX = "4"
+DB_POOL_MAX = "2"
 API_HTTP_MODE = "health-only"
 
 [services.development]
@@ -249,7 +249,7 @@ API_RUNTIME_ROLE = "worker"
 API_BASE_PATH = "/api/internal/workers/tea"
 API_WORKER_GROUPS = "tea"
 DB_APPLICATION_NAME = "tokenharvest-tea-workers"
-DB_POOL_MAX = "8"
+DB_POOL_MAX = "2"
 API_HTTP_MODE = "health-only"
 
 [services.development]
@@ -281,7 +281,7 @@ paths = ["/api/internal/bootstrap"]
 PORT = "8091"
 API_BASE_PATH = "/api/internal/bootstrap"
 DB_APPLICATION_NAME = "tokenharvest-database-bootstrap"
-DB_POOL_MAX = "2"
+DB_POOL_MAX = "1"
 
 [services.development]
 run = "pnpm --filter @workspace/api-server run dev:bootstrap"

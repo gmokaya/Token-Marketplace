@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getAuth } from "@clerk/express";
-import { db, withTxRetry } from "@workspace/db";
+import { db, withDbRetry, withTxRetry } from "@workspace/db";
 import {
   ordersTable,
   spotListingsTable,
@@ -275,18 +275,20 @@ export function startOrderExpiryWorker(): OrderExpiryWorkerHandle {
       // Filter expired orders at the DB level — uses the compound index
       // (status, expires_at) added to the schema. Avoids loading the full
       // PENDING_SETTLEMENT set and filtering in JS (was O(all-pending) per tick).
-      const expiredOrders = await db
-        .select()
-        .from(ordersTable)
-        .where(
-          and(
-            eq(ordersTable.status, "PENDING_SETTLEMENT"),
-            lte(ordersTable.expiresAt, now),
-          )
-        );
+      const expiredOrders = await withDbRetry(() =>
+        db
+          .select()
+          .from(ordersTable)
+          .where(
+            and(
+              eq(ordersTable.status, "PENDING_SETTLEMENT"),
+              lte(ordersTable.expiresAt, now),
+            )
+          ),
+      );
 
       for (const order of expiredOrders) {
-        await db.transaction(async (tx) => {
+        await withTxRetry(() => db.transaction(async (tx) => {
           // Atomic claim: skip if a concurrent worker already transitioned this row
           const affected = await tx
             .update(ordersTable)
@@ -342,7 +344,7 @@ export function startOrderExpiryWorker(): OrderExpiryWorkerHandle {
               { reputationPenalty: EXPIRY_REPUTATION_PENALTY }
             )
           );
-        });
+        }));
       }
     } catch (err) {
       logger.error({ err }, "[ExpiryWorker] Error processing expired orders");

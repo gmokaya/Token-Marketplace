@@ -1,5 +1,6 @@
 import {
   db,
+  withDbRetry,
   ewrsTable,
   marketDailyClosesTable,
   ordersTable,
@@ -196,7 +197,7 @@ async function loadObservations(
   rangeStart: Date,
   cutoff: Date,
 ): Promise<TradeObservation[]> {
-  const spotRows = await db
+  const spotRows = await withDbRetry(() => db
     .select({
       commodityType: ewrsTable.commodityType,
       totalUsd: ordersTable.totalUsd,
@@ -218,9 +219,9 @@ async function loadObservations(
         gte(ordersTable.settledAt, rangeStart),
         lte(ordersTable.settledAt, cutoff),
       ),
-    );
+    ));
 
-  const auctionRows = await db
+  const auctionRows = await withDbRetry(() => db
     .select({
       commodityType: ewrsTable.commodityType,
       totalUsd: teaLotBidsTable.amountUsd,
@@ -246,7 +247,7 @@ async function loadObservations(
         gte(teaLotSettlementsTable.updatedAt, rangeStart),
         lte(teaLotSettlementsTable.updatedAt, cutoff),
       ),
-    );
+    ));
 
   return [
     ...spotRows
@@ -330,7 +331,7 @@ async function materializeSnapshots(
   );
   if (aggregates.length === 0) return;
 
-  await db
+  await withDbRetry(() => db
     .insert(marketDailyClosesTable)
     .values(
       aggregates.map((aggregate) => ({
@@ -354,7 +355,7 @@ async function materializeSnapshots(
         marketDailyClosesTable.commodityType,
         marketDailyClosesTable.tradingDate,
       ],
-    });
+    }));
 }
 
 export async function getDailyMarketCloseFeed(

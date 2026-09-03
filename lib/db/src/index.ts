@@ -22,10 +22,12 @@ const toInt = (value: string | undefined, fallback: number): number => {
 // Bounded connection pool. A single Postgres instance cannot hold thousands of
 // physical connections, so we keep a bounded pool and let requests queue for a
 // free connection (bounded by connectionTimeoutMillis) rather than overwhelming
-// the database. Tune via env without code changes.
+// the database. Tune via env without code changes. The per-service artifact
+// configuration intentionally keeps this below the old 20-connection default so
+// multiple market runtimes can share the same database safely.
 export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  max: toInt(process.env.DB_POOL_MAX, 20),
+  max: toInt(process.env.DB_POOL_MAX, 8),
   idleTimeoutMillis: toInt(process.env.DB_POOL_IDLE_TIMEOUT_MS, 30_000),
   connectionTimeoutMillis: toInt(process.env.DB_POOL_CONNECTION_TIMEOUT_MS, 10_000),
   statement_timeout: toInt(process.env.DB_STATEMENT_TIMEOUT_MS, 20_000),
@@ -42,14 +44,6 @@ pool.on("error", (err) => {
 
 export const db = drizzle(pool, { schema });
 
-/**
- * Postgres error codes that indicate a transaction was aborted due to
- * concurrency and is safe to retry from the beginning:
- *  - 40001 serialization_failure (raised under SERIALIZABLE / repeatable read)
- *  - 40P01 deadlock_detected
- */
-const RETRYABLE_TX_CODES = new Set(["40001", "40P01"]);
-
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
@@ -60,31 +54,122 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
  * expected and the only correct response is to retry the whole transaction.
  * Uses exponential backoff with jitter to avoid thundering-herd retries.
  */
-export async function withTxRetry<T>(
+export type DbRetryOptions = {
+  retries?: number;
+  baseDelayMs?: number;
+  maxDelayMs?: number;
+};
+
+const TRANSIENT_DB_CODES = new Set([
+  "08000", // connection_exception
+  "08001", // sqlclient_unable_to_establish_sqlconnection
+  "08003", // connection_does_not_exist
+  "08004", // sqlserver_rejected_establishment_of_sqlconnection
+  "08006", // connection_failure
+  "08007", // transaction_resolution_unknown
+  "08S01", // communication_link_failure
+  "57P01", // admin_shutdown
+  "57P02", // crash_shutdown
+  "57P03", // cannot_connect_now
+  "53300", // too_many_connections
+]);
+
+const RETRYABLE_TX_CODES = new Set(["40001", "40P01"]);
+
+function hasCodeOrMessage(
+  error: unknown,
+  codes: Set<string>,
+  messagePattern: RegExp,
+): boolean {
+  let current: unknown = error;
+  for (let depth = 0; current && depth < 4; depth += 1) {
+    if (typeof current === "object") {
+      const code = (current as { code?: unknown }).code;
+      if (typeof code === "string" && codes.has(code)) return true;
+
+      const message = (current as { message?: unknown }).message;
+      if (typeof message === "string" && messagePattern.test(message)) return true;
+
+      current = (current as { cause?: unknown }).cause;
+    } else {
+      break;
+    }
+  }
+  return false;
+}
+
+/**
+ * Returns true for PostgreSQL/network failures that are safe to retry when the
+ * caller's operation is read-only or idempotent.
+ */
+export function isTransientDbError(error: unknown): boolean {
+  return hasCodeOrMessage(
+    error,
+    TRANSIENT_DB_CODES,
+    /connection terminated|connection timeout|server closed the connection|connection reset|connection refused|timed out|broken pipe|too many clients/i,
+  );
+}
+
+async function retryWithBackoff<T>(
   fn: () => Promise<T>,
-  opts: { retries?: number; baseDelayMs?: number; maxDelayMs?: number } = {},
+  shouldRetry: (error: unknown) => boolean,
+  opts: DbRetryOptions,
 ): Promise<T> {
   const retries = opts.retries ?? 5;
-  const baseDelayMs = opts.baseDelayMs ?? 25;
-  const maxDelayMs = opts.maxDelayMs ?? 500;
+  const baseDelayMs = opts.baseDelayMs ?? 250;
+  const maxDelayMs = opts.maxDelayMs ?? 2_000;
 
   let lastErr: unknown;
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
       return await fn();
     } catch (err) {
-      const code = (err as { code?: string } | null)?.code;
-      if (code && RETRYABLE_TX_CODES.has(code) && attempt < retries) {
-        lastErr = err;
-        const backoff = Math.min(baseDelayMs * 2 ** attempt, maxDelayMs);
-        const jitter = Math.random() * backoff;
-        await sleep(backoff / 2 + jitter);
-        continue;
-      }
-      throw err;
+      if (!shouldRetry(err) || attempt >= retries) throw err;
+      lastErr = err;
+      const backoff = Math.min(baseDelayMs * 2 ** attempt, maxDelayMs);
+      const jitter = Math.random() * backoff;
+      await sleep(backoff / 2 + jitter);
     }
   }
   throw lastErr;
+}
+
+/**
+ * Retry a read-only or idempotent database operation after a transient
+ * connection failure. Do not use this around an arbitrary non-idempotent write;
+ * use withTxRetry for a database transaction instead.
+ */
+export function withDbRetry<T>(
+  fn: () => Promise<T>,
+  opts: DbRetryOptions = {},
+): Promise<T> {
+  return retryWithBackoff(fn, isTransientDbError, {
+    retries: opts.retries ?? 3,
+    baseDelayMs: opts.baseDelayMs ?? 250,
+    maxDelayMs: opts.maxDelayMs ?? 2_000,
+  });
+}
+
+/**
+ * Run a database transaction with automatic retries for serialization
+ * failures, deadlocks, and transient connection failures. Transactions are
+ * atomic, so retrying the full closure is safe when it contains DB-only work.
+ */
+export function withTxRetry<T>(
+  fn: () => Promise<T>,
+  opts: DbRetryOptions = {},
+): Promise<T> {
+  return retryWithBackoff(
+    fn,
+    (error) =>
+      isTransientDbError(error) ||
+      hasCodeOrMessage(error, RETRYABLE_TX_CODES, /^$/),
+    {
+      retries: opts.retries ?? 5,
+      baseDelayMs: opts.baseDelayMs ?? 100,
+      maxDelayMs: opts.maxDelayMs ?? 2_000,
+    },
+  );
 }
 
 export * from "./schema";

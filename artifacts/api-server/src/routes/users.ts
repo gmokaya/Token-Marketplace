@@ -186,9 +186,10 @@ router.patch("/users/me", async (req, res) => {
     }
 
     const [updated] = await db.update(usersTable).set(updateData).where(eq(usersTable.clerkId, clerkId)).returning();
-    res.json(updated);
+    return res.json(updated);
   } catch (error) {
     res.status(400).json({ error: error instanceof Error ? error.message : "Invalid profile details" });
+    return;
   }
 });
 

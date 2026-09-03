@@ -10,7 +10,7 @@
  *   3. Forfeit bid-security holds when buyer defaults past prompt date
  */
 
-import { db, pool, withTxRetry } from "@workspace/db";
+import { db, pool, withDbRetry, withTxRetry } from "@workspace/db";
 import { logger } from "./logger";
 import {
   teaLotsTable,
@@ -263,16 +263,33 @@ async function closeLot(lotId: number, sessionId: number, now: Date): Promise<vo
 async function runTeaAuctionWorker(): Promise<void> {
   const now = new Date();
 
-  const { rows: lockRows } = await pool.query("SELECT pg_try_advisory_lock(3) AS acquired");
-  const acquired = lockRows[0]?.acquired;
-  if (!acquired) return;
+  // Advisory locks are session-scoped. Keep the same client for acquire,
+  // processing, and release; pool.query() could otherwise use three different
+  // sessions and leave the lock held or unlock the wrong session.
+  const lockClient = await withDbRetry(async () => {
+    const client = await pool.connect();
+    try {
+      const { rows } = await client.query("SELECT pg_try_advisory_lock(3) AS acquired");
+      if (!rows[0]?.acquired) {
+        client.release();
+        return null;
+      }
+      return client;
+    } catch (error) {
+      client.release(error as Error);
+      throw error;
+    }
+  });
+  if (!lockClient) return;
 
   try {
     // Phase 1: Close LIVE lots whose auctionEndAt has passed
-    const expiredLots = await db
-      .select({ id: teaLotsTable.id, sessionId: teaLotsTable.sessionId })
-      .from(teaLotsTable)
-      .where(and(eq(teaLotsTable.status, "LIVE"), lte(teaLotsTable.auctionEndAt, now)));
+    const expiredLots = await withDbRetry(() =>
+      db
+        .select({ id: teaLotsTable.id, sessionId: teaLotsTable.sessionId })
+        .from(teaLotsTable)
+        .where(and(eq(teaLotsTable.status, "LIVE"), lte(teaLotsTable.auctionEndAt, now))),
+    );
 
     for (const lot of expiredLots) {
       if (lot.sessionId) {
@@ -283,41 +300,53 @@ async function runTeaAuctionWorker(): Promise<void> {
     }
 
     // Phase 2: Forfeit bid security for Prompt Date defaults (payment still PENDING, prompt date past)
-    const defaultedSettlements = await db
-      .select({ lotId: teaLotSettlementsTable.lotId, buyerId: teaLotSettlementsTable.buyerId })
-      .from(teaLotSettlementsTable)
-      .where(
-        and(
-          eq(teaLotSettlementsTable.paymentStatus, "PENDING"),
-          lt(teaLotSettlementsTable.promptDate, now.toISOString().slice(0, 10)),
-        )
-      );
-
-    for (const settlement of defaultedSettlements) {
-      await db
-        .update(bidSecurityHoldsTable)
-        .set({ status: "FORFEITED", resolvedAt: now })
+    const defaultedSettlements = await withDbRetry(() =>
+      db
+        .select({ lotId: teaLotSettlementsTable.lotId, buyerId: teaLotSettlementsTable.buyerId })
+        .from(teaLotSettlementsTable)
         .where(
           and(
-            eq(bidSecurityHoldsTable.lotId, settlement.lotId),
-            eq(bidSecurityHoldsTable.bidderId, settlement.buyerId),
-            eq(bidSecurityHoldsTable.status, "HELD"),
+            eq(teaLotSettlementsTable.paymentStatus, "PENDING"),
+            lt(teaLotSettlementsTable.promptDate, now.toISOString().slice(0, 10)),
           )
-        );
+        ),
+    );
 
-      await db
-        .update(teaLotSettlementsTable)
-        .set({ paymentStatus: "DEFAULTED" } as any)
-        .where(eq(teaLotSettlementsTable.lotId, settlement.lotId));
+    for (const settlement of defaultedSettlements) {
+      await withDbRetry(() =>
+        db
+          .update(bidSecurityHoldsTable)
+          .set({ status: "FORFEITED", resolvedAt: now })
+          .where(
+            and(
+              eq(bidSecurityHoldsTable.lotId, settlement.lotId),
+              eq(bidSecurityHoldsTable.bidderId, settlement.buyerId),
+              eq(bidSecurityHoldsTable.status, "HELD"),
+            )
+          ),
+      );
+
+      await withDbRetry(() =>
+        db
+          .update(teaLotSettlementsTable)
+          .set({ paymentStatus: "DEFAULTED" } as any)
+          .where(eq(teaLotSettlementsTable.lotId, settlement.lotId)),
+      );
 
       // Dock buyer reputation
-      await pool.query(
-        "UPDATE users SET reputation_score = GREATEST(0, reputation_score - 15) WHERE id = $1",
-        [settlement.buyerId]
+      await withDbRetry(() =>
+        pool.query(
+          "UPDATE users SET reputation_score = GREATEST(0, reputation_score - 15) WHERE id = $1",
+          [settlement.buyerId]
+        ),
       );
     }
   } finally {
-    await pool.query("SELECT pg_advisory_unlock(3)");
+    try {
+      await withDbRetry(() => lockClient.query("SELECT pg_advisory_unlock(3)"));
+    } finally {
+      lockClient.release();
+    }
   }
 }
 
