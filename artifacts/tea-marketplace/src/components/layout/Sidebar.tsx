@@ -5,6 +5,7 @@ import {
   ShoppingBag, User, Shield, PlusCircle, Users,
   ScrollText, Key, Landmark, Activity,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { formatTier } from "@/lib/formatTier";
 import "./sidebar.css";
 
@@ -15,7 +16,7 @@ interface SidebarProps {
 interface NavItem {
   href: string;
   label: string;
-  icon: string;
+  icon: LucideIcon;
 }
 
 interface NavSection {
