@@ -1,0 +1,314 @@
+# TokenHarvest Brand Guidelines
+
+## 1. Brand idea
+
+**TokenHarvest helps useful people find meaningful ways to contribute to African agricultural commodities and trade.**
+
+The brand should feel:
+
+- Useful, not performative
+- Human, not corporate
+- Optimistic, not overly polished
+- Grounded, not generic
+- Clear, calm, and operational
+- Community-oriented rather than job-application-oriented
+
+Primary brand thought:
+
+> **Bring your useful instinct.**
+
+Use **community** rather than “network.” Use **contributor** rather than “applicant” wherever possible.
+
+---
+
+## 2. Approved color palette
+
+### Deep Green — Primary brand color
+
+`#073B35`
+
+Use for:
+
+- Main headings
+- Primary buttons
+- Navigation and dark surfaces
+- Card backgrounds
+- Logo on light backgrounds
+- Important text
+
+This is the foundational TokenHarvest color.
+
+### Bright Lemon Yellow — Signal color
+
+`#DFFC4A`
+
+Use for:
+
+- Highlights
+- Selected states
+- Progress indicators
+- Small decorative details
+- Key calls to action
+- Card accents
+
+Use deep green text on yellow. Do not use white text on yellow.
+
+### Soft White — Main surface color
+
+`#F6F4EF`
+
+Use for:
+
+- Page backgrounds
+- Light text on deep green
+- Large open surfaces
+- Soft card details
+- Background contrast
+
+This should make the experience feel warm rather than stark.
+
+### Cold Grey — Supporting color
+
+`#808A87`
+
+Use for:
+
+- Borders
+- Input outlines
+- Muted surfaces
+- Decorative lines
+- Secondary UI
+- Card pattern elements
+- Quiet metadata
+
+Avoid using cold grey for small body text on soft white because the contrast is too weak. Use deep green for readable text.
+
+---
+
+## 3. Recommended color balance
+
+A typical TokenHarvest screen should use approximately:
+
+- **60%** soft white
+- **25%** deep green
+- **10%** cold grey
+- **5%** bright lemon yellow
+
+Yellow should feel like a signal, not a background replacement.
+
+### Avoid
+
+- Orange or coral as primary accents
+- Generic SaaS blue
+- Large areas of bright yellow
+- Multiple competing accent colors
+- Low-contrast grey body text
+- White text directly on yellow
+
+---
+
+## 4. Logo and wordmark
+
+The wordmark is:
+
+> **TokenHarvest**
+
+Capitalization:
+
+- Capital **T**
+- Capital **H**
+- All other letters lowercase
+
+Typography:
+
+- **Belleza**
+- Regular weight
+- Natural letter spacing
+- No forced uppercase
+- No extra tracking
+
+The wordmark should normally appear in deep green on soft white or soft white on deep green.
+
+The wordmark is also the home link in the onboarding experience.
+
+### Clear space
+
+Keep at least the height of the capital **T** around the wordmark on all sides.
+
+### Do not
+
+- Stretch or compress the wordmark
+- Add shadows, outlines, or gradients
+- Change the capitalization
+- Place it over a busy image
+- Use yellow as the default wordmark color
+
+---
+
+## 5. Typography
+
+### Brand wordmark
+
+**Belleza**
+
+Used only for the TokenHarvest wordmark.
+
+### Headlines
+
+**Simplo**
+
+Use Simplo for:
+
+- Hero headlines
+- Section headings
+- Results and profile statements
+- Large expressive text
+- Short emphasized phrases
+
+Headlines should have:
+
+- Tight line height
+- Slightly tight letter spacing
+- Strong contrast
+- Occasional italic emphasis for a human, editorial feel
+
+### Body and interface text
+
+**Outfit**
+
+Use Outfit for:
+
+- Paragraphs
+- Buttons
+- Form labels
+- Helper text
+- Navigation
+- Metadata
+- Status text
+
+Body copy should remain clear, conversational, and easy to scan.
+
+---
+
+## 6. Layout and shape language
+
+TokenHarvest uses a soft, editorial interface style.
+
+Preferred characteristics:
+
+- Generous whitespace
+- Rounded pill-shaped buttons
+- Softly rounded cards
+- Light borders
+- Large, confident headlines
+- Calm single-viewport layouts
+- Subtle motion and floating elements
+- Clear visual hierarchy
+
+Avoid overly dense dashboards, sharp rectangular controls, or excessive decorative elements.
+
+---
+
+## 7. UNO-style welcome card
+
+The welcome card is an abstract agricultural-trade motif, not a literal game-brand reproduction.
+
+Approved card colors:
+
+- Deep green base: `#073B35`
+- Bright lemon yellow accents: `#DFFC4A`
+- Cold grey pattern elements: `#808A87`
+- Soft white highlights: `#F6F4EF`
+
+The card may use:
+
+- Thin curved linework
+- Abstract geometric fields
+- Small yellow signal marks
+- Subtle grain or paper texture
+- Slight rotation and floating motion
+
+Keep the card expressive but secondary to the main message.
+
+---
+
+## 8. Voice and tone
+
+### Voice
+
+- Direct
+- Warm
+- Useful
+- Thoughtful
+- Confident
+- Grounded in real work
+
+### Prefer
+
+- “Where do you feel useful?”
+- “Bring your useful instinct.”
+- “Enter the community.”
+- “What could you help move forward?”
+- “People building something worth joining.”
+
+### Avoid
+
+- “Submit your application”
+- “Optimize your professional profile”
+- “Join our talent network”
+- “Disrupt the market”
+- Overly corporate or recruitment-heavy language
+- Empty startup clichés
+
+---
+
+## 9. Interaction principles
+
+Every interaction should feel intentional and low-friction.
+
+Use:
+
+- Clear progress indicators
+- One main decision per screen
+- Pill-shaped controls
+- Helpful, concise feedback
+- Strong selected states
+- Visible back navigation
+- Friendly empty and error states
+
+Yellow can indicate selection or momentum, but status meaning should never rely on color alone. Pair important states with text, icons, or labels.
+
+---
+
+## 10. Accessibility rules
+
+- Use deep green text on soft white for primary readability.
+- Use deep green text on lemon yellow.
+- Do not use cold grey as small text on soft white.
+- Do not use white text on lemon yellow.
+- Ensure selected states have both color and structural distinction.
+- Preserve visible keyboard focus states.
+- Do not communicate success, warning, or error through color alone.
+- Keep body text at a comfortable reading size and line height.
+
+---
+
+## 11. Quick do and don’t list
+
+### Do
+
+- Use deep green as the visual anchor.
+- Use lemon yellow sparingly as a signal.
+- Use cold grey for quiet supporting details.
+- Keep the tone human and contribution-focused.
+- Combine strong Simplo headlines with readable Outfit body copy.
+- Use agricultural, field, trade, and community references thoughtfully.
+
+### Don’t
+
+- Bring back orange or coral as a primary accent.
+- Overuse yellow.
+- Use grey for important text.
+- Make the experience feel like a conventional job application.
+- Add decorative details that compete with the invitation.
+- Use generic blue SaaS styling.
