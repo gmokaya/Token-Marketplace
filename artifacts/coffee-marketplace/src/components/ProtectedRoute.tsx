@@ -4,6 +4,7 @@ import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import {
   customFetch,
+  getAuthenticatedEntryDestination,
   useGetMe,
   getGetMeQueryKey,
 } from "@workspace/api-client-react";
@@ -58,7 +59,10 @@ function EnsureProfile({ children }: { children: ReactNode }) {
   const isLoading = userLoading || onboardingLoading;
   const onboardingStatus = (onboardingError as { status?: number } | null)?.status;
   const isMissing = onboardingStatus === 404;
-  const destination = user?.tier === "ADMIN" ? "/dashboard" : "/market";
+  const destination = getAuthenticatedEntryDestination({
+    hasOnboarding: true,
+    tier: user?.tier,
+  });
 
   useEffect(() => {
     if (isLoading) return;

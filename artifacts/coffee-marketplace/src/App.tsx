@@ -8,6 +8,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import {
   customFetch,
+  getAuthenticatedEntryDestination,
   getGetMeQueryKey,
   setAuthTokenGetter,
   setBaseUrl,
@@ -102,12 +103,10 @@ function HomeRedirect() {
     }
     if (userQuery.error || (onboardingQuery.error && !hasNoOnboarding)) return;
 
-    const destination =
-      hasNoOnboarding
-        ? "/onboarding"
-        : userQuery.data?.tier === "ADMIN"
-          ? "/dashboard"
-          : "/market";
+    const destination = getAuthenticatedEntryDestination({
+      hasOnboarding: !hasNoOnboarding,
+      tier: userQuery.data?.tier,
+    });
     setLocation(destination, { replace: true });
   }, [
     hasNoOnboarding,
