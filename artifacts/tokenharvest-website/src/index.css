@@ -994,7 +994,7 @@ h1, h2, h3, h4, h5, h6 {
 .homepage-footer {
   position: relative;
   overflow: hidden;
-  background: #073B35 !important;
+  background: #111111 !important;
 }
 
 .homepage-footer::before {
