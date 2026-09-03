@@ -135,3 +135,57 @@
     width: min(240px, calc(100vw - 24px));
   }
 }
+
+/* Material Dashboard surface treatment */
+.market-app-shell {
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+.market-app-main {
+  background:
+    radial-gradient(circle at top right, hsl(var(--accent) / 0.04), transparent 32rem),
+    hsl(var(--background));
+}
+
+.market-app-content {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 28px 32px 48px;
+}
+
+.market-app-shell .rounded-none {
+  border-radius: var(--radius) !important;
+}
+
+.market-app-shell [class*="shadow"] {
+  box-shadow: 0 1px 2px hsl(222 14% 15% / 0.04), 0 8px 24px hsl(222 14% 15% / 0.035);
+}
+
+.market-kyb-banner {
+  border-color: hsl(var(--border));
+  border-radius: var(--radius);
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+  box-shadow: 0 12px 28px hsl(222 14% 15% / 0.12);
+}
+
+.market-kyb-icon {
+  border-color: hsl(var(--border));
+  border-radius: calc(var(--radius) - 4px);
+  background: hsl(var(--muted));
+}
+
+.market-kyb-description {
+  color: hsl(var(--muted-foreground));
+}
+
+.market-kyb-link {
+  color: hsl(var(--accent));
+}
+
+@media (max-width: 640px) {
+  .market-app-content {
+    padding: 20px 16px 32px;
+  }
+}

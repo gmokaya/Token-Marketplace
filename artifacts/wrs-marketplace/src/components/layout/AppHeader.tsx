@@ -51,10 +51,10 @@ export function AppHeader({ collapsed, onToggle }: AppHeaderProps) {
   const tierLabel = formatTier(dbUser?.tier);
 
   return (
-    <header className="market-app-header sticky top-0 z-50 flex h-14 shrink-0 items-center justify-between border-b border-[#dfe3e3] bg-[#fbfcfc] pl-4 pr-3 text-[#25292c]">
+    <header className="market-app-header sticky top-0 z-50 flex h-14 shrink-0 items-center justify-between border-b border-border bg-card/95 pl-4 pr-3 text-foreground backdrop-blur">
       <div className="flex items-center gap-1">
         <Link href="/" className="flex items-center">
-          <span className="tokenharvest-wordmark shrink-0 text-2xl text-[#25292c]">
+          <span className="tokenharvest-wordmark shrink-0 text-2xl text-foreground">
             TokenHarvest
           </span>
         </Link>
@@ -62,7 +62,7 @@ export function AppHeader({ collapsed, onToggle }: AppHeaderProps) {
         <button
           onClick={onToggle}
           aria-label="Toggle sidebar"
-          className="flex h-8 w-8 items-center justify-center text-[#7b8588] transition-colors hover:bg-[#eef1f1] hover:text-[#25292c]"
+          className="flex h-8 w-8 items-center justify-center text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         >
           {collapsed
             ? <PanelLeftOpen className="w-4 h-4" />
@@ -72,7 +72,7 @@ export function AppHeader({ collapsed, onToggle }: AppHeaderProps) {
         <Link href="/">
           <button
             title="View public site"
-            className="flex h-8 items-center gap-1.5 px-2.5 text-xs font-medium text-[#7b8588] transition-colors hover:bg-[#eef1f1] hover:text-[#25292c]"
+            className="flex h-8 items-center gap-1.5 rounded-md px-2.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
             <Home className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">View site</span>
@@ -84,32 +84,32 @@ export function AppHeader({ collapsed, onToggle }: AppHeaderProps) {
         <button
           onClick={toggleDark}
           aria-label="Toggle dark mode"
-          className="flex h-8 w-8 items-center justify-center text-[#7b8588] transition-colors hover:bg-[#eef1f1] hover:text-[#25292c]"
+          className="flex h-8 w-8 items-center justify-center text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         >
           {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </button>
 
-        <div className="mx-1 h-5 w-px bg-[#dfe3e3]" />
+        <div className="mx-1 h-5 w-px bg-border" />
 
         <div className="flex items-center gap-2">
           <div
-            className="flex h-7 w-7 shrink-0 items-center justify-center bg-[#25292c] text-xs font-bold text-white"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary text-xs font-bold text-primary-foreground"
             title={user?.fullName ?? user?.primaryEmailAddress?.emailAddress ?? ""}
           >
             {initials}
           </div>
           <div className="hidden sm:block text-right">
-            <p className="max-w-[120px] truncate text-xs font-semibold leading-none text-[#25292c]">
+            <p className="max-w-[120px] truncate text-xs font-semibold leading-none text-foreground">
               {user?.fullName ?? user?.primaryEmailAddress?.emailAddress}
             </p>
             {tierLabel && (
-              <p className="mt-0.5 text-[10px] leading-none text-[#7b8588]">{tierLabel}</p>
+              <p className="mt-0.5 text-[10px] leading-none text-muted-foreground">{tierLabel}</p>
             )}
           </div>
           <button
             onClick={() => signOut()}
             aria-label="Sign out"
-            className="flex h-8 w-8 items-center justify-center text-[#7b8588] transition-colors hover:bg-[#eef1f1] hover:text-red-700"
+            className="flex h-8 w-8 items-center justify-center text-muted-foreground transition-colors hover:bg-muted hover:text-destructive"
           >
             <LogOut className="w-4 h-4" />
           </button>

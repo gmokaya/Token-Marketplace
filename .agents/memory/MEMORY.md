@@ -18,6 +18,7 @@
 - [External Clerk organization selection](external-clerk-org-selection.md) — TokenHarvest does not use Clerk Organizations; forced selection blocks programmatic login and onboarding
 - [Structured onboarding commodities](structured-onboarding-commodities.md) — persist commodity/sub-type pairs as JSON while mirroring flat names for legacy consumers
 - [Independent market surfaces](shared-market-onboarding-source.md) — keep Grain, Coffee, and Tea page shells/workspaces local while matching the shared brand system
+- [Internal marketplace theme](internal-marketplace-theme.md) — use Material Dashboard surfaces inside; keep public market landings editorial and image-led
 - [Auth card short viewport behavior](auth-card-short-viewport.md) — overflowing auth grids can defeat visual centering; use a compact-height centered form treatment
 - [Multi-select onboarding storage](multi-select-onboarding-storage.md) — keep legacy text columns and serialize selected market values as JSON arrays with client-side legacy normalization
 - [Cross-artifact shared styles](cross-artifact-responsive-styles.md) — shared dynamic Tailwind classes may be missing in consumers; use explicit CSS for critical layout and theme rules

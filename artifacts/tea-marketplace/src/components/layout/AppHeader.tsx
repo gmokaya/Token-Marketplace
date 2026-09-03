@@ -51,10 +51,10 @@ export function AppHeader({ collapsed, onToggle }: AppHeaderProps) {
   const tierLabel = formatTier(dbUser?.tier);
 
   return (
-    <header className="market-app-header sticky top-0 z-50 flex items-center justify-between h-14 pl-4 pr-3 bg-card border-b border-border shrink-0">
+    <header className="market-app-header sticky top-0 z-50 flex items-center justify-between h-14 pl-4 pr-3 bg-card/95 border-b border-border shrink-0 backdrop-blur">
       <div className="flex items-center gap-1">
         <Link href="/" className="flex items-center">
-          <span className="tokenharvest-wordmark text-2xl text-foreground dark:text-white shrink-0">
+          <span className="tokenharvest-wordmark text-2xl text-foreground shrink-0">
             TokenHarvest
           </span>
         </Link>
@@ -93,7 +93,7 @@ export function AppHeader({ collapsed, onToggle }: AppHeaderProps) {
 
         <div className="flex items-center gap-2">
           <div
-            className="flex items-center justify-center w-7 h-7 bg-primary text-primary-foreground text-xs font-bold shrink-0"
+            className="flex items-center justify-center w-7 h-7 rounded-md bg-primary text-primary-foreground text-xs font-bold shrink-0"
             title={user?.fullName ?? user?.primaryEmailAddress?.emailAddress ?? ""}
           >
             {initials}
