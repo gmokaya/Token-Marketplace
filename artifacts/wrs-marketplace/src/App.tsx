@@ -77,25 +77,38 @@ function HomeRedirect() {
       Boolean(isSignedIn) &&
       !userQuery.isLoading &&
       !userQuery.error &&
-      Boolean(userQuery.data),
+      Boolean(userQuery.data) &&
+      userQuery.data?.tier !== "ADMIN",
     retry: false,
   });
+  const isAdmin = userQuery.data?.tier === "ADMIN";
   const onboardingStatus = (onboardingQuery.error as { status?: number } | null)?.status;
-  const hasNoOnboarding = onboardingStatus === 404;
+  const hasNoOnboarding = !isAdmin && onboardingStatus === 404;
 
   useEffect(() => {
-    if (!isLoaded || !isSignedIn || userQuery.isLoading || onboardingQuery.isLoading) {
+    if (
+      !isLoaded ||
+      !isSignedIn ||
+      userQuery.isLoading ||
+      (!isAdmin && onboardingQuery.isLoading)
+    ) {
       return;
     }
-    if (userQuery.error || (onboardingQuery.error && !hasNoOnboarding)) return;
+    if (
+      userQuery.error ||
+      (!isAdmin && onboardingQuery.error && !hasNoOnboarding)
+    ) {
+      return;
+    }
 
     const destination = getAuthenticatedEntryDestination({
-      hasOnboarding: !hasNoOnboarding,
+      hasOnboarding: isAdmin || !hasNoOnboarding,
       tier: userQuery.data?.tier,
     });
     setLocation(destination, { replace: true });
   }, [
     hasNoOnboarding,
+    isAdmin,
     isLoaded,
     isSignedIn,
     onboardingQuery.error,
@@ -106,12 +119,19 @@ function HomeRedirect() {
     userQuery.isLoading,
   ]);
 
-  if (!isLoaded || (isSignedIn && (userQuery.isLoading || onboardingQuery.isLoading))) {
+  if (
+    !isLoaded ||
+    (isSignedIn &&
+      (userQuery.isLoading || (!isAdmin && onboardingQuery.isLoading)))
+  ) {
     return <AuthRoutingState />;
   }
 
   if (!isSignedIn) return <Home />;
-  if (userQuery.error || (onboardingQuery.error && !hasNoOnboarding)) {
+  if (
+    userQuery.error ||
+    (!isAdmin && onboardingQuery.error && !hasNoOnboarding)
+  ) {
     return <AuthRoutingState error />;
   }
 

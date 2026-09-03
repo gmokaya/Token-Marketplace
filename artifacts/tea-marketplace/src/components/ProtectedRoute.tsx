@@ -53,12 +53,17 @@ function EnsureProfile({ children }: { children: ReactNode }) {
     queryKey: ["/api/onboarding/me"],
     queryFn: () => customFetch("/api/onboarding/me"),
     retry: false,
-    enabled: !userLoading && !userError && Boolean(user),
+    enabled:
+      !userLoading &&
+      !userError &&
+      Boolean(user) &&
+      user?.tier !== "ADMIN",
   });
-  const error = userError ?? onboardingError;
-  const isLoading = userLoading || onboardingLoading;
+  const isAdmin = user?.tier === "ADMIN";
+  const error = userError ?? (isAdmin ? null : onboardingError);
+  const isLoading = userLoading || (!isAdmin && onboardingLoading);
   const onboardingStatus = (onboardingError as { status?: number } | null)?.status;
-  const isMissing = onboardingStatus === 404;
+  const isMissing = !isAdmin && onboardingStatus === 404;
   const destination = getAuthenticatedEntryDestination({
     hasOnboarding: true,
     tier: user?.tier,
@@ -66,6 +71,10 @@ function EnsureProfile({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (isLoading) return;
+    if (isAdmin && location === "/onboarding") {
+      setLocation(destination, { replace: true });
+      return;
+    }
     if (isMissing && location !== "/onboarding") {
       setLocation("/onboarding");
     } else if (
@@ -76,7 +85,7 @@ function EnsureProfile({ children }: { children: ReactNode }) {
     ) {
       setLocation(destination, { replace: true });
     }
-  }, [destination, error, isLoading, isMissing, location, onboarding, setLocation]);
+  }, [destination, error, isAdmin, isLoading, isMissing, location, onboarding, setLocation]);
 
   if (isLoading) {
     return (
