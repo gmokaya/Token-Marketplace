@@ -58,16 +58,20 @@ export function CountrySelect({
           aria-expanded={open}
           aria-label={ariaLabel}
           data-testid="country-combobox"
-          className="flex w-full items-center justify-between h-12 rounded-xl border border-[#e5e5ea] bg-[#f5f5f7] px-4 font-normal text-[15px] transition-all hover:bg-white hover:border-[#606A5C] focus:bg-white focus:border-[#606A5C] focus:outline-none focus:ring-1 focus:ring-[#606A5C]/20 text-[#1d1d1f]"
+          className="onboarding-country-trigger flex w-full items-center justify-between"
         >
           {value ? value : <span className="text-[#86868b]">{placeholder}</span>}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50 text-[#86868b]" />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 rounded-xl border-[#e5e5ea] shadow-sm bg-white" align="start">
-        <Command className="bg-white rounded-xl">
-          <CommandInput placeholder="Search country..." className="h-11 border-none focus:ring-0 text-[15px]" />
-          <CommandList className="max-h-[280px]">
+      <PopoverContent
+        className="onboarding-country-popover w-[var(--radix-popover-trigger-width)] p-0"
+        align="start"
+        collisionPadding={12}
+      >
+        <Command className="onboarding-country-command">
+          <CommandInput placeholder="Search country..." className="onboarding-country-search" />
+          <CommandList className="onboarding-country-list">
             <CommandEmpty className="py-4 text-center text-[14px] text-[#86868b]">No country found.</CommandEmpty>
             <CommandGroup heading="Major Markets & East Africa" className="text-[#86868b] [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-2 [&_[cmdk-group-heading]]:text-[12px] [&_[cmdk-group-heading]]:font-medium">
               {pinnedCountries.map((country) => (
@@ -78,7 +82,7 @@ export function CountrySelect({
                     onChange(country.name);
                     setOpen(false);
                   }}
-                  className="rounded-lg aria-selected:bg-[#f5f5f7] aria-selected:text-[#1d1d1f] cursor-pointer mx-1 my-0.5 px-3 py-2.5 text-[14px]"
+                  className="cursor-pointer rounded-none px-3 py-2 text-[14px] aria-selected:bg-[#f0f2f3] aria-selected:text-[#1d1d1f]"
                 >
                   <Check
                     className={cn(
@@ -99,7 +103,7 @@ export function CountrySelect({
                     onChange(country.name);
                     setOpen(false);
                   }}
-                  className="rounded-lg aria-selected:bg-[#f5f5f7] aria-selected:text-[#1d1d1f] cursor-pointer mx-1 my-0.5 px-3 py-2.5 text-[14px]"
+                  className="cursor-pointer rounded-none px-3 py-2 text-[14px] aria-selected:bg-[#f0f2f3] aria-selected:text-[#1d1d1f]"
                 >
                   <Check
                     className={cn(

@@ -498,7 +498,7 @@ function ChoiceSelect({
           </span>
         </SelectTrigger>
       </FormControl>
-      <SelectContent>
+      <SelectContent className="onboarding-select-content">
         {options.map((option) => (
           <SelectItem key={option} value={option}>
             {multiple && selectedValues.includes(option) ? "✓ " : ""}
@@ -1391,7 +1391,7 @@ export default function OnboardingWizard({
                                     <SelectValue placeholder="Select tea type" />
                                   </SelectTrigger>
                                 </FormControl>
-                                <SelectContent>
+                                <SelectContent className="onboarding-select-content">
                                   {TEA_TYPES.map((type) => (
                                     <SelectItem key={type} value={type}>
                                       {type}
@@ -1424,7 +1424,7 @@ export default function OnboardingWizard({
                                     <SelectValue placeholder="Select processing method" />
                                   </SelectTrigger>
                                 </FormControl>
-                                <SelectContent>
+                                <SelectContent className="onboarding-select-content">
                                   {TEA_PROCESSING_METHODS.map((method) => (
                                     <SelectItem key={method} value={method}>
                                       {method}
@@ -1457,7 +1457,7 @@ export default function OnboardingWizard({
                                     <SelectValue placeholder="Select grade" />
                                   </SelectTrigger>
                                 </FormControl>
-                                <SelectContent>
+                                <SelectContent className="onboarding-select-content">
                                   {TEA_GRADES.map((grade) => (
                                     <SelectItem key={grade} value={grade}>
                                       {grade}
@@ -1593,7 +1593,7 @@ export default function OnboardingWizard({
                                 <SelectValue placeholder="Select entity type" />
                               </SelectTrigger>
                             </FormControl>
-                            <SelectContent>
+                            <SelectContent className="onboarding-select-content">
                               {ENTITY_TYPES.map(([value, label]) => (
                                 <SelectItem key={value} value={value}>
                                   {label}

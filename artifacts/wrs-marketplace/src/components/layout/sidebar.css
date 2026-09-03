@@ -1,0 +1,228 @@
+.market-sidebar {
+  display: flex;
+  width: 160px;
+  height: 100%;
+  flex-shrink: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border-right: 1px solid;
+  color: #fff;
+  transition: width 200ms ease;
+}
+
+.market-sidebar.is-admin {
+  width: 240px;
+}
+
+.market-sidebar.is-collapsed {
+  width: 72px;
+}
+
+.market-sidebar--grain {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: #22262a;
+}
+
+.market-sidebar--coffee {
+  border-color: #4b3428;
+  background: #21150f;
+}
+
+.market-sidebar--tea {
+  border-color: #29463c;
+  background: #0c201b;
+}
+
+.market-sidebar-brand {
+  display: flex;
+  height: 36px;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0 12px;
+}
+
+.market-sidebar.is-collapsed .market-sidebar-brand {
+  justify-content: center;
+  padding: 0 8px;
+}
+
+.market-sidebar-brand-icon,
+.market-sidebar-nav-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.market-sidebar-brand-icon {
+  width: 12px;
+  height: 12px;
+}
+
+.market-sidebar--grain .market-sidebar-brand-icon,
+.market-sidebar--grain .market-sidebar-nav-icon.is-active {
+  color: #fff;
+}
+
+.market-sidebar--grain .market-sidebar-nav-icon {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.market-sidebar--coffee .market-sidebar-brand-icon,
+.market-sidebar--coffee .market-sidebar-nav-icon.is-active {
+  color: #fcd34d;
+}
+
+.market-sidebar--coffee .market-sidebar-nav-icon {
+  color: rgba(222, 193, 177, 0.5);
+}
+
+.market-sidebar--tea .market-sidebar-brand-icon,
+.market-sidebar--tea .market-sidebar-nav-icon.is-active {
+  color: #a1b16e;
+}
+
+.market-sidebar--tea .market-sidebar-nav-icon {
+  color: rgba(184, 215, 193, 0.5);
+}
+
+.market-sidebar--grain .market-sidebar-brand-name {
+  color: #fff;
+}
+
+.market-sidebar--coffee .market-sidebar-brand-name {
+  color: #f7e6d8;
+}
+
+.market-sidebar--tea .market-sidebar-brand-name {
+  color: #e4f0e7;
+}
+
+.market-sidebar-brand-name {
+  min-width: 0;
+  overflow: hidden;
+  font-family: 'Belleza', sans-serif;
+  font-size: 12px;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.market-sidebar-nav {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+
+.market-sidebar-nav-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 40px;
+}
+
+.market-sidebar-nav-group {
+  margin-bottom: 16px;
+}
+
+.market-sidebar-nav-group-title {
+  margin-bottom: 8px;
+  padding: 0 12px;
+  font-family: 'PT Sans', sans-serif;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.market-sidebar--grain .market-sidebar-nav-group-title {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.market-sidebar--coffee .market-sidebar-nav-group-title {
+  color: rgba(222, 193, 177, 0.6);
+}
+
+.market-sidebar--tea .market-sidebar-nav-group-title {
+  color: rgba(184, 215, 193, 0.6);
+}
+
+.market-sidebar-nav-items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.market-sidebar-nav-item {
+  display: flex;
+  min-height: 32px;
+  align-items: center;
+  gap: 12px;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 11px;
+  line-height: 1.2;
+  text-decoration: none;
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.market-sidebar-nav-item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.market-sidebar--grain .market-sidebar-nav-item {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.market-sidebar--grain .market-sidebar-nav-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.market-sidebar--grain .market-sidebar-nav-item.is-active {
+  background: #393e44;
+  color: #fff;
+  font-weight: 500;
+}
+
+.market-sidebar--coffee .market-sidebar-nav-item {
+  color: rgba(222, 193, 177, 0.75);
+}
+
+.market-sidebar--coffee .market-sidebar-nav-item:hover {
+  background: #4a3025;
+  color: #f7e6d8;
+}
+
+.market-sidebar--coffee .market-sidebar-nav-item.is-active {
+  background: #58382b;
+  color: #fff;
+  font-weight: 500;
+}
+
+.market-sidebar--tea .market-sidebar-nav-item {
+  color: rgba(184, 215, 193, 0.75);
+}
+
+.market-sidebar--tea .market-sidebar-nav-item:hover {
+  background: #203a30;
+  color: #e4f0e7;
+}
+
+.market-sidebar--tea .market-sidebar-nav-item.is-active {
+  background: #2c4a3e;
+  color: #fff;
+  font-weight: 500;
+}
+
+.market-sidebar-loading {
+  padding: 24px 12px;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 12px;
+  text-align: center;
+}

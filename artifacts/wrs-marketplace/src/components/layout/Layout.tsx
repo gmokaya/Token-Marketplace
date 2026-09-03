@@ -5,6 +5,7 @@ import { Show } from "@clerk/react";
 import { useGetMe } from "@workspace/api-client-react";
 import { Link } from "wouter";
 import { AlertTriangle, X } from "lucide-react";
+import "./layout.css";
 
 interface LayoutProps {
   children: ReactNode;
@@ -22,28 +23,28 @@ function KybBanner() {
 
   return (
     <div
-      className="fixed bottom-4 right-4 z-50 flex w-[240px] items-start gap-2.5 border border-slate-200 bg-white p-3 shadow-lg shadow-slate-950/10"
+      className="market-kyb-banner"
       role="status"
       aria-live="polite"
     >
-      <div className="flex h-6 w-6 shrink-0 items-center justify-center border border-slate-200 bg-slate-50">
+      <div className="market-kyb-icon">
         <AlertTriangle className="h-3.5 w-3.5 text-slate-600" aria-hidden="true" />
       </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-[10px] font-bold leading-4 text-slate-900">Complete your KYC</p>
-        <p className="text-[9px] leading-3.5 text-slate-600">
+      <div className="market-kyb-copy">
+        <p className="market-kyb-title">Complete your KYC</p>
+        <p className="market-kyb-description">
           Finish your verification to unlock full trading, financing, and marketplace features.
         </p>
         <Link
           href="/profile"
-          className="mt-1 inline-flex text-[9px] font-bold text-slate-900 underline underline-offset-2 hover:text-slate-600"
+          className="market-kyb-link"
         >
           Complete KYC <span aria-hidden="true" className="ml-1">→</span>
         </Link>
       </div>
       <button
         onClick={() => setDismissed(true)}
-        className="shrink-0 text-slate-400 transition-colors hover:text-slate-800"
+        className="market-kyb-dismiss"
         aria-label="Dismiss KYC reminder"
       >
         <X className="h-3 w-3" aria-hidden="true" />
@@ -69,13 +70,13 @@ export function Layout({ children, marketName = "Grain Market", market = "grain"
   };
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-[#f5f6f6] text-[#25292c]">
+    <div className="market-app-shell">
       <Show when="signed-in">
         {isAdmin && <AppHeader collapsed={collapsed} onToggle={handleToggle} />}
         <KybBanner />
       </Show>
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="market-app-body">
         <Show when="signed-in">
           <Sidebar
             collapsed={isAdmin ? collapsed : false}
@@ -84,8 +85,8 @@ export function Layout({ children, marketName = "Grain Market", market = "grain"
           />
         </Show>
 
-        <main className="flex-1 overflow-y-auto">
-          <div className="mx-auto w-full max-w-none p-5">
+        <main className="market-app-main">
+          <div className="market-app-content">
             {children}
           </div>
         </main>

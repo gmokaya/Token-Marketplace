@@ -742,6 +742,107 @@
   background: #fff !important;
 }
 
+.onboarding-country-trigger {
+  min-height: 45px;
+  height: 45px;
+  padding: 0 1px;
+  border: 0;
+  border-bottom: 1px solid #dfe3eb;
+  border-radius: 0;
+  background: #fff;
+  color: #202532;
+  font-family: 'PT Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  text-align: left;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.onboarding-country-trigger:hover {
+  background: #fff;
+}
+
+.onboarding-country-trigger:focus-visible,
+.onboarding-country-trigger[aria-expanded="true"] {
+  border-bottom-color: var(--onboarding-accent);
+  outline: none;
+  box-shadow: 0 1px 0 var(--onboarding-accent);
+}
+
+.onboarding-country-popover,
+.onboarding-select-content {
+  z-index: 60 !important;
+  max-height: min(360px, calc(100dvh - 180px)) !important;
+  overflow: hidden !important;
+  border: 1px solid #dfe3eb !important;
+  border-radius: 0 !important;
+  background: #fff !important;
+  color: #202532 !important;
+  box-shadow: 0 14px 30px rgba(32, 37, 50, 0.14) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.onboarding-country-command {
+  height: auto;
+  max-height: inherit;
+  border-radius: 0 !important;
+  background: #fff !important;
+  color: #202532 !important;
+}
+
+.onboarding-country-search {
+  height: 42px !important;
+  border: 0 !important;
+  border-bottom: 1px solid #eceef3 !important;
+  border-radius: 0 !important;
+  background: #fff !important;
+  color: #202532 !important;
+  font-size: 14px !important;
+  box-shadow: none !important;
+}
+
+.onboarding-country-list {
+  max-height: min(310px, calc(100dvh - 235px)) !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+}
+
+.onboarding-country-popover [cmdk-group-heading] {
+  color: #8c929f;
+}
+
+.onboarding-country-popover [cmdk-item],
+.onboarding-select-content [data-radix-select-item] {
+  min-height: 37px;
+  border-radius: 0 !important;
+  color: #4f5962;
+  font-family: 'PT Sans', sans-serif;
+  font-size: 14px;
+}
+
+.onboarding-country-popover [cmdk-item][aria-selected="true"],
+.onboarding-select-content [data-radix-select-item][data-highlighted] {
+  background: var(--onboarding-accent-soft) !important;
+  color: var(--onboarding-accent-strong) !important;
+}
+
+.onboarding-select-content [data-radix-select-viewport] {
+  height: auto !important;
+  max-height: min(360px, calc(100dvh - 180px)) !important;
+  min-height: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+}
+
+.onboarding-select-content [data-radix-select-scroll-up-button],
+.onboarding-select-content [data-radix-select-scroll-down-button] {
+  background: #fff;
+  color: var(--onboarding-accent-strong);
+}
+
 .onboarding-question-nav {
   display: flex;
   align-items: center;
