@@ -45,7 +45,7 @@
   max-width: 1400px;
   min-height: 900px;
   margin: auto;
-  padding: 148px clamp(24px, 5vw, 72px) 106px;
+  padding: 124px clamp(24px, 5vw, 72px) 106px;
   display: grid;
   grid-template-columns: minmax(310px, .82fr) minmax(520px, 1.18fr);
   gap: clamp(30px, 5vw, 85px);
@@ -385,7 +385,7 @@
 
   .th-commodity-layout {
     min-height: 0;
-    padding: 104px 20px 100px;
+    padding: 92px 20px 100px;
     display: block;
   }
 
@@ -455,7 +455,7 @@
 
   .th-commodity-layout {
     min-height: calc(100svh - 32px);
-    padding: 48px 46px 12px;
+    padding: 36px 46px 12px;
     grid-template-columns: minmax(300px, .86fr) minmax(420px, 1.14fr);
     gap: 24px;
   }
