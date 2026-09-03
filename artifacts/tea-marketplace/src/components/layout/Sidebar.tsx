@@ -1,7 +1,6 @@
-import { CSSProperties } from "react";
+import { CSSProperties, ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { useGetMe } from "@workspace/api-client-react";
-import { formatTier } from "@/lib/formatTier";
 import "./sidebar.css";
 
 interface SidebarProps {
@@ -14,182 +13,320 @@ const BASIL_ICONS = {
   bookCheck: "book-check.png",
   box: "box.png",
   chart: "chart.png",
-  clipboard: "clipboard.png",
   document: "document.png",
   exchange: "exchange.png",
   key: "key.png",
   layout: "layout.png",
   plus: "plus.png",
-  settings: "settings.png",
   shield: "shield.png",
   user: "user.png",
   wallet: "wallet.png",
 } as const;
 type BasilIconName = keyof typeof BASIL_ICONS;
 
-function BasilIcon({ name, className = "" }: { name: BasilIconName; className?: string }) {
+function BasilIcon({
+  name,
+  className = "",
+}: {
+  name: BasilIconName;
+  className?: string;
+}) {
   const style = {
     "--basil-icon": `url("${BASIL_ICON_BASE}/${BASIL_ICONS[name]}")`,
   } as CSSProperties;
-  return <span className={`market-sidebar-icon ${className}`} style={style} aria-hidden="true" />;
+
+  return (
+    <span
+      className={`market-sidebar-icon ${className}`}
+      style={style}
+      aria-hidden="true"
+    />
+  );
 }
 
-interface NavItem {
+function NavItem({
+  href,
+  icon,
+  label,
+  collapsed,
+  themeClass,
+}: {
   href: string;
-  label: string;
   icon: BasilIconName;
-}
+  label: string;
+  collapsed: boolean;
+  themeClass: string;
+}) {
+  const [location] = useLocation();
+  const active = location === href || location.startsWith(`${href}/`);
 
-interface NavSection {
-  heading: string;
-  items: NavItem[];
-}
-
-const ADMIN_SECTIONS: NavSection[] = [
-  {
-    heading: "Exchange Admin",
-    items: [
-      { href: "/admin/auctions",     label: "Auction Sessions", icon: "exchange" },
-      { href: "/admin/auctions/new", label: "New Auction",      icon: "plus"     },
-      { href: "/admin/lots",         label: "All Tea Lots",     icon: "box"      },
-      { href: "/admin/ewrs",         label: "All eWRs",         icon: "document" },
-      { href: "/admin/users",        label: "Users",            icon: "user"     },
-      { href: "/admin/earnings",     label: "Earnings",         icon: "wallet"   },
-      { href: "/admin/audit",        label: "Audit Log",        icon: "shield"   },
-    ],
-  },
-  {
-    heading: "Market",
-    items: [
-      { href: "/market",    label: "Market Overview", icon: "chart"     },
-      { href: "/mandates",  label: "Mandates",        icon: "bookCheck" },
-    ],
-  },
-  {
-    heading: "Settings",
-    items: [
-      { href: "/settings/api-access", label: "API Access",  icon: "key"  },
-      { href: "/profile",             label: "Profile",      icon: "user" },
-    ],
-  },
-];
-
-const BROKER_SECTIONS: NavSection[] = [
-  {
-    heading: "Brokerage",
-    items: [
-      { href: "/broker",                 label: "Dashboard",        icon: "layout"   },
-      { href: "/broker/mandate-holders", label: "Mandate Holders",  icon: "user"     },
-      { href: "/broker/lots/new",        label: "List New Tea Lot", icon: "plus"     },
-      { href: "/mandates",               label: "My Mandates",      icon: "bookCheck" },
-      { href: "/broker/auctions",        label: "Auction Sessions", icon: "exchange" },
-    ],
-  },
-  {
-    heading: "Market",
-    items: [
-      { href: "/market", label: "Spot Market", icon: "bag" },
-    ],
-  },
-  {
-    heading: "Settings",
-    items: [
-      { href: "/settings/api-access", label: "API Access", icon: "key"  },
-      { href: "/profile",             label: "Profile",    icon: "user" },
-    ],
-  },
-];
-
-const STANDARD_SECTIONS: NavSection[] = [
-  {
-    heading: "Market",
-    items: [
-      { href: "/market", label: "Spot Market", icon: "bag" },
-    ],
-  },
-  {
-    heading: "Account",
-    items: [
-      { href: "/profile", label: "My Profile", icon: "user" },
-    ],
-  },
-];
-
-function NavLink({ item, collapsed, location }: { item: NavItem; collapsed: boolean; location: string }) {
-  const isActive = location === item.href || location.startsWith(`${item.href}/`);
   return (
     <Link
-      href={item.href}
-      title={collapsed ? item.label : undefined}
-      className={`
-        market-sidebar-nav-item flex items-center gap-3 transition-colors
-        ${collapsed ? "justify-center px-0 py-2.5" : "px-3 py-2"}
-        ${isActive
-          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-          : "hover:bg-sidebar-accent/50 text-sidebar-foreground/75 hover:text-sidebar-foreground"
-        }
-      `}
+      href={href}
+      className={`market-sidebar-nav-item ${themeClass} ${active ? "is-active" : ""}`}
+      title={collapsed ? label : undefined}
     >
-      <BasilIcon name={item.icon} className="market-sidebar-nav-icon shrink-0" />
-      {!collapsed && <span className="text-sm truncate">{item.label}</span>}
+      <BasilIcon
+        name={icon}
+        className={`market-sidebar-nav-icon ${active ? "is-active" : ""}`}
+      />
+      {!collapsed && <span className="truncate text-[11px]">{label}</span>}
     </Link>
   );
 }
 
-export function Sidebar({ collapsed }: SidebarProps) {
-  const [location] = useLocation();
-  const { data: dbUser } = useGetMe();
-  const tier = dbUser?.tier;
-  const isAdmin = tier === "ADMIN";
-  const isBroker = tier === "ENABLER";
+function NavGroup({
+  title,
+  children,
+  collapsed,
+  theme,
+}: {
+  title: string;
+  children: ReactNode;
+  collapsed: boolean;
+  theme: string;
+}) {
+  return (
+    <div className={`market-sidebar-nav-group ${theme}`}>
+      {!collapsed && (
+        <div className="market-sidebar-nav-group-title">{title}</div>
+      )}
+      <div className="market-sidebar-nav-items">{children}</div>
+    </div>
+  );
+}
 
-  const sections = isAdmin ? ADMIN_SECTIONS : isBroker ? BROKER_SECTIONS : STANDARD_SECTIONS;
+export function Sidebar({ collapsed }: SidebarProps) {
+  const { data: me } = useGetMe();
+  const role = me?.tier;
+  const themeClass = "market-sidebar--tea";
 
   return (
     <aside
-      className={`market-sidebar market-sidebar--tea ${isAdmin ? "is-admin" : ""} ${collapsed ? "is-collapsed" : ""}
-        flex flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border shrink-0
-        transition-all duration-200 ease-in-out overflow-hidden
-        ${collapsed ? "w-[72px]" : "w-60"}
-      `}
+      className={`market-sidebar ${themeClass} ${collapsed ? "is-collapsed" : ""} ${role === "ADMIN" ? "is-admin" : ""}`}
     >
       <div className="market-sidebar-logo" aria-label="TokenHarvest">
         {collapsed ? "TH" : "TokenHarvest"}
       </div>
+
       <div className="market-sidebar-brand">
         <BasilIcon name="bag" className="market-sidebar-brand-icon" />
-        {!collapsed && <span className="market-sidebar-brand-name">Tea Market</span>}
+        {!collapsed && (
+          <span className="market-sidebar-brand-name">Tea Market</span>
+        )}
       </div>
 
-      {!collapsed && isAdmin && tier && (
-        <div className="px-4 pt-3 pb-1 flex items-center gap-2">
-          <BasilIcon name="shield" className="market-sidebar-role-icon text-primary shrink-0" />
-          <span className={`inline-block text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 border
-            ${isAdmin
-              ? "bg-primary/15 text-primary border-primary/30"
-              : "bg-sidebar-accent/60 text-sidebar-accent-foreground border-sidebar-border"
-            }`}>
-            {isAdmin ? "Exchange Admin" : formatTier(tier)}
-          </span>
-        </div>
-      )}
+      <nav className="market-sidebar-nav">
+        <div className="market-sidebar-nav-inner">
+          {role === "ADMIN" && (
+            <>
+              <NavGroup
+                title="Exchange Admin"
+                collapsed={collapsed}
+                theme={themeClass}
+              >
+                <NavItem
+                  href="/admin/auctions"
+                  icon="exchange"
+                  label="Auction Sessions"
+                  collapsed={collapsed}
+                  themeClass={themeClass}
+                />
+                <NavItem
+                  href="/admin/auctions/new"
+                  icon="plus"
+                  label="New Auction"
+                  collapsed={collapsed}
+                  themeClass={themeClass}
+                />
+                <NavItem
+                  href="/admin/lots"
+                  icon="box"
+                  label="All Tea Lots"
+                  collapsed={collapsed}
+                  themeClass={themeClass}
+                />
+                <NavItem
+                  href="/admin/ewrs"
+                  icon="document"
+                  label="All eWRs"
+                  collapsed={collapsed}
+                  themeClass={themeClass}
+                />
+                <NavItem
+                  href="/admin/users"
+                  icon="user"
+                  label="Users"
+                  collapsed={collapsed}
+                  themeClass={themeClass}
+                />
+                <NavItem
+                  href="/admin/earnings"
+                  icon="wallet"
+                  label="Earnings"
+                  collapsed={collapsed}
+                  themeClass={themeClass}
+                />
+                <NavItem
+                  href="/admin/audit"
+                  icon="shield"
+                  label="Audit Log"
+                  collapsed={collapsed}
+                  themeClass={themeClass}
+                />
+              </NavGroup>
 
-      <nav className="market-sidebar-nav flex-1 px-2 py-2 overflow-y-auto">
-        {sections.map((section) => (
-          <div key={section.heading} className="market-sidebar-nav-group mb-3">
-            {!collapsed && (
-              <p className="market-sidebar-nav-group-title text-[9px] font-bold tracking-widest uppercase text-sidebar-foreground/40 px-3 py-1 mb-0.5">
-                {section.heading}
-              </p>
-            )}
-            <div className="space-y-0.5">
-              {section.items.map((item) => (
-                <NavLink key={item.href + item.label} item={item} collapsed={collapsed} location={location} />
-              ))}
+              <NavGroup title="Market" collapsed={collapsed} theme={themeClass}>
+                <NavItem
+                  href="/market"
+                  icon="chart"
+                  label="Market Overview"
+                  collapsed={collapsed}
+                  themeClass={themeClass}
+                />
+                <NavItem
+                  href="/mandates"
+                  icon="bookCheck"
+                  label="Mandates"
+                  collapsed={collapsed}
+                  themeClass={themeClass}
+                />
+              </NavGroup>
+
+              <NavGroup
+                title="Settings"
+                collapsed={collapsed}
+                theme={themeClass}
+              >
+                <NavItem
+                  href="/settings/api-access"
+                  icon="key"
+                  label="API Access"
+                  collapsed={collapsed}
+                  themeClass={themeClass}
+                />
+                <NavItem
+                  href="/profile"
+                  icon="user"
+                  label="Profile"
+                  collapsed={collapsed}
+                  themeClass={themeClass}
+                />
+              </NavGroup>
+            </>
+          )}
+
+          {role === "ENABLER" && (
+            <>
+              <NavGroup
+                title="Brokerage"
+                collapsed={collapsed}
+                theme={themeClass}
+              >
+                <NavItem
+                  href="/broker"
+                  icon="layout"
+                  label="Dashboard"
+                  collapsed={collapsed}
+                  themeClass={themeClass}
+                />
+                <NavItem
+                  href="/broker/mandate-holders"
+                  icon="user"
+                  label="Mandate Holders"
+                  collapsed={collapsed}
+                  themeClass={themeClass}
+                />
+                <NavItem
+                  href="/broker/lots/new"
+                  icon="plus"
+                  label="List New Tea Lot"
+                  collapsed={collapsed}
+                  themeClass={themeClass}
+                />
+                <NavItem
+                  href="/mandates"
+                  icon="bookCheck"
+                  label="My Mandates"
+                  collapsed={collapsed}
+                  themeClass={themeClass}
+                />
+                <NavItem
+                  href="/broker/auctions"
+                  icon="exchange"
+                  label="Auction Sessions"
+                  collapsed={collapsed}
+                  themeClass={themeClass}
+                />
+              </NavGroup>
+
+              <NavGroup title="Market" collapsed={collapsed} theme={themeClass}>
+                <NavItem
+                  href="/market"
+                  icon="bag"
+                  label="Spot Market"
+                  collapsed={collapsed}
+                  themeClass={themeClass}
+                />
+              </NavGroup>
+
+              <NavGroup
+                title="Settings"
+                collapsed={collapsed}
+                theme={themeClass}
+              >
+                <NavItem
+                  href="/settings/api-access"
+                  icon="key"
+                  label="API Access"
+                  collapsed={collapsed}
+                  themeClass={themeClass}
+                />
+                <NavItem
+                  href="/profile"
+                  icon="user"
+                  label="Profile"
+                  collapsed={collapsed}
+                  themeClass={themeClass}
+                />
+              </NavGroup>
+            </>
+          )}
+
+          {role && role !== "ADMIN" && role !== "ENABLER" && (
+            <>
+              <NavGroup title="Market" collapsed={collapsed} theme={themeClass}>
+                <NavItem
+                  href="/market"
+                  icon="bag"
+                  label="Spot Market"
+                  collapsed={collapsed}
+                  themeClass={themeClass}
+                />
+              </NavGroup>
+
+              <NavGroup
+                title="Account"
+                collapsed={collapsed}
+                theme={themeClass}
+              >
+                <NavItem
+                  href="/profile"
+                  icon="user"
+                  label="My Profile"
+                  collapsed={collapsed}
+                  themeClass={themeClass}
+                />
+              </NavGroup>
+            </>
+          )}
+
+          {!role && !collapsed && (
+            <div className="market-sidebar-loading">
+              Loading your market access…
             </div>
-          </div>
-        ))}
-
+          )}
+        </div>
       </nav>
     </aside>
   );

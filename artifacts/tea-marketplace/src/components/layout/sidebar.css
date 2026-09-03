@@ -68,6 +68,13 @@
   overflow-y: auto;
 }
 
+.market-sidebar-nav-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 40px;
+}
+
 .market-sidebar-nav-group {
   margin-bottom: 16px !important;
 }
@@ -287,6 +294,17 @@
   background: #365746 !important;
   color: #fff !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.market-sidebar.market-sidebar--tea .market-sidebar-nav-icon {
+  width: 16px !important;
+  height: 16px !important;
+  flex-shrink: 0;
+  color: rgba(184, 215, 193, 0.5) !important;
+}
+
+.market-sidebar.market-sidebar--tea .market-sidebar-nav-icon.is-active {
+  color: #a1b16e !important;
 }
 
 .market-sidebar.market-sidebar--tea .market-sidebar-loading {
