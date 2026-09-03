@@ -10,8 +10,8 @@ const img = (name: string) => `${BASE}/theme/${name}`;
 const photo = (name: string) => `${BASE}/photos/${name}`;
 const marketPhoto = (name: string) => `${BASE}/markets/${name}`;
 
-const ACCENT       = "hsl(180 62% 10%)";   // WRS teal (on light bg)
-const ACCENT_LIGHT = "hsl(180 50% 42%)";    // WRS teal (on dark bg)
+const ACCENT       = "#073B35"; // TokenHarvest deep green
+const ACCENT_LIGHT = "#DFFC4A"; // TokenHarvest lemon yellow
 
 const HP_API = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
 
@@ -27,8 +27,8 @@ type HpContent = { hero: HpHero; services: HpService[]; about: HpAbout; howItWor
 const DEF_HERO: HpHero = {
   badge: "TokenHarvest Commodities",
   headline: "Origin,\ntraded\nforward.",
-  subheadline: "Specialty quality with trade finance built into every move.",
-  cta1: "Join the Marketplace",
+  subheadline: "Bring your useful instinct to clearer commodity trade.",
+  cta1: "Enter the Community",
   cta2: "Our Services",
   images: [photo("hero-soybean-farmer.jpg"), photo("about-planting.jpg"), photo("cta-harvest.jpg")],
 };
@@ -161,8 +161,8 @@ const DEF_STATS: HpStat[] = [
   { target: 15, suffix: "+",   label: "Established Destination Markets" },
 ];
 const DEF_CTA: HpCta = {
-  heading: "Ready to Trade\nwith Confidence?",
-  subheadline: "Join producers, off-takers, and financiers already using WRS Marketplace to trade East African commodities with full transparency.",
+  heading: "Bring your useful instinct.\nMove trade forward.",
+  subheadline: "Join producers, off-takers, and financiers building clearer, more useful commodity trade across East Africa.",
   cta1: "Get Started",
   cta2: "Sign In",
 };
@@ -351,7 +351,7 @@ function MarketCard({ num, name, grade, desc, photo, link }: MarketCardData) {
 
 function EsgSection() {
   return (
-    <section id="esg" style={{ background: "#fff", padding: "96px 0 112px", position: "relative", overflow: "hidden" }}>
+    <section id="esg" style={{ background: "#F6F4EF", padding: "96px 0 112px", position: "relative", overflow: "hidden" }}>
 
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", position: "relative", zIndex: 1 }}>
 
@@ -366,7 +366,7 @@ function EsgSection() {
             </div>
             <h2 style={{
               fontSize: "clamp(2rem, 3.5vw, 46px)", fontWeight: 300,
-              color: "#090909", margin: "0 0 8px", lineHeight: 1.12,
+              color: "#073B35", margin: "0 0 8px", lineHeight: 1.12,
             }}>
               ESG is not<br />
               <strong style={{ fontWeight: 700 }}>a checkbox.</strong>
@@ -375,7 +375,7 @@ function EsgSection() {
           </div>
 
           <div>
-            <p style={{ fontSize: 17, color: "#666", lineHeight: 1.9, margin: 0 }}>
+              <p style={{ fontSize: 17, color: "#808A87", lineHeight: 1.9, margin: 0 }}>
               Agricultural commodity trading sits at the intersection of climate, livelihoods,
               and financial inclusion. We built TokenHarvest around the conviction that a
               transparent, digitised supply chain is inherently a more responsible one, and
@@ -440,11 +440,11 @@ function EsgSection() {
               }}>
                 {label}
               </h3>
-              <p style={{ fontSize: 15, color: "#666", lineHeight: 1.85, textAlign: "left", margin: 0, flex: 1 }}>
+              <p style={{ fontSize: 15, color: "#808A87", lineHeight: 1.85, textAlign: "left", margin: 0, flex: 1 }}>
                 {body}
               </p>
               <h4 style={{
-                fontSize: 14, fontWeight: 600, color: "#222",
+                fontSize: 14, fontWeight: 600, color: "#073B35",
                 margin: "32px 0 0", lineHeight: 1.4,
               }}>
                 {heading}
@@ -464,7 +464,7 @@ const FINANCE_PRODUCTS = [
   {
     eyebrow: "Harvest Fund",
     audience: "FOR PRODUCERS",
-    tone: "red",
+    tone: "green",
     hook: "Fund the Harvest Before It's Sold",
     body: "Inputs, labor, and logistics shouldn't wait on a sale to clear. Access capital ahead of export so the next cycle starts on time.",
     proof: "Funds released before shipment, not after",
@@ -484,7 +484,7 @@ const FINANCE_PRODUCTS = [
   {
     eyebrow: "Order Finance",
     audience: "FOR BUYERS",
-    tone: "blue",
+    tone: "grey",
     hook: "Commit to Bigger Orders Without Tying Up Cash",
     body: "A good deal shouldn't be capped by what's sitting in your account today. Finance part of a confirmed order and let the trade fund itself.",
     proof: "Finance a share of the order value upfront",
@@ -496,7 +496,7 @@ const FINANCE_PRODUCTS = [
 function FinanceCard({
   eyebrow, audience, tone, hook, body, proof, eligibility, cta
 }: {
-  eyebrow: string; audience: string; tone: "red" | "yellow" | "blue"; hook: string; body: string; proof: string; eligibility: string; cta: string;
+  eyebrow: string; audience: string; tone: "green" | "yellow" | "grey"; hook: string; body: string; proof: string; eligibility: string; cta: string;
 }) {
   const [hover, setHover] = useState(false);
   return (
@@ -510,7 +510,7 @@ function FinanceCard({
         <div style={{ color: "var(--finance-ink)", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>
           {eyebrow}
         </div>
-        <div style={{ background: "rgba(255,255,255,0.9)", color: "var(--finance-surface)", fontSize: 10, fontWeight: 800, padding: "5px 9px", borderRadius: 3, letterSpacing: "0.06em" }}>
+        <div style={{ background: "rgba(246,244,239,0.94)", color: "var(--finance-ink)", fontSize: 10, fontWeight: 800, padding: "5px 9px", borderRadius: 999, letterSpacing: "0.06em" }}>
           {audience}
         </div>
       </div>
@@ -747,10 +747,10 @@ function ContactModal({ open, onClose }: { open: boolean; onClose: () => void })
       <div
         onClick={e => e.stopPropagation()}
         style={{
-          background: "#111", width: "100%", maxWidth: 480,
+           background: "#073B35", width: "100%", maxWidth: 480,
           padding: "48px 40px 40px",
           position: "relative",
-          fontFamily: "'PT Sans', sans-serif",
+           fontFamily: "'Outfit', sans-serif",
         }}
       >
         {/* close */}
@@ -774,7 +774,7 @@ function ContactModal({ open, onClose }: { open: boolean; onClose: () => void })
             </p>
             <button onClick={onClose} style={{
               background: ACCENT, color: "#fff", border: "none", cursor: "pointer",
-              padding: "13px 28px", fontSize: 14, fontWeight: 600, fontFamily: "'PT Sans',sans-serif",
+              padding: "13px 28px", fontSize: 14, fontWeight: 600, fontFamily: "'Outfit',sans-serif",
             }}>
               Close
             </button>
@@ -800,8 +800,8 @@ function ContactModal({ open, onClose }: { open: boolean; onClose: () => void })
                     value={form[key as "name" | "email"]}
                     onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
                     style={{
-                      width: "100%", background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)",
-                      color: "#fff", padding: "12px 14px", fontSize: 14, fontFamily: "'PT Sans',sans-serif",
+                       width: "100%", background: "#052E2A", border: "1px solid rgba(246,244,239,0.18)",
+                      color: "#fff", padding: "12px 14px", fontSize: 14, fontFamily: "'Outfit',sans-serif",
                       outline: "none", boxSizing: "border-box",
                     }}
                   />
@@ -816,15 +816,15 @@ function ContactModal({ open, onClose }: { open: boolean; onClose: () => void })
                   value={form.message}
                   onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
                   style={{
-                    width: "100%", background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)",
-                    color: "#fff", padding: "12px 14px", fontSize: 14, fontFamily: "'PT Sans',sans-serif",
+                    width: "100%", background: "#052E2A", border: "1px solid rgba(246,244,239,0.18)",
+                    color: "#fff", padding: "12px 14px", fontSize: 14, fontFamily: "'Outfit',sans-serif",
                     outline: "none", resize: "vertical", boxSizing: "border-box",
                   }}
                 />
               </div>
               <button type="submit" disabled={status === "sending"} style={{
                 background: ACCENT, color: "#fff", border: "none", cursor: status === "sending" ? "default" : "pointer",
-                padding: "15px 28px", fontSize: 15, fontWeight: 600, fontFamily: "'PT Sans',sans-serif",
+                padding: "15px 28px", fontSize: 15, fontWeight: 600, fontFamily: "'Outfit',sans-serif",
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                 opacity: status === "sending" ? 0.7 : 1, marginTop: 4,
               }}>
@@ -887,12 +887,12 @@ export default function Home() {
 
   return (
     <>
-      <div style={{ fontFamily: "'PT Sans', sans-serif", color: "#353535" }}>
+      <div className="homepage-site" style={{ fontFamily: "'Outfit', sans-serif", color: "#073B35" }}>
 
           {/* ══ NAVBAR ══════════════════════════════════════════════ */}
           <header className="homepage-header" style={{
             position: "fixed", top: 30, left: 0, right: 0, zIndex: 200,
-            background: scrolled ? "rgba(247,245,237,0.97)" : "transparent",
+            background: scrolled ? "rgba(246,244,239,0.97)" : "transparent",
             backdropFilter: scrolled ? "blur(10px)" : "none",
             transition: "background 0.3s",
           }}>
@@ -902,7 +902,7 @@ export default function Home() {
                   <Link href="/" onClick={scrollHomeToTop} title="Home" className="homepage-logo-link" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
                 <span
                   className="homepage-logo tokenharvest-wordmark"
-                  style={{ color: "#0b3032", fontSize: 42, marginLeft: -14 }}
+                  style={{ color: ACCENT, fontSize: 42, marginLeft: -14 }}
                 >
                   TokenHarvest
                 </span>
@@ -911,7 +911,7 @@ export default function Home() {
               <nav className="homepage-nav-links" style={{ display: "flex", flex: 1, justifyContent: "center", gap: 36, alignItems: "center" }}>
                 {([ ["Platform","platform"], ["Services","services"], ["Finance","finance"], ["About","about"] ] as const).map(([label, id]) => (
                   <button key={id} onClick={() => scrollTo(id)}
-                    style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(11,48,50,0.9)", fontSize: 16, fontWeight: 600, display: "flex", gap: 5, alignItems: "center", fontFamily: "'PT Sans',sans-serif", padding: 0 }}>
+                    style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(7,59,53,0.9)", fontSize: 16, fontWeight: 600, display: "flex", gap: 5, alignItems: "center", fontFamily: "'Outfit',sans-serif", padding: 0 }}>
                     {label}
                   </button>
                 ))}
@@ -925,12 +925,12 @@ export default function Home() {
               <div className="homepage-auth-actions" style={{ display: "flex", gap: 12, alignItems: "center" }}>
                 {isSignedIn ? (
                   <Link href="/dashboard"
-                    style={{ background: ACCENT, color: "#fff", padding: "10px 22px", textDecoration: "none", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 7 }}>
+                    style={{ background: ACCENT, color: "#F6F4EF", padding: "10px 22px", borderRadius: 999, textDecoration: "none", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 7 }}>
                     Go to Dashboard <ArrowRight size={15} />
                   </Link>
                 ) : (
                   <Link href="/get-started"
-                    style={{ background: "#d93839", color: "#fff", padding: "10px 22px", textDecoration: "none", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 7 }}>
+                    style={{ background: ACCENT_LIGHT, color: ACCENT, padding: "10px 22px", borderRadius: 999, textDecoration: "none", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 7 }}>
                     Get Started <ArrowRight size={15} />
                   </Link>
                 )}
@@ -940,7 +940,7 @@ export default function Home() {
                 className="homepage-hamburger"
                 onClick={() => setMobileMenuOpen(true)}
                 aria-label="Open navigation menu"
-                style={{ background: "none", border: "none", cursor: "pointer", color: "#0b3032", padding: "8px", display: "flex", alignItems: "center" }}
+                style={{ background: "none", border: "none", cursor: "pointer", color: ACCENT, padding: "8px", display: "flex", alignItems: "center" }}
               >
                 <Menu size={24} />
               </button>
@@ -951,17 +951,17 @@ export default function Home() {
           {mobileMenuOpen && (
             <div style={{
               position: "fixed", inset: 0, zIndex: 500,
-              background: "rgba(16,16,16,0.98)",
+               background: "rgba(7,59,53,0.98)",
               backdropFilter: "blur(12px)",
               display: "flex", flexDirection: "column",
               padding: "20px 24px 40px",
-               fontFamily: "'PT Sans', sans-serif",
+               fontFamily: "'Outfit', sans-serif",
               overflowY: "auto",
             }}>
               {/* top row */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 40 }}>
                   <Link href="/" onClick={(event) => { setMobileMenuOpen(false); scrollHomeToTop(event); }} style={{ textDecoration: "none", padding: "6px 10px" }}>
-                  <span className="tokenharvest-wordmark" style={{ color: "#fff", fontSize: 28 }}>TokenHarvest</span>
+                  <span className="tokenharvest-wordmark" style={{ color: "#F6F4EF", fontSize: 28 }}>TokenHarvest</span>
                 </Link>
                 <button onClick={() => setMobileMenuOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.6)", padding: 8, display: "flex" }}>
                   <X size={24} />
@@ -974,7 +974,7 @@ export default function Home() {
                     style={{
                       background: "none", border: "none", borderBottom: "1px solid rgba(255,255,255,0.07)",
                       cursor: "pointer", color: "#fff", fontSize: 26, fontWeight: 300,
-                      fontFamily: "'PT Sans', sans-serif", textAlign: "left",
+                      fontFamily: "'Outfit', sans-serif", textAlign: "left",
                       padding: "18px 0", display: "flex", justifyContent: "space-between", alignItems: "center",
                     }}>
                     {label}
@@ -990,13 +990,13 @@ export default function Home() {
               {/* auth */}
               <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 32 }}>
                 {isSignedIn ? (
-                  <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}
-                    style={{ background: ACCENT, color: "#fff", padding: "16px 24px", textDecoration: "none", fontSize: 15, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                    <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}
+                     style={{ background: ACCENT_LIGHT, color: ACCENT, padding: "16px 24px", borderRadius: 999, textDecoration: "none", fontSize: 15, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
                     Go to Dashboard <ArrowRight size={16} />
                   </Link>
                 ) : (
-                  <Link href="/get-started" onClick={() => setMobileMenuOpen(false)}
-                    style={{ background: ACCENT, color: "#fff", padding: "16px 24px", textDecoration: "none", fontSize: 15, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                    <Link href="/get-started" onClick={() => setMobileMenuOpen(false)}
+                     style={{ background: ACCENT_LIGHT, color: ACCENT, padding: "16px 24px", borderRadius: 999, textDecoration: "none", fontSize: 15, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
                     Get Started <ArrowRight size={16} />
                   </Link>
                 )}
@@ -1013,7 +1013,7 @@ export default function Home() {
               White panel overlapping hero by −72px, 3 columns
               Exact Corzo: icon → red-dot title → text → divider
           ════════════════════════════════════════════════════════ */}
-          <section id="services" style={{ background: "#f5f5f5", paddingTop: 80, paddingBottom: 80 }}>
+          <section id="services" style={{ background: "#F6F4EF", paddingTop: 80, paddingBottom: 80 }}>
             <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px" }}>
               {/* Section title */}
               <div style={{ textAlign: "center", padding: "48px 0 32px" }}>
@@ -1065,7 +1065,7 @@ export default function Home() {
           </section>
 
           {/* ══ ABOUT ════════════════════════════════════════════════ */}
-          <section id="about" style={{ background: "#fdfdfd", padding: "120px 0 132px", overflow: "hidden" }}>
+          <section id="about" style={{ background: "#F6F4EF", padding: "120px 0 132px", overflow: "hidden" }}>
             <div className="homepage-about-grid" style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
               <div style={{ position: "relative", width: "100%", minHeight: 480, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "85%", height: "85%", borderRadius: "50%", background: "radial-gradient(circle, rgba(230,235,233,0.9) 0%, rgba(245,247,246,0) 70%)", zIndex: 0 }} />
@@ -1083,7 +1083,7 @@ export default function Home() {
                   <div style={{ width: 6, height: 6, borderRadius: "50%", background: ACCENT }} />
                   <span style={{ color: ACCENT, fontSize: 11, fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase" }}>{about.badge}</span>
                 </div>
-                <h2 style={{ fontSize: "clamp(2rem, 3.5vw, 44px)", fontWeight: 400, color: "#111", lineHeight: 1.15, margin: "0 0 24px", whiteSpace: "pre-line", letterSpacing: "-0.01em" }}>
+                <h2 style={{ fontSize: "clamp(2rem, 3.5vw, 44px)", fontWeight: 400, color: "#073B35", lineHeight: 1.15, margin: "0 0 24px", whiteSpace: "pre-line", letterSpacing: "-0.01em" }}>
                   {about.heading}
                 </h2>
                 <p style={{ fontSize: 16, color: "#555", lineHeight: 1.85, marginBottom: 40 }}>
@@ -1116,7 +1116,7 @@ export default function Home() {
           </section>
 
           {/* ══ PLATFORM / HOW IT WORKS ─────────────────────────── */}
-          <section id="platform" style={{ background: "#fff", padding: "64px 0 72px" }}>
+          <section id="platform" style={{ background: "#F6F4EF", padding: "64px 0 72px" }}>
             <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px" }}>
               {/* section header */}
               <div style={{ textAlign: "center", marginBottom: 38 }}>
@@ -1138,10 +1138,10 @@ export default function Home() {
                    <div key={num} style={{ padding: "26px 28px 28px", borderLeft: i > 0 ? "1px solid #f0f0f0" : undefined, position: "relative" }}>
                     <div style={{ fontSize: 52, fontWeight: 300, color: "rgba(0,0,0,0.06)", lineHeight: 1, marginBottom: 12 }}>{num}</div>
                     <div style={{ width: 28, height: 2, background: ACCENT, marginBottom: 14 }} />
-                     <h4 style={{ fontSize: 17, fontWeight: 700, color: "#232323", margin: "0 0 6px" }}>{title}</h4>
+                     <h4 style={{ fontSize: 17, fontWeight: 700, color: "#073B35", margin: "0 0 6px" }}>{title}</h4>
                      <div style={{ color: ACCENT, fontSize: 12, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 12 }}>{subtitle}</div>
-                     <p style={{ fontSize: 14, color: "#555", fontStyle: "italic", lineHeight: 1.6, margin: "0 0 12px" }}>{tagline}</p>
-                     <p style={{ fontSize: 14, color: "#777", lineHeight: 1.75, margin: 0 }}>{desc}</p>
+                     <p style={{ fontSize: 14, color: "#808A87", fontStyle: "italic", lineHeight: 1.6, margin: "0 0 12px" }}>{tagline}</p>
+                     <p style={{ fontSize: 14, color: "#808A87", lineHeight: 1.75, margin: 0 }}>{desc}</p>
                   </div>
                 ))}
               </div>
@@ -1171,7 +1171,7 @@ export default function Home() {
           </section>
 
           {/* ══ AVAILABLE MARKETS ────────────────────────────────── */}
-          <section style={{ background: "#fff" }}>
+          <section style={{ background: "#F6F4EF" }}>
 
             {/* Section header, centred and constrained */}
             <div style={{ textAlign: "center", padding: "96px 32px 64px", maxWidth: 1200, margin: "0 auto" }}>
@@ -1179,7 +1179,7 @@ export default function Home() {
                 <div style={{ width: 5, height: 5, borderRadius: "50%", background: ACCENT }} />
                 <span style={{ color: ACCENT, fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase" }}>Traded Commodities</span>
               </div>
-              <h2 style={{ fontSize: "clamp(1.8rem, 3vw, 40px)", fontWeight: 400, color: "#1a1a1a", margin: 0 }}>
+              <h2 style={{ fontSize: "clamp(1.8rem, 3vw, 40px)", fontWeight: 400, color: "#073B35", margin: 0 }}>
                 Available Markets
               </h2>
             </div>
@@ -1195,7 +1195,7 @@ export default function Home() {
           <EsgSection />
 
           {/* ══ TRADE FINANCE & LIQUIDITY ════════════════════════ */}
-          <section id="finance" style={{ background: "#e8edea", padding: "96px 0" }}>
+          <section id="finance" style={{ background: "#E9F0E8", padding: "96px 0" }}>
             <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px" }}>
               <div style={{ textAlign: "center", marginBottom: 64 }}>
                 <div style={{ display: "inline-flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
@@ -1225,8 +1225,8 @@ export default function Home() {
             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(5,30,27,0.9) 0%, rgba(7,48,42,0.78) 50%, rgba(5,30,27,0.9) 100%), radial-gradient(circle at 50% 42%, rgba(91,177,157,0.2), transparent 62%)" }} />
             <div style={{ position: "relative", zIndex: 1, maxWidth: 700, margin: "0 auto", padding: "0 32px", textAlign: "center" }}>
               <div style={{ display: "inline-flex", alignItems: "center", gap: 9, marginBottom: 13 }}>
-                <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#ed6558" }} />
-                <span style={{ color: "#ed6558", fontSize: 12, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" }}>Get Started</span>
+                <div style={{ width: 6, height: 6, borderRadius: "50%", background: ACCENT_LIGHT }} />
+                <span style={{ color: ACCENT_LIGHT, fontSize: 12, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" }}>Get Started</span>
               </div>
               <h2 style={{ fontSize: "clamp(2.1rem, 4.2vw, 46px)", fontWeight: 400, color: "#fff", lineHeight: 1.1, margin: "0 0 18px", whiteSpace: "pre-line", letterSpacing: "-0.03em" }}>
                 {cta.heading}
@@ -1236,11 +1236,11 @@ export default function Home() {
               </p>
               <div style={{ display: "flex", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
                 <Link href="/get-started"
-                  style={{ background: "#e55349", color: "#fff", padding: "13px 22px", textDecoration: "none", fontSize: 13, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 8 }}>
+                  style={{ background: ACCENT_LIGHT, color: ACCENT, padding: "13px 22px", borderRadius: 999, textDecoration: "none", fontSize: 13, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 8 }}>
                   {cta.cta1} <ArrowRight size={16} />
                 </Link>
                 <button onClick={() => setContactOpen(true)}
-                   style={{ background: "rgba(255,255,255,0.04)", color: "#fff", padding: "13px 22px", border: "1px solid rgba(255,255,255,0.28)", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "'PT Sans',sans-serif", display: "inline-flex", alignItems: "center", gap: 8 }}>
+                   style={{ background: "rgba(246,244,239,0.06)", color: "#F6F4EF", padding: "13px 22px", border: "1px solid rgba(246,244,239,0.38)", borderRadius: 999, cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "'Outfit',sans-serif", display: "inline-flex", alignItems: "center", gap: 8 }}>
                   Contact Us
                 </button>
               </div>
@@ -1248,7 +1248,7 @@ export default function Home() {
           </section>
 
           {/* ══ FOOTER ──────────────────────────────────────────── */}
-          <footer className="homepage-footer" style={{ background: "#0a0a0b", padding: "20px 0" }}>
+          <footer className="homepage-footer" style={{ background: "#073B35", padding: "20px 0" }}>
             <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px" }}>
               <div className="homepage-footer-minimal">
                 <div className="homepage-footer-brand">

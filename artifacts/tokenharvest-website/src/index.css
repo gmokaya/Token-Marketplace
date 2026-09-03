@@ -155,55 +155,55 @@
   --elevate-1: rgba(0,0,0, .03);
   --elevate-2: rgba(0,0,0, .08);
 
-  --background: 40 20% 97%;
-  --foreground: 155 100% 12%;
-  --border: 155 20% 85%;
+  --background: 40 33% 96%;
+  --foreground: 155 79% 13%;
+  --border: 163 5% 52%;
 
-  --card: 0 0% 100%;
-  --card-foreground: 155 100% 12%;
-  --card-border: 155 20% 85%;
+  --card: 40 33% 96%;
+  --card-foreground: 155 79% 13%;
+  --card-border: 163 5% 52%;
 
-  --sidebar: 155 100% 12%;
-  --sidebar-foreground: 40 20% 97%;
-  --sidebar-border: 155 80% 15%;
-  --sidebar-primary: 40 20% 97%;
-  --sidebar-primary-foreground: 155 100% 12%;
-  --sidebar-accent: 155 80% 15%;
-  --sidebar-accent-foreground: 40 20% 97%;
-  --sidebar-ring: 40 20% 97%;
+  --sidebar: 155 79% 13%;
+  --sidebar-foreground: 40 33% 96%;
+  --sidebar-border: 163 5% 52%;
+  --sidebar-primary: 69 97% 64%;
+  --sidebar-primary-foreground: 155 79% 13%;
+  --sidebar-accent: 155 79% 18%;
+  --sidebar-accent-foreground: 40 33% 96%;
+  --sidebar-ring: 69 97% 64%;
 
-  --popover: 0 0% 100%;
-  --popover-foreground: 155 100% 12%;
-  --popover-border: 155 20% 85%;
+  --popover: 40 33% 96%;
+  --popover-foreground: 155 79% 13%;
+  --popover-border: 163 5% 52%;
 
-  --primary: 180 62% 10%;
-  --primary-foreground: 40 20% 97%;
+  --primary: 155 79% 13%;
+  --primary-foreground: 40 33% 96%;
 
-  --secondary: 40 30% 90%;
-  --secondary-foreground: 180 62% 8%;
+  --secondary: 163 5% 52%;
+  --secondary-foreground: 155 79% 13%;
 
   --muted: 40 20% 92%;
-  --muted-foreground: 180 20% 40%;
+  --muted-foreground: 163 5% 52%;
 
-  --accent: 180 62% 14%;
-  --accent-foreground: 40 20% 97%;
+  --accent: 69 97% 64%;
+  --accent-foreground: 155 79% 13%;
 
   --destructive: 0 84% 40%;
   --destructive-foreground: 0 0% 100%;
 
-  --input: 180 20% 85%;
-  --ring: 180 62% 10%;
+  --input: 163 5% 52%;
+  --ring: 69 97% 64%;
 
-  --chart-1: 180 62% 10%;
-  --chart-2: 40 80% 40%;
-  --chart-3: 200 80% 40%;
-  --chart-4: 300 80% 40%;
-  --chart-5: 0 80% 40%;
+  --chart-1: 155 79% 13%;
+  --chart-2: 69 97% 64%;
+  --chart-3: 163 5% 52%;
+  --chart-4: 155 79% 22%;
+  --chart-5: 40 33% 96%;
 
-  --app-font-sans: 'PT Sans', sans-serif;
-  --app-font-serif: 'PT Sans', sans-serif;
-  --app-font-mono: 'PT Sans', sans-serif;
-  --radius: 0rem;
+  --app-font-sans: 'Outfit', sans-serif;
+  --app-font-serif: 'Outfit', sans-serif;
+  --app-font-mono: 'Outfit', sans-serif;
+  --radius: 999px;
 }
 
 .dark {
@@ -298,9 +298,31 @@ html {
   }
 }
 
-/* Simplo is reserved for headings; PT Sans remains the body/UI font. */
+/* Simplo is reserved for headings; Outfit is the body/UI font. */
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Simplo', 'PT Sans', sans-serif;
+  font-family: 'Simplo', 'Outfit', sans-serif;
+}
+
+.homepage-site {
+  font-family: 'Outfit', sans-serif !important;
+  color: #073B35;
+}
+
+.homepage-site button,
+.homepage-site a,
+.homepage-site input,
+.homepage-site textarea,
+.homepage-site select {
+  font-family: 'Outfit', sans-serif !important;
+}
+
+.homepage-site h1,
+.homepage-site h2,
+.homepage-site h3,
+.homepage-site h4,
+.homepage-site h5,
+.homepage-site h6 {
+  font-family: 'Simplo', 'Outfit', sans-serif !important;
 }
 
 /* Desktop hero content starts below the fixed header, never beneath it. */
@@ -650,16 +672,16 @@ h1, h2, h3, h4, h5, h6 {
 .homepage-utility-links button {
   padding: 0;
   border: 0;
-  color: rgba(11,48,50,0.56);
+  color: rgba(7,59,53,0.56);
   background: none;
-  font: 500 11px/1.4 'PT Sans', sans-serif;
+  font: 500 11px/1.4 'Outfit', sans-serif;
   text-decoration: none;
   cursor: pointer;
 }
 
 .homepage-utility-links a:hover,
 .homepage-utility-links button:hover {
-  color: #d93839;
+  color: #073B35;
 }
 
 .homepage-mobile-utility-links {
@@ -737,7 +759,7 @@ h1, h2, h3, h4, h5, h6 {
     background: none;
     border: 0;
     padding: 0;
-    font: 500 12px/1.4 'PT Sans', sans-serif;
+     font: 500 12px/1.4 'Outfit', sans-serif;
     text-align: left;
     text-decoration: none;
     cursor: pointer;
@@ -972,7 +994,7 @@ h1, h2, h3, h4, h5, h6 {
 .homepage-footer {
   position: relative;
   overflow: hidden;
-  background: #0a0a0b !important;
+  background: #073B35 !important;
 }
 
 .homepage-footer::before {
@@ -1029,7 +1051,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .homepage-footer-location {
   color: rgba(255,255,255,0.42);
-  font: 500 11px/1.4 'PT Sans', sans-serif;
+  font: 500 11px/1.4 'Outfit', sans-serif;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -1046,7 +1068,7 @@ h1, h2, h3, h4, h5, h6 {
   border: 0;
   background: none;
   color: rgba(255,255,255,0.58);
-  font: 500 12px/1.4 'PT Sans', sans-serif;
+  font: 500 12px/1.4 'Outfit', sans-serif;
   text-decoration: none;
   cursor: pointer;
   transition: color 0.2s ease;
@@ -1087,20 +1109,20 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .homepage-service-card {
-  --service-accent: #dc554c;
-  --service-wash: #fff4f1;
+  --service-accent: #073B35;
+  --service-wash: #E9F0E8;
   overflow: hidden;
   background: linear-gradient(145deg, #fff 0%, var(--service-wash) 100%);
 }
 
 .homepage-service-card[data-service="1"] {
-  --service-accent: #278577;
-  --service-wash: #eff8f5;
+  --service-accent: #DFFC4A;
+  --service-wash: #F3F8D7;
 }
 
 .homepage-service-card[data-service="2"] {
-  --service-accent: #c38b18;
-  --service-wash: #fff9e9;
+  --service-accent: #808A87;
+  --service-wash: #EEF0EF;
 }
 
 .homepage-service-card::before {
@@ -1142,11 +1164,15 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 26px;
   border-radius: 50%;
   background: var(--service-accent);
-  color: #fff;
+  color: #F6F4EF;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
   box-shadow: 0 8px 18px color-mix(in srgb, var(--service-accent) 28%, transparent);
+}
+
+.homepage-service-card[data-service="1"] .homepage-service-card-mark {
+  color: #073B35;
 }
 
 .homepage-finance-carousel {
@@ -1207,18 +1233,18 @@ h1, h2, h3, h4, h5, h6 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #b8c6be;
+  border: 1px solid #808A87;
   border-radius: 50%;
   background: transparent;
-  color: #173c34;
+  color: #073B35;
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 .homepage-finance-controls > button:hover {
-  background: #173c34;
-  border-color: #173c34;
-  color: #fff;
+  background: #073B35;
+  border-color: #073B35;
+  color: #F6F4EF;
 }
 
 .homepage-finance-dots {
@@ -1233,7 +1259,7 @@ h1, h2, h3, h4, h5, h6 {
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: #a8b9af;
+  background: #808A87;
   cursor: pointer;
   transition: width 0.25s ease, border-radius 0.25s ease, background 0.25s ease;
 }
@@ -1241,13 +1267,13 @@ h1, h2, h3, h4, h5, h6 {
 .homepage-finance-dots button.active {
   width: 24px;
   border-radius: 5px;
-  background: #173c34;
+  background: #073B35;
 }
 
 .homepage-finance-card {
-  --finance-surface: #e5483f;
-  --finance-ink: #fff;
-  --finance-muted: rgba(255,255,255,0.82);
+  --finance-surface: #073B35;
+  --finance-ink: #F6F4EF;
+  --finance-muted: rgba(246,244,239,0.82);
   background: var(--finance-surface);
   border-radius: 8px;
   border: 0;
@@ -1261,15 +1287,15 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .homepage-finance-card[data-tone="yellow"] {
-  --finance-surface: #f5bd18;
-  --finance-ink: #111;
-  --finance-muted: rgba(17,17,17,0.72);
+  --finance-surface: #DFFC4A;
+  --finance-ink: #073B35;
+  --finance-muted: rgba(7,59,53,0.72);
 }
 
-.homepage-finance-card[data-tone="blue"] {
-  --finance-surface: #1d69c9;
-  --finance-ink: #fff;
-  --finance-muted: rgba(255,255,255,0.84);
+.homepage-finance-card[data-tone="grey"] {
+  --finance-surface: #808A87;
+  --finance-ink: #073B35;
+  --finance-muted: rgba(7,59,53,0.84);
 }
 
 .homepage-finance-card::before {

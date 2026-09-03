@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const ACCENT = "hsl(180 62% 10%)";
+const ACCENT = "#073B35";
 const API = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
 const REFRESH_MS = 5 * 60 * 1000;
 
@@ -133,11 +133,11 @@ export function PriceTicker() {
            position: "sticky",
            top: 98,
            zIndex: 30,
-          height: 44, background: "rgba(13,13,13,0.97)",
+           height: 44, background: "rgba(7,59,53,0.97)",
           backdropFilter: "blur(8px)",
           borderTop: "1px solid rgba(255,255,255,0.08)",
           display: "flex", alignItems: "stretch", overflow: "hidden",
-          fontFamily: "'PT Sans', sans-serif",
+           fontFamily: "'Outfit', sans-serif",
         }}
       >
         {/* official close label */}
