@@ -6,6 +6,7 @@ import {
   ScrollText, Key, Landmark, Activity,
 } from "lucide-react";
 import { formatTier } from "@/lib/formatTier";
+import "./sidebar.css";
 
 interface SidebarProps {
   collapsed: boolean;
@@ -85,7 +86,7 @@ function NavLink({ item, collapsed, location }: { item: NavItem; collapsed: bool
       href={item.href}
       title={collapsed ? item.label : undefined}
       className={`
-        flex items-center gap-3 transition-colors
+        market-sidebar-nav-item flex items-center gap-3 transition-colors
         ${collapsed ? "justify-center px-0 py-2.5" : "px-3 py-2"}
         ${isActive
           ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
@@ -110,12 +111,17 @@ export function Sidebar({ collapsed }: SidebarProps) {
 
   return (
     <aside
-      className={`
+      className={`market-sidebar market-sidebar--tea ${isAdmin ? "is-admin" : ""} ${collapsed ? "is-collapsed" : ""}
         flex flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border shrink-0
         transition-all duration-200 ease-in-out overflow-hidden
         ${collapsed ? "w-[72px]" : "w-60"}
       `}
     >
+      <div className="market-sidebar-brand">
+        <Leaf className="market-sidebar-brand-icon" aria-hidden="true" />
+        {!collapsed && <span className="market-sidebar-brand-name">Tea Market</span>}
+      </div>
+
       {!collapsed && tier && (
         <div className="px-4 pt-3 pb-1 flex items-center gap-2">
           {isAdmin && <Shield className="w-3 h-3 text-primary shrink-0" />}
@@ -129,11 +135,11 @@ export function Sidebar({ collapsed }: SidebarProps) {
         </div>
       )}
 
-      <nav className="flex-1 px-2 py-2 overflow-y-auto">
+      <nav className="market-sidebar-nav flex-1 px-2 py-2 overflow-y-auto">
         {sections.map((section) => (
-          <div key={section.heading} className="mb-3">
+          <div key={section.heading} className="market-sidebar-nav-group mb-3">
             {!collapsed && (
-              <p className="text-[9px] font-bold tracking-widest uppercase text-sidebar-foreground/40 px-3 py-1 mb-0.5">
+              <p className="market-sidebar-nav-group-title text-[9px] font-bold tracking-widest uppercase text-sidebar-foreground/40 px-3 py-1 mb-0.5">
                 {section.heading}
               </p>
             )}

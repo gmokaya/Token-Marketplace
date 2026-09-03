@@ -1,10 +1,10 @@
 ---
-name: Shared market onboarding source
-description: Cross-artifact reuse rules for the Grain-based onboarding experience
+name: Independent market surfaces
+description: Independence rules for Grain, Coffee, and Tea marketplace page implementations
 ---
 
-Use the Grain onboarding page and components as the source of truth for Coffee and Tea. Pass market-specific values as props or modifier classes instead of duplicating the wrapper markup.
+Each marketplace artifact should own its authenticated shell, navigation, market workspace, and responsive styles. Keep the brand system consistent through local copies of the typography hierarchy, spacing scale, geometry, and market-specific palette; do not make Coffee or Tea authenticated pages depend on Grain page implementations.
 
-**Why:** Each market is a separate Vite artifact. The consuming artifact resolves its `@` alias locally, and local stylesheet ordering can otherwise override the shared onboarding geometry.
+**Why:** A shared Grain implementation can make a consumer render the wrong market copy or inherit stale layout behavior, and changes in one market become difficult to verify independently.
 
-**How to apply:** Use file-relative imports inside shared pages when they must be consumed by another artifact, and import the shared onboarding stylesheet explicitly after the artifact's local `index.css` in each entry point.
+**How to apply:** When adding or changing a marketplace page, edit that artifact's own page/component and CSS files. Reuse the visual language, not the Grain artifact's runtime/source modules. Keep onboarding parity work separate from authenticated market-shell work.

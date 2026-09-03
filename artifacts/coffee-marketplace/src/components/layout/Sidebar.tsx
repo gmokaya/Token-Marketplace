@@ -18,6 +18,7 @@ import {
   Landmark,
   Shield,
 } from "lucide-react";
+import "./sidebar.css";
 
 interface SidebarProps {
   collapsed: boolean;
@@ -31,7 +32,7 @@ function NavItem({ href, icon: Icon, label, collapsed }: {
   return (
     <Link
       href={href}
-      className={`flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
+      className={`market-sidebar-nav-item flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
         active
           ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
           : "text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
@@ -46,13 +47,13 @@ function NavItem({ href, icon: Icon, label, collapsed }: {
 
 function NavGroup({ title, children, collapsed }: { title: string; children: ReactNode; collapsed: boolean }) {
   return (
-    <div className="mb-6">
+    <div className="market-sidebar-nav-group mb-6">
       {!collapsed && (
-        <div className="px-3 mb-2 text-xs font-mono font-medium tracking-wider text-sidebar-foreground/40 uppercase">
+        <div className="market-sidebar-nav-group-title px-3 mb-2 text-xs font-mono font-medium tracking-wider text-sidebar-foreground/40 uppercase">
           {title}
         </div>
       )}
-      <div className="space-y-1">{children}</div>
+      <div className="market-sidebar-nav-items space-y-1">{children}</div>
     </div>
   );
 }
@@ -65,16 +66,16 @@ export function Sidebar({ collapsed }: SidebarProps) {
 
   return (
     <aside
-      className={`${w} shrink-0 border-r border-border bg-sidebar text-sidebar-foreground flex flex-col transition-[width] duration-200 overflow-hidden h-full`}
+      className={`market-sidebar market-sidebar--coffee ${role === "ADMIN" ? "is-admin" : ""} ${collapsed ? "is-collapsed" : ""} ${w} shrink-0 border-r border-border bg-sidebar text-sidebar-foreground flex flex-col transition-[width] duration-200 overflow-hidden h-full`}
     >
       {/* Sidebar brand strip */}
-      <div className={`flex h-14 items-center border-b border-sidebar-border shrink-0 ${collapsed ? "justify-center px-2" : "px-4 gap-2"}`}>
+      <div className={`market-sidebar-brand flex h-14 items-center border-b border-sidebar-border shrink-0 ${collapsed ? "justify-center px-2" : "px-4 gap-2"}`}>
         <Coffee className="w-4 h-4 text-accent shrink-0" />
-        {!collapsed && <span className="tokenharvest-wordmark text-lg text-white truncate">Specialty Coffee</span>}
+        {!collapsed && <span className="market-sidebar-brand-name tokenharvest-wordmark text-lg text-white truncate">Coffee Market</span>}
       </div>
 
-      <nav className="flex-1 overflow-y-auto p-2">
-        <div className="flex flex-col gap-1 pb-10">
+      <nav className="market-sidebar-nav flex-1 overflow-y-auto p-2">
+        <div className="market-sidebar-nav-inner flex flex-col gap-1 pb-10">
 
           {/* Exchange Admin */}
           {role === "ADMIN" && (
