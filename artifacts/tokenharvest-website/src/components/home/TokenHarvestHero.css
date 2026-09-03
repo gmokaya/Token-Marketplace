@@ -96,8 +96,8 @@
 .th-commodity-title {
   margin: 0;
   color: var(--th-ink);
-  font-size: clamp(4rem, 7.1vw, 7.3rem);
-  font-weight: 400;
+  font-size: clamp(4.5rem, 8.1vw, 8.4rem);
+  font-weight: 500;
   letter-spacing: -.1em;
   line-height: .81;
   text-wrap: balance;
@@ -112,16 +112,16 @@
 .th-commodity-title em {
   color: var(--th-ink);
   font-style: italic;
-  font-weight: 400;
+  font-weight: 600;
 }
 
 .th-commodity-title span {
   color: var(--th-sun);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .th-commodity-title strong {
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .th-commodity-subline {
@@ -394,7 +394,7 @@
   }
 
   .th-commodity-title {
-    font-size: clamp(3.3rem, 16.5vw, 4.8rem);
+    font-size: clamp(3.6rem, 18.5vw, 5.4rem);
   }
 
   .th-commodity-subline {
@@ -461,7 +461,7 @@
   }
 
   .th-commodity-title {
-    font-size: clamp(3.15rem, 5.7vw, 5.1rem);
+    font-size: clamp(3.4rem, 6.5vw, 5.7rem);
   }
 
   .th-commodity-quote {
