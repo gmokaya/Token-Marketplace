@@ -163,7 +163,7 @@ const DEF_STATS: HpStat[] = [
 const DEF_CTA: HpCta = {
   heading: "Bring your useful instinct.\nMove trade forward.",
   subheadline: "Join producers, off-takers, and financiers building clearer, more useful commodity trade across East Africa.",
-  cta1: "Launching Soon",
+  cta1: "Join the Market",
   cta2: "Sign In",
 };
 const DEF_MARKETS: MarketCardData[] = [
@@ -469,7 +469,7 @@ const FINANCE_PRODUCTS = [
     body: "Inputs, labor, and logistics shouldn't wait on a sale to clear. Access capital ahead of export so the next cycle starts on time.",
     proof: "Funds released before shipment, not after",
     eligibility: "Available once a forward contract or export order is confirmed.",
-    cta: "Launching Soon",
+    cta: "Join the Market",
   },
   {
     eyebrow: "Fast Pay",
@@ -479,7 +479,7 @@ const FINANCE_PRODUCTS = [
     body: "Waiting on payment terms shouldn't limit how many deals you can run. Convert a confirmed sale into cash and keep trading without the lag.",
     proof: "Access cash as soon as a trade is confirmed",
     eligibility: "Available on any buyer-approved sale on the marketplace.",
-    cta: "Launching Soon",
+    cta: "Join the Market",
   },
   {
     eyebrow: "Order Finance",
@@ -489,7 +489,7 @@ const FINANCE_PRODUCTS = [
     body: "A good deal shouldn't be capped by what's sitting in your account today. Finance part of a confirmed order and let the trade fund itself.",
     proof: "Finance a share of the order value upfront",
     eligibility: "Available once a purchase order is matched and confirmed.",
-    cta: "Launching Soon",
+    cta: "Join the Market",
   },
 ] as const;
 
@@ -929,7 +929,7 @@ export default function Home() {
                   <span
                     aria-disabled="true"
                     style={{ background: ACCENT_LIGHT, color: ACCENT, padding: "10px 22px", borderRadius: 999, textDecoration: "none", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 7 }}>
-                    Launching Soon
+                     Join the Market
                   </span>
                 )}
               </div>
@@ -996,7 +996,7 @@ export default function Home() {
                     <span
                       aria-disabled="true"
                      style={{ background: ACCENT_LIGHT, color: ACCENT, padding: "16px 24px", borderRadius: 999, textDecoration: "none", fontSize: 15, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-                    Launching Soon
+                     Join the Market
                   </span>
                 )}
               </div>
@@ -1225,7 +1225,7 @@ export default function Home() {
             <div style={{ position: "relative", zIndex: 1, maxWidth: 700, margin: "0 auto", padding: "0 32px", textAlign: "center" }}>
               <div style={{ display: "inline-flex", alignItems: "center", gap: 9, marginBottom: 13 }}>
                 <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#808A87" }} />
-                 <span style={{ color: "#F6F4EF", fontSize: 12, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" }}>Launching Soon</span>
+                  <span style={{ color: "#F6F4EF", fontSize: 12, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" }}>Join the Market</span>
               </div>
               <h2 style={{ fontSize: "clamp(2.1rem, 4.2vw, 46px)", fontWeight: 400, color: "#fff", lineHeight: 1.1, margin: "0 0 18px", whiteSpace: "pre-line", letterSpacing: "-0.03em" }}>
                 {cta.heading}
@@ -1237,7 +1237,7 @@ export default function Home() {
                 <span
                   aria-disabled="true"
                   style={{ background: ACCENT_LIGHT, color: ACCENT, padding: "13px 22px", borderRadius: 999, textDecoration: "none", fontSize: 13, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 8 }}>
-                  Launching Soon
+                  Join the Market
                 </span>
                 <button onClick={() => setContactOpen(true)}
                    style={{ background: "rgba(246,244,239,0.06)", color: "#F6F4EF", padding: "13px 22px", border: "1px solid rgba(246,244,239,0.38)", borderRadius: 999, cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "'PT Sans',sans-serif", display: "inline-flex", alignItems: "center", gap: 8 }}>
