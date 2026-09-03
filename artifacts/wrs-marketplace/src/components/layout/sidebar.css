@@ -403,3 +403,11 @@
 .market-sidebar.market-sidebar--grain .market-sidebar-loading {
   color: rgba(247, 250, 251, 0.52) !important;
 }
+
+/* Keep every selectable menu item on the same pill system. */
+.market-sidebar-nav-item,
+.market-sidebar--grain .market-sidebar-nav-item,
+.market-sidebar--coffee .market-sidebar-nav-item,
+.market-sidebar--tea .market-sidebar-nav-item {
+  border-radius: 9999px !important;
+}

@@ -78,6 +78,21 @@ const BROKER_SECTIONS: NavSection[] = [
   },
 ];
 
+const STANDARD_SECTIONS: NavSection[] = [
+  {
+    heading: "Market",
+    items: [
+      { href: "/market", label: "Spot Market", icon: Leaf },
+    ],
+  },
+  {
+    heading: "Account",
+    items: [
+      { href: "/profile", label: "My Profile", icon: User },
+    ],
+  },
+];
+
 function NavLink({ item, collapsed, location }: { item: NavItem; collapsed: boolean; location: string }) {
   const isActive = location === item.href || location.startsWith(`${item.href}/`);
   const Icon = item.icon;
@@ -107,7 +122,7 @@ export function Sidebar({ collapsed }: SidebarProps) {
   const isAdmin = tier === "ADMIN";
   const isBroker = tier === "ENABLER";
 
-  const sections = isAdmin ? ADMIN_SECTIONS : isBroker ? BROKER_SECTIONS : [];
+  const sections = isAdmin ? ADMIN_SECTIONS : isBroker ? BROKER_SECTIONS : STANDARD_SECTIONS;
 
   return (
     <aside
@@ -151,12 +166,6 @@ export function Sidebar({ collapsed }: SidebarProps) {
           </div>
         ))}
 
-        {/* No matching role */}
-        {!isAdmin && !isBroker && tier && !collapsed && (
-          <div className="px-3 py-6 text-xs text-muted-foreground text-center">
-            Market access is via API for your account type.
-          </div>
-        )}
       </nav>
     </aside>
   );
