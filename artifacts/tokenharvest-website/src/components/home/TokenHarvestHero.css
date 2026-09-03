@@ -301,12 +301,14 @@
   z-index: 6;
   padding: 9px 11px;
   border: 1px solid rgba(7, 59, 53, .23);
+  border-radius: 999px;
   color: var(--th-ink);
   background: rgba(247, 245, 237, .75);
   backdrop-filter: blur(8px);
   font-size: 8px;
   letter-spacing: .14em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .th-commodity-tag.origin { top: 46%; left: 3%; color: var(--th-deep); }
