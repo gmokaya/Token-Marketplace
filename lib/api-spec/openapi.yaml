@@ -4637,6 +4637,10 @@ components:
           type: string
           format: date
           description: Planned date of the auction session (YYYY-MM-DD)
+        startTime:
+          type: string
+          pattern: '^\d{2}:\d{2}$'
+          description: Optional planned start time for the auction session (HH:MM)
         lotIds:
           type: array
           items:
@@ -5127,6 +5131,10 @@ components:
           type: string
           format: date
           description: Planned date of the auction session (YYYY-MM-DD)
+        startTime:
+          type: string
+          pattern: '^\d{2}:\d{2}$'
+          description: Optional planned start time for the auction session (HH:MM)
 
     CoffeeAuctionSession:
       type: object

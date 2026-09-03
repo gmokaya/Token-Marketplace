@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ElementType } from 'react';
 import {
   Leaf, LayoutGrid, Package, Users, Receipt, Truck, Settings, Search, Bell,
   ArrowUpRight, ArrowDownRight, MoreHorizontal, Filter, Download, ChevronDown,
@@ -71,6 +71,17 @@ const statusStyle = {
   Refunded: { bg: '#eedede', dot: '#a35353', text: '#7c3a3a' },
 };
 
+type RevenueRange = keyof typeof revenueData;
+type KpiProps = {
+  icon: ElementType;
+  label: string;
+  value: string;
+  delta: string;
+  up: boolean;
+  sub: string;
+  delay: number;
+};
+
 const navItems = [
   { icon: LayoutGrid, label: 'Overview' },
   { icon: Receipt, label: 'Orders', badge: '24' },
@@ -80,7 +91,7 @@ const navItems = [
   { icon: Settings, label: 'Settings' },
 ];
 
-function Kpi({ icon: Icon, label, value, delta, up, sub, delay }) {
+function Kpi({ icon: Icon, label, value, delta, up, sub, delay }: KpiProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 14 }}
@@ -108,7 +119,7 @@ function Kpi({ icon: Icon, label, value, delta, up, sub, delay }) {
 
 export default function App() {
   const [activeNav, setActiveNav] = useState('Overview');
-  const [range, setRange] = useState('7D');
+  const [range, setRange] = useState<RevenueRange>('7D');
   const [orderFilter, setOrderFilter] = useState('All');
 
   const data = revenueData[range];
@@ -238,7 +249,7 @@ export default function App() {
                     <p className="text-[12px] text-[#16352a]/50 mt-0.5">Gross sales across all channels</p>
                   </div>
                   <div className="flex items-center bg-[#efe8d8] rounded-full p-1">
-                    {['7D', '30D', '90D'].map(r => (
+                    {(['7D', '30D', '90D'] as RevenueRange[]).map(r => (
                       <button
                         key={r}
                         onClick={() => setRange(r)}
@@ -356,7 +367,7 @@ export default function App() {
                     <tbody>
                       <AnimatePresence>
                         {filteredOrders.map((o, i) => {
-                          const s = statusStyle[o.status];
+                          const s = statusStyle[o.status as keyof typeof statusStyle];
                           return (
                             <motion.tr
                               key={o.id}

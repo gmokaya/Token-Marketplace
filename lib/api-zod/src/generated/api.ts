@@ -1650,11 +1650,13 @@ export const ListTeaAuctionSessionsResponse = zod.array(ListTeaAuctionSessionsRe
 /**
  * @summary Broker or admin creates a tea auction session linking multiple catalogued lots
  */
+export const createTeaAuctionSessionBodyStartTimeRegExp = new RegExp('^\\d{2}:\\d{2}$');
 
 
 
 export const CreateTeaAuctionSessionBody = zod.object({
   "auctionDate": zod.coerce.date().describe('Planned date of the auction session (YYYY-MM-DD)'),
+  "startTime": zod.string().regex(createTeaAuctionSessionBodyStartTimeRegExp).optional().describe('Optional planned start time for the auction session (HH:MM)'),
   "lotIds": zod.array(zod.number()).min(1).optional().describe('Optional initial lot IDs; lots can also be added via POST \/tea\/auctions\/{sessionId}\/lots')
 })
 
@@ -2246,8 +2248,12 @@ export const ListCoffeeAuctionSessionsResponse = zod.array(ListCoffeeAuctionSess
 /**
  * @summary Admin creates a coffee auction session
  */
+export const createCoffeeAuctionSessionBodyStartTimeRegExp = new RegExp('^\\d{2}:\\d{2}$');
+
+
 export const CreateCoffeeAuctionSessionBody = zod.object({
-  "auctionDate": zod.coerce.date().describe('Planned date of the auction session (YYYY-MM-DD)')
+  "auctionDate": zod.coerce.date().describe('Planned date of the auction session (YYYY-MM-DD)'),
+  "startTime": zod.string().regex(createCoffeeAuctionSessionBodyStartTimeRegExp).optional().describe('Optional planned start time for the auction session (HH:MM)')
 })
 
 

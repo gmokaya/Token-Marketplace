@@ -491,7 +491,7 @@ const FINANCE_PRODUCTS = [
     eligibility: "Available once a purchase order is matched and confirmed.",
     cta: "Explore Order Finance",
   },
-];
+] as const;
 
 function FinanceCard({
   eyebrow, audience, tone, hook, body, proof, eligibility, cta

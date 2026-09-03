@@ -24,6 +24,14 @@ const socialProfileSchema = z.object({
 
 type SocialProfileFormValues = z.infer<typeof socialProfileSchema>;
 
+function getApiErrorMessage(error: { data?: unknown; message?: string }, fallback: string) {
+  const data = error.data;
+  if (data && typeof data === "object" && "error" in data && typeof data.error === "string") {
+    return data.error;
+  }
+  return error.message || fallback;
+}
+
 export default function Profile() {
   const { data: user } = useGetMe();
   const updateMe = useUpdateMe();
@@ -62,7 +70,7 @@ export default function Profile() {
         setEditSocial(false);
       },
       onError: (error) => {
-        toast({ title: "Update failed", description: error.error || "Failed to update social profile", variant: "destructive" });
+        toast({ title: "Update failed", description: getApiErrorMessage(error, "Failed to update social profile"), variant: "destructive" });
       },
     });
   };

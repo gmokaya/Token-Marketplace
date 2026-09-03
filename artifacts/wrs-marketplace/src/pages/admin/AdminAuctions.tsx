@@ -22,7 +22,7 @@ export default function AdminAuctions() {
   const { data: auctions, isLoading } = useListAuctions();
 
   const open      = (auctions ?? []).filter(a => a.status === "OPEN").length;
-  const scheduled = (auctions ?? []).filter(a => a.status === "SCHEDULED").length;
+  const cancelled = (auctions ?? []).filter(a => a.status === "CANCELLED").length;
   const settled   = (auctions ?? []).filter(a => a.status === "SETTLED").length;
 
   return (
@@ -47,8 +47,8 @@ export default function AdminAuctions() {
               <div className="text-2xl font-bold font-mono">{open}</div>
             </CardContent></Card>
             <Card><CardContent className="p-4">
-              <div className="text-sm text-muted-foreground mb-1">Scheduled</div>
-              <div className="text-2xl font-bold font-mono">{scheduled}</div>
+               <div className="text-sm text-muted-foreground mb-1">Cancelled</div>
+               <div className="text-2xl font-bold font-mono">{cancelled}</div>
             </CardContent></Card>
             <Card><CardContent className="p-4">
               <div className="text-sm text-muted-foreground mb-1">Settled</div>

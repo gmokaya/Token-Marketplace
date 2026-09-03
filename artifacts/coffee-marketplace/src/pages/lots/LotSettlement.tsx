@@ -1,14 +1,25 @@
 import { useParams, Link } from "wouter";
-import { useGetOrder, useGetSettlement, useInitiateSettlement } from "@workspace/api-client-react";
+import { getGetOrderQueryKey, useGetOrder, useGetSettlement, useInitiateSettlement } from "@workspace/api-client-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, CheckCircle2, Clock, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+function getApiErrorMessage(error: { data?: unknown; message?: string }, fallback: string) {
+  const data = error.data;
+  if (data && typeof data === "object" && "error" in data && typeof data.error === "string") {
+    return data.error;
+  }
+  return error.message || fallback;
+}
+
 export default function LotSettlement() {
   const { lotId } = useParams<{ lotId: string }>(); // Actually orderId in this flow context
-  const { data: order, isLoading } = useGetOrder(Number(lotId), { query: { enabled: !!lotId } });
+  const orderId = Number(lotId);
+  const { data: order, isLoading } = useGetOrder(orderId, {
+    query: { queryKey: getGetOrderQueryKey(orderId), enabled: !!lotId },
+  });
   
   const initiate = useInitiateSettlement();
   const { toast } = useToast();
@@ -22,7 +33,7 @@ export default function LotSettlement() {
           toast({ title: "Settlement Initiated", description: "Funds are securely held in escrow." });
         },
         onError: (err) => {
-          toast({ title: "Error", description: err.error || "Failed to initiate settlement.", variant: "destructive" });
+          toast({ title: "Error", description: getApiErrorMessage(err, "Failed to initiate settlement."), variant: "destructive" });
         }
       }
     );
