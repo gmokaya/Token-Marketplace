@@ -81,7 +81,7 @@ export default function LaunchingSoon() {
               <span className="text-[#DFFC4A]">{market}.</span>
             </h1>
             <p className="mt-8 max-w-xl text-lg leading-8 text-[#F6F4EF]/68 md:text-xl">
-              The next chapter of clearer commodity trade is almost here. Join the early
+              The next chapter of trusted commodity trade is almost here. Join the early
               access list and get the first look when this market opens.
             </p>
 
