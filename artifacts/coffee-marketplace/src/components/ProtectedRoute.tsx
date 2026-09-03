@@ -56,7 +56,9 @@ function EnsureProfile({ children }: { children: ReactNode }) {
   });
   const error = userError ?? onboardingError;
   const isLoading = userLoading || onboardingLoading;
-  const isMissing = error && (error as any)?.status === 404;
+  const onboardingStatus = (onboardingError as { status?: number } | null)?.status;
+  const isMissing = onboardingStatus === 404;
+  const destination = user?.tier === "ADMIN" ? "/dashboard" : "/market";
 
   useEffect(() => {
     if (isLoading) return;
@@ -68,9 +70,9 @@ function EnsureProfile({ children }: { children: ReactNode }) {
       onboarding &&
       location === "/onboarding"
     ) {
-      setLocation("/dashboard");
+      setLocation(destination, { replace: true });
     }
-  }, [error, isLoading, isMissing, location, onboarding, setLocation]);
+  }, [destination, error, isLoading, isMissing, location, onboarding, setLocation]);
 
   if (isLoading) {
     return (

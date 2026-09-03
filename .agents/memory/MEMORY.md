@@ -22,3 +22,4 @@
 - [Multi-select onboarding storage](multi-select-onboarding-storage.md) — keep legacy text columns and serialize selected market values as JSON arrays with client-side legacy normalization
 - [Cross-artifact shared styles](cross-artifact-responsive-styles.md) — shared dynamic Tailwind classes may be missing in consumers; use explicit CSS for critical layout and theme rules
 - [Generated API contract alignment](generated-api-contract-alignment.md) — update OpenAPI and regenerate clients when backend fields differ from generated request types; avoid casts
+- [Authenticated marketplace entry](authenticated-market-entry-routing.md) — resolve onboarding status before routing; completed accounts must never enter the wizard path

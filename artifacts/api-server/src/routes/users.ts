@@ -38,6 +38,7 @@ function parseSocialField(value: unknown, label: string, maxLength = 500): strin
 }
 
 router.get("/users/me", async (req, res) => {
+  res.setHeader("Cache-Control", "private, no-store");
   const { userId: clerkId } = getAuth(req);
   if (!clerkId) return res.status(401).json({ error: "Unauthorized" });
 

@@ -777,7 +777,7 @@ export default function OnboardingWizard({
 
     setIsSubmitting(true);
     try {
-       await customFetch("/api/onboarding/me", {
+       const result = await customFetch<{ user?: { tier?: string } }>("/api/onboarding/me", {
         method: "PUT",
          body: JSON.stringify({ ...data, market }),
       });
@@ -789,7 +789,9 @@ export default function OnboardingWizard({
         title: `Welcome to ${marketName}!`,
         description: "Your profile has been created successfully.",
       });
-      setLocation("/dashboard");
+      setLocation(result.user?.tier === "ADMIN" ? "/dashboard" : "/market", {
+        replace: true,
+      });
     } catch (err: any) {
       toast({
         title: "Something went wrong",

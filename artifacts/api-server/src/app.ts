@@ -58,6 +58,11 @@ function isPathOwnedByRuntime(profile: RuntimeProfile, path: string): boolean {
 export function createApp(profile: RuntimeProfile = getRuntimeProfile()): Express {
   const app: Express = express();
 
+  // API clients need the JSON body to reconcile authenticated state. Returning
+  // a cache-only 304 leaves React Query with undefined data and can make a
+  // completed profile look like a new account.
+  app.disable("etag");
+
   // Behind the Replit proxy / load balancer — trust X-Forwarded-* so rate
   // limiting and client IP detection use the real client address.
   app.set("trust proxy", 1);

@@ -1,12 +1,18 @@
 import { useEffect, useLayoutEffect, useRef } from "react";
-import { ClerkProvider, Show, useAuth, useClerk } from '@clerk/react';
+import { ClerkProvider, useAuth, useClerk } from '@clerk/react';
 import { publishableKeyFromHost } from '@clerk/react/internal';
 import { shadcn } from '@clerk/themes';
 import { Switch, Route, useLocation, Router as WouterRouter, Redirect } from 'wouter';
-import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { setAuthTokenGetter, setBaseUrl } from "@workspace/api-client-react";
+import {
+  customFetch,
+  getGetMeQueryKey,
+  setAuthTokenGetter,
+  setBaseUrl,
+  useGetMe,
+} from "@workspace/api-client-react";
 
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Layout } from "@/components/layout/Layout";
@@ -67,15 +73,75 @@ const queryClient = new QueryClient({
 });
 
 function HomeRedirect() {
+  const { isLoaded, isSignedIn } = useAuth();
+  const [, setLocation] = useLocation();
+  const userQuery = useGetMe({
+    query: {
+      queryKey: getGetMeQueryKey(),
+      enabled: isLoaded && Boolean(isSignedIn),
+      retry: false,
+    },
+  });
+  const onboardingQuery = useQuery({
+    queryKey: ["/api/onboarding/me"],
+    queryFn: () => customFetch("/api/onboarding/me"),
+    enabled:
+      isLoaded &&
+      Boolean(isSignedIn) &&
+      !userQuery.isLoading &&
+      !userQuery.error &&
+      Boolean(userQuery.data),
+    retry: false,
+  });
+  const onboardingStatus = (onboardingQuery.error as { status?: number } | null)?.status;
+  const hasNoOnboarding = onboardingStatus === 404;
+
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn || userQuery.isLoading || onboardingQuery.isLoading) {
+      return;
+    }
+    if (userQuery.error || (onboardingQuery.error && !hasNoOnboarding)) return;
+
+    const destination =
+      hasNoOnboarding
+        ? "/onboarding"
+        : userQuery.data?.tier === "ADMIN"
+          ? "/dashboard"
+          : "/market";
+    setLocation(destination, { replace: true });
+  }, [
+    hasNoOnboarding,
+    isLoaded,
+    isSignedIn,
+    onboardingQuery.error,
+    onboardingQuery.isLoading,
+    setLocation,
+    userQuery.data?.tier,
+    userQuery.error,
+    userQuery.isLoading,
+  ]);
+
+  if (!isLoaded || (isSignedIn && (userQuery.isLoading || onboardingQuery.isLoading))) {
+    return <AuthRoutingState />;
+  }
+
+  if (!isSignedIn) return <Home />;
+  if (userQuery.error || (onboardingQuery.error && !hasNoOnboarding)) {
+    return <AuthRoutingState error />;
+  }
+
+  return null;
+}
+
+function AuthRoutingState({ error = false }: { error?: boolean }) {
   return (
-    <>
-      <Show when="signed-in">
-        <Redirect to="/onboarding" />
-      </Show>
-      <Show when="signed-out">
-        <Home />
-      </Show>
-    </>
+    <div className="flex min-h-screen items-center justify-center bg-background px-6 text-center text-muted-foreground">
+      <p aria-live="polite">
+        {error
+          ? "We couldn't load your marketplace profile. Please refresh and try again."
+          : "Preparing your marketplace…"}
+      </p>
+    </div>
   );
 }
 
@@ -150,8 +216,8 @@ function ClerkProviderWithRoutes() {
       appearance={clerkAppearance}
       signInUrl={`${basePath}/sign-in`}
       signUpUrl={`${basePath}/sign-in?mode=sign-up`}
-      signInFallbackRedirectUrl={`${basePath}/onboarding`}
-      signUpFallbackRedirectUrl={`${basePath}/onboarding`}
+      signInFallbackRedirectUrl={`${basePath}/`}
+      signUpFallbackRedirectUrl={`${basePath}/`}
       routerPush={(to) => setLocation(stripBase(to))}
       routerReplace={(to) => setLocation(stripBase(to), { replace: true })}
     >

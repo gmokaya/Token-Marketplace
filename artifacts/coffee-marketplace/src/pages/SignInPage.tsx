@@ -100,7 +100,7 @@ export default function SignInPage() {
                 routing="path"
                 path={`${bp}/sign-in`}
                 signInUrl={`${bp}/sign-in`}
-                fallbackRedirectUrl={`${bp}/onboarding`}
+                  fallbackRedirectUrl={`${bp}/`}
                 appearance={clerkAppearance}
               />
             ) : (
@@ -108,7 +108,7 @@ export default function SignInPage() {
                 routing="path"
                 path={`${bp}/sign-in`}
                 signUpUrl={`${bp}/sign-in?mode=sign-up`}
-                fallbackRedirectUrl={`${bp}/onboarding`}
+                fallbackRedirectUrl={`${bp}/`}
                 appearance={clerkAppearance}
               />
             )}

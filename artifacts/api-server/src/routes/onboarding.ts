@@ -396,6 +396,7 @@ async function getCurrentUser(clerkId: string) {
 }
 
 router.get("/onboarding/me", async (req, res) => {
+  res.setHeader("Cache-Control", "private, no-store");
   const { userId: clerkId } = getAuth(req);
   if (!clerkId) return res.status(401).json({ error: "Unauthorized" });
 
