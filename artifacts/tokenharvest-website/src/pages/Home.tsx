@@ -529,14 +529,14 @@ function FinanceCard({
         </div>
       </div>
 
-      <span style={{
+      <Link href="/launching-soon" style={{
         display: "flex", alignItems: "center", gap: 6,
         color: "var(--finance-ink)",
         fontSize: 14, fontWeight: 600,
         textDecoration: "none",
       }}>
         {cta}
-      </span>
+      </Link>
     </div>
   );
 }
@@ -926,11 +926,10 @@ export default function Home() {
                     Go to Dashboard <ArrowRight size={15} />
                   </Link>
                 ) : (
-                  <span
-                    aria-disabled="true"
+                  <Link href="/launching-soon"
                     style={{ background: ACCENT_LIGHT, color: ACCENT, padding: "10px 22px", borderRadius: 999, textDecoration: "none", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 7 }}>
                      Join the Market
-                  </span>
+                  </Link>
                 )}
               </div>
               {/* Hamburger - hidden on desktop via CSS, shown on mobile */}
@@ -993,11 +992,10 @@ export default function Home() {
                     Go to Dashboard <ArrowRight size={16} />
                   </Link>
                 ) : (
-                    <span
-                      aria-disabled="true"
+                    <Link href="/launching-soon" onClick={() => setMobileMenuOpen(false)}
                      style={{ background: ACCENT_LIGHT, color: ACCENT, padding: "16px 24px", borderRadius: 999, textDecoration: "none", fontSize: 15, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
                      Join the Market
-                  </span>
+                   </Link>
                 )}
               </div>
             </div>
@@ -1234,11 +1232,11 @@ export default function Home() {
                 {cta.subheadline}
               </p>
               <div style={{ display: "flex", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
-                <span
-                  aria-disabled="true"
+                <Link
+                  href="/launching-soon"
                   style={{ background: ACCENT_LIGHT, color: ACCENT, padding: "13px 22px", borderRadius: 999, textDecoration: "none", fontSize: 13, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 8 }}>
                   Join the Market
-                </span>
+                </Link>
                 <button onClick={() => setContactOpen(true)}
                    style={{ background: "rgba(246,244,239,0.06)", color: "#F6F4EF", padding: "13px 22px", border: "1px solid rgba(246,244,239,0.38)", borderRadius: 999, cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "'PT Sans',sans-serif", display: "inline-flex", alignItems: "center", gap: 8 }}>
                   Contact Us
