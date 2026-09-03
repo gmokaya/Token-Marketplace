@@ -310,9 +310,9 @@ function MarketCard({ num, name, grade, desc, photo, link }: MarketCardData) {
             lineHeight: 1.75,
             margin: "0 0 14px",
           }}>{desc}</p>
-          {link && (
-            <a
-              href={link}
+           {link && (
+             <Link
+               href={`/launching-soon?market=${encodeURIComponent(name)}`}
               style={{
                 color: ACCENT_LIGHT,
                 textDecoration: "none",
@@ -324,7 +324,7 @@ function MarketCard({ num, name, grade, desc, photo, link }: MarketCardData) {
               }}
             >
                Explore {name} Market <ArrowRight size={13} />
-            </a>
+             </Link>
           )}
         </div>
 
