@@ -118,6 +118,7 @@
 .th-commodity-title span {
   color: var(--th-sun);
   font-weight: 700;
+  letter-spacing: -.075em;
 }
 
 .th-commodity-title strong {
