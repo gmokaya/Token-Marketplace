@@ -137,7 +137,7 @@ export function PriceTicker() {
           backdropFilter: "blur(8px)",
           borderTop: "1px solid rgba(255,255,255,0.08)",
           display: "flex", alignItems: "stretch", overflow: "hidden",
-           fontFamily: "'Outfit', sans-serif",
+           fontFamily: "'PT Sans', sans-serif",
         }}
       >
         {/* official close label */}

@@ -314,7 +314,7 @@ function MarketCard({ num, name, grade, desc, photo, link }: MarketCardData) {
             <a
               href={link}
               style={{
-                color: ACCENT_LIGHT,
+                color: "#F6F4EF",
                 textDecoration: "none",
                 fontSize: 13,
                 fontWeight: 600,
@@ -750,7 +750,7 @@ function ContactModal({ open, onClose }: { open: boolean; onClose: () => void })
            background: "#073B35", width: "100%", maxWidth: 480,
           padding: "48px 40px 40px",
           position: "relative",
-           fontFamily: "'Outfit', sans-serif",
+           fontFamily: "'PT Sans', sans-serif",
         }}
       >
         {/* close */}
@@ -774,7 +774,7 @@ function ContactModal({ open, onClose }: { open: boolean; onClose: () => void })
             </p>
             <button onClick={onClose} style={{
               background: ACCENT, color: "#fff", border: "none", cursor: "pointer",
-              padding: "13px 28px", fontSize: 14, fontWeight: 600, fontFamily: "'Outfit',sans-serif",
+              padding: "13px 28px", fontSize: 14, fontWeight: 600, fontFamily: "'PT Sans',sans-serif",
             }}>
               Close
             </button>
@@ -801,7 +801,7 @@ function ContactModal({ open, onClose }: { open: boolean; onClose: () => void })
                     onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
                     style={{
                        width: "100%", background: "#052E2A", border: "1px solid rgba(246,244,239,0.18)",
-                      color: "#fff", padding: "12px 14px", fontSize: 14, fontFamily: "'Outfit',sans-serif",
+                      color: "#fff", padding: "12px 14px", fontSize: 14, fontFamily: "'PT Sans',sans-serif",
                       outline: "none", boxSizing: "border-box",
                     }}
                   />
@@ -817,14 +817,14 @@ function ContactModal({ open, onClose }: { open: boolean; onClose: () => void })
                   onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
                   style={{
                     width: "100%", background: "#052E2A", border: "1px solid rgba(246,244,239,0.18)",
-                    color: "#fff", padding: "12px 14px", fontSize: 14, fontFamily: "'Outfit',sans-serif",
+                    color: "#fff", padding: "12px 14px", fontSize: 14, fontFamily: "'PT Sans',sans-serif",
                     outline: "none", resize: "vertical", boxSizing: "border-box",
                   }}
                 />
               </div>
               <button type="submit" disabled={status === "sending"} style={{
                 background: ACCENT, color: "#fff", border: "none", cursor: status === "sending" ? "default" : "pointer",
-                padding: "15px 28px", fontSize: 15, fontWeight: 600, fontFamily: "'Outfit',sans-serif",
+                padding: "15px 28px", fontSize: 15, fontWeight: 600, fontFamily: "'PT Sans',sans-serif",
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                 opacity: status === "sending" ? 0.7 : 1, marginTop: 4,
               }}>
@@ -887,7 +887,7 @@ export default function Home() {
 
   return (
     <>
-      <div className="homepage-site" style={{ fontFamily: "'Outfit', sans-serif", color: "#073B35" }}>
+      <div className="homepage-site" style={{ fontFamily: "'PT Sans', sans-serif", color: "#073B35" }}>
 
           {/* ══ NAVBAR ══════════════════════════════════════════════ */}
           <header className="homepage-header" style={{
@@ -911,7 +911,7 @@ export default function Home() {
               <nav className="homepage-nav-links" style={{ display: "flex", flex: 1, justifyContent: "center", gap: 36, alignItems: "center" }}>
                 {([ ["Platform","platform"], ["Services","services"], ["Finance","finance"], ["About","about"] ] as const).map(([label, id]) => (
                   <button key={id} onClick={() => scrollTo(id)}
-                    style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(7,59,53,0.9)", fontSize: 16, fontWeight: 600, display: "flex", gap: 5, alignItems: "center", fontFamily: "'Outfit',sans-serif", padding: 0 }}>
+                    style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(7,59,53,0.9)", fontSize: 16, fontWeight: 600, display: "flex", gap: 5, alignItems: "center", fontFamily: "'PT Sans',sans-serif", padding: 0 }}>
                     {label}
                   </button>
                 ))}
@@ -955,7 +955,7 @@ export default function Home() {
               backdropFilter: "blur(12px)",
               display: "flex", flexDirection: "column",
               padding: "20px 24px 40px",
-               fontFamily: "'Outfit', sans-serif",
+               fontFamily: "'PT Sans', sans-serif",
               overflowY: "auto",
             }}>
               {/* top row */}
@@ -974,11 +974,11 @@ export default function Home() {
                     style={{
                       background: "none", border: "none", borderBottom: "1px solid rgba(255,255,255,0.07)",
                       cursor: "pointer", color: "#fff", fontSize: 26, fontWeight: 300,
-                      fontFamily: "'Outfit', sans-serif", textAlign: "left",
+                      fontFamily: "'PT Sans', sans-serif", textAlign: "left",
                       padding: "18px 0", display: "flex", justifyContent: "space-between", alignItems: "center",
                     }}>
                     {label}
-                    <ArrowRight size={16} style={{ color: ACCENT_LIGHT, opacity: 0.7 }} />
+                    <ArrowRight size={16} style={{ color: "#F6F4EF", opacity: 0.7 }} />
                   </button>
                 ))}
               </nav>
@@ -1225,8 +1225,8 @@ export default function Home() {
             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(5,30,27,0.9) 0%, rgba(7,48,42,0.78) 50%, rgba(5,30,27,0.9) 100%), radial-gradient(circle at 50% 42%, rgba(91,177,157,0.2), transparent 62%)" }} />
             <div style={{ position: "relative", zIndex: 1, maxWidth: 700, margin: "0 auto", padding: "0 32px", textAlign: "center" }}>
               <div style={{ display: "inline-flex", alignItems: "center", gap: 9, marginBottom: 13 }}>
-                <div style={{ width: 6, height: 6, borderRadius: "50%", background: ACCENT_LIGHT }} />
-                <span style={{ color: ACCENT_LIGHT, fontSize: 12, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" }}>Get Started</span>
+                <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#808A87" }} />
+                <span style={{ color: "#F6F4EF", fontSize: 12, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase" }}>Get Started</span>
               </div>
               <h2 style={{ fontSize: "clamp(2.1rem, 4.2vw, 46px)", fontWeight: 400, color: "#fff", lineHeight: 1.1, margin: "0 0 18px", whiteSpace: "pre-line", letterSpacing: "-0.03em" }}>
                 {cta.heading}
@@ -1240,7 +1240,7 @@ export default function Home() {
                   {cta.cta1} <ArrowRight size={16} />
                 </Link>
                 <button onClick={() => setContactOpen(true)}
-                   style={{ background: "rgba(246,244,239,0.06)", color: "#F6F4EF", padding: "13px 22px", border: "1px solid rgba(246,244,239,0.38)", borderRadius: 999, cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "'Outfit',sans-serif", display: "inline-flex", alignItems: "center", gap: 8 }}>
+                   style={{ background: "rgba(246,244,239,0.06)", color: "#F6F4EF", padding: "13px 22px", border: "1px solid rgba(246,244,239,0.38)", borderRadius: 999, cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "'PT Sans',sans-serif", display: "inline-flex", alignItems: "center", gap: 8 }}>
                   Contact Us
                 </button>
               </div>

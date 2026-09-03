@@ -200,9 +200,9 @@
   --chart-4: 155 79% 22%;
   --chart-5: 40 33% 96%;
 
-  --app-font-sans: 'Outfit', sans-serif;
-  --app-font-serif: 'Outfit', sans-serif;
-  --app-font-mono: 'Outfit', sans-serif;
+  --app-font-sans: 'PT Sans', sans-serif;
+  --app-font-serif: 'PT Sans', sans-serif;
+  --app-font-mono: 'PT Sans', sans-serif;
   --radius: 999px;
 }
 
@@ -298,13 +298,13 @@ html {
   }
 }
 
-/* Simplo is reserved for headings; Outfit is the body/UI font. */
+/* Simplo is reserved for headings; PT Sans remains the body/UI font. */
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Simplo', 'Outfit', sans-serif;
+  font-family: 'Simplo', 'PT Sans', sans-serif;
 }
 
 .homepage-site {
-  font-family: 'Outfit', sans-serif !important;
+  font-family: 'PT Sans', sans-serif !important;
   color: #073B35;
 }
 
@@ -313,7 +313,7 @@ h1, h2, h3, h4, h5, h6 {
 .homepage-site input,
 .homepage-site textarea,
 .homepage-site select {
-  font-family: 'Outfit', sans-serif !important;
+  font-family: 'PT Sans', sans-serif !important;
 }
 
 .homepage-site h1,
@@ -322,7 +322,7 @@ h1, h2, h3, h4, h5, h6 {
 .homepage-site h4,
 .homepage-site h5,
 .homepage-site h6 {
-  font-family: 'Simplo', 'Outfit', sans-serif !important;
+  font-family: 'Simplo', 'PT Sans', sans-serif !important;
 }
 
 /* Desktop hero content starts below the fixed header, never beneath it. */
@@ -674,7 +674,7 @@ h1, h2, h3, h4, h5, h6 {
   border: 0;
   color: rgba(7,59,53,0.56);
   background: none;
-  font: 500 11px/1.4 'Outfit', sans-serif;
+  font: 500 11px/1.4 'PT Sans', sans-serif;
   text-decoration: none;
   cursor: pointer;
 }
@@ -759,7 +759,7 @@ h1, h2, h3, h4, h5, h6 {
     background: none;
     border: 0;
     padding: 0;
-     font: 500 12px/1.4 'Outfit', sans-serif;
+     font: 500 12px/1.4 'PT Sans', sans-serif;
     text-align: left;
     text-decoration: none;
     cursor: pointer;
@@ -1051,7 +1051,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .homepage-footer-location {
   color: rgba(255,255,255,0.42);
-  font: 500 11px/1.4 'Outfit', sans-serif;
+  font: 500 11px/1.4 'PT Sans', sans-serif;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -1068,7 +1068,7 @@ h1, h2, h3, h4, h5, h6 {
   border: 0;
   background: none;
   color: rgba(255,255,255,0.58);
-  font: 500 12px/1.4 'Outfit', sans-serif;
+  font: 500 12px/1.4 'PT Sans', sans-serif;
   text-decoration: none;
   cursor: pointer;
   transition: color 0.2s ease;

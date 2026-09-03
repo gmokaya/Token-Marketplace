@@ -81,7 +81,7 @@ export default function InvestorsPartners() {
           <div className="mx-auto max-w-6xl px-6 py-20 md:px-10 md:py-28">
             <div className="grid gap-10 md:grid-cols-[0.75fr_1.25fr] md:gap-24">
               <div>
-                <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-[#DFFC4A]">
+                <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-[#F6F4EF]">
                   Impact
                 </p>
                 <h2 className="text-4xl font-light leading-tight tracking-[-0.05em] md:text-6xl">
@@ -101,7 +101,7 @@ export default function InvestorsPartners() {
                     ["04", "Less post-harvest loss", "Better coordination across storage, movement, and delivery can help protect value before produce reaches market."],
                   ].map(([number, title, description]) => (
                     <article key={number} className="border-b border-white/15 py-6 sm:pr-8">
-                      <span className="text-xs font-semibold tracking-[0.18em] text-[#DFFC4A]">{number}</span>
+                      <span className="text-xs font-semibold tracking-[0.18em] text-[#F6F4EF]">{number}</span>
                       <h3 className="mt-3 text-xl font-medium tracking-[-0.02em]">{title}</h3>
                       <p className="mt-3 text-sm leading-6 text-white/55">{description}</p>
                     </article>
