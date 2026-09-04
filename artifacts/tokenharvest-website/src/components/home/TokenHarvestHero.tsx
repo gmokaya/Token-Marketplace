@@ -6,6 +6,8 @@ export type ProductionHeroContent = {
   badge: string;
   headline: string;
   subheadline: string;
+  taglineEnglish: string;
+  taglineSwahili: string;
   cta1: string;
   cta2: string;
 };
@@ -61,7 +63,10 @@ export function TokenHarvestHero({ hero }: TokenHarvestHeroProps) {
                   : <span key={`${line}-${index}`}>{line}</span>)
               : <span>{hero.headline}</span>}
           </h1>
-          <p className="th-commodity-subline">{withoutDashes(hero.subheadline)}</p>
+          <p className="th-commodity-subline" aria-label="TokenHarvest tagline">
+            <strong>{withoutDashes(hero.taglineEnglish)}</strong>
+            <span>{withoutDashes(hero.taglineSwahili)}</span>
+          </p>
           <div className="th-commodity-proof">
             <span><Check size={12} aria-hidden="true" /> Single origin</span>
             <span><Check size={12} aria-hidden="true" /> Trade finance</span>

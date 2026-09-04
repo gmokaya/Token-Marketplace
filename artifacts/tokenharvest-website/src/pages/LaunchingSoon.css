@@ -203,6 +203,20 @@
   .launching-soon-form-heading h2 {
     font-size: 2.25rem !important;
   }
+
+  .launching-soon-header > a:last-child {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .launching-soon-footer {
+    text-align: center;
+  }
+
+  .launching-soon-footer > div {
+    align-items: center;
+  }
 }
 
 @media (max-width: 720px) and (max-height: 850px) {
@@ -282,5 +296,14 @@
   .launching-soon-footer {
     padding-top: 7px !important;
     padding-bottom: 7px !important;
+    text-align: center;
+  }
+
+  .launching-soon-footer > div {
+    align-items: center;
+  }
+
+  .launching-soon-footer-brand {
+    max-width: 100%;
   }
 }

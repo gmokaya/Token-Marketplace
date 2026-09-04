@@ -129,9 +129,25 @@
   max-width: 320px;
   margin: 34px 0 24px;
   color: rgba(7, 59, 53, .76);
-  font-size: 14px;
-  font-weight: 500;
   line-height: 1.45;
+}
+
+.th-commodity-subline strong,
+.th-commodity-subline span {
+  display: block;
+}
+
+.th-commodity-subline strong {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.th-commodity-subline span {
+  margin-top: 4px;
+  color: rgba(7, 59, 53, .6);
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .th-commodity-actions {
@@ -402,7 +418,14 @@
 
   .th-commodity-subline {
     margin: 25px 0 18px;
-    font-size: 13px;
+  }
+
+  .th-commodity-subline strong {
+    font-size: 14px;
+  }
+
+  .th-commodity-subline span {
+    font-size: 12px;
   }
 
   .th-commodity-primary,
@@ -473,7 +496,14 @@
 
   .th-commodity-subline {
     margin: 18px 0 0;
-    font-size: 12px;
+  }
+
+  .th-commodity-subline strong {
+    font-size: 13px;
+  }
+
+  .th-commodity-subline span {
+    font-size: 11px;
   }
 
   .th-commodity-proof {

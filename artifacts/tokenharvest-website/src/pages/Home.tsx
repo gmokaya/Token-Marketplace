@@ -16,7 +16,7 @@ const ACCENT_LIGHT = "#DFFC4A"; // TokenHarvest lemon yellow
 const HP_API = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
 
 /* ── Homepage CMS defaults (overridden by /api/content/homepage) ── */
-type HpHero    = { badge: string; headline: string; subheadline: string; cta1: string; cta2: string; images?: string[] };
+type HpHero    = { badge: string; headline: string; subheadline: string; taglineEnglish: string; taglineSwahili: string; cta1: string; cta2: string; images?: string[] };
 type HpService = { icon: string; title: string; sub: string; desc: string };
 type HpAbout   = { badge: string; heading: string; body: string; bullets: string[] };
 type HpStep    = { num: string; title: string; subtitle: string; tagline: string; desc: string };
@@ -27,7 +27,9 @@ type HpContent = { hero: HpHero; services: HpService[]; about: HpAbout; howItWor
 const DEF_HERO: HpHero = {
   badge: "TokenHarvest Commodities",
   headline: "Origin,\ntraded\nforward.",
-  subheadline: "Kila Juhudi Ina Nafasi Duniani. Every Effort Has a Place in the World.",
+  subheadline: "Verified origins. Confident trade. Better outcomes.",
+  taglineEnglish: "Every Effort Has a Place in the World.",
+  taglineSwahili: "Kila Juhudi Ina Nafasi Duniani.",
   cta1: "Enter the Community",
   cta2: "Our Services",
   images: [photo("hero-soybean-farmer.jpg"), photo("about-planting.jpg"), photo("cta-harvest.jpg")],
@@ -88,6 +90,8 @@ function normalizeHero(value: unknown): HpHero {
     badge: typeof raw.badge === "string" ? raw.badge : DEF_HERO.badge,
     headline: typeof raw.headline === "string" ? raw.headline : DEF_HERO.headline,
     subheadline: typeof raw.subheadline === "string" ? raw.subheadline : DEF_HERO.subheadline,
+    taglineEnglish: typeof raw.taglineEnglish === "string" ? raw.taglineEnglish : DEF_HERO.taglineEnglish,
+    taglineSwahili: typeof raw.taglineSwahili === "string" ? raw.taglineSwahili : DEF_HERO.taglineSwahili,
     cta1: typeof raw.cta1 === "string" ? raw.cta1 : DEF_HERO.cta1,
     cta2: typeof raw.cta2 === "string" ? raw.cta2 : DEF_HERO.cta2,
     images: images.length > 0 ? images : DEF_HERO.images,
