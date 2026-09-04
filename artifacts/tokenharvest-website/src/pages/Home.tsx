@@ -27,7 +27,7 @@ type HpContent = { hero: HpHero; services: HpService[]; about: HpAbout; howItWor
 const DEF_HERO: HpHero = {
   badge: "TokenHarvest Commodities",
   headline: "Origin,\ntraded\nforward.",
-  subheadline: "Verified origins. Confident trade. Better outcomes.",
+  subheadline: "Kila Juhudi Ina Nafasi Duniani. Every Effort Has a Place in the World.",
   cta1: "Enter the Community",
   cta2: "Our Services",
   images: [photo("hero-soybean-farmer.jpg"), photo("about-planting.jpg"), photo("cta-harvest.jpg")],
