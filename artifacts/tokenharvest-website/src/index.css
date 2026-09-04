@@ -264,6 +264,7 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 122px;
+  overflow-x: hidden;
 }
 
 @layer base {
@@ -272,6 +273,7 @@ html {
   }
   body {
     @apply font-sans antialiased bg-background text-foreground;
+    overflow-x: hidden;
   }
 
   .bg-auth-gradient {
@@ -1331,11 +1333,24 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @media (max-width: 720px) {
+  #root {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
   .homepage-footer-minimal {
-    align-items: flex-start;
+    align-items: center;
     flex-direction: column;
     gap: 24px;
     min-height: 0;
+    width: 100%;
+    text-align: center;
+  }
+
+  .homepage-footer-brand {
+    align-items: center;
+    text-align: center;
   }
 
   .homepage-footer-links {
