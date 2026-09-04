@@ -191,7 +191,7 @@ export default function LaunchingSoon() {
 
       <footer className="launching-soon-footer border-t border-[#F6F4EF]/10 px-6 py-7 md:px-10">
         <div className="mx-auto flex max-w-6xl flex-col gap-3 text-xs uppercase tracking-[0.14em] text-[#F6F4EF]/45 sm:flex-row sm:items-center sm:justify-between">
-          <span>TokenHarvest — Origin, traded forward.</span>
+          <span>TokenHarvest — Kila Juhudi Ina Nafasi Duniani. Every Effort Has a Place in the World.</span>
           <span>Market access is coming soon.</span>
         </div>
       </footer>
